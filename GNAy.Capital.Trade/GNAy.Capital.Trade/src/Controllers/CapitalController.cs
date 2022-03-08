@@ -37,9 +37,9 @@ namespace GNAy.Capital.Trade.Controllers
             DWP = String.Empty;
         }
 
-        public int Login(string account, string dwp)
+        public int LoginAccount(string account, string dwp)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|account={account}|dwp={dwp}");
+            MainWindow.AppCtrl.LogTrace($"SKAPI|account={account}|dwp=********");
 
             try
             {
@@ -50,7 +50,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 account = account.Trim().ToUpper();
                 dwp = dwp.Trim();
-                MainWindow.AppCtrl.LogTrace($"SKAPI|account={account}|dwp={dwp}");
+                MainWindow.AppCtrl.LogTrace($"SKAPI|account={account}|dwp=********");
 
                 m_pSKReply = new SKReplyLib();
                 m_pSKReply.OnReplyMessage += SKReply_OnAnnouncement;
@@ -74,7 +74,7 @@ namespace GNAy.Capital.Trade.Controllers
                     //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
 
                     Account = account;
-                    DWP = dwp;
+                    DWP = "********";
                 }
                 else if (LoginResult >= 600 && LoginResult <= 699)
                 {

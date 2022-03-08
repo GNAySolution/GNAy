@@ -657,7 +657,7 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonLogin_Click(object sender, RoutedEventArgs e)
+        private void ButtonLoginAccount_Click(object sender, RoutedEventArgs e)
         {
             AppCtrl.LogTrace("Start");
 
@@ -666,7 +666,7 @@ namespace GNAy.Capital.Trade
                 if (CapitalCtrl == null)
                 {
                     CapitalControl = new CapitalController();
-                    CapitalCtrl.Login(TextBoxAccount.Text, DWPBox.Password);
+                    CapitalCtrl.LoginAccount(TextBoxAccount.Text, DWPBox.Password);
                 }
             }
             catch (Exception ex)
@@ -677,6 +677,11 @@ namespace GNAy.Capital.Trade
             {
                 AppCtrl.LogTrace("End");
             }
+        }
+
+        private void ButtonLoginQuote_Click(object sender, RoutedEventArgs e)
+        {
+            //
         }
     }
 }
