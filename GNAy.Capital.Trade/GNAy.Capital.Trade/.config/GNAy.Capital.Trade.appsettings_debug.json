@@ -1,0 +1,9 @@
+{
+  "Version": "0.22.308.1",
+  "Description": "測試用設定",
+  "Big5EncodingCodePage": 950,
+  "DataGridAppLogRowsMax": 500,
+  "TimerInterval": 50,
+  "AutoRun": false,
+  "SendOrder": false
+}

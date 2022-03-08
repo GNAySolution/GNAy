@@ -1,0 +1,125 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Media;
+using System.Windows.Threading;
+
+namespace GNAy.Tools.WPF
+{
+    public static class Extensions
+    {
+        /// <summary>
+        /// https://stackoverflow.com/questions/5436349/what-happened-to-control-invokerequired-in-wpf
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="act"></param>
+        public static void InvokeRequired(this DispatcherObject obj, Action<object> act)
+        {
+            if (!obj.CheckAccess())
+            {
+                obj.Dispatcher.Invoke(delegate { act(obj); });
+                return;
+            }
+
+            act(obj);
+        }
+
+        public static void InvokeRequired<T>(this DispatcherObject obj, Action<object, T> act, T arg)
+        {
+            if (!obj.CheckAccess())
+            {
+                obj.Dispatcher.Invoke(delegate { act(obj, arg); });
+                return;
+            }
+
+            act(obj, arg);
+        }
+
+        public static void InvokeRequired<T1, T2>(this DispatcherObject obj, Action<object, T1, T2> act, T1 arg1, T2 arg2)
+        {
+            if (!obj.CheckAccess())
+            {
+                obj.Dispatcher.Invoke(delegate { act(obj, arg1, arg2); });
+                return;
+            }
+
+            act(obj, arg1, arg2);
+        }
+
+        public static void InvokeRequired<T1, T2, T3>(this DispatcherObject obj, Action<object, T1, T2, T3> act, T1 arg1, T2 arg2, T3 arg3)
+        {
+            if (!obj.CheckAccess())
+            {
+                obj.Dispatcher.Invoke(delegate { act(obj, arg1, arg2, arg3); });
+                return;
+            }
+
+            act(obj, arg1, arg2, arg3);
+        }
+
+        /// <summary>
+        /// https://stackoverflow.com/questions/15216362/wpf-datagrid-how-to-get-binding-expression-of-a-cell
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="propertyDescriptionMap"></param>
+        public static void SetHeadersByBindings(this DataGrid obj, Dictionary<string, string> propertyDescriptionMap)
+        {
+            foreach (DataGridColumn column in obj.Columns)
+            {
+                if (column is DataGridBoundColumn bound && bound.Binding is Binding bind)
+                {
+                    if (propertyDescriptionMap.TryGetValue(bind.Path.Path, out string description))
+                    {
+                        column.Header = description;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// https://stackoverflow.com/questions/2160481/wpf-collectionviewsource-multiple-views
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static ICollectionView GetViewSource<T>(this ObservableCollection<T> obj)
+        {
+            CollectionViewSource s = new CollectionViewSource()
+            {
+                Source = obj,
+            };
+            return s.View;
+        }
+
+        public static ObservableCollection<T> SetItemsSource<T>(this DataGrid obj, ObservableCollection<T> collection)
+        {
+            obj.ItemsSource = collection.GetViewSource();
+            return collection;
+        }
+
+        public static ScrollViewer GetScrollViewer(this DependencyObject obj)
+        {
+            Decorator border = VisualTreeHelper.GetChild(obj, 0) as Decorator;
+            return border?.Child as ScrollViewer;
+        }
+
+        /// <summary>
+        /// https://stackoverflow.com/questions/1027051/how-to-autoscroll-on-wpf-datagrid
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static ScrollViewer ZxtScrollToEnd(this DependencyObject obj)
+        {
+            ScrollViewer viewer = GetScrollViewer(obj);
+            viewer?.ScrollToEnd();
+            return viewer;
+        }
+    }
+}
