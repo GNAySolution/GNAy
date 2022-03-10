@@ -1,19 +1,15 @@
-﻿using GNAy.Tools.NET47;
-using GNAy.Tools.NET47.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GNAy.Capital.Models
+namespace GNAy.Tools.NET47.Models
 {
     [Serializable]
     public class AppLog : NotifyPropertyChanged
     {
-        public static readonly Dictionary<string, string> PropertyDescriptionMap = typeof(AppLog).GetPropertyDescriptionMap();
-
         private string _creator;
         [Description("建立者")]
         public string Creator

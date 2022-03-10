@@ -62,6 +62,9 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Binding="{Binding CreatedTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Level}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding ThreadID}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding CallerLineNumber}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding CallerMemberName}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Message}" IsReadOnly="True" CanUserSort="False"/>
                                 </DataGrid.Columns>
                             </DataGrid>

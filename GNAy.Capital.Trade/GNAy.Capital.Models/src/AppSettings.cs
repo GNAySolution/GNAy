@@ -21,12 +21,14 @@ namespace GNAy.Capital.Models
         [Description("排程啟動自動執行")]
         public bool AutoRun { get; set; }
 
-        [Description("測試或跑回測時，不會實際下單")]
+        [Description("false=測試或跑回測時，不實際下單")]
         public bool SendOrder { get; set; }
+        [Description("false=下單測試委託回報，不成交")]
+        public bool OrderAndDeal { get; set; }
 
         public AppSettings()
         {
-            Version = "0.22.308.1";
+            Version = "0.22.310.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -36,6 +38,7 @@ namespace GNAy.Capital.Models
             AutoRun = false;
 
             SendOrder = false;
+            OrderAndDeal = false;
         }
     }
 }

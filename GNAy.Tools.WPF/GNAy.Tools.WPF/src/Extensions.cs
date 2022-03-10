@@ -98,8 +98,9 @@ namespace GNAy.Tools.WPF
             return s.View;
         }
 
-        public static ObservableCollection<T> SetItemsSource<T>(this DataGrid obj, ObservableCollection<T> collection)
+        public static ObservableCollection<T> SetAndGetItemsSource<T>(this DataGrid obj)
         {
+            ObservableCollection<T> collection = new ObservableCollection<T>();
             obj.ItemsSource = collection.GetViewSource();
             return collection;
         }

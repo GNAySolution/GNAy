@@ -26,7 +26,7 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly AppConfig Config;
         public AppSettings Settings => Config.Settings;
 
-        private readonly ObservableCollection<AppLog> AppLogCollection;
+        private readonly ObservableCollection<AppLogInDataGrid> AppLogCollection;
 
         public MainWindowController()
         {
@@ -40,26 +40,30 @@ namespace GNAy.Capital.Trade.Controllers
 
             Config = LoadSettings();
 
-            MainWindow.Current.DataGridAppLog.SetHeadersByBindings(AppLog.PropertyDescriptionMap);
-            AppLogCollection = MainWindow.Current.DataGridAppLog.SetItemsSource(new ObservableCollection<AppLog>());
+            MainWindow.Current.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyDescriptionMap);
+            AppLogCollection = MainWindow.Current.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
         }
 
-        private void AppandLog(string level, string msg)
+        private void AppandLog(string level, string msg, int lineNumber, string memberName)
         {
-            int threadID = Thread.CurrentThread.ManagedThreadId;
+            AppLogInDataGrid log = new AppLogInDataGrid()
+            {
+                Project = ProcessName,
+                Level = level,
+                ThreadID = Thread.CurrentThread.ManagedThreadId,
+                Message = msg,
+                CallerLineNumber = lineNumber,
+                CallerMemberName = memberName,
+            };
 
             MainWindow.Current.InvokeRequired(delegate
             {
                 try
                 {
-                    AppLogCollection.Add(new AppLog()
-                    {
-                        Level = level,
-                        Message = $"{threadID}|{msg}",
-                    });
+                    AppLogCollection.Add(log);
 
                     while (AppLogCollection.Count > Settings.DataGridAppLogRowsMax)
                     {
@@ -75,44 +79,39 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void LogTrace(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            string _msg = string.Join("|", msg, lineNumber, memberName);
-            _logger.Trace(_msg);
-            AppandLog("TRACE", _msg);
+            _logger.Trace(string.Join("|", msg, lineNumber, memberName));
+            AppandLog("TRACE", msg, lineNumber, memberName);
         }
 
         public void LogDebug(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            string _msg = string.Join("|", msg, lineNumber, memberName);
-            _logger.Debug(_msg);
-            AppandLog("DEBUG", _msg);
+            _logger.Debug(string.Join("|", msg, lineNumber, memberName));
+            AppandLog("DEBUG", msg, lineNumber, memberName);
         }
 
         public void LogInfo(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            string _msg = string.Join("|", msg, lineNumber, memberName);
-            _logger.Info(_msg);
-            AppandLog("INFO", _msg);
+            _logger.Info(string.Join("|", msg, lineNumber, memberName));
+            AppandLog("INFO", msg, lineNumber, memberName);
         }
 
         public void LogWarn(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            string _msg = string.Join("|", msg, lineNumber, memberName);
-            _logger.Warn(_msg);
-            AppandLog("WARN", _msg);
+            _logger.Warn(string.Join("|", msg, lineNumber, memberName));
+            AppandLog("WARN", msg, lineNumber, memberName);
         }
 
         public void LogError(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            string _msg = string.Join("|", msg, lineNumber, memberName);
-            _logger.Error(_msg);
-            AppandLog("ERROR", _msg);
+            _logger.Error(string.Join("|", msg, lineNumber, memberName));
+            AppandLog("ERROR", msg, lineNumber, memberName);
         }
 
-        public void LogException(Exception ex, string stackTrace)
+        public void LogException(Exception ex, string stackTrace, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             string _msg = string.Join("|", ex.Message, ex.GetType().Name, $"{Environment.NewLine}{stackTrace}");
             _logger.Error(_msg);
-            AppandLog("ERROR", _msg);
+            AppandLog("ERROR", _msg, lineNumber, memberName);
         }
 
         private AppConfig LoadSettings()
@@ -188,13 +187,14 @@ namespace GNAy.Capital.Trade.Controllers
         /// <summary>
         /// https://docs.microsoft.com/zh-tw/windows/win32/debug/system-error-codes
         /// </summary>
+        /// <param name="msg"></param>
         /// <param name="lineNumber"></param>
         /// <param name="memberName"></param>
-        public void Exit([CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void Exit(string msg = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             int exitCode = lineNumber < 16000 ? 16000 + lineNumber : lineNumber;
 
-            LogTrace(exitCode.ToString(), lineNumber, memberName);
+            LogTrace(String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
             Thread.Sleep(1 * 1000);
             Environment.Exit(exitCode);
         }
