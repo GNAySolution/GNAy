@@ -194,6 +194,8 @@ namespace GNAy.Capital.Trade.Controllers
         {
             int exitCode = lineNumber < 16000 ? 16000 + lineNumber : lineNumber;
 
+            MainWindow.CapitalCtrl.Disconnect();
+
             LogTrace(String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
             Thread.Sleep(1 * 1000);
             Environment.Exit(exitCode);

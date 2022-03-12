@@ -681,7 +681,20 @@ namespace GNAy.Capital.Trade
 
         private void ButtonLoginQuote_Click(object sender, RoutedEventArgs e)
         {
-            //
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                CapitalCtrl.LoginQuote(DWPBox.Password);
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
         }
     }
 }

@@ -3,25 +3,27 @@ using SKCOMLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GNAy.Capital.Trade.Controllers
 {
-    public class CapitalController
+    public partial class CapitalController
     {
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         public readonly DateTime CreatedTime;
 
-        public int LoginResult { get; private set; }
+        public int LoginAccountResult { get; private set; }
+        public int LoginQuoteResult { get; private set; }
         public string Account { get; private set; }
         public string DWP { get; private set; }
 
         private SKCenterLib m_pSKCenter;
         private SKOrderLib m_pSKOrder;
         private SKReplyLib m_pSKReply;
-        private SKQuoteLib m_pSKQuote;
+        private SKQuoteLib m_SKQuoteLib;
         private SKOSQuoteLib m_pSKOSQuote;
         private SKOOQuoteLib m_pSKOOQuote;
         private SKReplyLib m_pSKReply2;
@@ -32,9 +34,38 @@ namespace GNAy.Capital.Trade.Controllers
         {
             CreatedTime = DateTime.Now;
 
-            LoginResult = -1;
+            LoginAccountResult = -1;
+            LoginQuoteResult = -1;
             Account = String.Empty;
             DWP = String.Empty;
+        }
+
+        public string GetAPIMessage(int nCode)
+        {
+            if (nCode == 0)
+            {
+                return $"nCode={nCode}";
+            }
+
+            string lastLog = m_pSKCenter.SKCenterLib_GetLastLogInfo(); //取得最後一筆LOG內容
+            string codeMessage = m_pSKCenter.SKCenterLib_GetReturnCodeMessage(nCode); //取得定義代碼訊息文字
+            return $"nCode={nCode}|{codeMessage}|{lastLog}";
+        }
+
+        public string LogAPIMessage(int nCode, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            string msg = GetAPIMessage(nCode);
+
+            if (nCode == 0)
+            {
+                MainWindow.AppCtrl.LogTrace($"SKAPI|{msg}", lineNumber, memberName);
+            }
+            else
+            {
+                MainWindow.AppCtrl.LogError($"SKAPI|{msg}", lineNumber, memberName);
+            }
+
+            return msg;
         }
 
         public int LoginAccount(string account, string dwp)
@@ -45,7 +76,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (m_pSKCenter != null)
                 {
-                    return LoginResult;
+                    return LoginAccountResult;
                 }
 
                 account = account.Trim().ToUpper();
@@ -59,11 +90,11 @@ namespace GNAy.Capital.Trade.Controllers
                 m_pSKCenter.SKCenterLib_SetAuthority(0); //SGX 專線屬性：關閉／開啟：0／1
                 m_pSKCenter.OnTimer += SKCenter_OnTimer;
 
-                LoginResult = m_pSKCenter.SKCenterLib_Login(account, dwp); //元件初始登入。在使用此 Library 前必須先通過使用者的雙因子(憑證綁定)身份認證，方可使用
+                LoginAccountResult = m_pSKCenter.SKCenterLib_Login(account, dwp); //元件初始登入。在使用此 Library 前必須先通過使用者的雙因子(憑證綁定)身份認證，方可使用
 
-                if (LoginResult == 0)
+                if (LoginAccountResult == 0)
                 {
-                    MainWindow.AppCtrl.LogTrace($"SKAPI|LoginResult={LoginResult}|雙因子登入成功");
+                    MainWindow.AppCtrl.LogTrace($"SKAPI|LoginAccountResult={LoginAccountResult}|雙因子登入成功");
                     //skOrder1.LoginID = txtAccount.Text.Trim().ToUpper();
                     //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
 
@@ -76,9 +107,9 @@ namespace GNAy.Capital.Trade.Controllers
                     Account = account;
                     DWP = "********";
                 }
-                else if (LoginResult >= 600 && LoginResult <= 699)
+                else if (LoginAccountResult >= 600 && LoginAccountResult <= 699)
                 {
-                    MainWindow.AppCtrl.LogTrace($"SKAPI|LoginResult={LoginResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效");
+                    MainWindow.AppCtrl.LogTrace($"SKAPI|LoginAccountResult={LoginAccountResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效");
                     //skOrder1.LoginID = txtAccount.Text.Trim().ToUpper();
                     //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
 
@@ -88,13 +119,13 @@ namespace GNAy.Capital.Trade.Controllers
                     //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
 
                 }
-                //else if (LoginResult >= 500 && LoginResult <= 599)
+                //else if (LoginAccountResult >= 500 && LoginAccountResult <= 599)
                 //{
-                //    WriteMessage(DateTime.Now.TimeOfDay.ToString() + "_" + LoginResult.ToString() + ":未使用雙因子登入成功, 目前為強制雙因子登入,請確認憑證是否有效");
+                //    WriteMessage(DateTime.Now.TimeOfDay.ToString() + "_" + LoginAccountResult.ToString() + ":未使用雙因子登入成功, 目前為強制雙因子登入,請確認憑證是否有效");
                 //}
                 else
                 {
-                    MainWindow.AppCtrl.LogError($"SKAPI|LoginResult={LoginResult}|{m_pSKCenter.SKCenterLib_GetReturnCodeMessage(LoginResult)}"); //取得定義代碼訊息文字
+                    LogAPIMessage(LoginAccountResult);
                 }
 
                 string strSKAPIVersion = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(account); //取得目前註冊SKAPI 版本及位元
@@ -109,20 +140,67 @@ namespace GNAy.Capital.Trade.Controllers
                 MainWindow.AppCtrl.LogTrace("SKAPI|End");
             }
 
-            return LoginResult;
+            return LoginAccountResult;
         }
 
-        /// <summary>
-        /// 當有公告將主動呼叫函式，並通知公告類訊息
-        /// </summary>
-        /// <param name="strUserID"></param>
-        /// <param name="bstrMessage"></param>
-        /// <param name="nConfirmCode"></param>
-        private void SKReply_OnAnnouncement(string strUserID, string bstrMessage, out short nConfirmCode)
+        public int LoginQuote(string dwp)
         {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|account={Account}|dwp=********");
+
             try
             {
-                MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|bstrMessage={bstrMessage}");
+                if (m_SKQuoteLib != null)
+                {
+                    LoginQuoteResult = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
+                    LogAPIMessage(LoginQuoteResult);
+                    return LoginQuoteResult;
+                }
+
+                dwp = dwp.Trim();
+                MainWindow.AppCtrl.LogTrace($"SKAPI|account={Account}|dwp=********");
+
+                LoginQuoteResult = m_pSKCenter.SKCenterLib_LoginSetQuote(Account, dwp, "Y"); //Y:啟用報價
+                if (LoginQuoteResult == 0 || (LoginQuoteResult >= 600 && LoginQuoteResult <= 699))
+                {
+                    MainWindow.AppCtrl.LogTrace($"SKAPI|LoginQuoteResult={LoginQuoteResult}|登入成功");
+                    //skOrder1.LoginID = txtAccount.Text.Trim().ToUpper();
+                    //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
+
+                    //skReply1.LoginID = txtAccount.Text.Trim().ToUpper();
+
+
+                    //skQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
+                    //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
+                }
+                else
+                {
+                    LogAPIMessage(LoginQuoteResult);
+                }
+
+                m_SKQuoteLib = new SKQuoteLib();
+                m_SKQuoteLib.OnConnection += m_SKQuoteLib_OnConnection;
+                m_SKQuoteLib.OnNotifyQuoteLONG += m_SKQuoteLib_OnNotifyQuote;
+                m_SKQuoteLib.OnNotifyHistoryTicksLONG += m_SKQuoteLib_OnNotifyHistoryTicks;
+                m_SKQuoteLib.OnNotifyTicksLONG += m_SKQuoteLib_OnNotifyTicks;
+                m_SKQuoteLib.OnNotifyBest5LONG += m_SKQuoteLib_OnNotifyBest5;
+                m_SKQuoteLib.OnNotifyKLineData += m_SKQuoteLib_OnNotifyKLineData;
+                m_SKQuoteLib.OnNotifyServerTime += m_SKQuoteLib_OnNotifyServerTime;
+                m_SKQuoteLib.OnNotifyMarketTot += m_SKQuoteLib_OnNotifyMarketTot;
+                m_SKQuoteLib.OnNotifyMarketBuySell += m_SKQuoteLib_OnNotifyMarketBuySell;
+                //m_SKQuoteLib.OnNotifyMarketHighLow += new _ISKQuoteLibEvents_OnNotifyMarketHighLowEventHandler(m_SKQuoteLib_OnNotifyMarketHighLow);
+                m_SKQuoteLib.OnNotifyMACDLONG += m_SKQuoteLib_OnNotifyMACD;
+                m_SKQuoteLib.OnNotifyBoolTunelLONG += m_SKQuoteLib_OnNotifyBoolTunel;
+                m_SKQuoteLib.OnNotifyFutureTradeInfoLONG += m_SKQuoteLib_OnNotifyFutureTradeInfo;
+                m_SKQuoteLib.OnNotifyStrikePrices += m_SKQuoteLib_OnNotifyStrikePrices;
+                //m_SKQuoteLib.OnNotifyStockList += new _ISKQuoteLibEvents_OnNotifyStockListEventHandler(m_SKQuoteLib_OnNotifyStockList);
+
+                m_SKQuoteLib.OnNotifyMarketHighLowNoWarrant += m_SKQuoteLib_OnNotifyMarketHighLowNoWarrant;
+
+                m_SKQuoteLib.OnNotifyCommodityListWithTypeNo += m_SKQuoteLib_OnNotifyCommodityListWithTypeNo;
+                m_SKQuoteLib.OnNotifyOddLotSpreadDeal += m_SKQuoteLib_OnNotifyOddLotSpreadDeal;
+
+                LoginQuoteResult = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
+                LogAPIMessage(LoginQuoteResult);
             }
             catch (Exception ex)
             {
@@ -130,26 +208,32 @@ namespace GNAy.Capital.Trade.Controllers
             }
             finally
             {
-                nConfirmCode = -1;
+                MainWindow.AppCtrl.LogTrace("SKAPI|End");
             }
+
+            return LoginQuoteResult;
         }
 
-        /// <summary>
-        /// 定時Timer通知。每分鐘會由該函式得到一個時間
-        /// </summary>
-        /// <param name="nTime"></param>
-        private void SKCenter_OnTimer(int nTime)
+        public int Disconnect()
         {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
+
             try
             {
-                MainWindow.AppCtrl.LogTrace($"SKAPI|nTime={nTime}");
+                int result = m_SKQuoteLib.SKQuoteLib_LeaveMonitor(); //中斷所有Solace伺服器連線
+                LogAPIMessage(result);
+                return result;
             }
             catch (Exception ex)
             {
                 MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
             }
             finally
-            { }
+            {
+                MainWindow.AppCtrl.LogTrace("SKAPI|End");
+            }
+
+            return -1;
         }
     }
 }

@@ -71,6 +71,7 @@
     <Compile Include="..\..\GNAy.Tools.WPF\GNAy.Tools.WPF\src\Extensions.cs">
       <Link>src\Tools\Extensions.cs</Link>
     </Compile>
+    <Compile Include="src\Controllers\CapitalEvent.cs" />
     <Compile Include="src\Controllers\CapitalController.cs" />
     <Compile Include="src\Controllers\MainWindowController.cs" />
     <Page Include="src\Views\MainWindow.xaml">
