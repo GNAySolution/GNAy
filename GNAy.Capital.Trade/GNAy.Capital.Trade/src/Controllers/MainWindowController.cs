@@ -137,7 +137,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     sw.Write(JsonConvert.SerializeObject(new AppSettings(), Formatting.Indented));
                 }
-                configFile.Refresh();
+                //configFile.Refresh();
             }
             using (StreamReader sr = new StreamReader(configFile.FullName, TextEncoding.UTF8WithoutBOM))
             {
@@ -192,13 +192,33 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="memberName"></param>
         public void Exit(string msg = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
+            LogTrace("Start");
+
             int exitCode = lineNumber < 16000 ? 16000 + lineNumber : lineNumber;
 
-            MainWindow.CapitalCtrl.Disconnect();
+            try
+            {
+                if (MainWindow.CapitalCtrl != null)
+                {
+                    MainWindow.CapitalCtrl.Disconnect();
+                }
 
-            LogTrace(String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
-            Thread.Sleep(1 * 1000);
-            Environment.Exit(exitCode);
+                LogTrace(String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
+
+                Thread.Sleep(1 * 1000);
+                Environment.Exit(exitCode);
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, ex.StackTrace);
+
+                Thread.Sleep(1 * 1000);
+                Environment.Exit(16000 + 1);
+            }
+            finally
+            {
+                LogTrace("End");
+            }
         }
     }
 }

@@ -74,7 +74,12 @@ namespace GNAy.Capital.Trade.Controllers
             MainWindow.AppCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}");
 
             SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
+
+            //請先訂閱即時報價(SKQuoteLib_ReqeustStocks),方可取得商品報價
+            //未訂閱即時報價,僅可取得商品基本資料
+            //根據市場別編號與系統所編的索引代碼，取回商品報價的及商品相關資訊
             m_SKQuoteLib.SKQuoteLib_GetStockByIndexLONG(sMarketNo, nStockIdx, ref pSKStockLONG);
+
             //TODO: OnUpDateDataRow(pSKStockLONG);
         }
 
@@ -234,9 +239,9 @@ namespace GNAy.Capital.Trade.Controllers
             int nCode = 0;
             //[--]//
             if (sMarketNo == 6 || sMarketNo == 5)
-                nCode = m_SKQuoteLib.SKQuoteLib_GetStockByMarketAndNo(sMarketNo, strStockNoTick, ref pSKStockLONG);
+                nCode = m_SKQuoteLib.SKQuoteLib_GetStockByMarketAndNo(sMarketNo, strStockNoTick, ref pSKStockLONG); //根據市場別編號與商品代號，取回商品報價的相關資訊
             else
-                nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(strStockNoTick, ref pSKStockLONG);
+                nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(strStockNoTick, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
             //[-1022-a-]
             if (nCode == 0)
                 dDigitNum = (Math.Pow(10, pSKStockLONG.sDecimal));
@@ -401,7 +406,7 @@ namespace GNAy.Capital.Trade.Controllers
         }
 
         /// <summary>
-        /// 事件回傳大盤成交張筆資料
+        /// 透過呼叫 SKQuoteLib_GetMarketBuySellUpDown 後，事件回傳大盤成交張筆資料
         /// </summary>
         /// <param name="sMarketNo"></param>
         /// <param name="sPtr"></param>
@@ -430,7 +435,7 @@ namespace GNAy.Capital.Trade.Controllers
         }
 
         /// <summary>
-        /// 事件回傳大盤成交買賣張筆數資料
+        /// 透過呼叫 SKQuoteLib_GetMarketBuySellUpDown 後，事件回傳大盤成交買賣張筆數資料
         /// </summary>
         /// <param name="sMarketNo"></param>
         /// <param name="sPtr"></param>

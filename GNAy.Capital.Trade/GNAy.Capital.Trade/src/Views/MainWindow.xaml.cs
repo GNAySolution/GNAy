@@ -95,31 +95,15 @@ namespace GNAy.Capital.Trade
         }
 
         /// <summary>
-        /// https://docs.microsoft.com/zh-tw/windows/win32/debug/system-error-codes
+        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             AppCtrl.LogTrace("Start");
-
-            try
-            {
-                //
-
-                AppCtrl.Exit();
-            }
-            catch (Exception ex)
-            {
-                AppCtrl.LogException(ex, ex.StackTrace);
-
-                Thread.Sleep(1 * 1000);
-                Environment.Exit(16000 + 1);
-            }
-            finally
-            {
-                AppCtrl.LogTrace("End");
-            }
+            AppCtrl.Exit();
+            AppCtrl.LogTrace("End");
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -272,9 +256,19 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //
+                if (!AppCtrl.Config.File.Exists)
+                {
+                    //https://docs.microsoft.com/zh-tw/dotnet/desktop/wpf/windows/how-to-open-message-box?view=netdesktop-6.0
 
-                if (AppCtrl.Settings.AutoRun)
+                    string caption = $"第一次產生{AppCtrl.Config.File.Name}";
+                    string messageBoxText = $"請確認設定檔內容\r\n{AppCtrl.Config.File.FullName}";
+
+                    MessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK);
+
+                    AppCtrl.Exit(caption);
+                    return;
+                }
+                else if (AppCtrl.Settings.AutoRun)
                 {
                     //TODO: AutoRun
                 }

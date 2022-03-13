@@ -100,7 +100,6 @@ namespace GNAy.Capital.Trade.Controllers
 
                     //skReply1.LoginID = txtAccount.Text.Trim().ToUpper();
 
-
                     //skQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
                     //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
 
@@ -159,7 +158,7 @@ namespace GNAy.Capital.Trade.Controllers
                 dwp = dwp.Trim();
                 MainWindow.AppCtrl.LogTrace($"SKAPI|account={Account}|dwp=********");
 
-                LoginQuoteResult = m_pSKCenter.SKCenterLib_LoginSetQuote(Account, dwp, "Y"); //Y:啟用報價
+                LoginQuoteResult = m_pSKCenter.SKCenterLib_LoginSetQuote(Account, dwp, "Y"); //Y:啟用報價 N:停用報價
                 if (LoginQuoteResult == 0 || (LoginQuoteResult >= 600 && LoginQuoteResult <= 699))
                 {
                     MainWindow.AppCtrl.LogTrace($"SKAPI|LoginQuoteResult={LoginQuoteResult}|登入成功");
@@ -167,7 +166,6 @@ namespace GNAy.Capital.Trade.Controllers
                     //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
 
                     //skReply1.LoginID = txtAccount.Text.Trim().ToUpper();
-
 
                     //skQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
                     //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
@@ -220,6 +218,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
+                if (m_SKQuoteLib == null)
+                {
+                    return 0;
+                }
+
                 int result = m_SKQuoteLib.SKQuoteLib_LeaveMonitor(); //中斷所有Solace伺服器連線
                 LogAPIMessage(result);
                 return result;
