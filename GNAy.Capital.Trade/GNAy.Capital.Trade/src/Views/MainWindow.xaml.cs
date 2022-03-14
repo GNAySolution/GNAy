@@ -1,8 +1,10 @@
 ﻿using GNAy.Capital.Trade.Controllers;
+using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -693,9 +695,21 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //TODO: Read from file.
-                //TextBoxAccount.Text = "";
-                //DWPBox.Password = "";
+                FileInfo dwpFile = new FileInfo($"{AppCtrl.ProcessName}.dwp.config");
+                if (dwpFile.Exists)
+                {
+                    foreach (string line in File.ReadAllLines(dwpFile.FullName, TextEncoding.UTF8WithoutBOM))
+                    {
+                        if (line.StartsWith("account=", StringComparison.OrdinalIgnoreCase))
+                        {
+                            TextBoxAccount.Text = line.Substring("account=".Length).Trim();
+                        }
+                        else if (line.StartsWith("dwp=", StringComparison.OrdinalIgnoreCase))
+                        {
+                            DWPBox.Password = line.Substring("dwp=".Length).Trim();
+                        }
+                    }
+                }
 
                 if (CapitalCtrl == null)
                 {
