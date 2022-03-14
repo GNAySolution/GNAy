@@ -274,6 +274,8 @@ namespace GNAy.Capital.Trade
                 }
                 else if (AppCtrl.Settings.AutoRun)
                 {
+                    AppCtrl.LogTrace($"AutoRun={AppCtrl.Settings.AutoRun}");
+
                     Task.Factory.StartNew(() =>
                     {
                         Thread.Sleep(1 * 1000);
@@ -695,18 +697,21 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                FileInfo dwpFile = new FileInfo($"{AppCtrl.ProcessName}.dwp.config");
-                if (dwpFile.Exists)
+                if (string.IsNullOrWhiteSpace(TextBoxAccount.Text) && string.IsNullOrWhiteSpace(DWPBox.Password))
                 {
-                    foreach (string line in File.ReadAllLines(dwpFile.FullName, TextEncoding.UTF8WithoutBOM))
+                    FileInfo dwpFile = new FileInfo($"{AppCtrl.ProcessName}.dwp.config");
+                    if (dwpFile.Exists)
                     {
-                        if (line.StartsWith("account=", StringComparison.OrdinalIgnoreCase))
+                        foreach (string line in File.ReadAllLines(dwpFile.FullName, TextEncoding.UTF8WithoutBOM))
                         {
-                            TextBoxAccount.Text = line.Substring("account=".Length).Trim();
-                        }
-                        else if (line.StartsWith("dwp=", StringComparison.OrdinalIgnoreCase))
-                        {
-                            DWPBox.Password = line.Substring("dwp=".Length).Trim();
+                            if (line.StartsWith("account=", StringComparison.OrdinalIgnoreCase))
+                            {
+                                TextBoxAccount.Text = line.Substring("account=".Length).Trim();
+                            }
+                            else if (line.StartsWith("dwp=", StringComparison.OrdinalIgnoreCase))
+                            {
+                                DWPBox.Password = line.Substring("dwp=".Length).Trim();
+                            }
                         }
                     }
                 }
