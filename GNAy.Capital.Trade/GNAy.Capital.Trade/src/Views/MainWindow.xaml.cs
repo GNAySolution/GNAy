@@ -256,12 +256,14 @@ namespace GNAy.Capital.Trade
 
             try
             {
+                AppCtrl.LogTrace($"{AppCtrl.Config.File.FullName}|Exists={AppCtrl.Config.File.Exists}");
+
                 if (!AppCtrl.Config.File.Exists)
                 {
                     //https://docs.microsoft.com/zh-tw/dotnet/desktop/wpf/windows/how-to-open-message-box?view=netdesktop-6.0
 
-                    string caption = $"第一次產生{AppCtrl.Config.File.Name}";
-                    string messageBoxText = $"請確認設定檔內容\r\n{AppCtrl.Config.File.FullName}";
+                    string caption = $"第一次產生設定檔{AppCtrl.Config.File.Name}";
+                    string messageBoxText = $"請確認檔案內容\r\n{AppCtrl.Config.File.FullName}";
 
                     MessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK);
 
@@ -629,7 +631,10 @@ namespace GNAy.Capital.Trade
         {
             try
             {
-                StatusBarItemAA2.Text = (DateTime.Now - StartTime).ToString(@"hh\:mm\:ss");
+                DateTime now = DateTime.Now;
+                string duration = (now - StartTime).ToString(@"hh\:mm\:ss");
+
+                StatusBarItemAA2.Text = $"{now:HH:mm:ss} ({duration})";
 
                 //if (Application.Current.MainWindow.IsMouseOver)
                 if (IsMouseOver)
@@ -643,6 +648,11 @@ namespace GNAy.Capital.Trade
                 if (DataGridAppLog.ItemsSource != null)
                 {
                     StatusBarItemBA1.Text = $"({DataGridAppLog.Columns.Count},{DataGridAppLog.Items.Count})";
+                }
+
+                if (CapitalCtrl != null)
+                {
+                    StatusBarItemAB2.Text = CapitalCtrl.LoginQuoteStatusStr;
                 }
             }
             catch (Exception ex)
@@ -680,6 +690,24 @@ namespace GNAy.Capital.Trade
             try
             {
                 CapitalCtrl.LoginQuote(DWPBox.Password);
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonIsConnected_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                StatusBarItemAB3.Text = CapitalCtrl.IsConnected();
             }
             catch (Exception ex)
             {

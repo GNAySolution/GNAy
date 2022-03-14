@@ -39,29 +39,43 @@ namespace GNAy.Capital.Trade.Controllers
         {
             MainWindow.AppCtrl.LogTrace($"SKAPI|nKind={nKind}|nCode={nCode}");
 
-            if (nKind == 3001)
-            {
-                if (nCode == 0)
-                {
-                    //lblSignal.ForeColor = Color.Yellow;
-                }
-            }
-            else if (nKind == 3002)
-            {
-                //lblSignal.ForeColor = Color.Red;
-            }
-            else if (nKind == 3003 || nKind == 3036)
-            {
-                //lblSignal.ForeColor = Color.Green;
-            }
-            else if (nKind == 3021)//網路斷線
-            {
-                //lblSignal.ForeColor = Color.DarkRed;
-            }
-            else if (nKind == 3033)//異常
-            {
-                //lblSignal.ForeColor = Color.DimGray;
-            }
+            //3001 SK_SUBJECT_CONNECTION_CONNECTED 連線
+            //3002 SK_SUBJECT_CONNECTION_DISCONNECT 斷線
+            //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
+            //3004 SK_SUBJECT_CONNECTION_CLEAR
+            //3005 SK_SUBJECT_CONNECTION_RECONNECT
+            //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
+            //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
+            //3026 SK_SUBJECT_CONNECTION_SGX_API_READY SGX API專線建立完成
+            //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
+            LoginQuoteStatus = nKind;
+
+            LogAPIMessage(nKind);
+            LogAPIMessage(nCode);
+
+            //if (nKind == 3001)
+            //{
+            //    if (nCode == 0)
+            //    {
+            //        lblSignal.ForeColor = Color.Yellow;
+            //    }
+            //}
+            //else if (nKind == 3002)
+            //{
+            //    lblSignal.ForeColor = Color.Red;
+            //}
+            //else if (nKind == 3003 || nKind == 3036)
+            //{
+            //    lblSignal.ForeColor = Color.Green;
+            //}
+            //else if (nKind == 3021)//網路斷線
+            //{
+            //    lblSignal.ForeColor = Color.DarkRed;
+            //}
+            //else if (nKind == 3033)//異常
+            //{
+            //    lblSignal.ForeColor = Color.DimGray;
+            //}
         }
 
         /// <summary>
