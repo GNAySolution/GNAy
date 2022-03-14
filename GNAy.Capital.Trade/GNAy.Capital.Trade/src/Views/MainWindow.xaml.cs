@@ -1,4 +1,5 @@
 ﻿using GNAy.Capital.Trade.Controllers;
+using GNAy.Tools.WPF;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -71,7 +72,6 @@ namespace GNAy.Capital.Trade
                 Interval = TimeSpan.FromMilliseconds(AppCtrl.Settings.TimerInterval),
             };
             _timer.Tick += Timer_Tick;
-            _timer.Start();
 
             AppCtrl.LogTrace(Title);
         }
@@ -272,8 +272,34 @@ namespace GNAy.Capital.Trade
                 }
                 else if (AppCtrl.Settings.AutoRun)
                 {
-                    //TODO: AutoRun
+                    Task.Factory.StartNew(() =>
+                    {
+                        Thread.Sleep(1 * 1000);
+                        this.InvokeRequired(delegate
+                        {
+                            AppCtrl.LogTrace("Start");
+
+                            try
+                            {
+                                ButtonLoginAccount_Click(null, null);
+                                ButtonLoginQuote_Click(null, null);
+                            }
+                            catch (Exception ex)
+                            {
+                                AppCtrl.LogException(ex, ex.StackTrace);
+                            }
+                            finally
+                            {
+                                AppCtrl.LogTrace("End");
+                            }
+                        });
+
+                        Thread.Sleep(1 * 1000);
+                        //TODO: ButtonIsConnected_Click
+                    });
                 }
+
+                _timer.Start();
             }
             catch (Exception ex)
             {
@@ -667,6 +693,10 @@ namespace GNAy.Capital.Trade
 
             try
             {
+                //TODO: Read from file.
+                //TextBoxAccount.Text = "";
+                //DWPBox.Password = "";
+
                 if (CapitalCtrl == null)
                 {
                     CapitalControl = new CapitalController();
@@ -708,6 +738,24 @@ namespace GNAy.Capital.Trade
             try
             {
                 StatusBarItemAB3.Text = CapitalCtrl.IsConnected();
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonGetProductList_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                CapitalCtrl.GetProductList();
             }
             catch (Exception ex)
             {

@@ -626,8 +626,8 @@ namespace GNAy.Capital.Trade.Controllers
         {
             MainWindow.AppCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|bstrStockListData={bstrStockListData}");
 
-            string strData = "";
-            strData = "[OnNotifyCommodityList]" + bstrStockListData;
+            //string strData = "";
+            //strData = "[OnNotifyCommodityList]" + bstrStockListData;
 
             //StockList.Items.Add(strData);
             //m_nCount++;

@@ -28,9 +28,10 @@
                             <TextBox x:Name="TextBoxAccount" ToolTip="Account" HorizontalAlignment="Left" Margin="79,14,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
                             <Label Content="Password" HorizontalAlignment="Left" Margin="10,32,0,0" VerticalAlignment="Top"/>
                             <PasswordBox x:Name="DWPBox" ToolTip="DWP" HorizontalAlignment="Left" Margin="79,36,0,0" VerticalAlignment="Top" Width="120"/>
-                            <Button x:Name="ButtonLoginAccount" Content="登入帳號" HorizontalAlignment="Left" Margin="147,58,0,0" VerticalAlignment="Top" Click="ButtonLoginAccount_Click"/>
-                            <Button x:Name="ButtonLoginQuote" Content="登入報價元件" HorizontalAlignment="Left" Margin="123,82,0,0" VerticalAlignment="Top" Click="ButtonLoginQuote_Click"/>
-                            <Button x:Name="ButtonIsConnected" Content="IsConnected" HorizontalAlignment="Left" Margin="124,106,0,0" VerticalAlignment="Top" Click="ButtonIsConnected_Click"/>
+                            <Button x:Name="ButtonLoginAccount" Content="登入帳號" HorizontalAlignment="Left" Margin="66,58,0,0" VerticalAlignment="Top" Click="ButtonLoginAccount_Click"/>
+                            <Button x:Name="ButtonLoginQuote" Content="登入報價元件" HorizontalAlignment="Left" Margin="123,58,0,0" VerticalAlignment="Top" Click="ButtonLoginQuote_Click"/>
+                            <Button x:Name="ButtonIsConnected" Content="IsConnected" HorizontalAlignment="Left" Margin="43,82,0,0" VerticalAlignment="Top" Click="ButtonIsConnected_Click"/>
+                            <Button x:Name="ButtonGetProductList" Content="商品基本資料" HorizontalAlignment="Left" Margin="123,82,0,0" VerticalAlignment="Top" Click="ButtonGetProductList_Click"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="AA2">

@@ -293,5 +293,29 @@ namespace GNAy.Capital.Trade.Controllers
 
             return string.Empty;
         }
+
+        public void GetProductList()
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
+
+            try
+            {
+                foreach(int market in MainWindow.AppCtrl.Settings.QuoteMarkets)
+                {
+                    //根據市場別編號，取得國內各市場代碼所包含的商品基本資料相關資訊
+                    //結果會透過OnNotifyCommodityListWithTypeNo收到
+                    int m_nCode = m_SKQuoteLib.SKQuoteLib_RequestStockList((short)market);
+                    LogAPIMessage(m_nCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                MainWindow.AppCtrl.LogTrace("SKAPI|End");
+            }
+        }
     }
 }
