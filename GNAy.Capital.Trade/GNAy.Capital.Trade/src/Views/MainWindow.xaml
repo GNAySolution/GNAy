@@ -32,6 +32,7 @@
                             <Button x:Name="ButtonLoginQuote" Content="登入報價元件" HorizontalAlignment="Left" Margin="123,58,0,0" VerticalAlignment="Top" Click="ButtonLoginQuote_Click"/>
                             <Button x:Name="ButtonIsConnected" Content="IsConnected" HorizontalAlignment="Left" Margin="43,82,0,0" VerticalAlignment="Top" Click="ButtonIsConnected_Click"/>
                             <Button x:Name="ButtonGetProductList" Content="商品基本資料" HorizontalAlignment="Left" Margin="123,82,0,0" VerticalAlignment="Top" Click="ButtonGetProductList_Click"/>
+                            <Button x:Name="ButtonSubQuotes" Content="訂閱行情報價" HorizontalAlignment="Left" Margin="123,106,0,0" VerticalAlignment="Top" Click="ButtonSubQuotes_Click"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="AA2">
@@ -51,6 +52,10 @@
                     <Separator/>
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemAA3" Text="AA3"/>
+                    </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemAA4" Text="AA4"/>
                     </StatusBarItem>
                 </StatusBar>
             </Grid>
@@ -89,6 +94,10 @@
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemBA3" Text="BA3"/>
                     </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemBA4" Text="BA4"/>
+                    </StatusBarItem>
                 </StatusBar>
             </Grid>
         </Border>
@@ -116,6 +125,10 @@
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemAB3" Text="AB3"/>
                     </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemAB4" Text="AB4"/>
+                    </StatusBarItem>
                 </StatusBar>
             </Grid>
         </Border>
@@ -142,6 +155,10 @@
                     <Separator/>
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemBB3" Text="BB3"/>
+                    </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemBB4" Text="BB4"/>
                     </StatusBarItem>
                 </StatusBar>
             </Grid>

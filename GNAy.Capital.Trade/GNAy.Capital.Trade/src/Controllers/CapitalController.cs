@@ -76,9 +76,20 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 MainWindow.AppCtrl.LogTrace($"SKAPI|{msg}", lineNumber, memberName);
             }
-            else
+            //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
+            //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
+            //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
+            else if (nCode < 2000 || nCode == 3021 || nCode == 3022 || nCode == 3033)
+            {
+                MainWindow.AppCtrl.LogError($"SKAPI|{msg}", lineNumber, memberName);
+            }
+            else if (nCode < 3000)
             {
                 MainWindow.AppCtrl.LogWarn($"SKAPI|{msg}", lineNumber, memberName);
+            }
+            else
+            {
+                MainWindow.AppCtrl.LogTrace($"SKAPI|{msg}", lineNumber, memberName);
             }
 
             return msg;

@@ -1,10 +1,14 @@
 {
-  "Version": "0.22.314.3",
+  "Version": "0.22.315.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "DataGridAppLogRowsMax": 500,
   "TimerInterval": 50,
   "AutoRun": true,
+  "TimeToExit": [
+    "05:05:00",
+    "13:50:00"
+  ],
   "QuoteMarkets": [],
   "QuoteSubscribed": [
     "TSEA",
@@ -15,6 +19,8 @@
     "MTX04",
     "MTX05"
   ],
+  "SaveOpenQuote": true,
+  "SaveCloseQuote": true,
   "SendOrder": false,
   "OrderAndDeal": false
 }

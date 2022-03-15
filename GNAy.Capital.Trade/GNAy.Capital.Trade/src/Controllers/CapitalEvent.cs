@@ -1,4 +1,5 @@
-﻿using SKCOMLib;
+﻿using GNAy.Tools.WPF;
+using SKCOMLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,17 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nTime"></param>
         private void SKCenter_OnTimer(int nTime)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|nTime={nTime}");
+            //MainWindow.AppCtrl.LogTrace($"SKAPI|nTime={nTime}");
+
+            MainWindow.Current.InvokeRequired(delegate
+            {
+                try
+                {
+                    MainWindow.Current.StatusBarItemBA2.Text = $"nTime={nTime}";
+                }
+                catch
+                { }
+            });
         }
 
         /// <summary>
@@ -414,9 +425,18 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nTotal"></param>
         private void m_SKQuoteLib_OnNotifyServerTime(short sHour, short sMinute, short sSecond, int nTotal)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|sHour={sHour}|sMinute={sMinute}|sSecond={sSecond}|nTotal={nTotal}");
-
+            //MainWindow.AppCtrl.LogTrace($"SKAPI|sHour={sHour}|sMinute={sMinute}|sSecond={sSecond}|nTotal={nTotal}");
             //lblServerTime.Text = sHour.ToString("D2") + ":" + sMinute.ToString("D2") + ":" + sSecond.ToString("D2");
+
+            MainWindow.Current.InvokeRequired(delegate
+            {
+                try
+                {
+                    MainWindow.Current.StatusBarItemBA3.Text = $"{sHour}:{sMinute}:{sSecond} ({nTotal})";
+                }
+                catch
+                { }
+            });
         }
 
         /// <summary>

@@ -281,25 +281,28 @@ namespace GNAy.Capital.Trade
                         Thread.Sleep(1 * 1000);
                         this.InvokeRequired(delegate
                         {
-                            AppCtrl.LogTrace("Start");
-
-                            try
-                            {
-                                ButtonLoginAccount_Click(null, null);
-                                ButtonLoginQuote_Click(null, null);
-                            }
-                            catch (Exception ex)
-                            {
-                                AppCtrl.LogException(ex, ex.StackTrace);
-                            }
-                            finally
-                            {
-                                AppCtrl.LogTrace("End");
-                            }
+                            ButtonLoginAccount_Click(null, null);
+                            ButtonLoginQuote_Click(null, null);
                         });
 
                         Thread.Sleep(1 * 1000);
-                        //TODO: ButtonIsConnected_Click
+                        SpinWait.SpinUntil(() => CapitalCtrl.LoginQuoteStatus == 3003, 3 * 60 * 1000); //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
+                        if (CapitalCtrl.LoginQuoteStatus == 3003)
+                        {
+                            this.InvokeRequired(delegate
+                            {
+                                ButtonIsConnected_Click(null, null);
+                            });
+                        }
+                        else //Timeout
+                        {
+                            //TODO: Send alert mail.
+                            AppCtrl.Exit($"Timeout");
+                            return;
+                        }
+
+                        Thread.Sleep(1 * 1000);
+                        //TODO: ButtonSubQuotes_Click
                     });
                 }
 
@@ -327,10 +330,10 @@ namespace GNAy.Capital.Trade
             {
                 AppCtrl.LogException(ex, ex.StackTrace);
             }
-            //finally
-            //{
-            //    AppCtrl.LogTrace("End");
-            //}
+            finally
+            {
+                //AppCtrl.LogTrace("End");
+            }
         }
 
         private void Window_LostFocus(object sender, RoutedEventArgs e)
@@ -425,7 +428,7 @@ namespace GNAy.Capital.Trade
 
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
-            AppCtrl.LogTrace("Start");
+            //AppCtrl.LogTrace("Start");
 
             try
             {
@@ -437,13 +440,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                AppCtrl.LogTrace("End");
+                //AppCtrl.LogTrace("End");
             }
         }
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            AppCtrl.LogTrace("Start");
+            //AppCtrl.LogTrace("Start");
 
             try
             {
@@ -455,7 +458,7 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                AppCtrl.LogTrace("End");
+                //AppCtrl.LogTrace("End");
             }
         }
 
@@ -507,10 +510,10 @@ namespace GNAy.Capital.Trade
             {
                 AppCtrl.LogException(ex, ex.StackTrace);
             }
-            //finally
-            //{
-            //    AppCtrl.LogTrace("End");
-            //}
+            finally
+            {
+                //AppCtrl.LogTrace("End");
+            }
         }
 
         private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -579,19 +582,19 @@ namespace GNAy.Capital.Trade
             {
                 AppCtrl.LogException(ex, ex.StackTrace);
             }
-            //finally
-            //{
-            //    AppCtrl.LogTrace("End");
-            //}
+            finally
+            {
+                //AppCtrl.LogTrace("End");
+            }
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            AppCtrl.LogTrace("Start");
+            //AppCtrl.LogTrace("Start");
 
             try
             {
-                //
+                StatusBarItemAA3.Text = $"({Width},{Height})";
             }
             catch (Exception ex)
             {
@@ -599,7 +602,7 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                AppCtrl.LogTrace("End");
+                //AppCtrl.LogTrace("End");
             }
         }
 
@@ -672,7 +675,7 @@ namespace GNAy.Capital.Trade
                     //https://stackoverflow.com/questions/29822020/how-to-get-mouse-position-on-screen-in-wpf
                     //Point pt = Mouse.GetPosition(Application.Current.MainWindow);
                     Point pt = Mouse.GetPosition(this);
-                    StatusBarItemAA3.Text = $"({pt.X},{pt.Y})";
+                    StatusBarItemAA4.Text = $"({pt.X},{pt.Y})";
                 }
 
                 if (DataGridAppLog.ItemsSource != null)
@@ -683,6 +686,18 @@ namespace GNAy.Capital.Trade
                 if (CapitalCtrl != null)
                 {
                     StatusBarItemAB2.Text = CapitalCtrl.LoginQuoteStatusStr;
+                }
+
+                //
+
+                foreach (DateTime timeToExit in AppCtrl.Settings.TimeToExit)
+                {
+                    if (now.Hour == timeToExit.Hour && now.Minute >= timeToExit.Minute && now.Minute <= (timeToExit.Minute + 2))
+                    {
+                        _timer.Stop();
+                        AppCtrl.Exit($"Time to exit.");
+                        break;
+                    }
                 }
             }
             catch (Exception ex)
@@ -775,6 +790,24 @@ namespace GNAy.Capital.Trade
             try
             {
                 CapitalCtrl.GetProductList();
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonSubQuotes_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                //
             }
             catch (Exception ex)
             {
