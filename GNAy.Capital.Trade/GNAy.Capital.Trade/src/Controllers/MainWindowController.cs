@@ -47,12 +47,12 @@ namespace GNAy.Capital.Trade.Controllers
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
         }
 
-        private void AppandLog(string level, string msg, int lineNumber, string memberName)
+        private void AppandLog(LogLevel level, string msg, int lineNumber, string memberName)
         {
             AppLogInDataGrid log = new AppLogInDataGrid()
             {
                 Project = ProcessName,
-                Level = level,
+                Level = level.Name.ToUpper(),
                 ThreadID = Thread.CurrentThread.ManagedThreadId,
                 Message = msg,
                 CallerLineNumber = lineNumber,
@@ -80,38 +80,62 @@ namespace GNAy.Capital.Trade.Controllers
         public void LogTrace(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             _logger.Trace(string.Join("|", msg, lineNumber, memberName));
-            AppandLog("TRACE", msg, lineNumber, memberName);
+            AppandLog(LogLevel.Trace, msg, lineNumber, memberName);
         }
 
         public void LogDebug(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             _logger.Debug(string.Join("|", msg, lineNumber, memberName));
-            AppandLog("DEBUG", msg, lineNumber, memberName);
+            AppandLog(LogLevel.Debug, msg, lineNumber, memberName);
         }
 
         public void LogInfo(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             _logger.Info(string.Join("|", msg, lineNumber, memberName));
-            AppandLog("INFO", msg, lineNumber, memberName);
+            AppandLog(LogLevel.Info, msg, lineNumber, memberName);
         }
 
         public void LogWarn(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             _logger.Warn(string.Join("|", msg, lineNumber, memberName));
-            AppandLog("WARN", msg, lineNumber, memberName);
+            AppandLog(LogLevel.Warn, msg, lineNumber, memberName);
         }
 
         public void LogError(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             _logger.Error(string.Join("|", msg, lineNumber, memberName));
-            AppandLog("ERROR", msg, lineNumber, memberName);
+            AppandLog(LogLevel.Error, msg, lineNumber, memberName);
         }
 
         public void LogException(Exception ex, string stackTrace, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             string _msg = string.Join("|", ex.Message, ex.GetType().Name, $"{Environment.NewLine}{stackTrace}");
             _logger.Error(_msg);
-            AppandLog("ERROR", _msg, lineNumber, memberName);
+            AppandLog(LogLevel.Error, _msg, lineNumber, memberName);
+        }
+
+        private void Log(LogLevel level, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            if (level == null || level == LogLevel.Trace)
+            {
+                LogTrace(msg, lineNumber, memberName);
+            }
+            else if (level == LogLevel.Debug)
+            {
+                LogDebug(msg, lineNumber, memberName);
+            }
+            else if (level == LogLevel.Info)
+            {
+                LogInfo(msg, lineNumber, memberName);
+            }
+            else if (level == LogLevel.Warn)
+            {
+                LogWarn(msg, lineNumber, memberName);
+            }
+            else
+            {
+                LogError(msg, lineNumber, memberName);
+            }
         }
 
         private AppConfig LoadSettings()
@@ -188,9 +212,10 @@ namespace GNAy.Capital.Trade.Controllers
         /// https://docs.microsoft.com/zh-tw/windows/win32/debug/system-error-codes
         /// </summary>
         /// <param name="msg"></param>
+        /// <param name="level"></param>
         /// <param name="lineNumber"></param>
         /// <param name="memberName"></param>
-        public void Exit(string msg = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void Exit(string msg = "", LogLevel level = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             LogTrace("Start");
 
@@ -203,7 +228,7 @@ namespace GNAy.Capital.Trade.Controllers
                     MainWindow.CapitalCtrl.Disconnect();
                 }
 
-                LogTrace(String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
+                Log(level, String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
 
                 Thread.Sleep(3 * 1000);
                 Environment.Exit(exitCode);

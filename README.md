@@ -6,7 +6,7 @@
 * https://www.capital.com.tw/Service2/download/api.asp
 * 需要先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考版本是2.13.37_x64
 
-###### holidaySchedule_111.csv
+###### holidaySchedule_{yyy}.csv
 * 臺灣證券交易所市場開休市日期
 * https://www.twse.com.tw/zh/holidaySchedule/holidaySchedule
 

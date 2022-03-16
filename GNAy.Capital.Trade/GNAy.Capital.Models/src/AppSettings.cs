@@ -17,6 +17,10 @@ namespace GNAy.Capital.Models
         public string Description { get; set; }
 
         public int Big5EncodingCodePage { get; set; }
+        public string HolidayFilePath { get; set; }
+        public List<string> HolidayFileKeywords1 { get; set; }
+        public List<string> HolidayFileKeywords2 { get; set; }
+
         public int DataGridAppLogRowsMax { get; set; }
 
         /// <summary>
@@ -62,10 +66,16 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.316.1";
+            Version = "0.22.316.5";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
+            HolidayFilePath = "holidaySchedule_{yyy}.csv";
+            HolidayFileKeywords1 = new List<string>();
+            //HolidayFileKeywords1 = new List<string>() { "月", "日" };
+            HolidayFileKeywords2 = new List<string>();
+            //HolidayFileKeywords2 = new List<string>() { "放假", "無交易", "補假" };
+
             DataGridAppLogRowsMax = 500;
 
             TimerInterval1 = 50;
@@ -79,7 +89,8 @@ namespace GNAy.Capital.Models
             //    DateTime.ParseExact("13:48", "HH:mm", CultureInfo.InvariantCulture),
             //};
 
-            QuoteMarkets = new List<int>(); //{ 0, 1, 2, 4 };
+            QuoteMarkets = new List<int>();
+            //QuoteMarkets = new List<int>() { 0, 1, 2, 4 };
             QuoteSubscribed = new List<string>();
             //QuoteSubscribed = new List<string>() { "TSEA", "0050", "2330", "TX04", "TX05", "MTX04", "MTX05" };
 

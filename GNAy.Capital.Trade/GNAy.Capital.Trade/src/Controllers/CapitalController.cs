@@ -1,5 +1,4 @@
-﻿using NLog;
-using SKCOMLib;
+﻿using SKCOMLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +10,6 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public partial class CapitalController
     {
-        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-
         public readonly DateTime CreatedTime;
 
         public int LoginAccountResult { get; private set; }
@@ -149,6 +146,8 @@ namespace GNAy.Capital.Trade.Controllers
                     //skQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
                     //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
 
+                    Account = account;
+                    DWP = "********";
                 }
                 //else if (LoginAccountResult >= 500 && LoginAccountResult <= 599)
                 //{

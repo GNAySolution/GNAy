@@ -1,6 +1,7 @@
 ﻿using GNAy.Capital.Trade.Controllers;
 using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -277,7 +278,7 @@ namespace GNAy.Capital.Trade
 
                     MessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK);
 
-                    AppCtrl.Exit(caption);
+                    AppCtrl.Exit(caption, LogLevel.Warn);
                     return;
                 }
                 else if (AppCtrl.Settings.AutoRun)
@@ -728,7 +729,7 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                AppCtrl.LogTrace("Retry to connect quote service.");
+                AppCtrl.LogWarn("Retry to connect quote service.");
                 Task.Factory.StartNew(() =>
                 {
                     if (CapitalCtrl != null)
@@ -786,7 +787,7 @@ namespace GNAy.Capital.Trade
                         {
                             if (line.StartsWith("account=", StringComparison.OrdinalIgnoreCase))
                             {
-                                TextBoxAccount.Text = line.Substring("account=".Length).Trim();
+                                TextBoxAccount.Text = line.Substring("account=".Length).Trim().ToUpper();
                             }
                             else if (line.StartsWith("dwp=", StringComparison.OrdinalIgnoreCase))
                             {
@@ -798,8 +799,6 @@ namespace GNAy.Capital.Trade
 
                 if (CapitalCtrl == null)
                 {
-                    //https://www.twse.com.tw/zh/holidaySchedule/holidaySchedule
-                    //TODO: holidaySchedule_111.csv
                     CapitalControl = new CapitalController();
                     CapitalCtrl.LoginAccount(TextBoxAccount.Text, DWPBox.Password);
                 }

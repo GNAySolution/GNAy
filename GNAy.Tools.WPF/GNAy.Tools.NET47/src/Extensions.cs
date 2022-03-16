@@ -56,9 +56,58 @@ namespace GNAy.Tools.NET47
             return obj > 1911 ? obj - 1911 : obj;
         }
 
+        public static string ToROCYear(this string obj, DateTime date)
+        {
+            string yyyy = date.ToString("yyyy");
+            string yyy = date.Year.ToROCYear().ToString();
+            string yy = date.ToString("yy");
+
+            return obj.Replace("{yyyy}", yyyy).Replace("{yyy}", yyy).Replace("{yy}", yy);
+        }
+
         public static DateTime ToROCYear(this DateTime obj)
         {
             return new DateTime(obj.Year.ToROCYear(), obj.Month, obj.Day, obj.Hour, obj.Minute, obj.Second, obj.Millisecond);
+        }
+
+        public static void LoadHolidays(this SortedDictionary<DateTime, string> obj, string path, Encoding encoding, int yyyy, List<string> keywords1, List<string> keywords2)
+        {
+            string[] separators1 = new string[] { "\"", "," };
+            string[] separators2 = new string[] { keywords1[0], keywords1[1] };
+
+            foreach (string line in File.ReadAllLines(path, encoding))
+            {
+                string[] cells = line.Split(separators1, StringSplitOptions.RemoveEmptyEntries);
+
+                if (cells.Length < 4)
+                {
+                    continue;
+                }
+
+                bool found = false;
+                foreach (string keyword in keywords2)
+                {
+                    if (cells[3].LastIndexOf(keyword) >= 0)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    continue;
+                }
+
+                foreach (string cell in cells)
+                {
+                    if (cell.Contains(keywords1[0]) && cell.EndsWith(keywords1[1]))
+                    {
+                        string[] _MMdd = cell.Split(separators2, StringSplitOptions.RemoveEmptyEntries);
+                        DateTime holiday = new DateTime(yyyy, int.Parse(_MMdd[0]), int.Parse(_MMdd[1]));
+                        obj[holiday] = $"{holiday.DayOfWeek}, {string.Join(", ", cells)}";
+                    }
+                }
+            }
         }
     }
 }
