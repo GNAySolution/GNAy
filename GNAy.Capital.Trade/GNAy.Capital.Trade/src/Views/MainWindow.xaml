@@ -31,7 +31,8 @@
                             <Button x:Name="ButtonLoginAccount" Content="登入帳號" HorizontalAlignment="Left" Margin="66,58,0,0" VerticalAlignment="Top" Click="ButtonLoginAccount_Click"/>
                             <Button x:Name="ButtonLoginQuote" Content="登入報價元件" HorizontalAlignment="Left" Margin="123,58,0,0" VerticalAlignment="Top" Click="ButtonLoginQuote_Click"/>
                             <Button x:Name="ButtonIsConnected" Content="IsConnected" HorizontalAlignment="Left" Margin="43,82,0,0" VerticalAlignment="Top" Click="ButtonIsConnected_Click"/>
-                            <Button x:Name="ButtonGetProductList" Content="商品基本資料" HorizontalAlignment="Left" Margin="123,82,0,0" VerticalAlignment="Top" Click="ButtonGetProductList_Click"/>
+                            <Button x:Name="ButtonDisconnect" Content="Disconnect" HorizontalAlignment="Left" Margin="132,82,0,0" VerticalAlignment="Top" Click="ButtonDisconnect_Click"/>
+                            <Button x:Name="ButtonGetProductList" Content="商品基本資料" HorizontalAlignment="Left" Margin="42,106,0,0" VerticalAlignment="Top" Click="ButtonGetProductList_Click"/>
                             <Button x:Name="ButtonSubQuotes" Content="訂閱行情報價" HorizontalAlignment="Left" Margin="123,106,0,0" VerticalAlignment="Top" Click="ButtonSubQuotes_Click"/>
                         </Grid>
                     </TabItem>

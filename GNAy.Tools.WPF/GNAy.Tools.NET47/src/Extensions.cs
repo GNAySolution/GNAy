@@ -50,5 +50,15 @@ namespace GNAy.Tools.NET47
                 return (T)formatter.Deserialize(ms);
             }
         }
+
+        public static int ToROCYear(this int obj)
+        {
+            return obj > 1911 ? obj - 1911 : obj;
+        }
+
+        public static DateTime ToROCYear(this DateTime obj)
+        {
+            return new DateTime(obj.Year.ToROCYear(), obj.Month, obj.Day, obj.Hour, obj.Minute, obj.Second, obj.Millisecond);
+        }
     }
 }

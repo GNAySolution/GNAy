@@ -205,14 +205,14 @@ namespace GNAy.Capital.Trade.Controllers
 
                 LogTrace(String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
 
-                Thread.Sleep(1 * 1000);
+                Thread.Sleep(3 * 1000);
                 Environment.Exit(exitCode);
             }
             catch (Exception ex)
             {
                 LogException(ex, ex.StackTrace);
 
-                Thread.Sleep(1 * 1000);
+                Thread.Sleep(3 * 1000);
                 Environment.Exit(16000 + 1);
             }
             finally

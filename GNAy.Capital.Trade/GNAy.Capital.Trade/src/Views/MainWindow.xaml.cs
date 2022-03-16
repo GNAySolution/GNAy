@@ -35,10 +35,11 @@ namespace GNAy.Capital.Trade
 
         public readonly DateTime StartTime;
 
-        public readonly MainWindowController AppControl;
-        public CapitalController CapitalControl { get; private set; }
+        private readonly MainWindowController AppControl;
+        private CapitalController CapitalControl;
 
-        private readonly DispatcherTimer _timer;
+        private readonly DispatcherTimer _timer1;
+        private readonly DispatcherTimer _timer2;
 
         public MainWindow()
         {
@@ -69,11 +70,16 @@ namespace GNAy.Capital.Trade
                 Title = $"{Title}(附加偵錯)";
             }
 
-            _timer = new DispatcherTimer(DispatcherPriority.Send)
+            _timer1 = new DispatcherTimer(DispatcherPriority.Send)
             {
-                Interval = TimeSpan.FromMilliseconds(AppCtrl.Settings.TimerInterval),
+                Interval = TimeSpan.FromMilliseconds(AppCtrl.Settings.TimerInterval1),
             };
-            _timer.Tick += Timer_Tick;
+            _timer1.Tick += Timer1_Tick;
+            _timer2 = new DispatcherTimer(DispatcherPriority.Send)
+            {
+                Interval = TimeSpan.FromMilliseconds(AppCtrl.Settings.TimerInterval2),
+            };
+            _timer2.Tick += Timer2_Tick;
 
             AppCtrl.LogTrace(Title);
         }
@@ -104,6 +110,8 @@ namespace GNAy.Capital.Trade
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             AppCtrl.LogTrace("Start");
+            _timer1.Stop();
+            _timer2.Stop();
             AppCtrl.Exit();
             AppCtrl.LogTrace("End");
         }
@@ -279,34 +287,16 @@ namespace GNAy.Capital.Trade
                     Task.Factory.StartNew(() =>
                     {
                         Thread.Sleep(1 * 1000);
-                        this.InvokeRequired(delegate
-                        {
-                            ButtonLoginAccount_Click(null, null);
-                            ButtonLoginQuote_Click(null, null);
-                        });
-
-                        Thread.Sleep(1 * 1000);
-                        SpinWait.SpinUntil(() => CapitalCtrl.LoginQuoteStatus == 3003, 3 * 60 * 1000); //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
-                        if (CapitalCtrl.LoginQuoteStatus == 3003)
-                        {
-                            this.InvokeRequired(delegate
-                            {
-                                ButtonIsConnected_Click(null, null);
-                            });
-                        }
-                        else //Timeout
-                        {
-                            //TODO: Send alert mail.
-                            AppCtrl.Exit($"Timeout");
-                            return;
-                        }
-
-                        Thread.Sleep(1 * 1000);
-                        //TODO: ButtonSubQuotes_Click
+                        this.InvokeRequired(delegate { Timer2_Tick(null, null); });
                     });
                 }
 
-                _timer.Start();
+                _timer1.Start();
+
+                if (!AppCtrl.Settings.AutoRun)
+                {
+                    _timer2.Start();
+                }
             }
             catch (Exception ex)
             {
@@ -660,7 +650,7 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void Timer1_Tick(object sender, EventArgs e)
         {
             try
             {
@@ -685,7 +675,7 @@ namespace GNAy.Capital.Trade
 
                 if (CapitalCtrl != null)
                 {
-                    StatusBarItemAB2.Text = CapitalCtrl.LoginQuoteStatusStr;
+                    StatusBarItemAB4.Text = CapitalCtrl.LoginQuoteStatusStr;
                 }
 
                 //
@@ -694,11 +684,86 @@ namespace GNAy.Capital.Trade
                 {
                     if (now.Hour == timeToExit.Hour && now.Minute >= timeToExit.Minute && now.Minute <= (timeToExit.Minute + 2))
                     {
-                        _timer.Stop();
+                        _timer1.Stop();
+                        _timer2.Stop();
                         AppCtrl.Exit($"Time to exit.");
                         break;
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+        }
+
+        private void Timer2_Tick(object sender, EventArgs e)
+        {
+            _timer2.Stop();
+
+            DateTime now = DateTime.Now;
+            bool reConnect = false;
+
+            try
+            {
+                AppCtrl.LogTrace("Quote check");
+                StatusBarItemBA4.Text = $"Quote check: {now:HH:mm:ss}";
+
+                if (AppCtrl.Settings.AutoRun && CapitalCtrl == null)
+                {
+                    reConnect = true;
+                }
+                //3002 SK_SUBJECT_CONNECTION_DISCONNECT 斷線
+                //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
+                //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
+                //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
+                else if (CapitalCtrl != null && (CapitalCtrl.LoginQuoteStatus == 3002 || CapitalCtrl.LoginQuoteStatus == 3021 || CapitalCtrl.LoginQuoteStatus == 3022 || CapitalCtrl.LoginQuoteStatus == 3033))
+                {
+                    reConnect = true;
+                }
+
+                if (!reConnect)
+                {
+                    _timer2.Start();
+                    return;
+                }
+
+                AppCtrl.LogTrace("Retry to connect quote service.");
+                Task.Factory.StartNew(() =>
+                {
+                    if (CapitalCtrl != null)
+                    {
+                        Thread.Sleep(1 * 1000);
+                        CapitalCtrl.Disconnect();
+                    }
+
+                    Thread.Sleep(3 * 1000);
+                    this.InvokeRequired(delegate
+                    {
+                        ButtonLoginAccount_Click(null, null);
+                        ButtonLoginQuote_Click(null, null);
+                    });
+
+                    Thread.Sleep(3 * 1000);
+                    SpinWait.SpinUntil(() => CapitalCtrl.LoginQuoteStatus == 3003, 2 * 60 * 1000); //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
+                    if (CapitalCtrl.LoginQuoteStatus != 3003) //Timeout
+                    {
+                        //TODO: Send alert mail.
+                        CapitalCtrl.Disconnect();
+                        this.InvokeRequired(delegate { _timer2.Start(); }); //Retry to connect quote service.
+                        return;
+                    }
+
+                    Thread.Sleep(1 * 1000);
+                    this.InvokeRequired(delegate
+                    {
+                        ButtonIsConnected_Click(null, null);
+                        ButtonSubQuotes_Click(null, null);
+                    });
+
+                    Thread.Sleep(3 * 1000);
+                    this.InvokeRequired(delegate { _timer2.Start(); });
+                });
             }
             catch (Exception ex)
             {
@@ -733,6 +798,8 @@ namespace GNAy.Capital.Trade
 
                 if (CapitalCtrl == null)
                 {
+                    //https://www.twse.com.tw/zh/holidaySchedule/holidaySchedule
+                    //TODO: holidaySchedule_111.csv
                     CapitalControl = new CapitalController();
                     CapitalCtrl.LoginAccount(TextBoxAccount.Text, DWPBox.Password);
                 }
@@ -783,6 +850,24 @@ namespace GNAy.Capital.Trade
             }
         }
 
+        private void ButtonDisconnect_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                CapitalCtrl.Disconnect();
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
         private void ButtonGetProductList_Click(object sender, RoutedEventArgs e)
         {
             AppCtrl.LogTrace("Start");
@@ -807,7 +892,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //
+                StatusBarItemAB2.Text = CapitalCtrl.SubQuotes();
             }
             catch (Exception ex)
             {

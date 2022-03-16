@@ -35,6 +35,9 @@ namespace GNAy.Capital.Trade.Controllers
         public string Account { get; private set; }
         public string DWP { get; private set; }
 
+        public int SubQuoteResult { get; private set; }
+        public int SubQuotePageNo { get; private set; }
+
         private SKCenterLib m_pSKCenter;
         private SKOrderLib m_pSKOrder;
         private SKReplyLib m_pSKReply;
@@ -53,6 +56,8 @@ namespace GNAy.Capital.Trade.Controllers
             LoginQuoteStatus = -1;
             Account = String.Empty;
             DWP = String.Empty;
+            SubQuoteResult = -1;
+            SubQuotePageNo = -1;
         }
 
         public string GetAPIMessage(int nCode)
@@ -327,6 +332,43 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 MainWindow.AppCtrl.LogTrace("SKAPI|End");
             }
+        }
+
+        public string SubQuotes()
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
+
+            try
+            {
+                short pageNo = 1;
+                string products = string.Join(",", MainWindow.AppCtrl.Settings.QuoteSubscribed);
+
+                foreach (string product in MainWindow.AppCtrl.Settings.QuoteSubscribed)
+                {
+                    SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
+                    int nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(product, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
+
+                    if (nCode == 0)
+                    {
+                        //TODO
+                    }
+                }
+
+                SubQuoteResult = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageNo, products); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
+                SubQuotePageNo = pageNo;
+
+                return $"pageNo={pageNo}";
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                MainWindow.AppCtrl.LogTrace("SKAPI|End");
+            }
+
+            return string.Empty;
         }
     }
 }

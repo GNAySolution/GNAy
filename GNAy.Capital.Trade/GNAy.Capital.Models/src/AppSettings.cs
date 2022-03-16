@@ -18,7 +18,15 @@ namespace GNAy.Capital.Models
 
         public int Big5EncodingCodePage { get; set; }
         public int DataGridAppLogRowsMax { get; set; }
-        public int TimerInterval { get; set; }
+
+        /// <summary>
+        /// 例行性檢查
+        /// </summary>
+        public int TimerInterval1 { get; set; }
+        /// <summary>
+        /// 檢查行情報價斷線重連
+        /// </summary>
+        public int TimerInterval2 { get; set; }
 
         /// <summary>
         /// 排程啟動自動執行
@@ -54,19 +62,21 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.315.1";
+            Version = "0.22.316.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
             DataGridAppLogRowsMax = 500;
-            TimerInterval = 50;
+
+            TimerInterval1 = 50;
+            TimerInterval2 = 20 * 1000;
 
             AutoRun = true;
             TimeToExit = new List<DateTime>();
             //TimeToExit = new List<DateTime>()
             //{
-            //    DateTime.ParseExact("05:05", "HH:mm", CultureInfo.InvariantCulture),
-            //    DateTime.ParseExact("13:50", "HH:mm", CultureInfo.InvariantCulture),
+            //    DateTime.ParseExact("05:03", "HH:mm", CultureInfo.InvariantCulture),
+            //    DateTime.ParseExact("13:48", "HH:mm", CultureInfo.InvariantCulture),
             //};
 
             QuoteMarkets = new List<int>(); //{ 0, 1, 2, 4 };
