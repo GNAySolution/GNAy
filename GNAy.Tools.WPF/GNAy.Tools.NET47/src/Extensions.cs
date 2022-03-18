@@ -17,11 +17,11 @@ namespace GNAy.Tools.NET47
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static Dictionary<string, string> GetPropertyDescriptionMap(this Type obj)
+        public static Dictionary<string, string> GetPropertyDescriptionMap(this Type obj, BindingFlags flags)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
 
-            PropertyInfo[] piArr = obj.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
+            PropertyInfo[] piArr = obj.GetProperties(flags);
             foreach (PropertyInfo pi in piArr)
             {
                 Attribute att = Attribute.GetCustomAttribute(pi, typeof(DescriptionAttribute), false);
@@ -70,7 +70,16 @@ namespace GNAy.Tools.NET47
             return new DateTime(obj.Year.ToROCYear(), obj.Month, obj.Day, obj.Hour, obj.Minute, obj.Second, obj.Millisecond);
         }
 
-        public static void LoadHolidays(this SortedDictionary<DateTime, string> obj, string path, Encoding encoding, int yyyy, List<string> keywords1, List<string> keywords2)
+        /// <summary>
+        /// https://www.twse.com.tw/zh/holidaySchedule/holidaySchedule
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="path"></param>
+        /// <param name="encoding"></param>
+        /// <param name="yyyy"></param>
+        /// <param name="keywords1"></param>
+        /// <param name="keywords2"></param>
+        public static void LoadHolidays(this IDictionary<DateTime, string> obj, string path, Encoding encoding, int yyyy, IList<string> keywords1, IList<string> keywords2)
         {
             string[] separators1 = new string[] { "\"", "," };
             string[] separators2 = new string[] { keywords1[0], keywords1[1] };

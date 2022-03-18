@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.316.5",
+  "Version": "0.22.318.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -13,8 +13,8 @@
     "補假"
   ],
   "DataGridAppLogRowsMax": 500,
-  "TimerInterval1": 50,
-  "TimerInterval2": 20000,
+  "TimerInterval1": 100,
+  "TimerInterval2": 25000,
   "AutoRun": true,
   "TimeToExit": [
     "05:03:00",
@@ -24,14 +24,16 @@
   "QuoteSubscribed": [
     "TSEA",
     "0050",
+    "00632R",
     "2330",
+    "UD06",
+    "UN2206",
     "TX04",
     "TX05",
     "MTX04",
     "MTX05"
   ],
-  "SaveOpenQuote": true,
-  "SaveCloseQuote": true,
+  "QuoteFolderPath": "QuoteData",
   "SendOrder": false,
   "OrderAndDeal": false
 }

@@ -1,6 +1,10 @@
-﻿using SKCOMLib;
+﻿using GNAy.Capital.Models;
+using GNAy.Tools.WPF;
+using SKCOMLib;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -11,6 +15,16 @@ namespace GNAy.Capital.Trade.Controllers
     public partial class CapitalController
     {
         public readonly DateTime CreatedTime;
+
+        private SKCenterLib m_pSKCenter;
+        private SKOrderLib m_pSKOrder;
+        private SKReplyLib m_pSKReply;
+        private SKQuoteLib m_SKQuoteLib;
+        private SKOSQuoteLib m_pSKOSQuote;
+        private SKOOQuoteLib m_pSKOOQuote;
+        private SKReplyLib m_pSKReply2;
+        private SKQuoteLib m_pSKQuote2;
+        private SKOrderLib m_pSKOrder2;
 
         public int LoginAccountResult { get; private set; }
 
@@ -32,18 +46,13 @@ namespace GNAy.Capital.Trade.Controllers
         public string Account { get; private set; }
         public string DWP { get; private set; }
 
-        public int SubQuoteResult { get; private set; }
-        public int SubQuotePageNo { get; private set; }
+        public (DateTime, string) AccountTimer { get; private set; }
+        public (DateTime, string) QuoteTimer { get; private set; }
 
-        private SKCenterLib m_pSKCenter;
-        private SKOrderLib m_pSKOrder;
-        private SKReplyLib m_pSKReply;
-        private SKQuoteLib m_SKQuoteLib;
-        private SKOSQuoteLib m_pSKOSQuote;
-        private SKOOQuoteLib m_pSKOOQuote;
-        private SKReplyLib m_pSKReply2;
-        private SKQuoteLib m_pSKQuote2;
-        private SKOrderLib m_pSKOrder2;
+        public int SubQuoteResult { get; private set; }
+
+        private readonly Dictionary<int, QuoteData> QuoteIndexMap;
+        private readonly ObservableCollection<QuoteData> QuoteCollection;
 
         public CapitalController()
         {
@@ -51,10 +60,19 @@ namespace GNAy.Capital.Trade.Controllers
 
             LoginAccountResult = -1;
             LoginQuoteStatus = -1;
+
             Account = String.Empty;
             DWP = String.Empty;
+
+            AccountTimer = (DateTime.MinValue, string.Empty);
+            QuoteTimer = (DateTime.MinValue, string.Empty);
+
             SubQuoteResult = -1;
-            SubQuotePageNo = -1;
+
+            QuoteIndexMap = new Dictionary<int, QuoteData>();
+
+            MainWindow.Instance.DataGridQuoteSubscribed.SetHeadersByBindings(QuoteData.PropertyDescriptionMap);
+            QuoteCollection = MainWindow.Instance.DataGridQuoteSubscribed.SetAndGetItemsSource<QuoteData>();
         }
 
         public string GetAPIMessage(int nCode)
@@ -309,7 +327,7 @@ namespace GNAy.Capital.Trade.Controllers
             return string.Empty;
         }
 
-        public void GetProductList()
+        public void PrintProductList()
         {
             MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
 
@@ -333,30 +351,156 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public string SubQuotes()
+        private QuoteData CreateQuote(SKSTOCKLONG raw)
+        {
+            QuoteData quote = new QuoteData()
+            {
+                Symbol = raw.bstrStockNo,
+                Name = raw.bstrStockName,
+                DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal),
+                DealQty = raw.nTickQty,
+                BestBuyPrice = raw.nBid / (decimal)Math.Pow(10, raw.sDecimal),
+                BestBuyQty = raw.nBc,
+                BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal),
+                BestSellQty = raw.nAc,
+                OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal),
+                HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal),
+                LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal),
+                Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal),
+                Simulate = raw.nSimulate,
+                TotalQty = raw.nTQty,
+                TradeDateRaw = raw.nTradingDay,
+                HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal),
+                LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal),
+                Index = raw.nStockIdx,
+                Market = short.TryParse(raw.bstrMarketNo, out short x) ? x : (short)-1,
+                DecimalPos = raw.sDecimal,
+                TotalQtyBefore = raw.nYQty,
+            };
+
+            if (quote.DealPrice != 0 && quote.Reference != 0)
+            {
+                quote.UpDown = quote.DealPrice - quote.Reference;
+                quote.UpDownPct = quote.UpDown / quote.Reference * 100;
+            }
+
+            return quote;
+        }
+
+        private bool UpdateQuote(SKSTOCKLONG raw)
+        {
+            if (!QuoteIndexMap.TryGetValue(raw.nStockIdx, out QuoteData quote))
+            {
+                MainWindow.AppCtrl.LogError($"SKAPI|!QuoteIndexMap.TryGetValue(raw.nStockIdx, out QuoteData quote)|nStockIdx={raw.nStockIdx}");
+                return false;
+            }
+            else if (quote.Symbol != raw.bstrStockNo)
+            {
+                MainWindow.AppCtrl.LogError($"SKAPI|quote.Symbol != raw.bstrStockNo|Symbol={quote.Symbol}|bstrStockNo={raw.bstrStockNo}");
+                return false;
+            }
+            else if (quote.Name != raw.bstrStockName)
+            {
+                MainWindow.AppCtrl.LogError($"SKAPI|quote.Name != raw.bstrStockName|Name={quote.Name}|bstrStockName={raw.bstrStockName}");
+                return false;
+            }
+            else if ($"{quote.Market}" != raw.bstrMarketNo)
+            {
+                MainWindow.AppCtrl.LogError($"SKAPI|quote.Market != raw.bstrMarketNo|Market={quote.Market}|bstrMarketNo={raw.bstrMarketNo}");
+                return false;
+            }
+
+            //quote.Symbol = raw.bstrStockNo;
+            //quote.Name = raw.bstrStockName;
+            quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.DealQty = raw.nTickQty;
+            quote.BestBuyPrice = raw.nBid / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.BestBuyQty = raw.nBc;
+            quote.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.BestSellQty = raw.nAc;
+            quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.Simulate = raw.nSimulate;
+            quote.TotalQty = raw.nTQty;
+            quote.TradeDateRaw = raw.nTradingDay;
+            quote.HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal);
+            //quote.Index = raw.nStockIdx;
+            //quote.Market = short.TryParse(raw.bstrMarketNo, out short x) ? x : (short)-1;
+            quote.DecimalPos = raw.sDecimal;
+            quote.TotalQtyBefore = raw.nYQty;
+
+            if (quote.DealPrice != 0 && quote.Reference != 0)
+            {
+                quote.UpDown = quote.DealPrice - quote.Reference;
+                quote.UpDownPct = quote.UpDown / quote.Reference * 100;
+            }
+
+            quote.Updater = "UpdateQuote";
+            quote.UpdateTime = DateTime.Now;
+
+            return true;
+        }
+
+        public bool SubQuotes()
         {
             MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
 
+            DateTime now = DateTime.Now;
+
             try
             {
-                short pageNo = 1;
-                string products = string.Join(",", MainWindow.AppCtrl.Settings.QuoteSubscribed);
+                if (LoginQuoteStatus != 3003) //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
+                {
+                    throw new ArgumentException($"SKAPI|LoginQuoteStatus != 3003|LoginQuoteStatusStr={LoginQuoteStatusStr}");
+                }
+                else if (QuoteCollection.Count > 0)
+                {
+                    throw new ArgumentException($"SKAPI|QuoteCollection.Count > 0|Count={QuoteCollection.Count}|Quotes are subscribed.");
+                }
 
                 foreach (string product in MainWindow.AppCtrl.Settings.QuoteSubscribed)
                 {
                     SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
                     int nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(product, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
-
-                    if (nCode == 0)
+                    if (nCode != 0)
                     {
-                        //TODO
+                        LogAPIMessage(nCode);
+                        continue;
                     }
+
+                    QuoteData quote = CreateQuote(pSKStockLONG);
+                    QuoteIndexMap.Add(quote.Index, quote);
+                    QuoteCollection.Add(quote);
+
+                    if (now.Hour >= 14 || now.Hour < 8)
+                    {
+                        //期貨選擇權夜盤，上市櫃已經收盤
+                        if (quote.Market != 2 && quote.Market != 3)
+                        {
+                            continue;
+                        }
+                    }
+
+                    short pageA = -1;
+                    nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref pageA, quote.Symbol);
+                    if (nCode != 0)
+                    {
+                        LogAPIMessage(nCode);
+                        continue;
+                    }
+
+                    quote.Page = pageA;
                 }
 
-                SubQuoteResult = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageNo, products); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
-                SubQuotePageNo = pageNo;
+                string products = string.Join(",", MainWindow.AppCtrl.Settings.QuoteSubscribed);
+                short pageB = 1;
 
-                return $"pageNo={pageNo}";
+                SubQuoteResult = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageB, products); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
+
+                return true;
             }
             catch (Exception ex)
             {
@@ -367,7 +511,7 @@ namespace GNAy.Capital.Trade.Controllers
                 MainWindow.AppCtrl.LogTrace("SKAPI|End");
             }
 
-            return string.Empty;
+            return false;
         }
     }
 }

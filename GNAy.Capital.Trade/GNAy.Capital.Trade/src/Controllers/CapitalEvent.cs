@@ -1,4 +1,5 @@
-﻿using GNAy.Tools.WPF;
+﻿using GNAy.Capital.Models;
+using GNAy.Tools.WPF;
 using SKCOMLib;
 using System;
 using System.Collections.Generic;
@@ -28,17 +29,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nTime"></param>
         private void SKCenter_OnTimer(int nTime)
         {
-            //MainWindow.AppCtrl.LogTrace($"SKAPI|nTime={nTime}");
-
-            MainWindow.Current.InvokeRequired(delegate
-            {
-                try
-                {
-                    MainWindow.Current.StatusBarItemBA2.Text = $"nTime={nTime}";
-                }
-                catch
-                { }
-            });
+            AccountTimer = (DateTime.Now, $"nTime={nTime}");
         }
 
         /// <summary>
@@ -63,6 +54,12 @@ namespace GNAy.Capital.Trade.Controllers
 
             LogAPIMessage(nKind);
             LogAPIMessage(nCode);
+
+            if (nKind == 3003)
+            {
+                QuoteIndexMap.Clear();
+                QuoteCollection.Clear();
+            }
 
             //if (nKind == 3001)
             //{
@@ -96,16 +93,23 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nStockIdx"></param>
         private void m_SKQuoteLib_OnNotifyQuote(short sMarketNo, int nStockIdx)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}");
+            //TMainWindow.AppCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}");
 
-            SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
+            try
+            {
+                SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
 
-            //請先訂閱即時報價(SKQuoteLib_ReqeustStocks),方可取得商品報價
-            //未訂閱即時報價,僅可取得商品基本資料
-            //根據市場別編號與系統所編的索引代碼，取回商品報價的及商品相關資訊
-            m_SKQuoteLib.SKQuoteLib_GetStockByIndexLONG(sMarketNo, nStockIdx, ref pSKStockLONG);
+                //請先訂閱即時報價(SKQuoteLib_ReqeustStocks),方可取得商品報價
+                //未訂閱即時報價,僅可取得商品基本資料
+                //根據市場別編號與系統所編的索引代碼，取回商品報價的及商品相關資訊
+                m_SKQuoteLib.SKQuoteLib_GetStockByIndexLONG(sMarketNo, nStockIdx, ref pSKStockLONG);
 
-            //TODO: OnUpDateDataRow(pSKStockLONG);
+                UpdateQuote(pSKStockLONG);
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
         }
 
         /// <summary>
@@ -171,9 +175,39 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nSimulate"></param>
         private void m_SKQuoteLib_OnNotifyTicks(short sMarketNo, int nStockIdx, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nPtr={nPtr}|nDate={nDate}|lTimehms={lTimehms}|lTimemillismicros={lTimemillismicros}|nBid={nBid}|nAsk={nAsk}|nClose={nClose}|nQty={nQty}|nSimulate={nSimulate}");
+            //MainWindow.AppCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nPtr={nPtr}|nDate={nDate}|lTimehms={lTimehms}|lTimemillismicros={lTimemillismicros}|nBid={nBid}|nAsk={nAsk}|nClose={nClose}|nQty={nQty}|nSimulate={nSimulate}");
 
-            string strData = "";
+            try
+            {
+                if (!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote))
+                {
+                    MainWindow.AppCtrl.LogError($"SKAPI|!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote)|nStockIdx={nStockIdx}");
+                    return;
+                }
+                else if (quote.Market != sMarketNo)
+                {
+                    MainWindow.AppCtrl.LogError($"SKAPI|quote.Market != raw.bstrMarketNo|Market={quote.Market}|sMarketNo={sMarketNo}");
+                    return;
+                }
+
+                quote.Count = nPtr;
+                quote.TradeDateRaw = nDate;
+                quote.PacketTimeRaw = String.Format("{0}.{1}", lTimehms.ToString().PadLeft(6, '0'), lTimemillismicros.ToString().PadLeft(6, '0'));
+                quote.BestBuyPrice = nBid / (decimal)Math.Pow(10, quote.DecimalPos);
+                quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
+                quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
+                quote.DealQty = nQty;
+                quote.Simulate = nSimulate;
+
+                quote.Updater = "OnNotifyTicks";
+                quote.UpdateTime = DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+
+            //string strData = "";
             //string strTimeNoMsMs = "";
             //int nlength = lTime.ToString().Length;
             //if (nlength >6)
@@ -186,8 +220,8 @@ namespace GNAy.Capital.Trade.Controllers
             //if (chkbox_msms.Checked == true)
             //    strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
             //else
-                strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + " " + lTimemillismicros.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
-            
+            //    strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + " " + lTimemillismicros.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
+
             //if (Box_M.Checked == true) //含市價揭示轉換
             //{
             //    if (nBid == kMarketPrice)
@@ -198,7 +232,6 @@ namespace GNAy.Capital.Trade.Controllers
             //        strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
 
             //}
-
 
             //[揭示]//0:一般;1:試算揭示
 
@@ -425,18 +458,25 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nTotal"></param>
         private void m_SKQuoteLib_OnNotifyServerTime(short sHour, short sMinute, short sSecond, int nTotal)
         {
-            //MainWindow.AppCtrl.LogTrace($"SKAPI|sHour={sHour}|sMinute={sMinute}|sSecond={sSecond}|nTotal={nTotal}");
-            //lblServerTime.Text = sHour.ToString("D2") + ":" + sMinute.ToString("D2") + ":" + sSecond.ToString("D2");
+            QuoteTimer = (DateTime.Now, $"{sHour}:{sMinute}:{sSecond} ({nTotal})");
 
-            MainWindow.Current.InvokeRequired(delegate
+            try
             {
-                try
+                int sec = sSecond % 10;
+
+                if (sec >= 0 && sec < 5)
                 {
-                    MainWindow.Current.StatusBarItemBA3.Text = $"{sHour}:{sMinute}:{sSecond} ({nTotal})";
+                    //要求報價主機傳送目前時間。
+                    //注意：為避免收盤後無報價資料傳送，導致連線被防火牆切斷，目前solace固定每五秒會自動更新時間，請固定每十五秒呼叫此函式，確保連線正常
+                    int m_nCode = m_SKQuoteLib.SKQuoteLib_RequestServerTime();
+                    if (m_nCode != 0)
+                    {
+                        LogAPIMessage(LoginQuoteStatus);
+                    }
                 }
-                catch
-                { }
-            });
+            }
+            catch
+            { }
         }
 
         /// <summary>

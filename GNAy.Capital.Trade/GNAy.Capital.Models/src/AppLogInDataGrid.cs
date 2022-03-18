@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class AppLogInDataGrid : AppLog
     {
-        public static readonly Dictionary<string, string> PropertyDescriptionMap = typeof(AppLogInDataGrid).GetPropertyDescriptionMap();
+        public static readonly Dictionary<string, string> PropertyDescriptionMap = typeof(AppLogInDataGrid).GetPropertyDescriptionMap(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
 
         private int _threadID;
         /// <summary>

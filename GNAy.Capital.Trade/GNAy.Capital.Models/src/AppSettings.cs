@@ -52,8 +52,10 @@ namespace GNAy.Capital.Models
         /// </summary>
         public List<string> QuoteSubscribed { get; set; }
 
-        public bool SaveOpenQuote { get; set; }
-        public bool SaveCloseQuote { get; set; }
+        /// <summary>
+        /// 定時儲存行情報價
+        /// </summary>
+        public string QuoteFolderPath { get; set; }
 
         /// <summary>
         /// false=測試或跑回測時，不實際下單
@@ -66,24 +68,24 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.316.5";
+            Version = "0.22.318.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
             HolidayFilePath = "holidaySchedule_{yyy}.csv";
             HolidayFileKeywords1 = new List<string>();
-            //HolidayFileKeywords1 = new List<string>() { "月", "日" };
+            //HolidayFileKeywords1 = new List<string>() { "月", "日" }; //
             HolidayFileKeywords2 = new List<string>();
-            //HolidayFileKeywords2 = new List<string>() { "放假", "無交易", "補假" };
+            //HolidayFileKeywords2 = new List<string>() { "放假", "無交易", "補假" }; //
 
             DataGridAppLogRowsMax = 500;
 
-            TimerInterval1 = 50;
-            TimerInterval2 = 20 * 1000;
+            TimerInterval1 = 100;
+            TimerInterval2 = 25 * 1000;
 
             AutoRun = true;
             TimeToExit = new List<DateTime>();
-            //TimeToExit = new List<DateTime>()
+            //TimeToExit = new List<DateTime>() //
             //{
             //    DateTime.ParseExact("05:03", "HH:mm", CultureInfo.InvariantCulture),
             //    DateTime.ParseExact("13:48", "HH:mm", CultureInfo.InvariantCulture),
@@ -92,10 +94,9 @@ namespace GNAy.Capital.Models
             QuoteMarkets = new List<int>();
             //QuoteMarkets = new List<int>() { 0, 1, 2, 4 };
             QuoteSubscribed = new List<string>();
-            //QuoteSubscribed = new List<string>() { "TSEA", "0050", "2330", "TX04", "TX05", "MTX04", "MTX05" };
+            //QuoteSubscribed = new List<string>() { "TSEA", "0050", "00632R", "2330", "UD06", "UN2206", "TX04", "TX05", "MTX04", "MTX05" }; //
 
-            SaveOpenQuote = true;
-            SaveCloseQuote = true;
+            QuoteFolderPath = "QuoteData";
 
             SendOrder = false;
             OrderAndDeal = false;

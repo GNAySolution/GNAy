@@ -18,6 +18,8 @@ namespace GNAy.Capital.Models
         public readonly Encoding Big5Encoding;
         public readonly SortedDictionary<DateTime, string> Holidays;
 
+        public readonly DirectoryInfo QuoteFolder;
+
         public readonly FileInfo File;
 
         public AppConfig(AppSettings settings, FileInfo file)
@@ -35,6 +37,17 @@ namespace GNAy.Capital.Models
             Big5Encoding = Encoding.GetEncoding(settings.Big5EncodingCodePage);
             Holidays = new SortedDictionary<DateTime, string>();
 
+            if (string.IsNullOrWhiteSpace(settings.QuoteFolderPath))
+            {
+                QuoteFolder = null;
+            }
+            else
+            {
+                QuoteFolder = new DirectoryInfo(settings.QuoteFolderPath);
+                QuoteFolder.Create();
+                QuoteFolder.Refresh();
+            }
+
             File = file;
 
             DateTime today = DateTime.Today;
@@ -49,6 +62,37 @@ namespace GNAy.Capital.Models
         public AppConfig() : this(null, null)
         {
             //
+        }
+
+        /// <summary>
+        /// 考慮期貨夜盤跨日
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public bool IsHoliday(DateTime time)
+        {
+            if (time.DayOfWeek == DayOfWeek.Sunday)
+            {
+                return true;
+            }
+
+            DateTime date = time.Date;
+
+            if (time.DayOfWeek == DayOfWeek.Saturday)
+            { }
+            else if (!Holidays.ContainsKey(date))
+            {
+                return false;
+            }
+
+            DateTime beforeDate = date.AddDays(-1);
+
+            if (Holidays.ContainsKey(beforeDate))
+            {
+                return true;
+            }
+
+            return time.Hour >= 5;
         }
     }
 }

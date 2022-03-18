@@ -18,20 +18,19 @@ namespace GNAy.Tools.NET47.Models
             set { OnPropertyChanged(ref _creator, value); }
         }
 
-        private DateTime _createdDate;
         [Description("日期")]
-        public DateTime CreatedDate
-        {
-            get { return _createdDate; }
-            set { OnPropertyChanged(ref _createdDate, value); }
-        }
+        public DateTime CreatedDate => CreatedTime.Date;
 
         private DateTime _createdTime;
         [Description("時間")]
         public DateTime CreatedTime
         {
             get { return _createdTime; }
-            set { OnPropertyChanged(ref _createdTime, value); }
+            set
+            {
+                OnPropertyChanged(ref _createdTime, value);
+                OnPropertyChanged("CreatedDate");
+            }
         }
 
         private string _project;
@@ -61,7 +60,6 @@ namespace GNAy.Tools.NET47.Models
         public AppLog()
         {
             Creator = String.Empty;
-            CreatedDate = DateTime.Today;
             CreatedTime = DateTime.Now;
             Project = String.Empty;
             Level = String.Empty;

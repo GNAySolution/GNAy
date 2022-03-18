@@ -69,7 +69,7 @@ namespace GNAy.Tools.WPF
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="propertyDescriptionMap"></param>
-        public static void SetHeadersByBindings(this DataGrid obj, Dictionary<string, string> propertyDescriptionMap)
+        public static void SetHeadersByBindings(this DataGrid obj, IDictionary<string, string> propertyDescriptionMap)
         {
             foreach (DataGridColumn column in obj.Columns)
             {

@@ -30,9 +30,9 @@ namespace GNAy.Capital.Trade
     /// </summary>
     public partial class MainWindow : Window
     {
-        public static MainWindow Current { get; private set; }
-        public static MainWindowController AppCtrl => Current.AppControl;
-        public static CapitalController CapitalCtrl => Current.CapitalControl;
+        public static MainWindow Instance { get; private set; }
+        public static MainWindowController AppCtrl => Instance.AppControl;
+        public static CapitalController CapitalCtrl => Instance.CapitalControl;
 
         public readonly DateTime StartTime;
 
@@ -52,7 +52,7 @@ namespace GNAy.Capital.Trade
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 
-            Current = this;
+            Instance = this;
 
             AppControl = new MainWindowController();
             CapitalControl = null;
@@ -267,6 +267,14 @@ namespace GNAy.Capital.Trade
 
             try
             {
+                AppCtrl.LogTrace($"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(-3))}");
+                AppCtrl.LogTrace($"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(-2))}");
+                AppCtrl.LogTrace($"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(-1))}");
+                AppCtrl.LogTrace($"{StartTime.AddDays(0):MM/dd HH:mm}|{StartTime.AddDays(+0).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(0))}");
+                AppCtrl.LogTrace($"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(1))}");
+                AppCtrl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(2))}");
+                AppCtrl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(3))}");
+
                 AppCtrl.LogTrace($"{AppCtrl.Config.File.FullName}|Exists={AppCtrl.Config.File.Exists}");
 
                 if (!AppCtrl.Config.File.Exists)
@@ -658,7 +666,7 @@ namespace GNAy.Capital.Trade
                 DateTime now = DateTime.Now;
                 string duration = (now - StartTime).ToString(@"hh\:mm\:ss");
 
-                StatusBarItemAA2.Text = $"{now:HH:mm:ss} ({duration})";
+                StatusBarItemAA2.Text = $"{duration}";
 
                 //if (Application.Current.MainWindow.IsMouseOver)
                 if (IsMouseOver)
@@ -677,9 +685,15 @@ namespace GNAy.Capital.Trade
                 if (CapitalCtrl != null)
                 {
                     StatusBarItemAB4.Text = CapitalCtrl.LoginQuoteStatusStr;
+                    StatusBarItemBA3.Text = $"{CapitalCtrl.AccountTimer.Item1:mm:ss}|{CapitalCtrl.AccountTimer.Item2}";
+                    StatusBarItemBA4.Text = $"{CapitalCtrl.QuoteTimer.Item1:mm:ss}|{CapitalCtrl.QuoteTimer.Item2}";
+
                 }
 
-                //
+                if (DataGridQuoteSubscribed.ItemsSource != null)
+                {
+                    StatusBarItemAB1.Text = $"({DataGridQuoteSubscribed.Columns.Count},{DataGridQuoteSubscribed.Items.Count})";
+                }
 
                 foreach (DateTime timeToExit in AppCtrl.Settings.TimeToExit)
                 {
@@ -707,8 +721,14 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                AppCtrl.LogTrace("Quote check");
-                StatusBarItemBA4.Text = $"Quote check: {now:HH:mm:ss}";
+                string msg = $"{now:MM/dd HH:mm.ss}|IsHoliday={AppCtrl.Config.IsHoliday(now)}";
+                AppCtrl.LogTrace(msg);
+                StatusBarItemBA2.Text = msg;
+
+                if (AppCtrl.Config.QuoteFolder != null && CapitalCtrl != null)
+                {
+                    //TODO: Time to save quotes. (StatusBarItemAB2)
+                }
 
                 if (AppCtrl.Settings.AutoRun && CapitalCtrl == null)
                 {
@@ -769,6 +789,7 @@ namespace GNAy.Capital.Trade
             catch (Exception ex)
             {
                 AppCtrl.LogException(ex, ex.StackTrace);
+                _timer2.Start();
             }
         }
 
@@ -867,13 +888,13 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonGetProductList_Click(object sender, RoutedEventArgs e)
+        private void ButtonPrintProductList_Click(object sender, RoutedEventArgs e)
         {
             AppCtrl.LogTrace("Start");
 
             try
             {
-                CapitalCtrl.GetProductList();
+                CapitalCtrl.PrintProductList();
             }
             catch (Exception ex)
             {
@@ -891,7 +912,25 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                StatusBarItemAB2.Text = CapitalCtrl.SubQuotes();
+                CapitalCtrl.SubQuotes();
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonQueryHistQuotes_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                //StatusBarItemAB2.Text = CapitalCtrl.SubQuotes();
             }
             catch (Exception ex)
             {

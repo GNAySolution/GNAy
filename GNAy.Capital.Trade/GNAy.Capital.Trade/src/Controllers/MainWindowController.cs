@@ -40,8 +40,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             Config = LoadSettings();
 
-            MainWindow.Current.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyDescriptionMap);
-            AppLogCollection = MainWindow.Current.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
+            MainWindow.Instance.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyDescriptionMap);
+            AppLogCollection = MainWindow.Instance.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
@@ -59,7 +59,7 @@ namespace GNAy.Capital.Trade.Controllers
                 CallerMemberName = memberName,
             };
 
-            MainWindow.Current.InvokeRequired(delegate
+            MainWindow.Instance.InvokeRequired(delegate
             {
                 try
                 {
@@ -70,7 +70,7 @@ namespace GNAy.Capital.Trade.Controllers
                         AppLogCollection.RemoveAt(0);
                     }
 
-                    MainWindow.Current.DataGridAppLog.ZxtScrollToEnd();
+                    MainWindow.Instance.DataGridAppLog.ZxtScrollToEnd();
                 }
                 catch
                 { }
