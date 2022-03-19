@@ -145,7 +145,7 @@
                                     <!--https://blog.csdn.net/yiyi0608/article/details/75597476-->
                                     <DataGridTextColumn Binding="{Binding Symbol}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Name}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding PacketTime, StringFormat='{}{0:HH:mm:ss.ffff}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding MatchedTime, StringFormat='{}{0:HH:mm:ss.ffff}'}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding DealPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.HeaderStyle>
                                             <!--https://stackoverflow.com/questions/4486977/how-to-change-column-headers-background-color-when-using-wpf-datagrid-->

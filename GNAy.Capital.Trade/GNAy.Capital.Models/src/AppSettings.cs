@@ -68,7 +68,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.318.1";
+            Version = "0.22.319.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -94,7 +94,7 @@ namespace GNAy.Capital.Models
             QuoteMarkets = new List<int>();
             //QuoteMarkets = new List<int>() { 0, 1, 2, 4 };
             QuoteSubscribed = new List<string>();
-            //QuoteSubscribed = new List<string>() { "TSEA", "0050", "00632R", "2330", "UD06", "UN2206", "TX04", "TX05", "MTX04", "MTX05" }; //
+            //QuoteSubscribed = new List<string>() { "TSEA", "00632R", "2330", "UD06", "TX04", "TX05", "MTX04", "MTX05" }; //
 
             QuoteFolderPath = "QuoteData";
 

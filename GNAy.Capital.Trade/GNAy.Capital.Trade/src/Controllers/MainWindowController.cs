@@ -40,7 +40,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             Config = LoadSettings();
 
-            MainWindow.Instance.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyDescriptionMap);
+            MainWindow.Instance.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1.ShortName));
             AppLogCollection = MainWindow.Instance.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -229,6 +229,8 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 Log(level, String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
+
+                //TODO: Send info mail.
 
                 Thread.Sleep(3 * 1000);
                 Environment.Exit(exitCode);

@@ -68,14 +68,14 @@ namespace GNAy.Tools.WPF
         /// https://stackoverflow.com/questions/15216362/wpf-datagrid-how-to-get-binding-expression-of-a-cell
         /// </summary>
         /// <param name="obj"></param>
-        /// <param name="propertyDescriptionMap"></param>
-        public static void SetHeadersByBindings(this DataGrid obj, IDictionary<string, string> propertyDescriptionMap)
+        /// <param name="propertyNameMap"></param>
+        public static void SetHeadersByBindings(this DataGrid obj, IDictionary<string, string> propertyNameMap)
         {
             foreach (DataGridColumn column in obj.Columns)
             {
                 if (column is DataGridBoundColumn bound && bound.Binding is Binding bind)
                 {
-                    if (propertyDescriptionMap.TryGetValue(bind.Path.Path, out string description))
+                    if (propertyNameMap.TryGetValue(bind.Path.Path, out string description))
                     {
                         column.Header = description;
                     }

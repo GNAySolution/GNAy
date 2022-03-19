@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,22 +15,96 @@ namespace GNAy.Tools.NET47
         /// https://stackoverflow.com/questions/18912697/system-componentmodel-descriptionattribute-in-portable-class-library
         /// </summary>
         /// <param name="obj"></param>
+        /// <param name="flags"></param>
         /// <returns></returns>
-        public static Dictionary<string, string> GetPropertyDescriptionMap(this Type obj, BindingFlags flags)
+        public static Dictionary<string, (ColumnAttribute, PropertyInfo)> GetColumnAttrMapByProperty(this Type obj, BindingFlags flags)
         {
-            Dictionary<string, string> result = new Dictionary<string, string>();
-
+            Dictionary<string, (ColumnAttribute, PropertyInfo)> result = new Dictionary<string, (ColumnAttribute, PropertyInfo)>();
             PropertyInfo[] piArr = obj.GetProperties(flags);
+
             foreach (PropertyInfo pi in piArr)
             {
-                Attribute att = Attribute.GetCustomAttribute(pi, typeof(DescriptionAttribute), false);
-                if (att is DescriptionAttribute dc)
+                Attribute attr = Attribute.GetCustomAttribute(pi, typeof(ColumnAttribute), false);
+                if (attr is ColumnAttribute csv)
                 {
-                    result[pi.Name] = dc.Description;
+                    result.Add(pi.Name, (csv, pi));
                 }
             }
 
             return result;
+        }
+
+        public static SortedDictionary<int, (ColumnAttribute, PropertyInfo)> GetColumnAttrMapByIndex(this Type obj, BindingFlags flags)
+        {
+            SortedDictionary<int, (ColumnAttribute, PropertyInfo)> result = new SortedDictionary<int, (ColumnAttribute, PropertyInfo)>();
+            PropertyInfo[] piArr = obj.GetProperties(flags);
+
+            foreach (PropertyInfo pi in piArr)
+            {
+                Attribute attr = Attribute.GetCustomAttribute(pi, typeof(ColumnAttribute), false);
+                if (attr is ColumnAttribute csv && csv.Index >= 0)
+                {
+                    result.Add(csv.Index, (csv, pi));
+                }
+            }
+
+            return result;
+        }
+
+
+        public static string PropertyValueToString(this PropertyInfo obj, object instance, string format)
+        {
+            object value = obj.GetValue(instance);
+
+            if (!(value is object))
+            {
+                return null;
+            }
+            else if (string.IsNullOrWhiteSpace(format))
+            {
+                return value.ToString();
+            }
+
+            Type declaring = obj.PropertyType;
+
+            if (declaring == typeof(string) || declaring == typeof(StringBuilder))
+            {
+                return value.ToString();
+            }
+            else if (declaring == typeof(DateTime))
+            {
+                return ((DateTime)value).ToString(format);
+            }
+            else if (declaring == typeof(decimal))
+            {
+                return ((decimal)value).ToString(format);
+            }
+            else if (declaring == typeof(double))
+            {
+                return ((double)value).ToString(format);
+            }
+            else if (declaring == typeof(float))
+            {
+                return ((float)value).ToString(format);
+            }
+            else if (declaring == typeof(long))
+            {
+                return ((long)value).ToString(format);
+            }
+            else if (declaring == typeof(int))
+            {
+                return ((int)value).ToString(format);
+            }
+            else if (declaring == typeof(short))
+            {
+                return ((short)value).ToString(format);
+            }
+            else if (declaring == typeof(byte))
+            {
+                return ((byte)value).ToString(format);
+            }
+            
+            throw new NotSupportedException($"DeclaringType ({declaring.FullName}) is not supported.");
         }
 
         /// <summary>

@@ -2,7 +2,6 @@
 using GNAy.Tools.NET47.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -14,21 +13,23 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class QuoteData : NotifyPropertyChanged
     {
-        public static readonly Dictionary<string, string> PropertyDescriptionMap = typeof(QuoteData).GetPropertyDescriptionMap(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
+        public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(QuoteData).GetColumnAttrMapByProperty(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
+        public static readonly SortedDictionary<int, (ColumnAttribute, PropertyInfo)> ColumnGetters = typeof(QuoteData).GetColumnAttrMapByIndex(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
+        public static readonly SortedDictionary<int, (ColumnAttribute, PropertyInfo)> ColumnSetters = typeof(QuoteData).GetColumnAttrMapByIndex(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
 
         private string _creator;
-        [Description("建立者")]
+        [Column("建立者", 0)]
         public string Creator
         {
             get { return _creator; }
             set { OnPropertyChanged(ref _creator, value); }
         }
 
-        [Description("日期")]
+        [Column("日期", -1)]
         public DateTime CreatedDate => CreatedTime.Date;
 
         private DateTime _createdTime;
-        [Description("時間")]
+        [Column("時間", 1, "yyyy/MM/dd HH:mm:ss.ffffff")]
         public DateTime CreatedTime
         {
             get { return _createdTime; }
@@ -40,18 +41,18 @@ namespace GNAy.Capital.Models
         }
 
         private string _updater;
-        [Description("更新者")]
+        [Column("更新者", 2)]
         public string Updater
         {
             get { return _updater; }
             set { OnPropertyChanged(ref _updater, value); }
         }
 
-        [Description("更新日")]
+        [Column("更新日", -1)]
         public DateTime UpdateDate => UpdateTime.Date;
 
         private DateTime _updateTime;
-        [Description("更新時")]
+        [Column("更新時", 3, "yyyy/MM/dd HH:mm:ss.ffffff")]
         public DateTime UpdateTime
         {
             get { return _updateTime; }
@@ -59,11 +60,15 @@ namespace GNAy.Capital.Models
             {
                 OnPropertyChanged(ref _updateTime, value);
                 OnPropertyChanged("UpdateDate");
+                OnPropertyChanged("Duration");
             }
         }
 
+        [Column("經過", 4)]
+        public string Duration => ((UpdateTime == DateTime.MaxValue) ? TimeSpan.MaxValue : (DateTime.Now - UpdateTime)).ToString(@"hh\:mm\:ss");
+
         private string _symbol;
-        [Description("代碼")]
+        [Column("代碼", 5)]
         public string Symbol
         {
             get { return _symbol; }
@@ -71,51 +76,30 @@ namespace GNAy.Capital.Models
         }
 
         private string _name;
-        [Description("名稱")]
+        [Column("名稱", 6)]
         public string Name
         {
             get { return _name; }
             set { OnPropertyChanged(ref _name, value); }
         }
 
-        private string _packetTimeRaw;
-        [Description("封包時間raw")]
-        public string PacketTimeRaw
+        private string _matchedTimeRaw;
+        [Column("成交時間", 7)]
+        public string MatchedTimeRaw
         {
-            get { return _packetTimeRaw; }
+            get { return _matchedTimeRaw; }
             set
             {
-                OnPropertyChanged(ref _packetTimeRaw, value);
-                OnPropertyChanged("PacketTime");
+                OnPropertyChanged(ref _matchedTimeRaw, value);
+                OnPropertyChanged("MatchedTime");
             }
         }
 
-        [Description("封包時間")]
-        public DateTime PacketTime
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(PacketTimeRaw))
-                {
-                    return DateTime.MinValue;
-                }
-
-                try
-                {
-                    return DateTime.ParseExact(PacketTimeRaw.ToString(), "HHmmss.ffffff", CultureInfo.InvariantCulture);
-                }
-                catch
-                { }
-
-                return DateTime.MinValue;
-            }
-        }
+        [Column("成交時間", -1)]
+        public DateTime MatchedTime => DateTime.ParseExact(MatchedTimeRaw.ToString(), "HHmmss.ffffff", CultureInfo.InvariantCulture);
 
         private decimal _dealPrice;
-        /// <summary>
-        /// 成交價
-        /// </summary>
-        [Description("成價")]
+        [Column("成交價", "成價", 8, "0.00")]
         public decimal DealPrice
         {
             get { return _dealPrice; }
@@ -123,10 +107,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _dealQty;
-        /// <summary>
-        /// 成交量
-        /// </summary>
-        [Description("成量")]
+        [Column("成交量", "成量", 9)]
         public int DealQty
         {
             get { return _dealQty; }
@@ -134,7 +115,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _upDown;
-        [Description("漲跌")]
+        [Column("漲跌", 10, "0.00")]
         public decimal UpDown
         {
             get { return _upDown; }
@@ -146,7 +127,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _upDownPct;
-        [Description("漲跌幅")]
+        [Column("漲跌幅", 11, "0.00")]
         public decimal UpDownPct
         {
             get { return _upDownPct; }
@@ -154,7 +135,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _bestBuyPrice;
-        [Description("買價")]
+        [Column("買價", 12, "0.00")]
         public decimal BestBuyPrice
         {
             get { return _bestBuyPrice; }
@@ -162,7 +143,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _bestBuyQty;
-        [Description("買量")]
+        [Column("買量", 13)]
         public int BestBuyQty
         {
             get { return _bestBuyQty; }
@@ -170,7 +151,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _bestSellPrice;
-        [Description("賣價")]
+        [Column("賣價", 14, "0.00")]
         public decimal BestSellPrice
         {
             get { return _bestSellPrice; }
@@ -178,7 +159,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _bestSellyQty;
-        [Description("賣量")]
+        [Column("賣量", 15)]
         public int BestSellQty
         {
             get { return _bestSellyQty; }
@@ -186,7 +167,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _openPrice;
-        [Description("開盤價")]
+        [Column("開盤價", 16, "0.00")]
         public decimal OpenPrice
         {
             get { return _openPrice; }
@@ -194,7 +175,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _highPrice;
-        [Description("最高價")]
+        [Column("最高價", 17, "0.00")]
         public decimal HighPrice
         {
             get { return _highPrice; }
@@ -202,7 +183,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _lowPrice;
-        [Description("最低價")]
+        [Column("最低價", 18, "0.00")]
         public decimal LowPrice
         {
             get { return _lowPrice; }
@@ -210,7 +191,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _reference;
-        [Description("參考價")]
+        [Column("參考價", 19, "0.00")]
         public decimal Reference
         {
             get { return _reference; }
@@ -218,10 +199,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _simulate;
-        /// <summary>
-        /// 試撮
-        /// </summary>
-        [Description("試")]
+        [Column("試撮", "試", 20)]
         public int Simulate
         {
             get { return _simulate; }
@@ -233,7 +211,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _totalQty;
-        [Description("總量")]
+        [Column("總量", 21)]
         public int TotalQty
         {
             get { return _totalQty; }
@@ -241,7 +219,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _tradeDateRaw;
-        [Description("交易日raw")]
+        [Column("交易日", 22)]
         public int TradeDateRaw
         {
             get { return _tradeDateRaw; }
@@ -252,29 +230,11 @@ namespace GNAy.Capital.Models
             }
         }
 
-        [Description("交易日")]
-        public DateTime TradeDate
-        {
-            get
-            {
-                if (TradeDateRaw <= 0)
-                {
-                    return DateTime.MinValue;
-                }
-
-                try
-                {
-                    return DateTime.ParseExact(TradeDateRaw.ToString().PadLeft(8, '0'), "yyyyMMdd", CultureInfo.InvariantCulture);
-                }
-                catch
-                { }
-
-                return DateTime.MinValue;
-            }
-        }
+        [Column("交易日", -1)]
+        public DateTime TradeDate => (TradeDateRaw <= 0) ? DateTime.MaxValue.Date : DateTime.ParseExact(TradeDateRaw.ToString().PadLeft(8, '0'), "yyyyMMdd", CultureInfo.InvariantCulture);
 
         private decimal _highPriceLimit;
-        [Description("漲停")]
+        [Column("漲停", 23, "0.00")]
         public decimal HighPriceLimit
         {
             get { return _highPriceLimit; }
@@ -282,7 +242,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _lowPriceLimit;
-        [Description("跌停")]
+        [Column("跌停", 24, "0.00")]
         public decimal LowPriceLimit
         {
             get { return _lowPriceLimit; }
@@ -290,7 +250,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _count;
-        [Description("筆數")]
+        [Column("筆數", -1)]
         public int Count
         {
             get { return _count; }
@@ -298,7 +258,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _index;
-        [Description("索引")]
+        [Column("索引", 25)]
         public int Index
         {
             get { return _index; }
@@ -306,10 +266,7 @@ namespace GNAy.Capital.Models
         }
 
         private short _page;
-        /// <summary>
-        /// Page
-        /// </summary>
-        [Description("P")]
+        [Column("Page", "P", 26)]
         public short Page
         {
             get { return _page; }
@@ -317,10 +274,7 @@ namespace GNAy.Capital.Models
         }
 
         private short _market;
-        /// <summary>
-        /// 市場
-        /// </summary>
-        [Description("市")]
+        [Column("市場", "市", 27)]
         public short Market
         {
             get { return _market; }
@@ -328,10 +282,7 @@ namespace GNAy.Capital.Models
         }
 
         private short _decimalPos;
-        /// <summary>
-        /// 小數
-        /// </summary>
-        [Description("D")]
+        [Column("小數位數", "D", 28)]
         public short DecimalPos
         {
             get { return _decimalPos; }
@@ -339,7 +290,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _totalQtyBefore;
-        [Description("昨量")]
+        [Column("昨量", -1)]
         public int TotalQtyBefore
         {
             get { return _totalQtyBefore; }
@@ -364,10 +315,10 @@ namespace GNAy.Capital.Models
             Creator = String.Empty;
             CreatedTime = DateTime.Now;
             Updater = String.Empty;
-            UpdateTime = DateTime.MinValue;
+            UpdateTime = DateTime.MaxValue;
             Symbol = String.Empty;
             Name = String.Empty;
-            PacketTimeRaw = String.Empty;
+            MatchedTimeRaw = $"{DateTime.MinValue:HHmmss.ffffff}";
             DealPrice = 0;
             DealQty = 0;
             UpDown = 0;
@@ -392,5 +343,42 @@ namespace GNAy.Capital.Models
             DecimalPos = 0;
             TotalQtyBefore = 0;
         }
+
+        //public string ToCSVString()
+        //{
+        //    string result = string.Join(",",
+        //        Creator,
+        //        $"{CreatedTime:yyyy/MM/dd HH:mm:ss.ffffff}",
+        //        Updater,
+        //        $"{UpdateTime:yyyy/MM/dd HH:mm:ss.ffffff}",
+        //        Duration,
+        //        Symbol,
+        //        Name,
+        //        MatchedTimeRaw,
+        //        $"{DealPrice:0.00}",
+        //        $"{DealQty}",
+        //        $"{UpDown:0.00}",
+        //        $"{UpDownPct:0.00}",
+        //        $"{BestBuyPrice:0.00}",
+        //        $"{BestBuyQty}",
+        //        $"{BestSellPrice:0.00}",
+        //        $"{BestSellQty}",
+        //        $"{OpenPrice:0.00}",
+        //        $"{HighPrice:0.00}",
+        //        $"{LowPrice:0.00}",
+        //        $"{Reference:0.00}",
+        //        $"{Simulate}",
+        //        $"{TotalQty}",
+        //        $"{TradeDateRaw}",
+        //        $"{HighPriceLimit:0.00}",
+        //        $"{LowPriceLimit:0.00}",
+        //        $"{Index}",
+        //        $"{Page}",
+        //        $"{Market}",
+        //        $"{DecimalPos}"
+        //        );
+
+        //    return result;
+        //}
     }
 }

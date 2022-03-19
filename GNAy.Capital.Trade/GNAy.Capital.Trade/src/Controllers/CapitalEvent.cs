@@ -1,5 +1,4 @@
 ﻿using GNAy.Capital.Models;
-using GNAy.Tools.WPF;
 using SKCOMLib;
 using System;
 using System.Collections.Generic;
@@ -192,7 +191,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 quote.Count = nPtr;
                 quote.TradeDateRaw = nDate;
-                quote.PacketTimeRaw = String.Format("{0}.{1}", lTimehms.ToString().PadLeft(6, '0'), lTimemillismicros.ToString().PadLeft(6, '0'));
+                quote.MatchedTimeRaw = String.Format("{0}.{1}", lTimehms.ToString().PadLeft(6, '0'), lTimemillismicros.ToString().PadLeft(6, '0'));
                 quote.BestBuyPrice = nBid / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);

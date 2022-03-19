@@ -1,10 +1,11 @@
 ﻿using GNAy.Capital.Models;
+using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
 using SKCOMLib;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -49,8 +50,6 @@ namespace GNAy.Capital.Trade.Controllers
         public (DateTime, string) AccountTimer { get; private set; }
         public (DateTime, string) QuoteTimer { get; private set; }
 
-        public int SubQuoteResult { get; private set; }
-
         private readonly Dictionary<int, QuoteData> QuoteIndexMap;
         private readonly ObservableCollection<QuoteData> QuoteCollection;
 
@@ -67,11 +66,9 @@ namespace GNAy.Capital.Trade.Controllers
             AccountTimer = (DateTime.MinValue, string.Empty);
             QuoteTimer = (DateTime.MinValue, string.Empty);
 
-            SubQuoteResult = -1;
-
             QuoteIndexMap = new Dictionary<int, QuoteData>();
 
-            MainWindow.Instance.DataGridQuoteSubscribed.SetHeadersByBindings(QuoteData.PropertyDescriptionMap);
+            MainWindow.Instance.DataGridQuoteSubscribed.SetHeadersByBindings(QuoteData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1.ShortName));
             QuoteCollection = MainWindow.Instance.DataGridQuoteSubscribed.SetAndGetItemsSource<QuoteData>();
         }
 
@@ -384,6 +381,11 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.UpDownPct = quote.UpDown / quote.Reference * 100;
             }
 
+            quote.Creator = "GetStockByNoLONG";
+            quote.CreatedTime = DateTime.Now;
+            quote.Updater = quote.Creator;
+            quote.UpdateTime = quote.CreatedTime;
+
             return quote;
         }
 
@@ -438,13 +440,13 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.UpDownPct = quote.UpDown / quote.Reference * 100;
             }
 
-            quote.Updater = "UpdateQuote";
+            quote.Updater = "OnNotifyQuote";
             quote.UpdateTime = DateTime.Now;
 
             return true;
         }
 
-        public bool SubQuotes()
+        public void SubQuotes()
         {
             MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
 
@@ -461,10 +463,13 @@ namespace GNAy.Capital.Trade.Controllers
                     throw new ArgumentException($"SKAPI|QuoteCollection.Count > 0|Count={QuoteCollection.Count}|Quotes are subscribed.");
                 }
 
+                bool isHoliday = MainWindow.AppCtrl.Config.IsHoliday(now);
+                int nCode = -1;
+
                 foreach (string product in MainWindow.AppCtrl.Settings.QuoteSubscribed)
                 {
                     SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
-                    int nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(product, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
+                    nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(product, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
                     if (nCode != 0)
                     {
                         LogAPIMessage(nCode);
@@ -475,7 +480,11 @@ namespace GNAy.Capital.Trade.Controllers
                     QuoteIndexMap.Add(quote.Index, quote);
                     QuoteCollection.Add(quote);
 
-                    if (now.Hour >= 14 || now.Hour < 8)
+                    if (isHoliday) //假日不訂閱即時報價
+                    {
+                        continue;
+                    }
+                    else if (now.Hour >= 14 || now.Hour < 8)
                     {
                         //期貨選擇權夜盤，上市櫃已經收盤
                         if (quote.Market != 2 && quote.Market != 3)
@@ -485,11 +494,15 @@ namespace GNAy.Capital.Trade.Controllers
                     }
 
                     short pageA = -1;
-                    nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref pageA, quote.Symbol);
+                    nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref pageA, quote.Symbol); //訂閱與要求傳送即時成交明細。(本功能不會訂閱最佳五檔，亦不包含歷史Ticks)
                     if (nCode != 0)
                     {
                         LogAPIMessage(nCode);
                         continue;
+                    }
+                    if (pageA < 0)
+                    {
+                        MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|Symbol={quote.Symbol}|pageA={pageA}");
                     }
 
                     quote.Page = pageA;
@@ -498,9 +511,15 @@ namespace GNAy.Capital.Trade.Controllers
                 string products = string.Join(",", MainWindow.AppCtrl.Settings.QuoteSubscribed);
                 short pageB = 1;
 
-                SubQuoteResult = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageB, products); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
-
-                return true;
+                nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageB, products); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
+                if (nCode != 0)
+                {
+                    LogAPIMessage(nCode);
+                }
+                if (pageB < 0)
+                {
+                    MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|products={products}|pageB={pageB}");
+                }
             }
             catch (Exception ex)
             {
@@ -510,8 +529,58 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 MainWindow.AppCtrl.LogTrace("SKAPI|End");
             }
+        }
 
-            return false;
+        public void SaveQuotesAsync()
+        {
+            if (QuoteCollection.Count <= 0)
+            {
+                return;
+            }
+
+            Task.Factory.StartNew(() =>
+            {
+                MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
+
+                try
+                {
+                    string path = Path.Combine(MainWindow.AppCtrl.Config.QuoteFolder.FullName, $"{QuoteCollection.Max(x => x.TradeDateRaw)}.csv");
+
+                    if (!File.Exists(path))
+                    {
+                        using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
+                        {
+                            sw.WriteLine(string.Join(",", QuoteData.ColumnGetters.Values.Select(x => x.Item1.Name)));
+                        }
+                    }
+
+                    using (StreamWriter sw = new StreamWriter(path, true, TextEncoding.UTF8WithoutBOM))
+                    {
+                        foreach (QuoteData quote in QuoteCollection)
+                        {
+                            try
+                            {
+                                string line = string.Join("\",\"", QuoteData.ColumnGetters.Values.Select(x => x.Item2.PropertyValueToString(quote, x.Item1.StringFormat)));
+                                line = $"\"{line}\"";
+
+                                sw.WriteLine(line);
+                            }
+                            catch (Exception ex)
+                            {
+                                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                }
+                finally
+                {
+                    MainWindow.AppCtrl.LogTrace("SKAPI|End");
+                }
+            });
         }
     }
 }

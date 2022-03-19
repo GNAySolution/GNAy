@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,18 +10,18 @@ namespace GNAy.Tools.NET47.Models
     public class AppLog : NotifyPropertyChanged
     {
         private string _creator;
-        [Description("建立者")]
+        [Column("建立者", -1)]
         public string Creator
         {
             get { return _creator; }
             set { OnPropertyChanged(ref _creator, value); }
         }
 
-        [Description("日期")]
+        [Column("日期", -1)]
         public DateTime CreatedDate => CreatedTime.Date;
 
         private DateTime _createdTime;
-        [Description("時間")]
+        [Column("時間", -1)]
         public DateTime CreatedTime
         {
             get { return _createdTime; }
@@ -34,7 +33,7 @@ namespace GNAy.Tools.NET47.Models
         }
 
         private string _project;
-        [Description("專案")]
+        [Column("專案", -1)]
         public string Project
         {
             get { return _project; }
@@ -42,7 +41,7 @@ namespace GNAy.Tools.NET47.Models
         }
 
         private string _level;
-        [Description("等級")]
+        [Column("等級", -1)]
         public string Level
         {
             get { return _level; }
@@ -50,7 +49,7 @@ namespace GNAy.Tools.NET47.Models
         }
 
         private string _message;
-        [Description("訊息")]
+        [Column("訊息", -1)]
         public string Message
         {
             get { return _message; }

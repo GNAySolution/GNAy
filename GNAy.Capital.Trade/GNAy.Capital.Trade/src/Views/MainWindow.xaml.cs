@@ -727,7 +727,7 @@ namespace GNAy.Capital.Trade
 
                 if (AppCtrl.Config.QuoteFolder != null && CapitalCtrl != null)
                 {
-                    //TODO: Time to save quotes. (StatusBarItemAB2)
+                    CapitalCtrl.SaveQuotesAsync();
                 }
 
                 if (AppCtrl.Settings.AutoRun && CapitalCtrl == null)
