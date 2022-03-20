@@ -1,4 +1,5 @@
-﻿using GNAy.Capital.Trade.Controllers;
+﻿using GNAy.Capital.Models;
+using GNAy.Capital.Trade.Controllers;
 using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
 using NLog;
@@ -155,7 +156,7 @@ namespace GNAy.Capital.Trade
 
         private void Window_GotFocus(object sender, RoutedEventArgs e)
         {
-            AppCtrl.LogTrace("Start");
+            //AppCtrl.LogTrace("Start");
 
             try
             {
@@ -167,13 +168,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                AppCtrl.LogTrace("End");
+                //AppCtrl.LogTrace("End");
             }
         }
 
         private void Window_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            AppCtrl.LogTrace("Start");
+            //AppCtrl.LogTrace("Start");
 
             try
             {
@@ -185,7 +186,7 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                AppCtrl.LogTrace("End");
+                //AppCtrl.LogTrace("End");
             }
         }
 
@@ -337,7 +338,7 @@ namespace GNAy.Capital.Trade
 
         private void Window_LostFocus(object sender, RoutedEventArgs e)
         {
-            AppCtrl.LogTrace("Start");
+            //AppCtrl.LogTrace("Start");
 
             try
             {
@@ -349,13 +350,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                AppCtrl.LogTrace("End");
+                //AppCtrl.LogTrace("End");
             }
         }
 
         private void Window_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            AppCtrl.LogTrace("Start");
+            //AppCtrl.LogTrace("Start");
 
             try
             {
@@ -367,7 +368,7 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                AppCtrl.LogTrace("End");
+                //AppCtrl.LogTrace("End");
             }
         }
 
@@ -677,33 +678,25 @@ namespace GNAy.Capital.Trade
                     StatusBarItemAA4.Text = $"({pt.X},{pt.Y})";
                 }
 
-                if (DataGridAppLog.ItemsSource != null)
+                if (TabControlBA.SelectedIndex == 0 && DataGridAppLog.ItemsSource != null)
                 {
                     StatusBarItemBA1.Text = $"({DataGridAppLog.Columns.Count},{DataGridAppLog.Items.Count})";
+                }
+                else if (TabControlBA.SelectedIndex == 1 && DataGridAPIReply.ItemsSource != null)
+                {
+                    StatusBarItemBA1.Text = $"({DataGridAPIReply.Columns.Count},{DataGridAPIReply.Items.Count})";
                 }
 
                 if (CapitalCtrl != null)
                 {
-                    StatusBarItemAB4.Text = CapitalCtrl.LoginQuoteStatusStr;
+                    StatusBarItemAB4.Text = CapitalCtrl.QuoteStatusStr;
                     StatusBarItemBA3.Text = $"{CapitalCtrl.AccountTimer.Item1:mm:ss}|{CapitalCtrl.AccountTimer.Item2}";
                     StatusBarItemBA4.Text = $"{CapitalCtrl.QuoteTimer.Item1:mm:ss}|{CapitalCtrl.QuoteTimer.Item2}";
-
                 }
 
                 if (DataGridQuoteSubscribed.ItemsSource != null)
                 {
                     StatusBarItemAB1.Text = $"({DataGridQuoteSubscribed.Columns.Count},{DataGridQuoteSubscribed.Items.Count})";
-                }
-
-                foreach (DateTime timeToExit in AppCtrl.Settings.TimeToExit)
-                {
-                    if (now.Hour == timeToExit.Hour && now.Minute >= timeToExit.Minute && now.Minute <= (timeToExit.Minute + 2))
-                    {
-                        _timer1.Stop();
-                        _timer2.Stop();
-                        AppCtrl.Exit($"Time to exit.");
-                        break;
-                    }
                 }
             }
             catch (Exception ex)
@@ -717,7 +710,7 @@ namespace GNAy.Capital.Trade
             _timer2.Stop();
 
             DateTime now = DateTime.Now;
-            bool reConnect = false;
+            int reConnect = 0;
 
             try
             {
@@ -730,26 +723,40 @@ namespace GNAy.Capital.Trade
                     CapitalCtrl.SaveQuotesAsync();
                 }
 
+                foreach (DateTime timeToExit in AppCtrl.Settings.TimeToExit)
+                {
+                    if (now.Hour == timeToExit.Hour && now.Minute >= timeToExit.Minute && now.Minute <= (timeToExit.Minute + 2))
+                    {
+                        _timer1.Stop();
+                        AppCtrl.Exit($"Time to exit.");
+                        break;
+                    }
+                }
+
                 if (AppCtrl.Settings.AutoRun && CapitalCtrl == null)
                 {
-                    reConnect = true;
+                    reConnect = 1 + StatusCode.BaseTraceValue;
                 }
                 //3002 SK_SUBJECT_CONNECTION_DISCONNECT 斷線
                 //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
                 //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
                 //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
-                else if (CapitalCtrl != null && (CapitalCtrl.LoginQuoteStatus == 3002 || CapitalCtrl.LoginQuoteStatus == 3021 || CapitalCtrl.LoginQuoteStatus == 3022 || CapitalCtrl.LoginQuoteStatus == 3033))
+                else if (CapitalCtrl != null && (CapitalCtrl.QuoteStatus == 3002 || CapitalCtrl.QuoteStatus == 3021 || CapitalCtrl.QuoteStatus == 3022 || CapitalCtrl.QuoteStatus == 3033))
                 {
-                    reConnect = true;
+                    reConnect = CapitalCtrl.QuoteStatus + StatusCode.BaseErrorValue;
+                }
+                else if (CapitalCtrl != null && CapitalCtrl.QuoteStatus > StatusCode.BaseTraceValue)
+                {
+                    reConnect = CapitalCtrl.QuoteStatus;
                 }
 
-                if (!reConnect)
+                if (reConnect == 0)
                 {
                     _timer2.Start();
                     return;
                 }
 
-                AppCtrl.LogWarn("Retry to connect quote service.");
+                AppCtrl.Log(reConnect, $"Retry to connect quote service.|reConnect={reConnect}");
                 Task.Factory.StartNew(() =>
                 {
                     if (CapitalCtrl != null)
@@ -766,8 +773,8 @@ namespace GNAy.Capital.Trade
                     });
 
                     Thread.Sleep(3 * 1000);
-                    SpinWait.SpinUntil(() => CapitalCtrl.LoginQuoteStatus == 3003, 2 * 60 * 1000); //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
-                    if (CapitalCtrl.LoginQuoteStatus != 3003) //Timeout
+                    SpinWait.SpinUntil(() => CapitalCtrl.QuoteStatus == 3003, 2 * 60 * 1000); //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
+                    if (CapitalCtrl.QuoteStatus != 3003) //Timeout
                     {
                         //TODO: Send alert mail.
                         CapitalCtrl.Disconnect();
@@ -924,13 +931,49 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonQueryHistQuotes_Click(object sender, RoutedEventArgs e)
+        private void ButtonQueryQuotes_Click(object sender, RoutedEventArgs e)
         {
             AppCtrl.LogTrace("Start");
 
             try
             {
-                //StatusBarItemAB2.Text = CapitalCtrl.SubQuotes();
+                //
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonFuturesOrderTest_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                //
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonOptionsOrderTest_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                //
             }
             catch (Exception ex)
             {

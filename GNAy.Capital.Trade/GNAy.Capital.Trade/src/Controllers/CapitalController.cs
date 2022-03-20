@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GNAy.Capital.Trade.Controllers
@@ -29,18 +30,18 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int LoginAccountResult { get; private set; }
 
-        public string LoginQuoteStatusStr { get; private set; }
-        private int _loginQuoteStatus;
-        public int LoginQuoteStatus
+        public string QuoteStatusStr { get; private set; }
+        private int _quoteStatus;
+        public int QuoteStatus
         {
             get
             {
-                return _loginQuoteStatus;
+                return _quoteStatus;
             }
             private set
             {
-                _loginQuoteStatus = value;
-                LoginQuoteStatusStr = GetAPIMessage(value);
+                _quoteStatus = value;
+                QuoteStatusStr = GetAPIMessage(value);
             }
         }
 
@@ -50,6 +51,9 @@ namespace GNAy.Capital.Trade.Controllers
         public (DateTime, string) AccountTimer { get; private set; }
         public (DateTime, string) QuoteTimer { get; private set; }
 
+        private readonly Dictionary<int, APIReplyData> APIReplyMap;
+        private readonly ObservableCollection<APIReplyData> APIReplyCollection;
+
         private readonly Dictionary<int, QuoteData> QuoteIndexMap;
         private readonly ObservableCollection<QuoteData> QuoteCollection;
 
@@ -58,13 +62,18 @@ namespace GNAy.Capital.Trade.Controllers
             CreatedTime = DateTime.Now;
 
             LoginAccountResult = -1;
-            LoginQuoteStatus = -1;
+            QuoteStatus = -1;
 
             Account = String.Empty;
             DWP = String.Empty;
 
             AccountTimer = (DateTime.MinValue, string.Empty);
             QuoteTimer = (DateTime.MinValue, string.Empty);
+
+            APIReplyMap = new Dictionary<int, APIReplyData>();
+
+            MainWindow.Instance.DataGridAPIReply.SetHeadersByBindings(APIReplyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1.ShortName));
+            APIReplyCollection = MainWindow.Instance.DataGridAPIReply.SetAndGetItemsSource<APIReplyData>();
 
             QuoteIndexMap = new Dictionary<int, QuoteData>();
 
@@ -80,7 +89,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
 
             string lastLog = m_pSKCenter.SKCenterLib_GetLastLogInfo(); //取得最後一筆LOG內容
-            string codeMessage = m_pSKCenter.SKCenterLib_GetReturnCodeMessage(nCode); //取得定義代碼訊息文字
+            string codeMessage = m_pSKCenter.SKCenterLib_GetReturnCodeMessage(nCode % StatusCode.BaseTraceValue); //取得定義代碼訊息文字
 
             return $"nCode={nCode}|{codeMessage}|{lastLog}";
         }
@@ -89,18 +98,26 @@ namespace GNAy.Capital.Trade.Controllers
         {
             string msg = GetAPIMessage(nCode);
 
-            if (nCode <= 0)
+            if (nCode < 0)
+            {
+                MainWindow.AppCtrl.LogError($"SKAPI|{msg}", lineNumber, memberName);
+                return msg;
+            }
+
+            int _code = nCode % StatusCode.BaseTraceValue;
+
+            if (_code == 0)
             {
                 MainWindow.AppCtrl.LogTrace($"SKAPI|{msg}", lineNumber, memberName);
             }
             //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
             //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
             //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
-            else if (nCode < 2000 || nCode == 3021 || nCode == 3022 || nCode == 3033)
+            else if (_code < 2000 || _code == 3021 || _code == 3022 || _code == 3033)
             {
                 MainWindow.AppCtrl.LogError($"SKAPI|{msg}", lineNumber, memberName);
             }
-            else if (nCode < 3000)
+            else if (_code < 3000)
             {
                 MainWindow.AppCtrl.LogWarn($"SKAPI|{msg}", lineNumber, memberName);
             }
@@ -110,6 +127,38 @@ namespace GNAy.Capital.Trade.Controllers
             }
 
             return msg;
+        }
+
+        public void AppandReply(string account, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            APIReplyData replay = new APIReplyData()
+            {
+                Project = MainWindow.AppCtrl.ProcessName,
+                ThreadID = Thread.CurrentThread.ManagedThreadId,
+                Account = account,
+                Message = msg,
+                CallerLineNumber = lineNumber,
+                CallerMemberName = memberName,
+            };
+
+            try
+            {
+                MainWindow.Instance.TabControlBA.SelectedIndex = 1;
+
+                APIReplyCollection.Add(replay);
+
+                //while (APIReplyCollection.Count > MainWindow.AppCtrl.Settings.DataGridAppLogRowsMax * 2)
+                //{
+                //    APIReplyCollection.RemoveAt(0);
+                //}
+
+                if (!MainWindow.Instance.DataGridAPIReply.IsMouseOver)
+                {
+                    MainWindow.Instance.DataGridAPIReply.ZxtScrollToEnd();
+                }
+            }
+            catch
+            { }
         }
 
         public int LoginAccount(string account, string dwp)
@@ -129,6 +178,10 @@ namespace GNAy.Capital.Trade.Controllers
 
                 m_pSKReply = new SKReplyLib();
                 m_pSKReply.OnReplyMessage += SKReply_OnAnnouncement;
+                m_pSKReply.OnConnect += OnConnect;
+                m_pSKReply.OnDisconnect += OnDisconnect;
+                m_pSKReply.OnSolaceReplyConnection += OnSolaceReplyConnection;
+                m_pSKReply.OnSolaceReplyDisconnect += OnSolaceReplyDisconnect;
 
                 m_pSKCenter = new SKCenterLib();
                 m_pSKCenter.SKCenterLib_SetAuthority(0); //SGX 專線屬性：關閉／開啟：0／1
@@ -173,6 +226,15 @@ namespace GNAy.Capital.Trade.Controllers
                     LogAPIMessage(LoginAccountResult);
                 }
 
+                //if (LoginAccountResult == 0 || (LoginAccountResult >= 600 && LoginAccountResult <= 699))
+                //{
+                //    int nCode = m_pSKReply.SKReplyLib_ConnectByID(account); //指定回報連線的使用者登入帳號
+                //    if (nCode != 0)
+                //    {
+                //        LogAPIMessage(nCode);
+                //    }
+                //}
+
                 string strSKAPIVersion = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(account); //取得目前註冊SKAPI 版本及位元
                 MainWindow.AppCtrl.LogTrace($"SKAPI|Version={strSKAPIVersion}");
             }
@@ -196,18 +258,18 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (m_SKQuoteLib != null)
                 {
-                    LoginQuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
-                    LogAPIMessage(LoginQuoteStatus);
-                    return LoginQuoteStatus;
+                    QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
+                    LogAPIMessage(QuoteStatus);
+                    return QuoteStatus;
                 }
 
                 dwp = dwp.Trim();
                 MainWindow.AppCtrl.LogTrace($"SKAPI|account={Account}|dwp=********");
 
-                LoginQuoteStatus = m_pSKCenter.SKCenterLib_LoginSetQuote(Account, dwp, "Y"); //Y:啟用報價 N:停用報價
-                if (LoginQuoteStatus == 0 || (LoginQuoteStatus >= 600 && LoginQuoteStatus <= 699))
+                QuoteStatus = m_pSKCenter.SKCenterLib_LoginSetQuote(Account, dwp, "Y"); //Y:啟用報價 N:停用報價
+                if (QuoteStatus == 0 || (QuoteStatus >= 600 && QuoteStatus <= 699))
                 {
-                    MainWindow.AppCtrl.LogTrace($"SKAPI|LoginQuoteResult={LoginQuoteStatus}|登入成功");
+                    MainWindow.AppCtrl.LogTrace($"SKAPI|QuoteStatus={QuoteStatus}|登入成功");
                     //skOrder1.LoginID = txtAccount.Text.Trim().ToUpper();
                     //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
 
@@ -218,7 +280,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    LogAPIMessage(LoginQuoteStatus);
+                    LogAPIMessage(QuoteStatus);
                 }
 
                 m_SKQuoteLib = new SKQuoteLib();
@@ -243,8 +305,8 @@ namespace GNAy.Capital.Trade.Controllers
                 m_SKQuoteLib.OnNotifyCommodityListWithTypeNo += m_SKQuoteLib_OnNotifyCommodityListWithTypeNo;
                 m_SKQuoteLib.OnNotifyOddLotSpreadDeal += m_SKQuoteLib_OnNotifyOddLotSpreadDeal;
 
-                LoginQuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
-                LogAPIMessage(LoginQuoteStatus);
+                QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
+                LogAPIMessage(QuoteStatus);
             }
             catch (Exception ex)
             {
@@ -255,7 +317,7 @@ namespace GNAy.Capital.Trade.Controllers
                 MainWindow.AppCtrl.LogTrace("SKAPI|End");
             }
 
-            return LoginQuoteStatus;
+            return QuoteStatus;
         }
 
         public int Disconnect()
@@ -293,7 +355,6 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 int isConnected = m_SKQuoteLib.SKQuoteLib_IsConnected(); //檢查目前報價的連線狀態 //0表示斷線。1表示連線中。2表示下載中
                 string result = string.Empty;
-
                 switch (isConnected)
                 {
                     case 0:
@@ -307,6 +368,12 @@ namespace GNAy.Capital.Trade.Controllers
                         break;
                     default:
                         return LogAPIMessage(isConnected);
+                }
+
+                int nCode = m_pSKReply.SKReplyLib_IsConnectedByID(Account);
+                if (nCode != 0 && nCode != 1 && nCode != 2)
+                {
+                    LogAPIMessage(nCode);
                 }
 
                 MainWindow.AppCtrl.LogTrace($"SKAPI|{result}");
@@ -454,9 +521,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (LoginQuoteStatus != 3003) //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
+                if (QuoteStatus != 3003) //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
                 {
-                    throw new ArgumentException($"SKAPI|LoginQuoteStatus != 3003|LoginQuoteStatusStr={LoginQuoteStatusStr}");
+                    throw new ArgumentException($"SKAPI|QuoteStatus != 3003|QuoteStatusStr={QuoteStatusStr}");
                 }
                 else if (QuoteCollection.Count > 0)
                 {
@@ -515,6 +582,10 @@ namespace GNAy.Capital.Trade.Controllers
                 if (nCode != 0)
                 {
                     LogAPIMessage(nCode);
+
+                    //nCode=3030|SK_SUBJECT_NO_QUOTE_SUBSCRIBE|即時行情連線數已達上限，行情訂閱功能受限
+                    MainWindow.AppCtrl.LogWarn($"QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}");
+                    QuoteStatus = nCode + StatusCode.BaseWarnValue;
                 }
                 if (pageB < 0)
                 {
@@ -560,10 +631,7 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             try
                             {
-                                string line = string.Join("\",\"", QuoteData.ColumnGetters.Values.Select(x => x.Item2.PropertyValueToString(quote, x.Item1.StringFormat)));
-                                line = $"\"{line}\"";
-
-                                sw.WriteLine(line);
+                                sw.WriteLine(quote.ToCSVString());
                             }
                             catch (Exception ex)
                             {

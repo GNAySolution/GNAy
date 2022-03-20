@@ -34,7 +34,7 @@
                             <Button x:Name="ButtonDisconnect" Content="Disconnect" HorizontalAlignment="Left" Margin="132,82,0,0" VerticalAlignment="Top" Click="ButtonDisconnect_Click"/>
                             <Button x:Name="ButtonPrintProductList" Content="商品基本資料" HorizontalAlignment="Left" Margin="42,106,0,0" VerticalAlignment="Top" Click="ButtonPrintProductList_Click"/>
                             <Button x:Name="ButtonSubQuotes" Content="訂閱即時報價" HorizontalAlignment="Left" Margin="123,106,0,0" VerticalAlignment="Top" Click="ButtonSubQuotes_Click"/>
-                            <Button x:Name="ButtonQueryHistQuotes" Content="查詢歷史報價" HorizontalAlignment="Left" Margin="123,130,0,0" VerticalAlignment="Top" Click="ButtonQueryHistQuotes_Click"/>
+                            <Button x:Name="ButtonQueryQuotes" Content="回補行情報價" HorizontalAlignment="Left" Margin="123,130,0,0" VerticalAlignment="Top" Click="ButtonQueryQuotes_Click"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="AA2">
@@ -92,8 +92,30 @@
                             </DataGrid>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="BA2">
+                    <TabItem Header="APIReply">
                         <Grid Background="#FFE5E5E5">
+                            <DataGrid x:Name="DataGridAPIReply" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding CreatedTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding ThreadID}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding CallerLineNumber}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding CallerMemberName}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding Account}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding Message}" IsReadOnly="True" CanUserSort="False"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </Grid>
                     </TabItem>
                 </TabControl>
@@ -132,10 +154,12 @@
                                             <DataTrigger Binding="{Binding RowBackground}" Value="0">
                                                 <Setter Property="Background" Value="PaleGreen"></Setter>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding RowBackground}" Value="3"> <!--試撮-->
+                                            <!--試撮-->
+                                            <DataTrigger Binding="{Binding RowBackground}" Value="3">
                                                 <Setter Property="Background" Value="Plum"></Setter>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding RowBackground}" Value="2"> <!--試撮-->
+                                            <!--試撮-->
+                                            <DataTrigger Binding="{Binding RowBackground}" Value="2">
                                                 <Setter Property="Background" Value="GreenYellow"></Setter>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -365,12 +389,14 @@
         </Border>
         <Border Grid.Row="1" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5">
-                <TabControl x:Name="TabControlBB" Margin="0,0,0,30" SelectedIndex="0">
-                    <TabItem Header="BB1">
+                <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
+                <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="91,10,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
+                <TabControl x:Name="TabControlBB" Margin="0,100,0,30" SelectedIndex="0">
+                    <TabItem Header="委託回報">
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
-                    <TabItem Header="BB2">
+                    <TabItem Header="成交回報">
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>

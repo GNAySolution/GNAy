@@ -37,11 +37,8 @@ namespace GNAy.Capital.Models
             Big5Encoding = Encoding.GetEncoding(settings.Big5EncodingCodePage);
             Holidays = new SortedDictionary<DateTime, string>();
 
-            if (string.IsNullOrWhiteSpace(settings.QuoteFolderPath))
-            {
-                QuoteFolder = null;
-            }
-            else
+            QuoteFolder = null;
+            if (!string.IsNullOrWhiteSpace(settings.QuoteFolderPath))
             {
                 QuoteFolder = new DirectoryInfo(settings.QuoteFolderPath);
                 QuoteFolder.Create();
@@ -85,14 +82,16 @@ namespace GNAy.Capital.Models
                 return false;
             }
 
-            DateTime beforeDate = date.AddDays(-1);
+            return Holidays.ContainsKey(date.AddDays(-1)) ? true : time.Hour >= 5; //夜盤跨日到早上5點
 
-            if (Holidays.ContainsKey(beforeDate))
-            {
-                return true;
-            }
+            //DateTime beforeDate = date.AddDays(-1);
 
-            return time.Hour >= 5;
+            //if (Holidays.ContainsKey(beforeDate))
+            //{
+            //    return true;
+            //}
+
+            //return time.Hour >= 5;
         }
     }
 }

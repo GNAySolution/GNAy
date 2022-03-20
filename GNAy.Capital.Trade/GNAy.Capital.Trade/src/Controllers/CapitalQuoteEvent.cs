@@ -11,27 +11,6 @@ namespace GNAy.Capital.Trade.Controllers
     public partial class CapitalController
     {
         /// <summary>
-        /// 當有公告將主動呼叫函式，並通知公告類訊息
-        /// </summary>
-        /// <param name="strUserID"></param>
-        /// <param name="bstrMessage"></param>
-        /// <param name="nConfirmCode"></param>
-        private void SKReply_OnAnnouncement(string strUserID, string bstrMessage, out short nConfirmCode)
-        {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|bstrMessage={bstrMessage}");
-            nConfirmCode = -1;
-        }
-
-        /// <summary>
-        /// 定時Timer通知。每分鐘會由該函式得到一個時間
-        /// </summary>
-        /// <param name="nTime"></param>
-        private void SKCenter_OnTimer(int nTime)
-        {
-            AccountTimer = (DateTime.Now, $"nTime={nTime}");
-        }
-
-        /// <summary>
         /// 接收連線狀態
         /// </summary>
         /// <param name="nKind"></param>
@@ -49,7 +28,7 @@ namespace GNAy.Capital.Trade.Controllers
             //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
             //3026 SK_SUBJECT_CONNECTION_SGX_API_READY SGX API專線建立完成
             //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
-            LoginQuoteStatus = nKind;
+            QuoteStatus = nKind;
 
             LogAPIMessage(nKind);
             LogAPIMessage(nCode);
@@ -470,7 +449,7 @@ namespace GNAy.Capital.Trade.Controllers
                     int m_nCode = m_SKQuoteLib.SKQuoteLib_RequestServerTime();
                     if (m_nCode != 0)
                     {
-                        LogAPIMessage(LoginQuoteStatus);
+                        LogAPIMessage(QuoteStatus);
                     }
                 }
             }

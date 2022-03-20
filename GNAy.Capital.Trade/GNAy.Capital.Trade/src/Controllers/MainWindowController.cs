@@ -32,12 +32,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             CreatedTime = DateTime.Now;
 
-            ProcessName = Process.GetCurrentProcess().ProcessName;
-            if (ProcessName.EndsWith(".vshost"))
-            {
-                ProcessName = ProcessName.Remove(ProcessName.Length - ".vshost".Length);
-            }
-
+            ProcessName = Process.GetCurrentProcess().ProcessName.Replace(".vshost", string.Empty);
             Config = LoadSettings();
 
             MainWindow.Instance.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1.ShortName));
@@ -63,6 +58,11 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 try
                 {
+                    if (level == LogLevel.Warn || level == LogLevel.Error)
+                    {
+                        MainWindow.Instance.TabControlBA.SelectedIndex = 0;
+                    }
+
                     AppLogCollection.Add(log);
 
                     while (AppLogCollection.Count > Settings.DataGridAppLogRowsMax)
@@ -70,7 +70,10 @@ namespace GNAy.Capital.Trade.Controllers
                         AppLogCollection.RemoveAt(0);
                     }
 
-                    MainWindow.Instance.DataGridAppLog.ZxtScrollToEnd();
+                    if (!MainWindow.Instance.DataGridAppLog.IsMouseOver)
+                    {
+                        MainWindow.Instance.DataGridAppLog.ZxtScrollToEnd();
+                    }
                 }
                 catch
                 { }
@@ -114,6 +117,38 @@ namespace GNAy.Capital.Trade.Controllers
             AppandLog(LogLevel.Error, _msg, lineNumber, memberName);
         }
 
+        public void Log(int statusCode, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            if (statusCode <= StatusCode.BaseTraceValue)
+            {
+                LogError(msg, lineNumber, memberName);
+            }
+            else if (statusCode % StatusCode.BaseTraceValue == 0)
+            {
+                LogError(msg, lineNumber, memberName);
+            }
+            else if (statusCode < StatusCode.BaseDebugValue)
+            {
+                LogTrace(msg, lineNumber, memberName);
+            }
+            else if (statusCode < StatusCode.BaseInfoValue)
+            {
+                LogDebug(msg, lineNumber, memberName);
+            }
+            else if (statusCode < StatusCode.BaseWarnValue)
+            {
+                LogInfo(msg, lineNumber, memberName);
+            }
+            else if (statusCode < StatusCode.BaseErrorValue)
+            {
+                LogWarn(msg, lineNumber, memberName);
+            }
+            else
+            {
+                LogError(msg, lineNumber, memberName);
+            }
+        }
+
         private void Log(LogLevel level, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             if (level == null || level == LogLevel.Trace)
@@ -145,9 +180,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             foreach (string arg in Environment.GetCommandLineArgs())
             {
-                if (!string.IsNullOrWhiteSpace(arg) && arg.StartsWith("-AppSettings="))
+                if (!string.IsNullOrWhiteSpace(arg) && arg.StartsWith("-AppSettings=", StringComparison.OrdinalIgnoreCase))
                 {
-                    string sub = arg.Substring("-AppSettings=".Length).Trim();
+                    string sub = arg.Substring("-AppSettings=".Length);
                     if (File.Exists(sub))
                     {
                         configFile = new FileInfo(sub);
@@ -209,7 +244,7 @@ namespace GNAy.Capital.Trade.Controllers
         }
 
         /// <summary>
-        /// https://docs.microsoft.com/zh-tw/windows/win32/debug/system-error-codes
+        /// 
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="level"></param>
@@ -219,16 +254,33 @@ namespace GNAy.Capital.Trade.Controllers
         {
             LogTrace("Start");
 
-            int exitCode = lineNumber < 16000 ? 16000 + lineNumber : lineNumber;
+            int exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseErrorValue;
 
             try
             {
+                if (level == null || level == LogLevel.Trace)
+                {
+                    exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseTraceValue;
+                }
+                else if (level == LogLevel.Debug)
+                {
+                    exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseDebugValue;
+                }
+                else if (level == LogLevel.Info)
+                {
+                    exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseInfoValue;
+                }
+                else if (level == LogLevel.Warn)
+                {
+                    exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseWarnValue;
+                }
+
+                Log(level, String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
+
                 if (MainWindow.CapitalCtrl != null)
                 {
                     MainWindow.CapitalCtrl.Disconnect();
                 }
-
-                Log(level, String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
 
                 //TODO: Send info mail.
 
@@ -240,7 +292,7 @@ namespace GNAy.Capital.Trade.Controllers
                 LogException(ex, ex.StackTrace);
 
                 Thread.Sleep(3 * 1000);
-                Environment.Exit(16000 + 1);
+                Environment.Exit(exitCode);
             }
             finally
             {

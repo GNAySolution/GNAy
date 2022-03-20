@@ -290,7 +290,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _totalQtyBefore;
-        [Column("昨量", -1)]
+        [Column("昨量", 29)]
         public int TotalQtyBefore
         {
             get { return _totalQtyBefore; }
@@ -344,41 +344,43 @@ namespace GNAy.Capital.Models
             TotalQtyBefore = 0;
         }
 
-        //public string ToCSVString()
-        //{
-        //    string result = string.Join(",",
-        //        Creator,
-        //        $"{CreatedTime:yyyy/MM/dd HH:mm:ss.ffffff}",
-        //        Updater,
-        //        $"{UpdateTime:yyyy/MM/dd HH:mm:ss.ffffff}",
-        //        Duration,
-        //        Symbol,
-        //        Name,
-        //        MatchedTimeRaw,
-        //        $"{DealPrice:0.00}",
-        //        $"{DealQty}",
-        //        $"{UpDown:0.00}",
-        //        $"{UpDownPct:0.00}",
-        //        $"{BestBuyPrice:0.00}",
-        //        $"{BestBuyQty}",
-        //        $"{BestSellPrice:0.00}",
-        //        $"{BestSellQty}",
-        //        $"{OpenPrice:0.00}",
-        //        $"{HighPrice:0.00}",
-        //        $"{LowPrice:0.00}",
-        //        $"{Reference:0.00}",
-        //        $"{Simulate}",
-        //        $"{TotalQty}",
-        //        $"{TradeDateRaw}",
-        //        $"{HighPriceLimit:0.00}",
-        //        $"{LowPriceLimit:0.00}",
-        //        $"{Index}",
-        //        $"{Page}",
-        //        $"{Market}",
-        //        $"{DecimalPos}"
-        //        );
+        public string ToCSVString()
+        {
+            //string result = string.Join(",",
+            //    Creator,
+            //    $"{CreatedTime:yyyy/MM/dd HH:mm:ss.ffffff}",
+            //    Updater,
+            //    $"{UpdateTime:yyyy/MM/dd HH:mm:ss.ffffff}",
+            //    Duration,
+            //    Symbol,
+            //    Name,
+            //    MatchedTimeRaw,
+            //    $"{DealPrice:0.00}",
+            //    $"{DealQty}",
+            //    $"{UpDown:0.00}",
+            //    $"{UpDownPct:0.00}",
+            //    $"{BestBuyPrice:0.00}",
+            //    $"{BestBuyQty}",
+            //    $"{BestSellPrice:0.00}",
+            //    $"{BestSellQty}",
+            //    $"{OpenPrice:0.00}",
+            //    $"{HighPrice:0.00}",
+            //    $"{LowPrice:0.00}",
+            //    $"{Reference:0.00}",
+            //    $"{Simulate}",
+            //    $"{TotalQty}",
+            //    $"{TradeDateRaw}",
+            //    $"{HighPriceLimit:0.00}",
+            //    $"{LowPriceLimit:0.00}",
+            //    $"{Index}",
+            //    $"{Page}",
+            //    $"{Market}",
+            //    $"{DecimalPos}",
+            //    $"{TotalQtyBefore}"
+            //    );
 
-        //    return result;
-        //}
+            string result = string.Join("\",\"", ColumnGetters.Values.Select(x => x.Item2.PropertyValueToString(this, x.Item1.StringFormat)));
+            return $"\"{result}\"";
+        }
     }
 }
