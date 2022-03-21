@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNAy.Tools.WPF", "..\GNAy.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNAy.Tools.NET47", "..\GNAy.Tools.WPF\GNAy.Tools.NET47\GNAy.Tools.NET47.csproj", "{97C48BE4-5385-4BA0-9FFE-631BA9FD7404}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNAy.Capital.Monitor", "GNAy.Capital.Monitor\GNAy.Capital.Monitor.csproj", "{D136C3EC-51F6-47F9-8B35-C0D346682E90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{97C48BE4-5385-4BA0-9FFE-631BA9FD7404}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97C48BE4-5385-4BA0-9FFE-631BA9FD7404}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97C48BE4-5385-4BA0-9FFE-631BA9FD7404}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D136C3EC-51F6-47F9-8B35-C0D346682E90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D136C3EC-51F6-47F9-8B35-C0D346682E90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D136C3EC-51F6-47F9-8B35-C0D346682E90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D136C3EC-51F6-47F9-8B35-C0D346682E90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

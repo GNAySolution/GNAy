@@ -481,8 +481,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             //quote.Symbol = raw.bstrStockNo;
             //quote.Name = raw.bstrStockName;
-            quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
-            quote.DealQty = raw.nTickQty;
+            //quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
+            //quote.DealQty = raw.nTickQty;
             quote.BestBuyPrice = raw.nBid / (decimal)Math.Pow(10, raw.sDecimal);
             quote.BestBuyQty = raw.nBc;
             quote.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
@@ -491,9 +491,9 @@ namespace GNAy.Capital.Trade.Controllers
             quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
             quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
             quote.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
-            quote.Simulate = raw.nSimulate;
+            //quote.Simulate = raw.nSimulate;
             quote.TotalQty = raw.nTQty;
-            quote.TradeDateRaw = raw.nTradingDay;
+            //quote.TradeDateRaw = raw.nTradingDay;
             quote.HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal);
             quote.LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal);
             //quote.Index = raw.nStockIdx;
@@ -501,10 +501,18 @@ namespace GNAy.Capital.Trade.Controllers
             quote.DecimalPos = raw.sDecimal;
             quote.TotalQtyBefore = raw.nYQty;
 
-            if (quote.DealPrice != 0 && quote.Reference != 0)
+            if (quote.Page < 0 || quote.DealQty == 0) //沒有訂閱SKQuoteLib_RequestLiveTick
             {
-                quote.UpDown = quote.DealPrice - quote.Reference;
-                quote.UpDownPct = quote.UpDown / quote.Reference * 100;
+                quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
+                quote.DealQty = raw.nTickQty;
+                quote.Simulate = raw.nSimulate;
+                quote.TradeDateRaw = raw.nTradingDay;
+
+                if (quote.DealPrice != 0 && quote.Reference != 0)
+                {
+                    quote.UpDown = quote.DealPrice - quote.Reference;
+                    quote.UpDownPct = quote.UpDown / quote.Reference * 100;
+                }
             }
 
             quote.Updater = "OnNotifyQuote";
@@ -530,10 +538,10 @@ namespace GNAy.Capital.Trade.Controllers
                     throw new ArgumentException($"SKAPI|QuoteCollection.Count > 0|Count={QuoteCollection.Count}|Quotes are subscribed.");
                 }
 
-                bool isHoliday = MainWindow.AppCtrl.Config.IsHoliday(now);
                 int nCode = -1;
+                bool isHoliday = MainWindow.AppCtrl.Config.IsHoliday(now);
 
-                foreach (string product in MainWindow.AppCtrl.Settings.QuoteSubscribed)
+                foreach (string product in MainWindow.AppCtrl.Config.QuoteSubscribed)
                 {
                     SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
                     nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(product, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
@@ -548,6 +556,10 @@ namespace GNAy.Capital.Trade.Controllers
                     QuoteCollection.Add(quote);
 
                     if (isHoliday) //假日不訂閱即時報價
+                    {
+                        continue;
+                    }
+                    else if (!MainWindow.AppCtrl.Settings.QuoteLive.Contains(product))
                     {
                         continue;
                     }
@@ -575,21 +587,24 @@ namespace GNAy.Capital.Trade.Controllers
                     quote.Page = pageA;
                 }
 
-                string products = string.Join(",", MainWindow.AppCtrl.Settings.QuoteSubscribed);
-                short pageB = 1;
-
-                nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageB, products); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
-                if (nCode != 0)
+                if (MainWindow.AppCtrl.Config.QuoteSubscribed.Count > 0)
                 {
-                    LogAPIMessage(nCode);
+                    string requests = string.Join(",", MainWindow.AppCtrl.Config.QuoteSubscribed);
+                    short pageB = 1;
 
-                    //nCode=3030|SK_SUBJECT_NO_QUOTE_SUBSCRIBE|即時行情連線數已達上限，行情訂閱功能受限
-                    MainWindow.AppCtrl.LogWarn($"QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}");
-                    QuoteStatus = nCode + StatusCode.BaseWarnValue;
-                }
-                if (pageB < 0)
-                {
-                    MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|products={products}|pageB={pageB}");
+                    nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageB, requests); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
+                    if (nCode != 0)
+                    {
+                        LogAPIMessage(nCode);
+
+                        //nCode=3030|SK_SUBJECT_NO_QUOTE_SUBSCRIBE|即時行情連線數已達上限，行情訂閱功能受限
+                        MainWindow.AppCtrl.LogWarn($"SKAPI|QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}");
+                        QuoteStatus = nCode + StatusCode.BaseWarnValue;
+                    }
+                    if (pageB < 0)
+                    {
+                        MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|requests={requests}|pageB={pageB}");
+                    }
                 }
             }
             catch (Exception ex)

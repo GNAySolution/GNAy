@@ -56,6 +56,8 @@ namespace GNAy.Capital.Trade
             Instance = this;
 
             AppControl = new MainWindowController();
+            StatusBarItemAB2.Text = $"Subscribed={AppControl.Config.QuoteSubscribed.Count}|Live={AppControl.Settings.QuoteLive.Count}";
+
             CapitalControl = null;
 
             //https://www.796t.com/post/MWV3bG0=.html
@@ -228,7 +230,7 @@ namespace GNAy.Capital.Trade
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            AppCtrl.LogTrace("Start");
+            //AppCtrl.LogTrace("Start");
 
             try
             {
@@ -240,13 +242,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                AppCtrl.LogTrace("End");
+                //AppCtrl.LogTrace("End");
             }
         }
 
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            AppCtrl.LogTrace("Start");
+            //AppCtrl.LogTrace("Start");
 
             try
             {
@@ -258,7 +260,7 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                AppCtrl.LogTrace("End");
+                //AppCtrl.LogTrace("End");
             }
         }
 
@@ -276,14 +278,14 @@ namespace GNAy.Capital.Trade
                 AppCtrl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(2))}");
                 AppCtrl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(3))}");
 
-                AppCtrl.LogTrace($"{AppCtrl.Config.File.FullName}|Exists={AppCtrl.Config.File.Exists}");
+                AppCtrl.LogTrace($"{AppCtrl.Config.Archive.FullName}|Exists={AppCtrl.Config.Archive.Exists}");
 
-                if (!AppCtrl.Config.File.Exists)
+                if (!AppCtrl.Config.Archive.Exists)
                 {
                     //https://docs.microsoft.com/zh-tw/dotnet/desktop/wpf/windows/how-to-open-message-box?view=netdesktop-6.0
 
-                    string caption = $"第一次產生設定檔{AppCtrl.Config.File.Name}";
-                    string messageBoxText = $"請確認檔案內容\r\n{AppCtrl.Config.File.FullName}";
+                    string caption = $"第一次產生設定檔{AppCtrl.Config.Archive.Name}";
+                    string messageBoxText = $"請確認檔案內容\r\n{AppCtrl.Config.Archive.FullName}";
 
                     MessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK);
 
@@ -809,6 +811,7 @@ namespace GNAy.Capital.Trade
                 if (string.IsNullOrWhiteSpace(TextBoxAccount.Text) && string.IsNullOrWhiteSpace(DWPBox.Password))
                 {
                     FileInfo dwpFile = new FileInfo($"{AppCtrl.ProcessName}.dwp.config");
+
                     if (dwpFile.Exists)
                     {
                         foreach (string line in File.ReadAllLines(dwpFile.FullName, TextEncoding.UTF8WithoutBOM))

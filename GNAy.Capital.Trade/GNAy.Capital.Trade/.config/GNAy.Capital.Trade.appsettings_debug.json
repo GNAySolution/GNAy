@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.319.1",
+  "Version": "0.22.321.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -21,11 +21,15 @@
     "13:48:00"
   ],
   "QuoteMarkets": [],
-  "QuoteSubscribed": [
+  "QuoteRequest": [
     "TSEA",
+    "0050",
     "00632R",
-    "2330",
+    "2330"
+  ],
+  "QuoteLive": [
     "UD06",
+    "UN2206",
     "TX04",
     "TX05",
     "MTX04",

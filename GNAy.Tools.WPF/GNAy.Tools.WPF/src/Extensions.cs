@@ -75,9 +75,9 @@ namespace GNAy.Tools.WPF
             {
                 if (column is DataGridBoundColumn bound && bound.Binding is Binding bind)
                 {
-                    if (propertyNameMap.TryGetValue(bind.Path.Path, out string description))
+                    if (propertyNameMap.TryGetValue(bind.Path.Path, out string columnName))
                     {
-                        column.Header = description;
+                        column.Header = columnName;
                     }
                 }
             }

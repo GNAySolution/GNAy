@@ -147,17 +147,16 @@ namespace GNAy.Tools.NET47
         /// https://www.twse.com.tw/zh/holidaySchedule/holidaySchedule
         /// </summary>
         /// <param name="obj"></param>
-        /// <param name="path"></param>
-        /// <param name="encoding"></param>
+        /// <param name="lines"></param>
         /// <param name="yyyy"></param>
         /// <param name="keywords1"></param>
         /// <param name="keywords2"></param>
-        public static void LoadHolidays(this IDictionary<DateTime, string> obj, string path, Encoding encoding, int yyyy, IList<string> keywords1, IList<string> keywords2)
+        public static void LoadHolidays(this IDictionary<DateTime, string> obj, string[] lines, int yyyy, IList<string> keywords1, IEnumerable<string> keywords2)
         {
             string[] separators1 = new string[] { "\"", "," };
             string[] separators2 = new string[] { keywords1[0], keywords1[1] };
 
-            foreach (string line in File.ReadAllLines(path, encoding))
+            foreach (string line in lines)
             {
                 string[] cells = line.Split(separators1, StringSplitOptions.RemoveEmptyEntries);
 
@@ -165,17 +164,7 @@ namespace GNAy.Tools.NET47
                 {
                     continue;
                 }
-
-                bool found = false;
-                foreach (string keyword in keywords2)
-                {
-                    if (cells[3].LastIndexOf(keyword) >= 0)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
+                else if (string.IsNullOrWhiteSpace(keywords2.FirstOrDefault(x => cells[3].LastIndexOf(x) >= 0)))
                 {
                     continue;
                 }
@@ -190,6 +179,11 @@ namespace GNAy.Tools.NET47
                     }
                 }
             }
+        }
+
+        public static void LoadHolidays(this IDictionary<DateTime, string> obj, string path, Encoding encoding, int yyyy, IList<string> keywords1, IEnumerable<string> keywords2)
+        {
+            obj.LoadHolidays(File.ReadAllLines(path, encoding), yyyy, keywords1, keywords2);
         }
     }
 }

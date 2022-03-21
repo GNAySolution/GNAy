@@ -16,17 +16,19 @@ namespace GNAy.Capital.Models
         public readonly Version Version;
 
         public readonly Encoding Big5Encoding;
+
         public readonly SortedDictionary<DateTime, string> Holidays;
 
+        public readonly List<string> QuoteSubscribed;
         public readonly DirectoryInfo QuoteFolder;
 
-        public readonly FileInfo File;
+        public readonly FileInfo Archive;
 
-        public AppConfig(AppSettings settings, FileInfo file)
+        public AppConfig(AppSettings settings, FileInfo archive)
         {
             CreatedTime = DateTime.Now;
 
-            if (file == null && settings == null)
+            if (archive == null && settings == null)
             {
                 settings = new AppSettings();
             }
@@ -35,7 +37,29 @@ namespace GNAy.Capital.Models
             Version = new Version(settings.Version);
 
             Big5Encoding = Encoding.GetEncoding(settings.Big5EncodingCodePage);
+
             Holidays = new SortedDictionary<DateTime, string>();
+            DateTime today = DateTime.Today;
+            string holidayPathThisYear = settings.HolidayFilePath.ToROCYear(today);
+            Holidays.LoadHolidays(holidayPathThisYear, Big5Encoding, today.Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
+            string holidayPathLastYear = settings.HolidayFilePath.ToROCYear(today.AddYears(-1));
+            Holidays.LoadHolidays(holidayPathLastYear, Big5Encoding, today.AddYears(-1).Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
+
+            QuoteSubscribed = new List<string>();
+            foreach (string product in settings.QuoteRequest)
+            {
+                if (!QuoteSubscribed.Contains(product))
+                {
+                    QuoteSubscribed.Add(product);
+                }
+            }
+            foreach (string product in settings.QuoteLive)
+            {
+                if (!QuoteSubscribed.Contains(product))
+                {
+                    QuoteSubscribed.Add(product);
+                }
+            }
 
             QuoteFolder = null;
             if (!string.IsNullOrWhiteSpace(settings.QuoteFolderPath))
@@ -45,15 +69,7 @@ namespace GNAy.Capital.Models
                 QuoteFolder.Refresh();
             }
 
-            File = file;
-
-            DateTime today = DateTime.Today;
-
-            string holidayPathThisYear = settings.HolidayFilePath.ToROCYear(today);
-            Holidays.LoadHolidays(holidayPathThisYear, Big5Encoding, today.Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
-
-            string holidayPathLastYear = settings.HolidayFilePath.ToROCYear(today.AddYears(-1));
-            Holidays.LoadHolidays(holidayPathLastYear, Big5Encoding, today.AddYears(-1).Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
+            Archive = archive;
         }
 
         public AppConfig() : this(null, null)

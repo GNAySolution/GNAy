@@ -17,6 +17,7 @@ namespace GNAy.Capital.Models
         public string Description { get; set; }
 
         public int Big5EncodingCodePage { get; set; }
+
         public string HolidayFilePath { get; set; }
         public List<string> HolidayFileKeywords1 { get; set; }
         public List<string> HolidayFileKeywords2 { get; set; }
@@ -49,9 +50,13 @@ namespace GNAy.Capital.Models
         /// 訂閱行情報價
         /// TSEA,6005,TX00,TX03,TX04,MTX00,MTX03,MTX04
         /// 上市加權指數,群益證,台指期近月,台指期3月,台指期4月,小台期近月,小台期3月,小台期4月
+        /// SKQuoteLib_RequestStocks
         /// </summary>
-        public List<string> QuoteSubscribed { get; set; }
-
+        public List<string> QuoteRequest { get; set; }
+        /// <summary>
+        /// SKQuoteLib_RequestLiveTick
+        /// </summary>
+        public List<string> QuoteLive { get; set; }
         /// <summary>
         /// 定時儲存行情報價
         /// </summary>
@@ -68,10 +73,11 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.319.1";
+            Version = "0.22.321.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
+
             HolidayFilePath = "holidaySchedule_{yyy}.csv";
             HolidayFileKeywords1 = new List<string>();
             //HolidayFileKeywords1 = new List<string>() { "月", "日" }; //
@@ -93,9 +99,10 @@ namespace GNAy.Capital.Models
 
             QuoteMarkets = new List<int>();
             //QuoteMarkets = new List<int>() { 0, 1, 2, 4 };
-            QuoteSubscribed = new List<string>();
-            //QuoteSubscribed = new List<string>() { "TSEA", "00632R", "2330", "UD06", "TX04", "TX05", "MTX04", "MTX05" }; //
-
+            QuoteRequest = new List<string>();
+            //QuoteRequest = new List<string>() { "TSEA", "OTCA", "0050", "00632R", "0056", "2330" }; //
+            QuoteLive = new List<string>();
+            //QuoteLive = new List<string>() { "UD06", "UN2206", "TX04", "TX05", "MTX04", "MTX05" }; //
             QuoteFolderPath = "QuoteData";
 
             SendOrder = false;

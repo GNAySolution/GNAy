@@ -1,0 +1,12 @@
+﻿<Window x:Class="GNAy.Capital.Monitor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GNAy.Capital.Monitor"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Activated="Window_Activated" Closing="Window_Closing" Deactivated="Window_Deactivated" FocusableChanged="Window_FocusableChanged" GotFocus="Window_GotFocus" GotKeyboardFocus="Window_GotKeyboardFocus" GotMouseCapture="Window_GotMouseCapture" Initialized="Window_Initialized" IsVisibleChanged="Window_IsVisibleChanged" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" Loaded="Window_Loaded" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus" LostKeyboardFocus="Window_LostKeyboardFocus" LostMouseCapture="Window_LostMouseCapture" MouseDoubleClick="Window_MouseDoubleClick" MouseDown="Window_MouseDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseLeftButtonUp="Window_MouseLeftButtonUp" MouseMove="Window_MouseMove" MouseRightButtonDown="Window_MouseRightButtonDown" MouseRightButtonUp="Window_MouseRightButtonUp" MouseUp="Window_MouseUp" MouseWheel="Window_MouseWheel" SizeChanged="Window_SizeChanged" StateChanged="Window_StateChanged" ToolTipClosing="Window_ToolTipClosing" ToolTipOpening="Window_ToolTipOpening">
+    <Grid>
+        
+    </Grid>
+</Window>

@@ -7,11 +7,11 @@ using System.Windows;
 // 組件的一般資訊是由下列的屬性集控制。
 // 變更這些屬性的值即可修改組件的相關
 // 資訊。
-[assembly: AssemblyTitle("GNAy.Tools.WPF")]
+[assembly: AssemblyTitle("GNAy.Capital.Monitor")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GNAy.Tools.WPF")]
+[assembly: AssemblyProduct("GNAy.Capital.Monitor")]
 [assembly: AssemblyCopyright("Yang's Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
