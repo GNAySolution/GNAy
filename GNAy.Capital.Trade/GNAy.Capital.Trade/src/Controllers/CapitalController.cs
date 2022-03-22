@@ -16,19 +16,26 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public partial class CapitalController
     {
+        /// <summary>
+        /// 報價商品載入完成
+        /// </summary>
+        public const int SK_SUBJECT_CONNECTION_STOCKS_READY = 3003;
+
         public readonly DateTime CreatedTime;
 
-        private SKCenterLib m_pSKCenter;
-        private SKOrderLib m_pSKOrder;
-        private SKReplyLib m_pSKReply;
-        private SKQuoteLib m_SKQuoteLib;
-        private SKOSQuoteLib m_pSKOSQuote;
-        private SKOOQuoteLib m_pSKOOQuote;
-        private SKReplyLib m_pSKReply2;
-        private SKQuoteLib m_pSKQuote2;
-        private SKOrderLib m_pSKOrder2;
+        private SKCenterLib m_pSKCenter { get; set; }
+        private SKOrderLib m_pSKOrder { get; set; }
+        private SKReplyLib m_pSKReply { get; set; }
+        private SKQuoteLib m_SKQuoteLib { get; set; }
+        private SKOSQuoteLib m_pSKOSQuote { get; set; }
+        private SKOOQuoteLib m_pSKOOQuote { get; set; }
+        private SKReplyLib m_pSKReply2 { get; set; }
+        private SKQuoteLib m_pSKQuote2 { get; set; }
+        private SKOrderLib m_pSKOrder2 { get; set; }
 
         public int LoginAccountResult { get; private set; }
+        public string Account { get; private set; }
+        public string DWP { get; private set; }
 
         public string QuoteStatusStr { get; private set; }
         private int _quoteStatus;
@@ -45,11 +52,10 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public string Account { get; private set; }
-        public string DWP { get; private set; }
+        public int ReadCertResult { get; private set; }
 
         public (DateTime, string) AccountTimer { get; private set; }
-        public (DateTime, string) QuoteTimer { get; private set; }
+        public (DateTime, string, string) QuoteTimer { get; private set; }
 
         private readonly Dictionary<int, APIReplyData> APIReplyMap;
         private readonly ObservableCollection<APIReplyData> APIReplyCollection;
@@ -62,21 +68,21 @@ namespace GNAy.Capital.Trade.Controllers
             CreatedTime = DateTime.Now;
 
             LoginAccountResult = -1;
-            QuoteStatus = -1;
-
             Account = String.Empty;
             DWP = String.Empty;
 
+            QuoteStatus = -1;
+
+            ReadCertResult = -1;
+
             AccountTimer = (DateTime.MinValue, string.Empty);
-            QuoteTimer = (DateTime.MinValue, string.Empty);
+            QuoteTimer = (DateTime.MinValue, string.Empty, string.Empty);
 
             APIReplyMap = new Dictionary<int, APIReplyData>();
-
             MainWindow.Instance.DataGridAPIReply.SetHeadersByBindings(APIReplyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1.ShortName));
             APIReplyCollection = MainWindow.Instance.DataGridAPIReply.SetAndGetItemsSource<APIReplyData>();
 
             QuoteIndexMap = new Dictionary<int, QuoteData>();
-
             MainWindow.Instance.DataGridQuoteSubscribed.SetHeadersByBindings(QuoteData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1.ShortName));
             QuoteCollection = MainWindow.Instance.DataGridQuoteSubscribed.SetAndGetItemsSource<QuoteData>();
         }
@@ -141,24 +147,27 @@ namespace GNAy.Capital.Trade.Controllers
                 CallerMemberName = memberName,
             };
 
-            try
+            MainWindow.Instance.InvokeRequired(delegate
             {
-                MainWindow.Instance.TabControlBA.SelectedIndex = 1;
-
-                APIReplyCollection.Add(replay);
-
-                //while (APIReplyCollection.Count > MainWindow.AppCtrl.Settings.DataGridAppLogRowsMax * 2)
-                //{
-                //    APIReplyCollection.RemoveAt(0);
-                //}
-
-                if (!MainWindow.Instance.DataGridAPIReply.IsMouseOver)
+                try
                 {
-                    MainWindow.Instance.DataGridAPIReply.ZxtScrollToEnd();
+                    MainWindow.Instance.TabControlBA.SelectedIndex = 1;
+
+                    APIReplyCollection.Add(replay);
+
+                    //while (APIReplyCollection.Count > MainWindow.AppCtrl.Settings.DataGridAppLogRowsMax * 2)
+                    //{
+                    //    APIReplyCollection.RemoveAt(0);
+                    //}
+
+                    if (!MainWindow.Instance.DataGridAPIReply.IsMouseOver)
+                    {
+                        MainWindow.Instance.DataGridAPIReply.ScrollToBorder();
+                    }
                 }
-            }
-            catch
-            { }
+                catch
+                { }
+            });
         }
 
         public int LoginAccount(string account, string dwp)
@@ -182,6 +191,11 @@ namespace GNAy.Capital.Trade.Controllers
                 m_pSKReply.OnDisconnect += OnDisconnect;
                 m_pSKReply.OnSolaceReplyConnection += OnSolaceReplyConnection;
                 m_pSKReply.OnSolaceReplyDisconnect += OnSolaceReplyDisconnect;
+                m_pSKReply.OnComplete += OnComplete;
+                m_pSKReply.OnNewData += OnNewData;
+                m_pSKReply.OnReportCount += m_SKReplyLib_OnReportCount;
+                m_pSKReply.OnReplyClear += OnClear;
+                m_pSKReply.OnReplyClearMessage += OnClearMessage;
 
                 m_pSKCenter = new SKCenterLib();
                 m_pSKCenter.SKCenterLib_SetAuthority(0); //SGX 專線屬性：關閉／開啟：0／1
@@ -192,38 +206,20 @@ namespace GNAy.Capital.Trade.Controllers
                 if (LoginAccountResult == 0)
                 {
                     MainWindow.AppCtrl.LogTrace($"SKAPI|LoginAccountResult={LoginAccountResult}|雙因子登入成功");
-                    //skOrder1.LoginID = txtAccount.Text.Trim().ToUpper();
-                    //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
-
-                    //skReply1.LoginID = txtAccount.Text.Trim().ToUpper();
-
-                    //skQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
-                    //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
-
                     Account = account;
                     DWP = "********";
                 }
                 else if (LoginAccountResult >= 600 && LoginAccountResult <= 699)
                 {
                     MainWindow.AppCtrl.LogTrace($"SKAPI|LoginAccountResult={LoginAccountResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效");
-                    //skOrder1.LoginID = txtAccount.Text.Trim().ToUpper();
-                    //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
-
-                    //skReply1.LoginID = txtAccount.Text.Trim().ToUpper();
-
-                    //skQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
-                    //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
-
                     Account = account;
                     DWP = "********";
                 }
-                //else if (LoginAccountResult >= 500 && LoginAccountResult <= 599)
-                //{
-                //    WriteMessage(DateTime.Now.TimeOfDay.ToString() + "_" + LoginAccountResult.ToString() + ":未使用雙因子登入成功, 目前為強制雙因子登入,請確認憑證是否有效");
-                //}
                 else
                 {
                     LogAPIMessage(LoginAccountResult);
+                    m_pSKCenter = null;
+                    return LoginAccountResult;
                 }
 
                 //if (LoginAccountResult == 0 || (LoginAccountResult >= 600 && LoginAccountResult <= 699))
@@ -237,6 +233,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 string strSKAPIVersion = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(account); //取得目前註冊SKAPI 版本及位元
                 MainWindow.AppCtrl.LogTrace($"SKAPI|Version={strSKAPIVersion}");
+                MainWindow.Instance.StatusBarItemAA4.Text = $"SKAPIVersionAndBit={strSKAPIVersion}";
             }
             catch (Exception ex)
             {
@@ -250,74 +247,75 @@ namespace GNAy.Capital.Trade.Controllers
             return LoginAccountResult;
         }
 
-        public int LoginQuote(string dwp)
+        public void LoginQuoteAsync(string dwp)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|account={Account}|dwp=********");
-
-            try
+            Task.Factory.StartNew(() =>
             {
-                if (m_SKQuoteLib != null)
+                try
                 {
+                    MainWindow.AppCtrl.LogTrace($"SKAPI|account={Account}|dwp=********");
+
+                    if (m_SKQuoteLib != null)
+                    {
+                        QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
+                        LogAPIMessage(QuoteStatus);
+                        return;
+                    }
+
+                    dwp = dwp.Trim();
+                    MainWindow.AppCtrl.LogTrace($"SKAPI|account={Account}|dwp=********");
+
+                    QuoteStatus = m_pSKCenter.SKCenterLib_LoginSetQuote(Account, dwp, "Y"); //Y:啟用報價 N:停用報價
+                    if (QuoteStatus == 0 || (QuoteStatus >= 600 && QuoteStatus <= 699))
+                    {
+                        MainWindow.AppCtrl.LogTrace($"SKAPI|QuoteStatus={QuoteStatus}|登入成功");
+                        //skOrder1.LoginID = txtAccount.Text.Trim().ToUpper();
+                        //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
+
+                        //skReply1.LoginID = txtAccount.Text.Trim().ToUpper();
+
+                        //skQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
+                        //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
+                    }
+                    else
+                    {
+                        LogAPIMessage(QuoteStatus);
+                    }
+
+                    m_SKQuoteLib = new SKQuoteLib();
+                    m_SKQuoteLib.OnConnection += m_SKQuoteLib_OnConnection;
+                    m_SKQuoteLib.OnNotifyQuoteLONG += m_SKQuoteLib_OnNotifyQuote;
+                    m_SKQuoteLib.OnNotifyHistoryTicksLONG += m_SKQuoteLib_OnNotifyHistoryTicks;
+                    m_SKQuoteLib.OnNotifyTicksLONG += m_SKQuoteLib_OnNotifyTicks;
+                    m_SKQuoteLib.OnNotifyBest5LONG += m_SKQuoteLib_OnNotifyBest5;
+                    m_SKQuoteLib.OnNotifyKLineData += m_SKQuoteLib_OnNotifyKLineData;
+                    m_SKQuoteLib.OnNotifyServerTime += m_SKQuoteLib_OnNotifyServerTime;
+                    m_SKQuoteLib.OnNotifyMarketTot += m_SKQuoteLib_OnNotifyMarketTot;
+                    m_SKQuoteLib.OnNotifyMarketBuySell += m_SKQuoteLib_OnNotifyMarketBuySell;
+                    //m_SKQuoteLib.OnNotifyMarketHighLow += new _ISKQuoteLibEvents_OnNotifyMarketHighLowEventHandler(m_SKQuoteLib_OnNotifyMarketHighLow);
+                    m_SKQuoteLib.OnNotifyMACDLONG += m_SKQuoteLib_OnNotifyMACD;
+                    m_SKQuoteLib.OnNotifyBoolTunelLONG += m_SKQuoteLib_OnNotifyBoolTunel;
+                    m_SKQuoteLib.OnNotifyFutureTradeInfoLONG += m_SKQuoteLib_OnNotifyFutureTradeInfo;
+                    m_SKQuoteLib.OnNotifyStrikePrices += m_SKQuoteLib_OnNotifyStrikePrices;
+                    //m_SKQuoteLib.OnNotifyStockList += new _ISKQuoteLibEvents_OnNotifyStockListEventHandler(m_SKQuoteLib_OnNotifyStockList);
+
+                    m_SKQuoteLib.OnNotifyMarketHighLowNoWarrant += m_SKQuoteLib_OnNotifyMarketHighLowNoWarrant;
+
+                    m_SKQuoteLib.OnNotifyCommodityListWithTypeNo += m_SKQuoteLib_OnNotifyCommodityListWithTypeNo;
+                    m_SKQuoteLib.OnNotifyOddLotSpreadDeal += m_SKQuoteLib_OnNotifyOddLotSpreadDeal;
+
                     QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
                     LogAPIMessage(QuoteStatus);
-                    return QuoteStatus;
                 }
-
-                dwp = dwp.Trim();
-                MainWindow.AppCtrl.LogTrace($"SKAPI|account={Account}|dwp=********");
-
-                QuoteStatus = m_pSKCenter.SKCenterLib_LoginSetQuote(Account, dwp, "Y"); //Y:啟用報價 N:停用報價
-                if (QuoteStatus == 0 || (QuoteStatus >= 600 && QuoteStatus <= 699))
+                catch (Exception ex)
                 {
-                    MainWindow.AppCtrl.LogTrace($"SKAPI|QuoteStatus={QuoteStatus}|登入成功");
-                    //skOrder1.LoginID = txtAccount.Text.Trim().ToUpper();
-                    //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
-
-                    //skReply1.LoginID = txtAccount.Text.Trim().ToUpper();
-
-                    //skQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
-                    //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
+                    MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
                 }
-                else
+                finally
                 {
-                    LogAPIMessage(QuoteStatus);
+                    MainWindow.AppCtrl.LogTrace("SKAPI|End");
                 }
-
-                m_SKQuoteLib = new SKQuoteLib();
-                m_SKQuoteLib.OnConnection += m_SKQuoteLib_OnConnection;
-                m_SKQuoteLib.OnNotifyQuoteLONG += m_SKQuoteLib_OnNotifyQuote;
-                m_SKQuoteLib.OnNotifyHistoryTicksLONG += m_SKQuoteLib_OnNotifyHistoryTicks;
-                m_SKQuoteLib.OnNotifyTicksLONG += m_SKQuoteLib_OnNotifyTicks;
-                m_SKQuoteLib.OnNotifyBest5LONG += m_SKQuoteLib_OnNotifyBest5;
-                m_SKQuoteLib.OnNotifyKLineData += m_SKQuoteLib_OnNotifyKLineData;
-                m_SKQuoteLib.OnNotifyServerTime += m_SKQuoteLib_OnNotifyServerTime;
-                m_SKQuoteLib.OnNotifyMarketTot += m_SKQuoteLib_OnNotifyMarketTot;
-                m_SKQuoteLib.OnNotifyMarketBuySell += m_SKQuoteLib_OnNotifyMarketBuySell;
-                //m_SKQuoteLib.OnNotifyMarketHighLow += new _ISKQuoteLibEvents_OnNotifyMarketHighLowEventHandler(m_SKQuoteLib_OnNotifyMarketHighLow);
-                m_SKQuoteLib.OnNotifyMACDLONG += m_SKQuoteLib_OnNotifyMACD;
-                m_SKQuoteLib.OnNotifyBoolTunelLONG += m_SKQuoteLib_OnNotifyBoolTunel;
-                m_SKQuoteLib.OnNotifyFutureTradeInfoLONG += m_SKQuoteLib_OnNotifyFutureTradeInfo;
-                m_SKQuoteLib.OnNotifyStrikePrices += m_SKQuoteLib_OnNotifyStrikePrices;
-                //m_SKQuoteLib.OnNotifyStockList += new _ISKQuoteLibEvents_OnNotifyStockListEventHandler(m_SKQuoteLib_OnNotifyStockList);
-
-                m_SKQuoteLib.OnNotifyMarketHighLowNoWarrant += m_SKQuoteLib_OnNotifyMarketHighLowNoWarrant;
-
-                m_SKQuoteLib.OnNotifyCommodityListWithTypeNo += m_SKQuoteLib_OnNotifyCommodityListWithTypeNo;
-                m_SKQuoteLib.OnNotifyOddLotSpreadDeal += m_SKQuoteLib_OnNotifyOddLotSpreadDeal;
-
-                QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
-                LogAPIMessage(QuoteStatus);
-            }
-            catch (Exception ex)
-            {
-                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
-            }
-            finally
-            {
-                MainWindow.AppCtrl.LogTrace("SKAPI|End");
-            }
-
-            return QuoteStatus;
+            });
         }
 
         public int Disconnect()
@@ -397,7 +395,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                foreach(int market in MainWindow.AppCtrl.Settings.QuoteMarkets)
+                foreach (int market in MainWindow.AppCtrl.Settings.QuoteMarkets)
                 {
                     //根據市場別編號，取得國內各市場代碼所包含的商品基本資料相關資訊
                     //結果會透過OnNotifyCommodityListWithTypeNo收到
@@ -506,7 +504,10 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
                 quote.DealQty = raw.nTickQty;
                 quote.Simulate = raw.nSimulate;
-                quote.TradeDateRaw = raw.nTradingDay;
+                if (raw.nTradingDay > quote.TradeDateRaw)
+                {
+                    quote.TradeDateRaw = raw.nTradingDay;
+                }
 
                 if (quote.DealPrice != 0 && quote.Reference != 0)
                 {
@@ -518,10 +519,12 @@ namespace GNAy.Capital.Trade.Controllers
             quote.Updater = "OnNotifyQuote";
             quote.UpdateTime = DateTime.Now;
 
+            QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
+
             return true;
         }
 
-        public void SubQuotes()
+        public void SubQuotesAsync()
         {
             MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
 
@@ -529,17 +532,16 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (QuoteStatus != 3003) //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
+                if (QuoteStatus != SK_SUBJECT_CONNECTION_STOCKS_READY)
                 {
-                    throw new ArgumentException($"SKAPI|QuoteStatus != 3003|QuoteStatusStr={QuoteStatusStr}");
+                    throw new ArgumentException($"SKAPI|QuoteStatus != {SK_SUBJECT_CONNECTION_STOCKS_READY}|QuoteStatusStr={QuoteStatusStr}");
                 }
-                else if (QuoteCollection.Count > 0)
+                else if (QuoteIndexMap.Count > 0)
                 {
-                    throw new ArgumentException($"SKAPI|QuoteCollection.Count > 0|Count={QuoteCollection.Count}|Quotes are subscribed.");
+                    throw new ArgumentException($"SKAPI|QuoteCollection.Count > 0|Count={QuoteIndexMap.Count}|Quotes are subscribed.");
                 }
 
                 int nCode = -1;
-                bool isHoliday = MainWindow.AppCtrl.Config.IsHoliday(now);
 
                 foreach (string product in MainWindow.AppCtrl.Config.QuoteSubscribed)
                 {
@@ -554,57 +556,6 @@ namespace GNAy.Capital.Trade.Controllers
                     QuoteData quote = CreateQuote(pSKStockLONG);
                     QuoteIndexMap.Add(quote.Index, quote);
                     QuoteCollection.Add(quote);
-
-                    if (isHoliday) //假日不訂閱即時報價
-                    {
-                        continue;
-                    }
-                    else if (!MainWindow.AppCtrl.Settings.QuoteLive.Contains(product))
-                    {
-                        continue;
-                    }
-                    else if (now.Hour >= 14 || now.Hour < 8)
-                    {
-                        //期貨選擇權夜盤，上市櫃已經收盤
-                        if (quote.Market != 2 && quote.Market != 3)
-                        {
-                            continue;
-                        }
-                    }
-
-                    short pageA = -1;
-                    nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref pageA, quote.Symbol); //訂閱與要求傳送即時成交明細。(本功能不會訂閱最佳五檔，亦不包含歷史Ticks)
-                    if (nCode != 0)
-                    {
-                        LogAPIMessage(nCode);
-                        continue;
-                    }
-                    if (pageA < 0)
-                    {
-                        MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|Symbol={quote.Symbol}|pageA={pageA}");
-                    }
-
-                    quote.Page = pageA;
-                }
-
-                if (MainWindow.AppCtrl.Config.QuoteSubscribed.Count > 0)
-                {
-                    string requests = string.Join(",", MainWindow.AppCtrl.Config.QuoteSubscribed);
-                    short pageB = 1;
-
-                    nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageB, requests); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
-                    if (nCode != 0)
-                    {
-                        LogAPIMessage(nCode);
-
-                        //nCode=3030|SK_SUBJECT_NO_QUOTE_SUBSCRIBE|即時行情連線數已達上限，行情訂閱功能受限
-                        MainWindow.AppCtrl.LogWarn($"SKAPI|QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}");
-                        QuoteStatus = nCode + StatusCode.BaseWarnValue;
-                    }
-                    if (pageB < 0)
-                    {
-                        MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|requests={requests}|pageB={pageB}");
-                    }
                 }
             }
             catch (Exception ex)
@@ -615,22 +566,92 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 MainWindow.AppCtrl.LogTrace("SKAPI|End");
             }
+
+            if (QuoteIndexMap.Count > 0)
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    try
+                    {
+                        int nCode = -1;
+                        bool isHoliday = MainWindow.AppCtrl.Config.IsHoliday(now);
+
+                        if (!isHoliday) //假日不訂閱即時報價
+                        {
+                            foreach (QuoteData quote in QuoteIndexMap.Values)
+                            {
+                                if (!MainWindow.AppCtrl.Settings.QuoteLive.Contains(quote.Symbol))
+                                {
+                                    continue;
+                                }
+                                else if (now.Hour >= 14 || now.Hour < 8)
+                                {
+                                    //期貨選擇權夜盤，上市櫃已經收盤
+                                    if (quote.Market != 2 && quote.Market != 3)
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                short pageA = -1;
+                                nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref pageA, quote.Symbol); //訂閱與要求傳送即時成交明細。(本功能不會訂閱最佳五檔，亦不包含歷史Ticks)
+                                if (nCode != 0)
+                                {
+                                    LogAPIMessage(nCode);
+                                    continue;
+                                }
+                                if (pageA < 0)
+                                {
+                                    MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|Symbol={quote.Symbol}|pageA={pageA}");
+                                }
+
+                                quote.Page = pageA;
+                            }
+                        }
+
+                        if (MainWindow.AppCtrl.Config.QuoteSubscribed.Count > 0)
+                        {
+                            string requests = string.Join(",", MainWindow.AppCtrl.Config.QuoteSubscribed);
+                            short pageB = 1;
+
+                            nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageB, requests); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
+                            if (nCode != 0)
+                            {
+                                LogAPIMessage(nCode);
+
+                                //nCode=3030|SK_SUBJECT_NO_QUOTE_SUBSCRIBE|即時行情連線數已達上限，行情訂閱功能受限
+                                MainWindow.AppCtrl.LogWarn($"SKAPI|QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}");
+                                QuoteStatus = nCode + StatusCode.BaseWarnValue;
+                            }
+                            if (pageB < 0)
+                            {
+                                MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|requests={requests}|pageB={pageB}");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                    }
+                });
+            }
         }
 
-        public void SaveQuotesAsync()
+        public Task SaveQuotesAsync()
         {
-            if (QuoteCollection.Count <= 0)
+            if (QuoteIndexMap.Count <= 0)
             {
-                return;
+                return null;
             }
 
-            Task.Factory.StartNew(() =>
+            Task result = Task.Factory.StartNew(() =>
             {
-                MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
-
                 try
                 {
-                    string path = Path.Combine(MainWindow.AppCtrl.Config.QuoteFolder.FullName, $"{QuoteCollection.Max(x => x.TradeDateRaw)}.csv");
+                    MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
+
+                    QuoteData[] quotes = QuoteIndexMap.Values.ToArray();
+                    string path = Path.Combine(MainWindow.AppCtrl.Config.QuoteFolder.FullName, $"{quotes.Max(x => x.TradeDateRaw)}.csv");
 
                     if (!File.Exists(path))
                     {
@@ -642,7 +663,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     using (StreamWriter sw = new StreamWriter(path, true, TextEncoding.UTF8WithoutBOM))
                     {
-                        foreach (QuoteData quote in QuoteCollection)
+                        foreach (QuoteData quote in quotes)
                         {
                             try
                             {
@@ -664,6 +685,84 @@ namespace GNAy.Capital.Trade.Controllers
                     MainWindow.AppCtrl.LogTrace("SKAPI|End");
                 }
             });
+
+            return result;
+        }
+
+        public int ReadCertification()
+        {
+            MainWindow.AppCtrl.LogTrace("SKAPI|Start");
+
+            try
+            {
+                if (m_pSKOrder != null)
+                {
+                    return ReadCertResult;
+                }
+
+                m_pSKOrder = new SKOrderLib();
+                m_pSKOrder.OnAccount += m_OrderObj_OnAccount;
+                //m_pSKOrder.OnAsyncOrder += m_pSKOrder_OnAsyncOrder;
+                //m_pSKOrder.OnAsyncOrderOLID += m_pSKOrder_OnAsyncOrderOLID;
+                //m_pSKOrder.OnRealBalanceReport += m_pSKOrder_OnRealBalanceReport;
+                //m_pSKOrder.OnOpenInterest += m_pSKOrder_OnOpenInterest;
+                //m_pSKOrder.OnStopLossReport += m_pSKOrder_OnStopLossReport;
+                //m_pSKOrder.OnFutureRights += m_pSKOrder_OnFutureRights;
+                //m_pSKOrder.OnRequestProfitReport += m_pSKOrder_OnRequestProfitReport;
+                //m_pSKOrder.OnMarginPurchaseAmountLimit += m_pSKOrder_OnMarginPurchaseAmountLimit;
+                //m_pSKOrder.OnBalanceQuery += m_pSKOrder_OnBalanceQueryReport;
+                //m_pSKOrder.OnTSSmartStrategyReport += m_pSKOrder_OnTSStrategyReport;
+                //m_pSKOrder.OnProfitLossGWReport += m_pSKOrder_OnTSProfitLossGWReport;
+                //m_pSKOrder.OnOFOpenInterestGWReport += m_pSKOrder_OnOFOpenInterestGW;
+                //m_pSKOrder.OnTelnetTest += m_pSKOrder_OnTelnetTest;
+
+                ReadCertResult = m_pSKOrder.SKOrderLib_Initialize(); //下單物件初始化。産生下單物件後需先執行初始動作
+                LogAPIMessage(ReadCertResult);
+                if (ReadCertResult != 0)
+                {
+                    m_pSKOrder = null;
+                    return ReadCertResult;
+                }
+
+                //讀取憑證資訊。委託下單必須透過憑證，因此當元件初始化成功後即需要做讀取憑證的動作，如果使用群組的帳號做初始，則必須自行將所有的帳號依序做讀取憑證的動作。
+                //如果送出委託前未經讀取憑證，送委託會得到 SK_ERROR_ORDER_SIGN_INVALID 的錯誤
+                ReadCertResult = m_pSKOrder.ReadCertByID(Account);
+                LogAPIMessage(ReadCertResult);
+                if (ReadCertResult != 0)
+                {
+                    m_pSKOrder = null;
+                    return ReadCertResult;
+                }
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                MainWindow.AppCtrl.LogTrace("SKAPI|End");
+            }
+
+            return ReadCertResult;
+        }
+
+        public void GetGetOrderAccs()
+        {
+            MainWindow.AppCtrl.LogTrace("SKAPI|Start");
+
+            try
+            {
+                int m_nCode = m_pSKOrder.GetUserAccount(); //取回目前可交易的所有帳號。資料由OnAccount事件回傳
+                LogAPIMessage(m_nCode);
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                MainWindow.AppCtrl.LogTrace("SKAPI|End");
+            }
         }
     }
 }

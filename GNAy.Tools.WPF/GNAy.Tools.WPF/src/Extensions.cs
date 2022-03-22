@@ -112,15 +112,30 @@ namespace GNAy.Tools.WPF
         }
 
         /// <summary>
-        /// https://stackoverflow.com/questions/1027051/how-to-autoscroll-on-wpf-datagrid
+        /// <para>https://stackoverflow.com/questions/1027051/how-to-autoscroll-on-wpf-datagrid</para>
+        /// <para>https://stackoverflow.com/questions/60378552/wpf-scrolltotop-vs-scrolltohome</para>
         /// </summary>
         /// <param name="obj"></param>
+        /// <param name="toEnd"></param>
         /// <returns></returns>
-        public static ScrollViewer ZxtScrollToEnd(this DependencyObject obj)
+        public static bool ScrollToBorder(this DependencyObject obj, bool toEnd = true)
         {
             ScrollViewer viewer = GetScrollViewer(obj);
-            viewer?.ScrollToEnd();
-            return viewer;
+
+            if (viewer != null)
+            {
+                if (toEnd)
+                {
+                    viewer.ScrollToEnd();
+                }
+                else
+                {
+                    viewer.ScrollToHome();
+                }
+                return true;
+            }
+
+            return false;
         }
     }
 }

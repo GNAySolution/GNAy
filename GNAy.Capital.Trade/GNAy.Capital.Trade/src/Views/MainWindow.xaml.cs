@@ -270,15 +270,18 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                AppCtrl.LogTrace($"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(-3))}");
-                AppCtrl.LogTrace($"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(-2))}");
-                AppCtrl.LogTrace($"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(-1))}");
-                AppCtrl.LogTrace($"{StartTime.AddDays(0):MM/dd HH:mm}|{StartTime.AddDays(+0).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(0))}");
-                AppCtrl.LogTrace($"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(1))}");
-                AppCtrl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(2))}");
-                AppCtrl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(3))}");
+                Task.Factory.StartNew(() =>
+                {
+                    AppCtrl.LogTrace($"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(-3))}");
+                    AppCtrl.LogTrace($"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(-2))}");
+                    AppCtrl.LogTrace($"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(-1))}");
+                    AppCtrl.LogTrace($"{StartTime.AddDays(0):MM/dd HH:mm}|{StartTime.AddDays(+0).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(0))}");
+                    AppCtrl.LogTrace($"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(1))}");
+                    AppCtrl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(2))}");
+                    AppCtrl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(3))}");
 
-                AppCtrl.LogTrace($"{AppCtrl.Config.Archive.FullName}|Exists={AppCtrl.Config.Archive.Exists}");
+                    AppCtrl.LogTrace($"{AppCtrl.Config.Archive.FullName}|Exists={AppCtrl.Config.Archive.Exists}");
+                });
 
                 if (!AppCtrl.Config.Archive.Exists)
                 {
@@ -596,7 +599,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                StatusBarItemAA3.Text = $"({Width},{Height})";
+                //
             }
             catch (Exception ex)
             {
@@ -667,9 +670,10 @@ namespace GNAy.Capital.Trade
             try
             {
                 DateTime now = DateTime.Now;
-                string duration = (now - StartTime).ToString(@"hh\:mm\:ss");
+                //https://stackoverflow.com/questions/9565740/display-duration-in-milliseconds
+                string elapsed = (now - StartTime).ToString("hh':'mm':'ss");
 
-                StatusBarItemAA2.Text = $"{duration}";
+                StatusBarItemAA2.Text = $"{elapsed}";
 
                 //if (Application.Current.MainWindow.IsMouseOver)
                 if (IsMouseOver)
@@ -677,7 +681,7 @@ namespace GNAy.Capital.Trade
                     //https://stackoverflow.com/questions/29822020/how-to-get-mouse-position-on-screen-in-wpf
                     //Point pt = Mouse.GetPosition(Application.Current.MainWindow);
                     Point pt = Mouse.GetPosition(this);
-                    StatusBarItemAA4.Text = $"({pt.X},{pt.Y})";
+                    StatusBarItemAA3.Text = $"({Width},{Height},{pt.X},{pt.Y})";
                 }
 
                 if (TabControlBA.SelectedIndex == 0 && DataGridAppLog.ItemsSource != null)
@@ -691,9 +695,12 @@ namespace GNAy.Capital.Trade
 
                 if (CapitalCtrl != null)
                 {
-                    StatusBarItemAB4.Text = CapitalCtrl.QuoteStatusStr;
                     StatusBarItemBA3.Text = $"{CapitalCtrl.AccountTimer.Item1:mm:ss}|{CapitalCtrl.AccountTimer.Item2}";
-                    StatusBarItemBA4.Text = $"{CapitalCtrl.QuoteTimer.Item1:mm:ss}|{CapitalCtrl.QuoteTimer.Item2}";
+                    StatusBarItemAB5.Text = CapitalCtrl.QuoteStatusStr;
+                    StatusBarItemAB3.Text = $"{CapitalCtrl.QuoteTimer.Item1:mm:ss.fff}|{CapitalCtrl.QuoteTimer.Item2}|{CapitalCtrl.QuoteTimer.Item3}";
+
+                    elapsed = (now - CapitalCtrl.QuoteTimer.Item1).ToString("mm':'ss'.'fff");
+                    StatusBarItemAA2.Text = $"{StatusBarItemAA2.Text}|{elapsed}";
                 }
 
                 if (DataGridQuoteSubscribed.ItemsSource != null)
@@ -775,8 +782,8 @@ namespace GNAy.Capital.Trade
                     });
 
                     Thread.Sleep(3 * 1000);
-                    SpinWait.SpinUntil(() => CapitalCtrl.QuoteStatus == 3003, 2 * 60 * 1000); //3003 SK_SUBJECT_CONNECTION_STOCKS_READY 報價商品載入完成
-                    if (CapitalCtrl.QuoteStatus != 3003) //Timeout
+                    SpinWait.SpinUntil(() => CapitalCtrl.QuoteStatus == CapitalController.SK_SUBJECT_CONNECTION_STOCKS_READY, 2 * 60 * 1000);
+                    if (CapitalCtrl.QuoteStatus != CapitalController.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
                     {
                         //TODO: Send alert mail.
                         CapitalCtrl.Disconnect();
@@ -850,7 +857,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                CapitalCtrl.LoginQuote(DWPBox.Password);
+                CapitalCtrl.LoginQuoteAsync(DWPBox.Password);
             }
             catch (Exception ex)
             {
@@ -868,7 +875,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                StatusBarItemAB3.Text = CapitalCtrl.IsConnected();
+                StatusBarItemAB4.Text = CapitalCtrl.IsConnected();
             }
             catch (Exception ex)
             {
@@ -922,7 +929,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                CapitalCtrl.SubQuotes();
+                CapitalCtrl.SubQuotesAsync();
             }
             catch (Exception ex)
             {
@@ -977,6 +984,42 @@ namespace GNAy.Capital.Trade
             try
             {
                 //
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonReadCertification_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                CapitalCtrl.ReadCertification();
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonGetOrderAccs_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                CapitalCtrl.GetGetOrderAccs();
             }
             catch (Exception ex)
             {

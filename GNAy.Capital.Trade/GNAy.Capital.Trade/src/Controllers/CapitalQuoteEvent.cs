@@ -1,4 +1,5 @@
 ﻿using GNAy.Capital.Models;
+using GNAy.Tools.WPF;
 using SKCOMLib;
 using System;
 using System.Collections.Generic;
@@ -33,35 +34,21 @@ namespace GNAy.Capital.Trade.Controllers
             LogAPIMessage(nKind);
             LogAPIMessage(nCode);
 
-            if (nKind == 3003)
+            if (nKind == SK_SUBJECT_CONNECTION_STOCKS_READY)
             {
-                QuoteIndexMap.Clear();
-                QuoteCollection.Clear();
+                MainWindow.Instance.InvokeRequired(delegate
+                {
+                    try
+                    {
+                        QuoteIndexMap.Clear();
+                        QuoteCollection.Clear();
+                    }
+                    catch (Exception ex)
+                    {
+                        MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                    }
+                });
             }
-
-            //if (nKind == 3001)
-            //{
-            //    if (nCode == 0)
-            //    {
-            //        lblSignal.ForeColor = Color.Yellow;
-            //    }
-            //}
-            //else if (nKind == 3002)
-            //{
-            //    lblSignal.ForeColor = Color.Red;
-            //}
-            //else if (nKind == 3003 || nKind == 3036)
-            //{
-            //    lblSignal.ForeColor = Color.Green;
-            //}
-            //else if (nKind == 3021)//網路斷線
-            //{
-            //    lblSignal.ForeColor = Color.DarkRed;
-            //}
-            //else if (nKind == 3033)//異常
-            //{
-            //    lblSignal.ForeColor = Color.DimGray;
-            //}
         }
 
         /// <summary>
@@ -169,7 +156,10 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 quote.Count = nPtr;
-                quote.TradeDateRaw = nDate;
+                if (nDate > quote.TradeDateRaw)
+                {
+                    quote.TradeDateRaw = nDate;
+                }
                 quote.MatchedTimeRaw = String.Format("{0}.{1}", lTimehms.ToString().PadLeft(6, '0'), lTimemillismicros.ToString().PadLeft(6, '0'));
                 quote.BestBuyPrice = nBid / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
@@ -185,47 +175,13 @@ namespace GNAy.Capital.Trade.Controllers
 
                 quote.Updater = "OnNotifyTicks";
                 quote.UpdateTime = DateTime.Now;
+
+                QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
             }
             catch (Exception ex)
             {
                 MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
             }
-
-            //string strData = "";
-            //string strTimeNoMsMs = "";
-            //int nlength = lTime.ToString().Length;
-            //if (nlength >6)
-            //    strTimeNoMsMs = lTime.ToString().Substring(0, nlength - 6);
-            //[-1020-add for h:m:s'millissecond''microsecond][-0219-add Qty-]
-            //string strData = nPtr.ToString() + "," + nTime.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
-            //kMarketPrice = m_SKQuoteLib.SKQuoteLib_GetMarketPriceTS();
-            //int nMarketPrice = kMarketPrice;// m_SKQuoteLib.SKQuoteLib_GetMarketPriceTS();
-
-            //if (chkbox_msms.Checked == true)
-            //    strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
-            //else
-            //    strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + " " + lTimemillismicros.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
-
-            //if (Box_M.Checked == true) //含市價揭示轉換
-            //{
-            //    if (nBid == kMarketPrice)
-            //        strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + "," + "M" + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
-            //    else if (nAsk == kMarketPrice)
-            //        strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + "," + nBid.ToString() + "," + "M" + "," + nClose.ToString() + "," + nQty.ToString();
-            //    else
-            //        strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
-
-            //}
-
-            //[揭示]//0:一般;1:試算揭示
-
-            //if (strData != "" && ((chkBoxSimulate.Checked) || (!chkBoxSimulate.Checked && nSimulate == 0)))
-            //    listTicks.Items.Add("[OnNotifyTicksLONG]" + strData);
-
-            //if (listTicks.Items.Count < 200)
-            //    listTicks.SelectedIndex = listTicks.Items.Count - 1;
-            //else
-            //    listTicks.Items.Clear();
         }
 
         /// <summary>
@@ -442,25 +398,27 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nTotal"></param>
         private void m_SKQuoteLib_OnNotifyServerTime(short sHour, short sMinute, short sSecond, int nTotal)
         {
-            QuoteTimer = (DateTime.Now, $"{sHour}:{sMinute}:{sSecond} ({nTotal})");
+            QuoteTimer = (DateTime.Now, $"{sHour}:{sMinute}:{sSecond} ({nTotal})", "OnNotifyServerTime");
 
             try
             {
                 int sec = sSecond % 10;
 
-                if (sec >= 0 && sec < 5)
+                if (QuoteStatus == SK_SUBJECT_CONNECTION_STOCKS_READY && sec >= 0 && sec < 5)
                 {
                     //要求報價主機傳送目前時間。
                     //注意：為避免收盤後無報價資料傳送，導致連線被防火牆切斷，目前solace固定每五秒會自動更新時間，請固定每十五秒呼叫此函式，確保連線正常
                     int m_nCode = m_SKQuoteLib.SKQuoteLib_RequestServerTime();
                     if (m_nCode != 0)
                     {
-                        LogAPIMessage(QuoteStatus);
+                        LogAPIMessage(m_nCode);
                     }
                 }
             }
-            catch
-            { }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
         }
 
         /// <summary>

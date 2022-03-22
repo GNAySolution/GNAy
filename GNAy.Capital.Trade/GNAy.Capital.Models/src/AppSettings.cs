@@ -47,10 +47,10 @@ namespace GNAy.Capital.Models
         /// </summary>
         public List<int> QuoteMarkets { get; set; }
         /// <summary>
-        /// 訂閱行情報價
-        /// TSEA,6005,TX00,TX03,TX04,MTX00,MTX03,MTX04
-        /// 上市加權指數,群益證,台指期近月,台指期3月,台指期4月,小台期近月,小台期3月,小台期4月
-        /// SKQuoteLib_RequestStocks
+        /// <para>訂閱行情報價</para>
+        /// <para>TSEA,6005,TX00,TX03,TX04,MTX00,MTX03,MTX04</para>
+        /// <para>上市加權指數,群益證,台指期近月,台指期3月,台指期4月,小台期近月,小台期3月,小台期4月</para>
+        /// <para>SKQuoteLib_RequestStocks</para>
         /// </summary>
         public List<string> QuoteRequest { get; set; }
         /// <summary>
@@ -73,7 +73,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.321.1";
+            Version = "0.22.322.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -86,8 +86,8 @@ namespace GNAy.Capital.Models
 
             DataGridAppLogRowsMax = 500;
 
-            TimerInterval1 = 100;
-            TimerInterval2 = 25 * 1000;
+            TimerInterval1 = 300;
+            TimerInterval2 = 35 * 1000;
 
             AutoRun = true;
             TimeToExit = new List<DateTime>();

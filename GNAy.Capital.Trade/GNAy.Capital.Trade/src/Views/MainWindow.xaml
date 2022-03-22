@@ -35,6 +35,8 @@
                             <Button x:Name="ButtonPrintProductList" Content="商品基本資料" HorizontalAlignment="Left" Margin="42,106,0,0" VerticalAlignment="Top" Click="ButtonPrintProductList_Click"/>
                             <Button x:Name="ButtonSubQuotes" Content="訂閱即時報價" HorizontalAlignment="Left" Margin="123,106,0,0" VerticalAlignment="Top" Click="ButtonSubQuotes_Click"/>
                             <Button x:Name="ButtonQueryQuotes" Content="回補行情報價" HorizontalAlignment="Left" Margin="123,130,0,0" VerticalAlignment="Top" Click="ButtonQueryQuotes_Click"/>
+                            <Button x:Name="ButtonReadCertification" Content="讀取下單憑證" HorizontalAlignment="Left" Margin="204,58,0,0" VerticalAlignment="Top" Click="ButtonReadCertification_Click"/>
+                            <Button x:Name="ButtonGetOrderAccs" Content="取得下單帳號" HorizontalAlignment="Left" Margin="285,58,0,0" VerticalAlignment="Top" Click="ButtonGetOrderAccs_Click"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="AA2">
@@ -92,7 +94,7 @@
                             </DataGrid>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="APIReply">
+                    <TabItem Header="API回報">
                         <Grid Background="#FFE5E5E5">
                             <DataGrid x:Name="DataGridAPIReply" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
                                 <DataGrid.Columns>
@@ -141,7 +143,7 @@
         <Border Grid.Row="0" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5">
                 <TabControl x:Name="TabControlAB" Margin="0,0,0,30" SelectedIndex="0">
-                    <TabItem Header="QuoteSubscribed">
+                    <TabItem Header="一般報價">
                         <Grid Background="#FFE5E5E5">
                             <DataGrid x:Name="DataGridQuoteSubscribed" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
                                 <DataGrid.RowStyle>
@@ -363,7 +365,7 @@
                             </DataGrid>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="AB2">
+                    <TabItem Header="T字報價">
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
@@ -384,6 +386,10 @@
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemAB4" Text="AB4"/>
                     </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemAB5" Text="AB5"/>
+                    </StatusBarItem>
                 </StatusBar>
             </Grid>
         </Border>
@@ -397,6 +403,10 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="成交回報">
+                        <Grid Background="#FFE5E5E5">
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="庫存損益">
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
@@ -416,6 +426,10 @@
                     <Separator/>
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemBB4" Text="BB4"/>
+                    </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemBB5" Text="BB5"/>
                     </StatusBarItem>
                 </StatusBar>
             </Grid>

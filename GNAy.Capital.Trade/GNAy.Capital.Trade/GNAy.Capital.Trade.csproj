@@ -71,6 +71,7 @@
     <Compile Include="..\..\GNAy.Tools.WPF\GNAy.Tools.WPF\src\Extensions.cs">
       <Link>src\Tools\Extensions.cs</Link>
     </Compile>
+    <Compile Include="src\Controllers\CapitalOrderEvent.cs" />
     <Compile Include="src\Controllers\CapitalReplyEvent.cs" />
     <Compile Include="src\Controllers\CapitalQuoteEvent.cs" />
     <Compile Include="src\Controllers\CapitalController.cs" />

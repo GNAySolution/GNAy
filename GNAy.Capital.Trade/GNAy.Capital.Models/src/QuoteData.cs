@@ -60,12 +60,12 @@ namespace GNAy.Capital.Models
             {
                 OnPropertyChanged(ref _updateTime, value);
                 OnPropertyChanged("UpdateDate");
-                OnPropertyChanged("Duration");
+                OnPropertyChanged("Elapsed");
             }
         }
 
         [Column("經過", 4)]
-        public string Duration => ((UpdateTime == DateTime.MaxValue) ? TimeSpan.MaxValue : (DateTime.Now - UpdateTime)).ToString(@"hh\:mm\:ss");
+        public string Elapsed => ((UpdateTime == DateTime.MaxValue) ? TimeSpan.MaxValue : (DateTime.Now - UpdateTime)).ToString(@"hh\:mm\:ss");
 
         private string _symbol;
         [Column("代碼", 5)]
@@ -351,7 +351,7 @@ namespace GNAy.Capital.Models
             //    $"{CreatedTime:yyyy/MM/dd HH:mm:ss.ffffff}",
             //    Updater,
             //    $"{UpdateTime:yyyy/MM/dd HH:mm:ss.ffffff}",
-            //    Duration,
+            //    Elapsed,
             //    Symbol,
             //    Name,
             //    MatchedTimeRaw,

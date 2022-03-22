@@ -72,7 +72,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (!MainWindow.Instance.DataGridAppLog.IsMouseOver)
                     {
-                        MainWindow.Instance.DataGridAppLog.ZxtScrollToEnd();
+                        MainWindow.Instance.DataGridAppLog.ScrollToBorder();
                     }
                 }
                 catch
@@ -243,13 +243,6 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="level"></param>
-        /// <param name="lineNumber"></param>
-        /// <param name="memberName"></param>
         public void Exit(string msg = "", LogLevel level = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             LogTrace("Start");

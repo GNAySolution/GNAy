@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.321.1",
+  "Version": "0.22.322.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -13,8 +13,8 @@
     "補假"
   ],
   "DataGridAppLogRowsMax": 500,
-  "TimerInterval1": 100,
-  "TimerInterval2": 25000,
+  "TimerInterval1": 300,
+  "TimerInterval2": 35000,
   "AutoRun": true,
   "TimeToExit": [
     "05:03:00",

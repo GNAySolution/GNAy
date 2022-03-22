@@ -1,6 +1,4 @@
-﻿using GNAy.Capital.Models;
-using SKCOMLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -106,6 +104,59 @@ namespace GNAy.Capital.Trade.Controllers
             string msg = LogAPIMessage(QuoteStatus);
             MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|{msg}");
             AppandReply(strUserID, msg);
+        }
+
+        /// <summary>
+        /// 回報連線後會進行回報回補，等收到此事件通知後表示回補完成
+        /// </summary>
+        /// <param name="strUserID"></param>
+        private void OnComplete(string strUserID)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}");
+            AppandReply(strUserID, String.Empty);
+        }
+
+        /// <summary>
+        /// 當有回報將主動呼叫函式，並通知委託的狀態。(新格式 包含預約單回報)
+        /// </summary>
+        /// <param name="strUserID"></param>
+        /// <param name="strData"></param>
+        private void OnNewData(string strUserID, string strData)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|strData={strData}");
+            AppandReply(strUserID, strData);
+        }
+
+        private void m_SKReplyLib_OnReportCount(string strUserID, int nCount)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|nCount={nCount}");
+            AppandReply(strUserID, $"{nCount}");
+        }
+
+        /// <summary>
+        /// <para>當有回報開始清除前日資料時，會發出的通知，表示清除前日回報</para>
+        /// <para>R1 證券</para>
+        /// <para>R2 國內期選</para>
+        /// <para>R3 海外股市</para>
+        /// <para>R4 海外期選</para>
+        /// <para>R11 盤中零股</para>
+        /// <para>R20 ~R23 智慧單</para>
+        /// </summary>
+        /// <param name="bstrMarket"></param>
+        private void OnClear(string bstrMarket)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrMarket={bstrMarket}");
+            AppandReply(String.Empty, bstrMarket);
+        }
+
+        /// <summary>
+        /// 當公告開始清除前日資料時，會發出的通知
+        /// </summary>
+        /// <param name="strUserID"></param>
+        private void OnClearMessage(string strUserID)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}");
+            AppandReply(strUserID, String.Empty);
         }
     }
 }
