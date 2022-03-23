@@ -9,13 +9,8 @@ namespace GNAy.Tools.NET47.Models
     [Serializable]
     public class AppLog : NotifyPropertyChanged
     {
-        private string _creator;
         [Column("建立者", -1)]
-        public string Creator
-        {
-            get { return _creator; }
-            set { OnPropertyChanged(ref _creator, value); }
-        }
+        public string Creator { get; set; }
 
         [Column("日期", -1)]
         public DateTime CreatedDate => CreatedTime.Date;
@@ -28,33 +23,18 @@ namespace GNAy.Tools.NET47.Models
             set
             {
                 OnPropertyChanged(ref _createdTime, value);
-                OnPropertyChanged("CreatedDate");
+                OnPropertyChanged(nameof(CreatedDate));
             }
         }
 
-        private string _project;
         [Column("專案", -1)]
-        public string Project
-        {
-            get { return _project; }
-            set { OnPropertyChanged(ref _project, value); }
-        }
+        public string Project { get; set; }
 
-        private string _level;
         [Column("等級", -1)]
-        public string Level
-        {
-            get { return _level; }
-            set { OnPropertyChanged(ref _level, value); }
-        }
+        public string Level { get; set; }
 
-        private string _message;
         [Column("訊息", -1)]
-        public string Message
-        {
-            get { return _message; }
-            set { OnPropertyChanged(ref _message, value); }
-        }
+        public string Message { get; set; }
 
         public AppLog()
         {

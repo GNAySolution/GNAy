@@ -35,14 +35,14 @@ namespace GNAy.Capital.Trade.Controllers
             ProcessName = Process.GetCurrentProcess().ProcessName.Replace(".vshost", string.Empty);
             Config = LoadSettings();
 
-            MainWindow.Instance.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1.ShortName));
+            MainWindow.Instance.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             AppLogCollection = MainWindow.Instance.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
         }
 
-        private void AppandLog(LogLevel level, string msg, int lineNumber, string memberName)
+        private void AppendLog(LogLevel level, string msg, int lineNumber, string memberName)
         {
             AppLogInDataGrid log = new AppLogInDataGrid()
             {
@@ -83,38 +83,38 @@ namespace GNAy.Capital.Trade.Controllers
         public void LogTrace(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             _logger.Trace(string.Join("|", msg, lineNumber, memberName));
-            AppandLog(LogLevel.Trace, msg, lineNumber, memberName);
+            AppendLog(LogLevel.Trace, msg, lineNumber, memberName);
         }
 
         public void LogDebug(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             _logger.Debug(string.Join("|", msg, lineNumber, memberName));
-            AppandLog(LogLevel.Debug, msg, lineNumber, memberName);
+            AppendLog(LogLevel.Debug, msg, lineNumber, memberName);
         }
 
         public void LogInfo(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             _logger.Info(string.Join("|", msg, lineNumber, memberName));
-            AppandLog(LogLevel.Info, msg, lineNumber, memberName);
+            AppendLog(LogLevel.Info, msg, lineNumber, memberName);
         }
 
         public void LogWarn(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             _logger.Warn(string.Join("|", msg, lineNumber, memberName));
-            AppandLog(LogLevel.Warn, msg, lineNumber, memberName);
+            AppendLog(LogLevel.Warn, msg, lineNumber, memberName);
         }
 
         public void LogError(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             _logger.Error(string.Join("|", msg, lineNumber, memberName));
-            AppandLog(LogLevel.Error, msg, lineNumber, memberName);
+            AppendLog(LogLevel.Error, msg, lineNumber, memberName);
         }
 
         public void LogException(Exception ex, string stackTrace, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             string _msg = string.Join("|", ex.Message, ex.GetType().Name, $"{Environment.NewLine}{stackTrace}");
             _logger.Error(_msg);
-            AppandLog(LogLevel.Error, _msg, lineNumber, memberName);
+            AppendLog(LogLevel.Error, _msg, lineNumber, memberName);
         }
 
         public void Log(int statusCode, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")

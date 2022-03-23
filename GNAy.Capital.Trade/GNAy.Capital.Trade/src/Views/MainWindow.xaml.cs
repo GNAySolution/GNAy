@@ -74,6 +74,8 @@ namespace GNAy.Capital.Trade
                 Title = $"{Title}(附加偵錯)";
             }
 
+            TextBoxQuoteFolderPath.Text = AppCtrl.Settings.QuoteFolderPath;
+
             _timer1 = new DispatcherTimer(DispatcherPriority.Send)
             {
                 Interval = TimeSpan.FromMilliseconds(AppCtrl.Settings.TimerInterval1),
@@ -707,6 +709,29 @@ namespace GNAy.Capital.Trade
                 {
                     StatusBarItemAB1.Text = $"({DataGridQuoteSubscribed.Columns.Count},{DataGridQuoteSubscribed.Items.Count})";
                 }
+
+                if (ComboBoxStockAccs.IsMouseOver)
+                {
+                    if (ComboBoxStockAccs.SelectedIndex >= 0)
+                    {
+                        StatusBarItemBB2.Text = $"{nameof(ComboBoxStockAccs)}|{ComboBoxStockAccs.SelectedIndex}|{ComboBoxStockAccs.SelectedItem}";
+                    }
+                    else
+                    {
+                        StatusBarItemBB2.Text = $"{nameof(ComboBoxStockAccs)}|{ComboBoxStockAccs.SelectedIndex}";
+                    }
+                }
+                else if (ComboBoxFuturesAccs.IsMouseOver)
+                {
+                    if (ComboBoxFuturesAccs.SelectedIndex >= 0)
+                    {
+                        StatusBarItemBB2.Text = $"{nameof(ComboBoxFuturesAccs)}|{ComboBoxFuturesAccs.SelectedIndex}|{ComboBoxFuturesAccs.SelectedItem}";
+                    }
+                    else
+                    {
+                        StatusBarItemBB2.Text = $"{nameof(ComboBoxFuturesAccs)}|{ComboBoxFuturesAccs.SelectedIndex}";
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -727,9 +752,9 @@ namespace GNAy.Capital.Trade
                 AppCtrl.LogTrace(msg);
                 StatusBarItemBA2.Text = msg;
 
-                if (AppCtrl.Config.QuoteFolder != null && CapitalCtrl != null)
+                if (CapitalCtrl != null)
                 {
-                    CapitalCtrl.SaveQuotesAsync();
+                    ButtonSaveQuotes_Click(null, null);
                 }
 
                 foreach (DateTime timeToExit in AppCtrl.Settings.TimeToExit)
@@ -737,6 +762,7 @@ namespace GNAy.Capital.Trade
                     if (now.Hour == timeToExit.Hour && now.Minute >= timeToExit.Minute && now.Minute <= (timeToExit.Minute + 2))
                     {
                         _timer1.Stop();
+                        Thread.Sleep(3 * 1000);
                         AppCtrl.Exit($"Time to exit.");
                         break;
                     }
@@ -779,6 +805,7 @@ namespace GNAy.Capital.Trade
                     {
                         ButtonLoginAccount_Click(null, null);
                         ButtonLoginQuote_Click(null, null);
+                        ButtonReadCertification_Click(null, null);
                     });
 
                     Thread.Sleep(3 * 1000);
@@ -796,6 +823,7 @@ namespace GNAy.Capital.Trade
                     {
                         ButtonIsConnected_Click(null, null);
                         ButtonSubQuotes_Click(null, null);
+                        ButtonGetOrderAccs_Click(null, null);
                     });
 
                     Thread.Sleep(3 * 1000);
@@ -995,6 +1023,43 @@ namespace GNAy.Capital.Trade
             }
         }
 
+        private void ButtonSaveQuotes_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                DirectoryInfo folder = new DirectoryInfo(TextBoxQuoteFolderPath.Text);
+
+                if (AppCtrl.Config.QuoteFolder != null && folder.FullName != AppCtrl.Config.QuoteFolder.FullName)
+                {
+                    AppCtrl.LogWarn($"UI上填入的資料夾({TextBoxQuoteFolderPath.Text})與設定檔定義的資料夾({AppCtrl.Settings.QuoteFolderPath})不同，程式以UI上的為準");
+                }
+
+                folder.Create();
+                folder.Refresh();
+
+                DateTime now = DateTime.Now;
+                string suffix = "_0"; //夜盤或假日
+
+                if (!AppCtrl.Config.IsHoliday(now) && now.Hour >= 8 && now.Hour < 14)
+                {
+                    suffix = "_1"; //早盤
+                }
+
+                CapitalCtrl.SaveQuotesAsync(quoteFolder: folder);
+                CapitalCtrl.SaveQuotesAsync(false, "Last_", suffix, folder);
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
         private void ButtonReadCertification_Click(object sender, RoutedEventArgs e)
         {
             AppCtrl.LogTrace("Start");
@@ -1020,6 +1085,29 @@ namespace GNAy.Capital.Trade
             try
             {
                 CapitalCtrl.GetGetOrderAccs();
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonUnlockOrder_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                CapitalCtrl.UnlockOrder(0);
+                CapitalCtrl.UnlockOrder(1);
+                CapitalCtrl.UnlockOrder(2);
+                CapitalCtrl.UnlockOrder(3);
+                CapitalCtrl.UnlockOrder(4);
+                CapitalCtrl.UnlockOrder(5);
             }
             catch (Exception ex)
             {

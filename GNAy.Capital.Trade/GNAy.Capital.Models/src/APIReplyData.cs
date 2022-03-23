@@ -14,46 +14,26 @@ namespace GNAy.Capital.Models
     {
         public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(APIReplyData).GetColumnAttrMapByProperty(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
 
-        private int _threadID;
         [Column("執行緒", "緒", -1)]
-        public int ThreadID
-        {
-            get { return _threadID; }
-            set { OnPropertyChanged(ref _threadID, value); }
-        }
+        public int ThreadID { get; set; }
 
-        private int _callerLineNumber;
         /// <summary>
         /// 原始程式檔中的行號
         /// </summary>
         [Column("行號", "行", -1)]
-        public int CallerLineNumber
-        {
-            get { return _callerLineNumber; }
-            set { OnPropertyChanged(ref _callerLineNumber, value); }
-        }
+        public int CallerLineNumber { get; set; }
 
-        private string _callerMemberName;
         /// <summary>
         /// 呼叫端的方法或屬性名稱
         /// </summary>
         [Column("方法", -1)]
-        public string CallerMemberName
-        {
-            get { return _callerMemberName; }
-            set { OnPropertyChanged(ref _callerMemberName, value); }
-        }
+        public string CallerMemberName { get; set; }
 
-        private string _account;
         /// <summary>
         /// 呼叫端的方法或屬性名稱
         /// </summary>
         [Column("帳號", -1)]
-        public string Account
-        {
-            get { return _account; }
-            set { OnPropertyChanged(ref _account, value); }
-        }
+        public string Account { get; set; }
 
         public APIReplyData()
         {

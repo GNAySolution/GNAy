@@ -3,6 +3,7 @@ using GNAy.Tools.NET47.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -36,7 +37,7 @@ namespace GNAy.Capital.Models
             set
             {
                 OnPropertyChanged(ref _createdTime, value);
-                OnPropertyChanged("CreatedDate");
+                OnPropertyChanged(nameof(CreatedDate));
             }
         }
 
@@ -59,8 +60,8 @@ namespace GNAy.Capital.Models
             set
             {
                 OnPropertyChanged(ref _updateTime, value);
-                OnPropertyChanged("UpdateDate");
-                OnPropertyChanged("Elapsed");
+                OnPropertyChanged(nameof(UpdateDate));
+                OnPropertyChanged(nameof(Elapsed));
             }
         }
 
@@ -91,7 +92,7 @@ namespace GNAy.Capital.Models
             set
             {
                 OnPropertyChanged(ref _matchedTimeRaw, value);
-                OnPropertyChanged("MatchedTime");
+                OnPropertyChanged(nameof(MatchedTime));
             }
         }
 
@@ -122,7 +123,7 @@ namespace GNAy.Capital.Models
             set
             {
                 OnPropertyChanged(ref _upDown, value);
-                OnPropertyChanged("RowBackground");
+                OnPropertyChanged(nameof(RowBackground));
             }
         }
 
@@ -206,7 +207,7 @@ namespace GNAy.Capital.Models
             set
             {
                 OnPropertyChanged(ref _simulate, value);
-                OnPropertyChanged("RowBackground");
+                OnPropertyChanged(nameof(RowBackground));
             }
         }
 
@@ -226,7 +227,7 @@ namespace GNAy.Capital.Models
             set
             {
                 OnPropertyChanged(ref _tradeDateRaw, value);
-                OnPropertyChanged("TradeDate");
+                OnPropertyChanged(nameof(TradeDate));
             }
         }
 
@@ -381,6 +382,21 @@ namespace GNAy.Capital.Models
 
             string result = string.Join("\",\"", ColumnGetters.Values.Select(x => x.Item2.PropertyValueToString(this, x.Item1.StringFormat)));
             return $"\"{result}\"";
+        }
+
+        public void ToCSVFile(string path, bool append = true)
+        {
+            bool exists = File.Exists(path);
+
+            using (StreamWriter sw = new StreamWriter(path, append, TextEncoding.UTF8WithoutBOM))
+            {
+                if (!append || !exists)
+                {
+                    sw.WriteLine(string.Join(",", ColumnGetters.Values.Select(x => x.Item1.Name)));
+                }
+
+                sw.WriteLine(ToCSVString());
+            }
         }
     }
 }

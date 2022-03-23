@@ -101,5 +101,11 @@
     <Folder Include="docs\" />
     <Folder Include="src\Controllers\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GNAy.Tools.NET47\GNAy.Tools.NET47.csproj">
+      <Project>{97C48BE4-5385-4BA0-9FFE-631BA9FD7404}</Project>
+      <Name>GNAy.Tools.NET47</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

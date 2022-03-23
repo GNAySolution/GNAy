@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GNAy.Capital.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,44 +17,66 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_OrderObj_OnAccount(string bstrLogInID, string bstrAccountData)
         {
             MainWindow.AppCtrl.LogTrace($"SKAPI|bstrLogInID={bstrLogInID}|bstrAccountData={bstrAccountData}");
-            AppandReply(bstrLogInID, bstrAccountData);
+            AppendReply(bstrLogInID, bstrAccountData);
 
-            //string[] strValues;
-            //string strAccount;
+            try
+            {
+                //市場,分公司,分公司代號,帳號,身份證字號,姓名
+                string[] cells = bstrAccountData.Split(',');
+                OrderAcc acc = new OrderAcc()
+                {
+                    MarketKind = cells[0],
+                    Branch = cells[1],
+                    BranchCode = cells[2],
+                    Account = cells[3],
+                    Identity = cells[4],
+                    MemberName = cells[5],
+                };
 
-            //strValues = bstrAccountData.Split(',');
-            //strAccount = bstrLogInID + " " + strValues[1] + strValues[3];
+                if (cells[0] == "TS")
+                {
+                    StockAccCollection.Add(acc);
+                    MainWindow.Instance.ComboBoxStockAccs.SelectedIndex = 0;
+                }
+                else if (cells[0] == "TF") //cells[0] == "OF"
+                {
+                    FuturesAccCollection.Add(acc);
+                    MainWindow.Instance.ComboBoxFuturesAccs.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+        }
 
-            //if (strValues[0] == "TS")
-            //{
-            //    boxStockAccount.Items.Add(strAccount);
+        /// <summary>
+        /// 非同步委託結果
+        /// </summary>
+        /// <param name="nThreaID"></param>
+        /// <param name="nCode"></param>
+        /// <param name="bstrMessage"></param>
+        private void m_pSKOrder_OnAsyncOrder(int nThreaID, int nCode, string bstrMessage)
+        {
+            string msg = $"SKAPI|nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}";
 
-            //    //boxExecutionAccount.Items.Add("證券 " + strAccount);
-            //}
-            //else if (strValues[0] == "TF")
-            //{
-            //    boxFutureAccount.Items.Add(strAccount);
-            //    withDrawInOutControl1.UserAccountTF = strValues[1] + strValues[3];
-            //    //boxExecutionAccount.Items.Add("期貨 " + strAccount);
-            //}
-            //else if (strValues[0] == "OF")
-            //{
-            //    boxOSFutureAccount.Items.Add(strAccount);
-            //    withDrawInOutControl1.UserAccountOF = strValues[1] + strValues[3];
-            //}
-            //else if (strValues[0] == "OS")
-            //{
-            //    boxOSStockAccount.Items.Add(strAccount);
-            //}
+            MainWindow.AppCtrl.LogTrace(msg);
+            AppendReply(String.Empty, msg);
+        }
 
-            //if (boxStockAccount.Items.Count > 0)
-            //    boxStockAccount.SelectedIndex = 0;
-            //if (boxFutureAccount.Items.Count > 0)
-            //    boxFutureAccount.SelectedIndex = 0;
-            //if (boxOSFutureAccount.Items.Count > 0)
-            //    boxOSFutureAccount.SelectedIndex = 0;
-            //if (boxOSStockAccount.Items.Count > 0)
-            //    boxOSStockAccount.SelectedIndex = 0;
+        /// <summary>
+        /// 非同步委託結果。(含單獨自訂資料欄)
+        /// </summary>
+        /// <param name="nThreaID"></param>
+        /// <param name="nCode"></param>
+        /// <param name="bstrMessage"></param>
+        /// <param name="bstrOrderLinkedID"></param>
+        private void m_pSKOrder_OnAsyncOrderOLID(int nThreaID, int nCode, string bstrMessage, string bstrOrderLinkedID)
+        {
+            string msg = $"SKAPI|nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}";
+
+            MainWindow.AppCtrl.LogTrace(msg);
+            AppendReply(String.Empty, msg);
         }
     }
 }

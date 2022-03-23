@@ -65,46 +65,46 @@ namespace GNAy.Tools.NET47
                 return value.ToString();
             }
 
-            Type declaring = obj.PropertyType;
+            Type propertyType = obj.PropertyType;
 
-            if (declaring == typeof(string) || declaring == typeof(StringBuilder))
+            if (propertyType == typeof(string) || propertyType == typeof(StringBuilder))
             {
                 return value.ToString();
             }
-            else if (declaring == typeof(DateTime))
+            else if (propertyType == typeof(DateTime))
             {
                 return ((DateTime)value).ToString(format);
             }
-            else if (declaring == typeof(decimal))
+            else if (propertyType == typeof(decimal))
             {
                 return ((decimal)value).ToString(format);
             }
-            else if (declaring == typeof(double))
+            else if (propertyType == typeof(double))
             {
                 return ((double)value).ToString(format);
             }
-            else if (declaring == typeof(float))
+            else if (propertyType == typeof(float))
             {
                 return ((float)value).ToString(format);
             }
-            else if (declaring == typeof(long))
+            else if (propertyType == typeof(long))
             {
                 return ((long)value).ToString(format);
             }
-            else if (declaring == typeof(int))
+            else if (propertyType == typeof(int))
             {
                 return ((int)value).ToString(format);
             }
-            else if (declaring == typeof(short))
+            else if (propertyType == typeof(short))
             {
                 return ((short)value).ToString(format);
             }
-            else if (declaring == typeof(byte))
+            else if (propertyType == typeof(byte))
             {
                 return ((byte)value).ToString(format);
             }
             
-            throw new NotSupportedException($"DeclaringType ({declaring.FullName}) is not supported.");
+            throw new NotSupportedException($"PropertyType ({propertyType.FullName}) is not supported.");
         }
 
         /// <summary>
@@ -184,6 +184,14 @@ namespace GNAy.Tools.NET47
         public static void LoadHolidays(this IDictionary<DateTime, string> obj, string path, Encoding encoding, int yyyy, IList<string> keywords1, IEnumerable<string> keywords2)
         {
             obj.LoadHolidays(File.ReadAllLines(path, encoding), yyyy, keywords1, keywords2);
+        }
+
+
+        public static T LoadHolidays<T>(this string obj, Encoding encoding, int yyyy, IList<string> keywords1, IEnumerable<string> keywords2) where T : IDictionary<DateTime, string>, new()
+        {
+            T dic = new T();
+            dic.LoadHolidays(obj, encoding, yyyy, keywords1, keywords2);
+            return dic;
         }
     }
 }
