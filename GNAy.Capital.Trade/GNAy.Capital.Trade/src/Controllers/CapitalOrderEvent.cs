@@ -78,5 +78,25 @@ namespace GNAy.Capital.Trade.Controllers
             MainWindow.AppCtrl.LogTrace(msg);
             AppendReply(String.Empty, msg);
         }
+
+        /// <summary>
+        /// 查詢證券即時庫存內容
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnRealBalanceReport(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace(bstrData);
+            AppendReply(String.Empty, bstrData);
+        }
+
+        /// <summary>
+        /// 查詢期貨未平倉
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnOpenInterest(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace(bstrData);
+            AppendReply(String.Empty, bstrData);
+        }
     }
 }

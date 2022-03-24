@@ -10,9 +10,29 @@ using System.Threading.Tasks;
 namespace GNAy.Capital.Models
 {
     [Serializable]
-    public class APIReplyData : AppLog
+    public class APIReplyData : NotifyPropertyChanged
     {
-        public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(APIReplyData).GetColumnAttrMapByProperty(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
+        public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(APIReplyData).GetColumnAttrMapByProperty(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
+
+        [Column("建立者", -1)]
+        public string Creator { get; set; }
+
+        [Column("日期", -1)]
+        public DateTime CreatedDate => CreatedTime.Date;
+
+        private DateTime _createdTime;
+        [Column("時間", -1)]
+        public DateTime CreatedTime
+        {
+            get { return _createdTime; }
+            set
+            {
+                if (OnPropertyChanged(ref _createdTime, value))
+                {
+                    OnPropertyChanged(nameof(CreatedDate));
+                }
+            }
+        }
 
         [Column("執行緒", "緒", -1)]
         public int ThreadID { get; set; }
@@ -35,12 +55,18 @@ namespace GNAy.Capital.Models
         [Column("帳號", -1)]
         public string Account { get; set; }
 
+        [Column("訊息", -1)]
+        public string Message { get; set; }
+
         public APIReplyData()
         {
+            Creator = String.Empty;
+            CreatedTime = DateTime.Now;
             ThreadID = 0;
             CallerLineNumber = 0;
             CallerMemberName = String.Empty;
             Account = String.Empty;
+            Message = String.Empty;
         }
     }
 }

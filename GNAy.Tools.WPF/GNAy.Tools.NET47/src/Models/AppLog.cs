@@ -22,8 +22,10 @@ namespace GNAy.Tools.NET47.Models
             get { return _createdTime; }
             set
             {
-                OnPropertyChanged(ref _createdTime, value);
-                OnPropertyChanged(nameof(CreatedDate));
+                if (OnPropertyChanged(ref _createdTime, value))
+                {
+                    OnPropertyChanged(nameof(CreatedDate));
+                }
             }
         }
 

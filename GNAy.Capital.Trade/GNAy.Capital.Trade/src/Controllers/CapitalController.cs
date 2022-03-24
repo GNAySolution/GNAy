@@ -33,6 +33,8 @@ namespace GNAy.Capital.Trade.Controllers
         private SKQuoteLib m_pSKQuote2 { get; set; }
         private SKOrderLib m_pSKOrder2 { get; set; }
 
+        public readonly (bool, string) IsAM;
+
         public int LoginAccountResult { get; private set; }
         public string Account { get; private set; }
         public string DWP { get; private set; }
@@ -69,6 +71,12 @@ namespace GNAy.Capital.Trade.Controllers
         public CapitalController()
         {
             CreatedTime = DateTime.Now;
+
+            IsAM = (false, "夜盤");
+            if (!MainWindow.AppCtrl.Config.IsHoliday(CreatedTime) && CreatedTime.Hour >= 8 && CreatedTime.Hour < 14)
+            {
+                IsAM = (true, "早盤");
+            }
 
             LoginAccountResult = -1;
             Account = String.Empty;
@@ -145,7 +153,6 @@ namespace GNAy.Capital.Trade.Controllers
         {
             APIReplyData replay = new APIReplyData()
             {
-                Project = MainWindow.AppCtrl.ProcessName,
                 ThreadID = Thread.CurrentThread.ManagedThreadId,
                 Account = account,
                 Message = msg,
@@ -239,7 +246,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 string strSKAPIVersion = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(account); //取得目前註冊SKAPI 版本及位元
                 MainWindow.AppCtrl.LogTrace($"SKAPI|Version={strSKAPIVersion}");
-                MainWindow.Instance.StatusBarItemAA4.Text = $"SKAPIVersionAndBit={strSKAPIVersion}";
+                MainWindow.Instance.StatusBarItemAA4.Text = $"{IsAM.Item2}|SKAPIVersionAndBit={strSKAPIVersion}";
             }
             catch (Exception ex)
             {
@@ -446,12 +453,6 @@ namespace GNAy.Capital.Trade.Controllers
                 TotalQtyBefore = raw.nYQty,
             };
 
-            if (quote.DealPrice != 0 && quote.Reference != 0)
-            {
-                quote.UpDown = quote.DealPrice - quote.Reference;
-                quote.UpDownPct = quote.UpDown / quote.Reference * 100;
-            }
-
             quote.Creator = "GetStockByNoLONG";
             quote.CreatedTime = DateTime.Now;
             quote.Updater = quote.Creator;
@@ -514,12 +515,6 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     quote.TradeDateRaw = raw.nTradingDay;
                 }
-
-                if (quote.DealPrice != 0 && quote.Reference != 0)
-                {
-                    quote.UpDown = quote.DealPrice - quote.Reference;
-                    quote.UpDownPct = quote.UpDown / quote.Reference * 100;
-                }
             }
 
             quote.Updater = "OnNotifyQuote";
@@ -528,6 +523,107 @@ namespace GNAy.Capital.Trade.Controllers
             QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
 
             return true;
+        }
+
+        private void ReadLastClosePrice(FileInfo quoteFile, string[] separators)
+        {
+            try
+            {
+                MainWindow.AppCtrl.LogTrace($"SKAPI|Start|{quoteFile.FullName}");
+
+                List<string> columnNames = new List<string>();
+
+                foreach (string line in File.ReadLines(quoteFile.FullName, TextEncoding.UTF8WithoutBOM))
+                {
+                    if (columnNames.Count <= 0)
+                    {
+                        columnNames.AddRange(line.Split(','));
+                        continue;
+                    }
+
+                    QuoteData quoteLast = new QuoteData();
+                    quoteLast.SetValues(columnNames, line.Split(separators, StringSplitOptions.RemoveEmptyEntries));
+
+                    QuoteData quoteSub = QuoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
+                    if (quoteSub != null && quoteSub.LastClosePrice == 0)
+                    {
+                        if (quoteLast.Market == 2 || quoteLast.Market == 3)
+                        {
+                            quoteSub.LastClosePrice = quoteLast.DealPrice;
+                        }
+                        else if (quoteSub.TradeDate > quoteLast.TradeDate)
+                        {
+                            quoteSub.LastClosePrice = quoteLast.DealPrice;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                MainWindow.AppCtrl.LogTrace("SKAPI|End");
+            }
+        }
+
+        private void ReadLastClosePrice()
+        {
+            try
+            {
+                Thread.Sleep(3 * 1000);
+
+                string _isAM = IsAM.Item1 ? "_1" : "_0";
+                string fileName = $"{QuoteIndexMap.Values.Max(x => x.TradeDateRaw)}{_isAM}";
+
+                MainWindow.AppCtrl.Config.QuoteFolder.Refresh();
+                FileInfo[] files = MainWindow.AppCtrl.Config.QuoteFolder.GetFiles("*.csv");
+                FileInfo lastQuote1 = null;
+                FileInfo lastQuote2 = null;
+
+                for (int i = files.Length - 1; i >= 0; --i)
+                {
+                    if (files[i].Name.Contains(fileName) && i > 0)
+                    {
+                        lastQuote1 = files[i - 1];
+
+                        if (i > 1)
+                        {
+                            lastQuote2 = files[i - 2];
+                        }
+
+                        break;
+                    }
+                }
+                if (lastQuote1 == null)
+                {
+                    if (files.Length > 0)
+                    {
+                        lastQuote1 = files[files.Length - 1];
+
+                        if (files.Length > 1)
+                        {
+                            lastQuote2 = files[files.Length - 2];
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
+                string[] separators = new string[] { "\"", "," };
+                ReadLastClosePrice(lastQuote1, separators);
+                if (lastQuote2 != null)
+                {
+                    ReadLastClosePrice(lastQuote2, separators);
+                }
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
         }
 
         public void SubQuotesAsync()
@@ -639,6 +735,8 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
                     }
+
+                    ReadLastClosePrice();
                 });
             }
         }
@@ -660,7 +758,8 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 QuoteData[] quotes = QuoteIndexMap.Values.ToArray();
-                string path = Path.Combine(quoteFolder.FullName, $"{prefix}{quotes.Max(x => x.TradeDateRaw)}{suffix}.csv");
+                string _isAM = IsAM.Item1 ? "_1" : "_0";
+                string path = Path.Combine(quoteFolder.FullName, $"{prefix}{quotes.Max(x => x.TradeDateRaw)}{_isAM}{suffix}.csv");
                 bool exists = File.Exists(path);
 
                 using (StreamWriter sw = new StreamWriter(path, append, TextEncoding.UTF8WithoutBOM))
@@ -718,8 +817,8 @@ namespace GNAy.Capital.Trade.Controllers
                 m_pSKOrder.OnAccount += m_OrderObj_OnAccount;
                 m_pSKOrder.OnAsyncOrder += m_pSKOrder_OnAsyncOrder;
                 m_pSKOrder.OnAsyncOrderOLID += m_pSKOrder_OnAsyncOrderOLID;
-                //m_pSKOrder.OnRealBalanceReport += m_pSKOrder_OnRealBalanceReport;
-                //m_pSKOrder.OnOpenInterest += m_pSKOrder_OnOpenInterest;
+                m_pSKOrder.OnRealBalanceReport += m_pSKOrder_OnRealBalanceReport;
+                m_pSKOrder.OnOpenInterest += m_pSKOrder_OnOpenInterest;
                 //m_pSKOrder.OnStopLossReport += m_pSKOrder_OnStopLossReport;
                 //m_pSKOrder.OnFutureRights += m_pSKOrder_OnFutureRights;
                 //m_pSKOrder.OnRequestProfitReport += m_pSKOrder_OnRequestProfitReport;
@@ -799,6 +898,25 @@ namespace GNAy.Capital.Trade.Controllers
             try
             {
                 int m_nCode = m_pSKOrder.UnlockOrder(marketKind);
+                LogAPIMessage(m_nCode);
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                MainWindow.AppCtrl.LogTrace("SKAPI|End");
+            }
+        }
+
+        public void GetOpenInterest(string orderAcc, int format = 1)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|Start|orderAcc={orderAcc}|format={format}");
+
+            try
+            {
+                int m_nCode = m_pSKOrder.GetOpenInterestWithFormat(Account, orderAcc, format); //查詢期貨未平倉－可指定回傳格式
                 LogAPIMessage(m_nCode);
             }
             catch (Exception ex)

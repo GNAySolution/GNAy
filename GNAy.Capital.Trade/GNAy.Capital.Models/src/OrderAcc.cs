@@ -11,6 +11,26 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class OrderAcc : NotifyPropertyChanged
     {
+        [Column("建立者", -1)]
+        public string Creator { get; set; }
+
+        [Column("日期", -1)]
+        public DateTime CreatedDate => CreatedTime.Date;
+
+        private DateTime _createdTime;
+        [Column("時間", -1)]
+        public DateTime CreatedTime
+        {
+            get { return _createdTime; }
+            set
+            {
+                if (OnPropertyChanged(ref _createdTime, value))
+                {
+                    OnPropertyChanged(nameof(CreatedDate));
+                }
+            }
+        }
+
         [Column("市場", -1)]
         public string MarketKind { get; set; }
 
@@ -29,12 +49,14 @@ namespace GNAy.Capital.Models
         [Column("姓名", -1)]
         public string MemberName { get; set; }
 
+        public string FullAccount => $"{Branch}{Account}";
         public string DisplayName => $"{Account},{Identity}";
-
         public string ToolTip => ToString();
 
         public OrderAcc()
         {
+            Creator = String.Empty;
+            CreatedTime = DateTime.Now;
             MarketKind = String.Empty;
             Branch = String.Empty;
             BranchCode = String.Empty;

@@ -5,11 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GNAy.Capital.Trade"
         mc:Ignorable="d"
-        Title="MainWindow" Height="900" Width="1600" Activated="Window_Activated" Closing="Window_Closing" Deactivated="Window_Deactivated" FocusableChanged="Window_FocusableChanged" GotFocus="Window_GotFocus" GotKeyboardFocus="Window_GotKeyboardFocus" GotMouseCapture="Window_GotMouseCapture" IsVisibleChanged="Window_IsVisibleChanged" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" Loaded="Window_Loaded" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus" LostKeyboardFocus="Window_LostKeyboardFocus" LostMouseCapture="Window_LostMouseCapture" MouseDoubleClick="Window_MouseDoubleClick" MouseDown="Window_MouseDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseLeftButtonUp="Window_MouseLeftButtonUp" MouseMove="Window_MouseMove" MouseRightButtonDown="Window_MouseRightButtonDown" MouseRightButtonUp="Window_MouseRightButtonUp" MouseUp="Window_MouseUp" MouseWheel="Window_MouseWheel" SizeChanged="Window_SizeChanged" StateChanged="Window_StateChanged" ToolTipClosing="Window_ToolTipClosing" ToolTipOpening="Window_ToolTipOpening">
+        Title="MainWindow" Height="990" Width="1760" Activated="Window_Activated" Closing="Window_Closing" Deactivated="Window_Deactivated" FocusableChanged="Window_FocusableChanged" GotFocus="Window_GotFocus" GotKeyboardFocus="Window_GotKeyboardFocus" GotMouseCapture="Window_GotMouseCapture" IsVisibleChanged="Window_IsVisibleChanged" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" Loaded="Window_Loaded" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus" LostKeyboardFocus="Window_LostKeyboardFocus" LostMouseCapture="Window_LostMouseCapture" MouseDoubleClick="Window_MouseDoubleClick" MouseDown="Window_MouseDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseLeftButtonUp="Window_MouseLeftButtonUp" MouseMove="Window_MouseMove" MouseRightButtonDown="Window_MouseRightButtonDown" MouseRightButtonUp="Window_MouseRightButtonUp" MouseUp="Window_MouseUp" MouseWheel="Window_MouseWheel" SizeChanged="Window_SizeChanged" StateChanged="Window_StateChanged" ToolTipClosing="Window_ToolTipClosing" ToolTipOpening="Window_ToolTipOpening">
     <Grid>
         <!--https://dotblogs.com.tw/clark/2013/03/31/99679-->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="ColumnDef" Width="550"/>
+            <ColumnDefinition x:Name="ColumnDef" Width="700"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -80,14 +80,14 @@
                                         <!--https://stackoverflow.com/questions/18177153/text-alignment-in-datagrid-->
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding CallerLineNumber}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
@@ -105,14 +105,14 @@
                                     <DataGridTextColumn Binding="{Binding ThreadID}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding CallerLineNumber}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
@@ -175,7 +175,7 @@
                                     <DataGridTextColumn Binding="{Binding Page}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
@@ -183,147 +183,154 @@
                                     <DataGridTextColumn Binding="{Binding Name}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding MatchedTime, StringFormat='{}{0:HH:mm:ss.ffff}'}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding DealPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.HeaderStyle>
-                                            <!--https://stackoverflow.com/questions/4486977/how-to-change-column-headers-background-color-when-using-wpf-datagrid-->
-                                            <Style TargetType="DataGridColumnHeader">
-                                                <Setter Property="Background" Value="Khaki"/>
-                                            </Style>
-                                        </DataGridTextColumn.HeaderStyle>
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding DealQty}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding UpDown, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.HeaderStyle>
-                                            <Style TargetType="DataGridColumnHeader">
-                                                <Setter Property="Background" Value="Khaki"/>
-                                            </Style>
-                                        </DataGridTextColumn.HeaderStyle>
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding UpDownPct, StringFormat='{}{0:0.00}%'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding BestBuyPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding BestBuyQty}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding BestSellPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding BestSellQty}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding OpenPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.HeaderStyle>
-                                            <Style TargetType="DataGridColumnHeader">
-                                                <Setter Property="Background" Value="Khaki"/>
-                                            </Style>
-                                        </DataGridTextColumn.HeaderStyle>
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding OpenUpDown, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding HighPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.HeaderStyle>
-                                            <Style TargetType="DataGridColumnHeader">
-                                                <Setter Property="Background" Value="Khaki"/>
-                                            </Style>
-                                        </DataGridTextColumn.HeaderStyle>
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding LowPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.HeaderStyle>
-                                            <Style TargetType="DataGridColumnHeader">
-                                                <Setter Property="Background" Value="Khaki"/>
-                                            </Style>
-                                        </DataGridTextColumn.HeaderStyle>
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding Reference, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding LastClosePrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding OpenLastCloseUpDown, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding Simulate}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding TotalQty}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding TradeDate, StringFormat='{}{0:MM/dd}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding HighPriceLimit, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding LowPriceLimit, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
@@ -332,35 +339,35 @@
                                     <DataGridTextColumn Binding="{Binding Count}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding Index}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding Market}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding DecimalPos}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding TotalQtyBefore}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
@@ -415,6 +422,7 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
+                <Button x:Name="ButtonGetOpenInterest" Content="期貨未平倉" HorizontalAlignment="Left" Margin="434,11,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
                 <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="141,36,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
                 <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="353,36,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
                 <TabControl x:Name="TabControlBB" Margin="0,100,0,30" SelectedIndex="0">
@@ -426,7 +434,7 @@
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
-                    <TabItem Header="庫存損益">
+                    <TabItem Header="未平倉損益">
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>

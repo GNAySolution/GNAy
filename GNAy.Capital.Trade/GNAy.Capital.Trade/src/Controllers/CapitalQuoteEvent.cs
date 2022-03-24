@@ -167,12 +167,6 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.DealQty = nQty;
                 quote.Simulate = nSimulate;
 
-                if (quote.DealPrice != 0 && quote.Reference != 0)
-                {
-                    quote.UpDown = quote.DealPrice - quote.Reference;
-                    quote.UpDownPct = quote.UpDown / quote.Reference * 100;
-                }
-
                 quote.Updater = "OnNotifyTicks";
                 quote.UpdateTime = DateTime.Now;
 

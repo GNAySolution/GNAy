@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -44,15 +45,21 @@ namespace GNAy.Tools.NET47
                 Attribute attr = Attribute.GetCustomAttribute(pi, typeof(ColumnAttribute), false);
                 if (attr is ColumnAttribute csv && csv.Index >= 0)
                 {
-                    result.Add(csv.Index, (csv, pi));
+                    if (flags.HasFlag(BindingFlags.GetProperty) && pi.CanRead)
+                    {
+                        result.Add(csv.Index, (csv, pi));
+                    }
+                    else if (flags.HasFlag(BindingFlags.SetProperty) && pi.CanWrite)
+                    {
+                        result.Add(csv.Index, (csv, pi));
+                    }
                 }
             }
 
             return result;
         }
 
-
-        public static string PropertyValueToString(this PropertyInfo obj, object instance, string format)
+        public static string ValueToString(this PropertyInfo obj, object instance, string format)
         {
             object value = obj.GetValue(instance);
 
@@ -105,6 +112,56 @@ namespace GNAy.Tools.NET47
             }
             
             throw new NotSupportedException($"PropertyType ({propertyType.FullName}) is not supported.");
+        }
+
+        public static void SetValueFromString(this PropertyInfo obj, object instance, string value, string format)
+        {
+            Type propertyType = obj.PropertyType;
+
+            if (propertyType == typeof(string))
+            {
+                obj.SetValue(instance, value);
+            }
+            else if (propertyType == typeof(StringBuilder))
+            {
+                obj.SetValue(instance, new StringBuilder(value));
+            }
+            else if (propertyType == typeof(DateTime))
+            {
+                obj.SetValue(instance, DateTime.ParseExact(value, format, CultureInfo.InvariantCulture));
+            }
+            else if (propertyType == typeof(decimal))
+            {
+                obj.SetValue(instance, decimal.Parse(value));
+            }
+            else if (propertyType == typeof(double))
+            {
+                obj.SetValue(instance, double.Parse(value));
+            }
+            else if (propertyType == typeof(float))
+            {
+                obj.SetValue(instance, float.Parse(value));
+            }
+            else if (propertyType == typeof(long))
+            {
+                obj.SetValue(instance, long.Parse(value));
+            }
+            else if (propertyType == typeof(int))
+            {
+                obj.SetValue(instance, int.Parse(value));
+            }
+            else if (propertyType == typeof(short))
+            {
+                obj.SetValue(instance, short.Parse(value));
+            }
+            else if (propertyType == typeof(byte))
+            {
+                obj.SetValue(instance, byte.Parse(value));
+            }
+            else
+            {
+                throw new NotSupportedException($"PropertyType ({propertyType.FullName}) is not supported.");
+            }
         }
 
         /// <summary>

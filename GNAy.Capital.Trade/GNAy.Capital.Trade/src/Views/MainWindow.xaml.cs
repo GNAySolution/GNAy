@@ -1029,26 +1029,23 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                DirectoryInfo folder = new DirectoryInfo(TextBoxQuoteFolderPath.Text);
+                DirectoryInfo folder = null;
 
-                if (AppCtrl.Config.QuoteFolder != null && folder.FullName != AppCtrl.Config.QuoteFolder.FullName)
+                if (!string.IsNullOrWhiteSpace(TextBoxQuoteFolderPath.Text))
                 {
-                    AppCtrl.LogWarn($"UI上填入的資料夾({TextBoxQuoteFolderPath.Text})與設定檔定義的資料夾({AppCtrl.Settings.QuoteFolderPath})不同，程式以UI上的為準");
-                }
+                    folder = new DirectoryInfo(TextBoxQuoteFolderPath.Text);
 
-                folder.Create();
-                folder.Refresh();
+                    if (AppCtrl.Config.QuoteFolder != null && folder.FullName != AppCtrl.Config.QuoteFolder.FullName)
+                    {
+                        AppCtrl.LogWarn($"UI上填入的資料夾({TextBoxQuoteFolderPath.Text})與設定檔定義的資料夾({AppCtrl.Settings.QuoteFolderPath})不同，程式以UI上的為準");
+                    }
 
-                DateTime now = DateTime.Now;
-                string suffix = "_0"; //夜盤或假日
-
-                if (!AppCtrl.Config.IsHoliday(now) && now.Hour >= 8 && now.Hour < 14)
-                {
-                    suffix = "_1"; //早盤
+                    folder.Create();
+                    folder.Refresh();
                 }
 
                 CapitalCtrl.SaveQuotesAsync(quoteFolder: folder);
-                CapitalCtrl.SaveQuotesAsync(false, "Last_", suffix, folder);
+                CapitalCtrl.SaveQuotesAsync(false, "Last_", string.Empty, folder);
             }
             catch (Exception ex)
             {
@@ -1108,6 +1105,25 @@ namespace GNAy.Capital.Trade
                 CapitalCtrl.UnlockOrder(3);
                 CapitalCtrl.UnlockOrder(4);
                 CapitalCtrl.UnlockOrder(5);
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonGetOpenInterest_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                OrderAcc acc = (OrderAcc)ComboBoxFuturesAccs.SelectedItem;
+                CapitalCtrl.GetOpenInterest(acc.FullAccount);
             }
             catch (Exception ex)
             {
