@@ -109,5 +109,24 @@ namespace GNAy.Capital.Models
 
             //return time.Hour >= 5;
         }
+
+        /// <summary>
+        /// 考慮期貨日夜盤
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public bool IsAMMarket(DateTime time)
+        {
+            return (!IsHoliday(time) && time.Hour >= 8 && time.Hour < 14) ? true : false;
+
+            //bool result = false;
+
+            //if (!IsHoliday(time) && time.Hour >= 8 && time.Hour < 14)
+            //{
+            //    result = true;
+            //}
+
+            //return result;
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class AppLogInDataGrid : AppLog
     {
-        public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(AppLogInDataGrid).GetColumnAttrMapByProperty(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
+        public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(AppLogInDataGrid).GetColumnAttrMapByProperty<ColumnAttribute>(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
 
         [Column("執行緒", "緒", -1)]
         public int ThreadID { get; set; }

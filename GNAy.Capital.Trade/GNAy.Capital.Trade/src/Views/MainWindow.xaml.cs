@@ -969,43 +969,25 @@ namespace GNAy.Capital.Trade
             }
         }
 
+        private void ButtonRequestKLine_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                CapitalCtrl.RequestKLine();
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
         private void ButtonQueryQuotes_Click(object sender, RoutedEventArgs e)
-        {
-            AppCtrl.LogTrace("Start");
-
-            try
-            {
-                //
-            }
-            catch (Exception ex)
-            {
-                AppCtrl.LogException(ex, ex.StackTrace);
-            }
-            finally
-            {
-                AppCtrl.LogTrace("End");
-            }
-        }
-
-        private void ButtonFuturesOrderTest_Click(object sender, RoutedEventArgs e)
-        {
-            AppCtrl.LogTrace("Start");
-
-            try
-            {
-                //
-            }
-            catch (Exception ex)
-            {
-                AppCtrl.LogException(ex, ex.StackTrace);
-            }
-            finally
-            {
-                AppCtrl.LogTrace("End");
-            }
-        }
-
-        private void ButtonOptionsOrderTest_Click(object sender, RoutedEventArgs e)
         {
             AppCtrl.LogTrace("Start");
 
@@ -1122,8 +1104,44 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                OrderAcc acc = (OrderAcc)ComboBoxFuturesAccs.SelectedItem;
+                OrderAccData acc = (OrderAccData)ComboBoxFuturesAccs.SelectedItem;
                 CapitalCtrl.GetOpenInterest(acc.FullAccount);
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonFuturesOrderTest_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                //
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonOptionsOrderTest_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                //
             }
             catch (Exception ex)
             {

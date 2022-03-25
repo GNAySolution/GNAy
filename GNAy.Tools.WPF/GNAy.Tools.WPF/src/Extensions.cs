@@ -88,15 +88,16 @@ namespace GNAy.Tools.WPF
         /// <summary>
         /// https://stackoverflow.com/questions/4615081/how-to-add-a-tooltip-for-a-datagrid-header-where-the-header-text-is-generated-d
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <param name="propertyNameMap"></param>
-        public static void SetHeadersByBindings(this DataGrid obj, IDictionary<string, ColumnAttribute> propertyNameMap)
+        public static void SetHeadersByBindings<T>(this DataGrid obj, IDictionary<string, T> propertyNameMap) where T : ColumnAttribute
         {
             foreach (DataGridColumn column in obj.Columns)
             {
                 if (column is DataGridBoundColumn bound && bound.Binding is Binding bind)
                 {
-                    if (propertyNameMap.TryGetValue(bind.Path.Path, out ColumnAttribute attr))
+                    if (propertyNameMap.TryGetValue(bind.Path.Path, out T attr))
                     {
                         column.Header = attr.ShortName;
 

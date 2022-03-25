@@ -15,18 +15,19 @@ namespace GNAy.Tools.NET47
         /// <summary>
         /// https://stackoverflow.com/questions/18912697/system-componentmodel-descriptionattribute-in-portable-class-library
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <param name="flags"></param>
         /// <returns></returns>
-        public static Dictionary<string, (ColumnAttribute, PropertyInfo)> GetColumnAttrMapByProperty(this Type obj, BindingFlags flags)
+        public static Dictionary<string, (T, PropertyInfo)> GetColumnAttrMapByProperty<T>(this Type obj, BindingFlags flags) where T : ColumnAttribute
         {
-            Dictionary<string, (ColumnAttribute, PropertyInfo)> result = new Dictionary<string, (ColumnAttribute, PropertyInfo)>();
+            Dictionary<string, (T, PropertyInfo)> result = new Dictionary<string, (T, PropertyInfo)>();
             PropertyInfo[] piArr = obj.GetProperties(flags);
 
             foreach (PropertyInfo pi in piArr)
             {
-                Attribute attr = Attribute.GetCustomAttribute(pi, typeof(ColumnAttribute), false);
-                if (attr is ColumnAttribute csv)
+                Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
+                if (attr is T csv)
                 {
                     result.Add(pi.Name, (csv, pi));
                 }
@@ -35,15 +36,15 @@ namespace GNAy.Tools.NET47
             return result;
         }
 
-        public static SortedDictionary<int, (ColumnAttribute, PropertyInfo)> GetColumnAttrMapByIndex(this Type obj, BindingFlags flags)
+        public static SortedDictionary<int, (T, PropertyInfo)> GetColumnAttrMapByIndex<T>(this Type obj, BindingFlags flags) where T : ColumnAttribute
         {
-            SortedDictionary<int, (ColumnAttribute, PropertyInfo)> result = new SortedDictionary<int, (ColumnAttribute, PropertyInfo)>();
+            SortedDictionary<int, (T, PropertyInfo)> result = new SortedDictionary<int, (T, PropertyInfo)>();
             PropertyInfo[] piArr = obj.GetProperties(flags);
 
             foreach (PropertyInfo pi in piArr)
             {
-                Attribute attr = Attribute.GetCustomAttribute(pi, typeof(ColumnAttribute), false);
-                if (attr is ColumnAttribute csv && csv.Index >= 0)
+                Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
+                if (attr is T csv && csv.Index >= 0)
                 {
                     if (flags.HasFlag(BindingFlags.GetProperty) && pi.CanRead)
                     {

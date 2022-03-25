@@ -23,7 +23,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 //市場,分公司,分公司代號,帳號,身份證字號,姓名
                 string[] cells = bstrAccountData.Split(',');
-                OrderAcc acc = new OrderAcc()
+                OrderAccData acc = new OrderAccData()
                 {
                     MarketKind = cells[0],
                     Branch = cells[1],

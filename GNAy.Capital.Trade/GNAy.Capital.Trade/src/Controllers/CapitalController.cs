@@ -33,7 +33,7 @@ namespace GNAy.Capital.Trade.Controllers
         private SKQuoteLib m_pSKQuote2 { get; set; }
         private SKOrderLib m_pSKOrder2 { get; set; }
 
-        public readonly (bool, string) IsAM;
+        public readonly (bool, string) IsAMMarket;
 
         public int LoginAccountResult { get; private set; }
         public string Account { get; private set; }
@@ -65,18 +65,14 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int ReadCertResult { get; private set; }
 
-        private readonly ObservableCollection<OrderAcc> StockAccCollection;
-        private readonly ObservableCollection<OrderAcc> FuturesAccCollection;
+        private readonly ObservableCollection<OrderAccData> StockAccCollection;
+        private readonly ObservableCollection<OrderAccData> FuturesAccCollection;
 
         public CapitalController()
         {
             CreatedTime = DateTime.Now;
 
-            IsAM = (false, "夜盤");
-            if (!MainWindow.AppCtrl.Config.IsHoliday(CreatedTime) && CreatedTime.Hour >= 8 && CreatedTime.Hour < 14)
-            {
-                IsAM = (true, "早盤");
-            }
+            IsAMMarket = MainWindow.AppCtrl.Config.IsAMMarket(CreatedTime) ? (true, "_1") : (false, "_0");
 
             LoginAccountResult = -1;
             Account = String.Empty;
@@ -97,8 +93,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             ReadCertResult = -1;
 
-            StockAccCollection = MainWindow.Instance.ComboBoxStockAccs.SetAndGetItemsSource<OrderAcc>();
-            FuturesAccCollection = MainWindow.Instance.ComboBoxFuturesAccs.SetAndGetItemsSource<OrderAcc>();
+            StockAccCollection = MainWindow.Instance.ComboBoxStockAccs.SetAndGetItemsSource<OrderAccData>();
+            FuturesAccCollection = MainWindow.Instance.ComboBoxFuturesAccs.SetAndGetItemsSource<OrderAccData>();
         }
 
         public string GetAPIMessage(int nCode)
@@ -246,7 +242,9 @@ namespace GNAy.Capital.Trade.Controllers
 
                 string strSKAPIVersion = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(account); //取得目前註冊SKAPI 版本及位元
                 MainWindow.AppCtrl.LogTrace($"SKAPI|Version={strSKAPIVersion}");
-                MainWindow.Instance.StatusBarItemAA4.Text = $"{IsAM.Item2}|SKAPIVersionAndBit={strSKAPIVersion}";
+
+                string isAM = IsAMMarket.Item1 ? "早盤" : "夜盤";
+                MainWindow.Instance.StatusBarItemAA4.Text = $"{isAM}|SKAPIVersionAndBit={strSKAPIVersion}";
             }
             catch (Exception ex)
             {
@@ -527,6 +525,11 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void ReadLastClosePrice(FileInfo quoteFile, string[] separators)
         {
+            if (quoteFile == null)
+            {
+                return;
+            }
+
             try
             {
                 MainWindow.AppCtrl.LogTrace($"SKAPI|Start|{quoteFile.FullName}");
@@ -543,6 +546,10 @@ namespace GNAy.Capital.Trade.Controllers
 
                     QuoteData quoteLast = new QuoteData();
                     quoteLast.SetValues(columnNames, line.Split(separators, StringSplitOptions.RemoveEmptyEntries));
+                    if (quoteLast.Simulate != 0)
+                    {
+                        continue;
+                    }
 
                     QuoteData quoteSub = QuoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
                     if (quoteSub != null && quoteSub.LastClosePrice == 0)
@@ -568,62 +575,67 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void ReadLastClosePrice()
+        private void ReadLastClosePriceAsync()
         {
-            try
+            if (QuoteIndexMap.Count <= 0)
             {
-                Thread.Sleep(3 * 1000);
+                return;
+            }
 
-                string _isAM = IsAM.Item1 ? "_1" : "_0";
-                string fileName = $"{QuoteIndexMap.Values.Max(x => x.TradeDateRaw)}{_isAM}";
-
-                MainWindow.AppCtrl.Config.QuoteFolder.Refresh();
-                FileInfo[] files = MainWindow.AppCtrl.Config.QuoteFolder.GetFiles("*.csv");
-                FileInfo lastQuote1 = null;
-                FileInfo lastQuote2 = null;
-
-                for (int i = files.Length - 1; i >= 0; --i)
+            Task.Factory.StartNew(() =>
+            {
+                try
                 {
-                    if (files[i].Name.Contains(fileName) && i > 0)
+                    Thread.Sleep(3 * 1000);
+
+                    string fileName = $"{QuoteIndexMap.Values.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}";
+
+                    MainWindow.AppCtrl.Config.QuoteFolder.Refresh();
+                    FileInfo[] files = MainWindow.AppCtrl.Config.QuoteFolder.GetFiles("*.csv");
+                    FileInfo lastQuote1 = null;
+                    FileInfo lastQuote2 = null;
+
+                    for (int i = files.Length - 1; i >= 0; --i)
                     {
-                        lastQuote1 = files[i - 1];
-
-                        if (i > 1)
+                        if (files[i].Name.Contains(fileName) && i > 0)
                         {
-                            lastQuote2 = files[i - 2];
-                        }
+                            lastQuote1 = files[i - 1];
 
-                        break;
-                    }
-                }
-                if (lastQuote1 == null)
-                {
-                    if (files.Length > 0)
-                    {
-                        lastQuote1 = files[files.Length - 1];
+                            if (i > 1)
+                            {
+                                lastQuote2 = files[i - 2];
+                            }
 
-                        if (files.Length > 1)
-                        {
-                            lastQuote2 = files[files.Length - 2];
+                            break;
                         }
                     }
-                    else
-                    {
-                        return;
-                    }
-                }
 
-                string[] separators = new string[] { "\"", "," };
-                ReadLastClosePrice(lastQuote1, separators);
-                if (lastQuote2 != null)
-                {
+                    if (lastQuote1 == null)
+                    {
+                        if (files.Length > 0)
+                        {
+                            lastQuote1 = files[files.Length - 1];
+
+                            if (files.Length > 1)
+                            {
+                                lastQuote2 = files[files.Length - 2];
+                            }
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+
+                    string[] separators = new string[] { "\"", "," };
+                    ReadLastClosePrice(lastQuote1, separators);
                     ReadLastClosePrice(lastQuote2, separators);
                 }
-            }
-            catch (Exception ex)
-            {
-                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
-            }
+                catch (Exception ex)
+                {
+                    MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                }
+            });
         }
 
         public void SubQuotesAsync()
@@ -669,46 +681,38 @@ namespace GNAy.Capital.Trade.Controllers
                 MainWindow.AppCtrl.LogTrace("SKAPI|End");
             }
 
-            if (QuoteIndexMap.Count > 0)
+            if (QuoteIndexMap.Count > 0 && !MainWindow.AppCtrl.Config.IsHoliday(now)) //假日不訂閱即時報價
             {
                 Task.Factory.StartNew(() =>
                 {
                     try
                     {
                         int nCode = -1;
-                        bool isHoliday = MainWindow.AppCtrl.Config.IsHoliday(now);
 
-                        if (!isHoliday) //假日不訂閱即時報價
+                        foreach (QuoteData quote in QuoteIndexMap.Values)
                         {
-                            foreach (QuoteData quote in QuoteIndexMap.Values)
+                            if (!MainWindow.AppCtrl.Settings.QuoteLive.Contains(quote.Symbol))
                             {
-                                if (!MainWindow.AppCtrl.Settings.QuoteLive.Contains(quote.Symbol))
-                                {
-                                    continue;
-                                }
-                                else if (now.Hour >= 14 || now.Hour < 8)
-                                {
-                                    //期貨選擇權夜盤，上市櫃已經收盤
-                                    if (quote.Market != 2 && quote.Market != 3)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                short pageA = -1;
-                                nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref pageA, quote.Symbol); //訂閱與要求傳送即時成交明細。(本功能不會訂閱最佳五檔，亦不包含歷史Ticks)
-                                if (nCode != 0)
-                                {
-                                    LogAPIMessage(nCode);
-                                    continue;
-                                }
-                                if (pageA < 0)
-                                {
-                                    MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|Symbol={quote.Symbol}|pageA={pageA}");
-                                }
-
-                                quote.Page = pageA;
+                                continue;
                             }
+                            else if (!MainWindow.AppCtrl.Config.IsAMMarket(now) && quote.Market != 2 && quote.Market != 3) //期貨選擇權夜盤，上市櫃已經收盤
+                            {
+                                continue;
+                            }
+
+                            short pageA = -1;
+                            nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref pageA, quote.Symbol); //訂閱與要求傳送即時成交明細。(本功能不會訂閱最佳五檔，亦不包含歷史Ticks)
+                            if (nCode != 0)
+                            {
+                                LogAPIMessage(nCode);
+                                continue;
+                            }
+                            if (pageA < 0)
+                            {
+                                MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|Symbol={quote.Symbol}|pageA={pageA}");
+                            }
+
+                            quote.Page = pageA;
                         }
 
                         if (MainWindow.AppCtrl.Config.QuoteSubscribed.Count > 0)
@@ -735,9 +739,39 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
                     }
-
-                    ReadLastClosePrice();
                 });
+            }
+
+            ReadLastClosePriceAsync();
+        }
+
+        public void RequestKLine(string product = "")
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|Start|product={product}");
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(product))
+                {
+                    int nCode = m_SKQuoteLib.SKQuoteLib_RequestKLineAM(product, 0, 1, 0); //（僅提供歷史資料）向報價伺服器提出，取得單一商品技術分析資訊需求，可選AM盤或全盤
+                    LogAPIMessage(nCode);
+                }
+                else
+                {
+                    foreach (QuoteData quote in QuoteIndexMap.Values)
+                    {
+                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestKLineAM(quote.Symbol, 0, 1, 0);
+                        LogAPIMessage(nCode);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                MainWindow.AppCtrl.LogTrace("SKAPI|End");
             }
         }
 
@@ -758,8 +792,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 QuoteData[] quotes = QuoteIndexMap.Values.ToArray();
-                string _isAM = IsAM.Item1 ? "_1" : "_0";
-                string path = Path.Combine(quoteFolder.FullName, $"{prefix}{quotes.Max(x => x.TradeDateRaw)}{_isAM}{suffix}.csv");
+                string path = Path.Combine(quoteFolder.FullName, $"{prefix}{quotes.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}{suffix}.csv");
                 bool exists = File.Exists(path);
 
                 using (StreamWriter sw = new StreamWriter(path, append, TextEncoding.UTF8WithoutBOM))

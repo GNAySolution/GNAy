@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace GNAy.Capital.Models
 {
     [Serializable]
-    public class OrderAcc : NotifyPropertyChanged
+    public class OrderAccData : NotifyPropertyChanged
     {
         [Column("建立者", -1)]
         public string Creator { get; set; }
@@ -53,7 +53,7 @@ namespace GNAy.Capital.Models
         public string DisplayName => $"{Account},{Identity}";
         public string ToolTip => ToString();
 
-        public OrderAcc()
+        public OrderAccData()
         {
             Creator = String.Empty;
             CreatedTime = DateTime.Now;

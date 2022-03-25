@@ -34,12 +34,14 @@
                             <Button x:Name="ButtonDisconnect" Content="Disconnect" HorizontalAlignment="Left" Margin="132,82,0,0" VerticalAlignment="Top" Click="ButtonDisconnect_Click"/>
                             <Button x:Name="ButtonPrintProductList" Content="商品基本資料" HorizontalAlignment="Left" Margin="42,106,0,0" VerticalAlignment="Top" Click="ButtonPrintProductList_Click"/>
                             <Button x:Name="ButtonSubQuotes" Content="訂閱即時報價" HorizontalAlignment="Left" Margin="123,106,0,0" VerticalAlignment="Top" Click="ButtonSubQuotes_Click"/>
+                            <Button x:Name="ButtonRequestKLine" Content="查詢KLine" HorizontalAlignment="Left" Margin="59,130,0,0" VerticalAlignment="Top" Click="ButtonRequestKLine_Click"/>
                             <Button x:Name="ButtonQueryQuotes" Content="回補行情報價" HorizontalAlignment="Left" Margin="123,130,0,0" VerticalAlignment="Top" Click="ButtonQueryQuotes_Click"/>
                             <TextBox x:Name="TextBoxQuoteFolderPath" Text="行情報價資料夾" ToolTip="儲存報價資料到此資料夾" HorizontalAlignment="Left" Margin="79,154,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                             <Button x:Name="ButtonSaveQuotes" Content="儲存報價資料" HorizontalAlignment="Left" Margin="123,176,0,0" VerticalAlignment="Top" Click="ButtonSaveQuotes_Click"/>
                             <Button x:Name="ButtonReadCertification" Content="讀取下單憑證" HorizontalAlignment="Left" Margin="204,58,0,0" VerticalAlignment="Top" Click="ButtonReadCertification_Click"/>
                             <Button x:Name="ButtonGetOrderAccs" Content="取得下單帳號" HorizontalAlignment="Left" Margin="285,58,0,0" VerticalAlignment="Top" Click="ButtonGetOrderAccs_Click"/>
                             <Button x:Name="ButtonUnlockOrder" Content="下單解鎖" HorizontalAlignment="Left" Margin="228,82,0,0" VerticalAlignment="Top" Click="ButtonUnlockOrder_Click"/>
+                            <Button x:Name="ButtonGetOpenInterest" Content="期權未平倉" HorizontalAlignment="Left" Margin="297,82,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="AA2">
@@ -422,7 +424,6 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Button x:Name="ButtonGetOpenInterest" Content="期貨未平倉" HorizontalAlignment="Left" Margin="434,11,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
                 <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="141,36,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
                 <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="353,36,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
                 <TabControl x:Name="TabControlBB" Margin="0,100,0,30" SelectedIndex="0">
