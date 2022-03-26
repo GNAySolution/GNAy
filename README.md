@@ -6,8 +6,8 @@
 * https://www.capital.com.tw/Service2/download/api.asp
 * 需要先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
 
-###### vcredist_x64.exe
-* 使用群益API前，要先安裝憑證(CAP-*.pfx)，以及微軟Visual C++ 2010 Service Pack 1 MFC 可轉散發套件的安全性更新
+###### vcredist_x64.exe & CAP-*.pfx
+* 使用群益API的前置條件，要先安裝憑證(CAP-*.pfx)，以及微軟Visual C++ 2010 Service Pack 1 MFC可轉散發套件安全性更新(vcredist_x64.exe)
 * https://docs.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
 ###### GNAy.Capital.Trade.dwp.config
