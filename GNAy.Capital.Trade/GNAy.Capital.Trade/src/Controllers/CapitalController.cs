@@ -16,10 +16,11 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public partial class CapitalController
     {
-        /// <summary>
-        /// 報價商品載入完成
-        /// </summary>
-        public const int SK_SUBJECT_CONNECTION_STOCKS_READY = 3003;
+        public const int MarketTSE = 0;
+        public const int MarketOTC = 1;
+        public const int MarketFutures = 2;
+        public const int MarketOptions = 3;
+        public const int MarketEmerging = 4;
 
         public readonly DateTime CreatedTime;
 
@@ -535,7 +536,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
 
-                if (quote.OpenPrice != quote.DealPrice) //TODO: 可能是試撮開盤，待確認
+                if (quote.OpenPrice != quote.DealPrice) //TODO: 群益API開盤價可能是從試撮開始，待確認
                 {
                     MainWindow.AppCtrl.LogWarn($"SKAPI|開盤價不等於成交價|{quote.Symbol}|{quote.Name}|OpenPrice({quote.OpenPrice}) != quote.DealPrice({quote.DealPrice})");
                     quote.OpenPrice = quote.DealPrice;
@@ -581,7 +582,7 @@ namespace GNAy.Capital.Trade.Controllers
                     QuoteData quoteSub = QuoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
                     if (quoteSub != null && quoteSub.LastClosePrice == 0)
                     {
-                        if (quoteLast.Market == 2 || quoteLast.Market == 3)
+                        if (quoteLast.Market == MarketFutures || quoteLast.Market == MarketOptions)
                         {
                             quoteSub.LastClosePrice = quoteLast.DealPrice;
                         }
@@ -649,9 +650,8 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                     }
 
-                    string[] separators = new string[] { "\"", "," };
-                    ReadLastClosePrice(lastQuote1, separators);
-                    ReadLastClosePrice(lastQuote2, separators);
+                    ReadLastClosePrice(lastQuote1, Separator.CSV);
+                    ReadLastClosePrice(lastQuote2, Separator.CSV);
                 }
                 catch (Exception ex)
                 {
@@ -682,7 +682,6 @@ namespace GNAy.Capital.Trade.Controllers
                 MainWindow.AppCtrl.LogTrace($"SKAPI|{openQuoteFile.FullName}");
 
                 List<string> columnNames = new List<string>();
-                string[] separators = new string[] { "\"", "," };
 
                 foreach (string line in File.ReadLines(openQuoteFile.FullName, TextEncoding.UTF8WithoutBOM))
                 {
@@ -693,7 +692,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
 
                     QuoteData quoteLast = new QuoteData();
-                    quoteLast.SetValues(columnNames, line.Split(separators, StringSplitOptions.RemoveEmptyEntries));
+                    quoteLast.SetValues(columnNames, line.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries));
                     if (quoteLast.Simulate != 0)
                     {
                         continue;
@@ -721,9 +720,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (QuoteStatus != SK_SUBJECT_CONNECTION_STOCKS_READY)
+                if (QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
                 {
-                    throw new ArgumentException($"SKAPI|QuoteStatus != {SK_SUBJECT_CONNECTION_STOCKS_READY}|QuoteStatusStr={QuoteStatusStr}");
+                    throw new ArgumentException($"SKAPI|QuoteStatus != {StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY}|QuoteStatusStr={QuoteStatusStr}");
                 }
                 else if (QuoteIndexMap.Count > 0)
                 {
@@ -777,7 +776,7 @@ namespace GNAy.Capital.Trade.Controllers
                             {
                                 continue;
                             }
-                            else if (!MainWindow.AppCtrl.Config.IsAMMarket(now) && quote.Market != 2 && quote.Market != 3) //期貨選擇權夜盤，上市櫃已經收盤
+                            else if (!MainWindow.AppCtrl.Config.IsAMMarket(now) && quote.Market != MarketFutures && quote.Market != MarketOptions) //期貨選擇權夜盤，上市櫃已經收盤
                             {
                                 continue;
                             }

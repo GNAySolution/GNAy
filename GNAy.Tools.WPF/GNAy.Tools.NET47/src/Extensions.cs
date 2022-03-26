@@ -27,9 +27,9 @@ namespace GNAy.Tools.NET47
             foreach (PropertyInfo pi in piArr)
             {
                 Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
-                if (attr is T csv)
+                if (attr is T column)
                 {
-                    result.Add(pi.Name, (csv, pi));
+                    result.Add(pi.Name, (column, pi));
                 }
             }
 
@@ -44,15 +44,39 @@ namespace GNAy.Tools.NET47
             foreach (PropertyInfo pi in piArr)
             {
                 Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
-                if (attr is T csv && csv.Index >= 0)
+                if (attr is T column && column.Index >= 0)
                 {
                     if (flags.HasFlag(BindingFlags.GetProperty) && pi.CanRead)
                     {
-                        result.Add(csv.Index, (csv, pi));
+                        result.Add(column.Index, (column, pi));
                     }
                     else if (flags.HasFlag(BindingFlags.SetProperty) && pi.CanWrite)
                     {
-                        result.Add(csv.Index, (csv, pi));
+                        result.Add(column.Index, (column, pi));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static Dictionary<string, (T, PropertyInfo)> GetColumnAttrMapByName<T>(this Type obj, BindingFlags flags) where T : ColumnAttribute
+        {
+            Dictionary<string, (T, PropertyInfo)> result = new Dictionary<string, (T, PropertyInfo)>();
+            PropertyInfo[] piArr = obj.GetProperties(flags);
+
+            foreach (PropertyInfo pi in piArr)
+            {
+                Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
+                if (attr is T column && column.Index >= 0)
+                {
+                    if (flags.HasFlag(BindingFlags.GetProperty) && pi.CanRead)
+                    {
+                        result.Add(column.Name, (column, pi));
+                    }
+                    else if (flags.HasFlag(BindingFlags.SetProperty) && pi.CanWrite)
+                    {
+                        result.Add(column.Name, (column, pi));
                     }
                 }
             }
@@ -211,12 +235,11 @@ namespace GNAy.Tools.NET47
         /// <param name="keywords2"></param>
         public static void LoadHolidays(this IDictionary<DateTime, string> obj, string[] lines, int yyyy, IList<string> keywords1, IEnumerable<string> keywords2)
         {
-            string[] separators1 = new string[] { "\"", "," };
-            string[] separators2 = new string[] { keywords1[0], keywords1[1] };
+            string[] separators1 = new string[] { keywords1[0], keywords1[1] };
 
             foreach (string line in lines)
             {
-                string[] cells = line.Split(separators1, StringSplitOptions.RemoveEmptyEntries);
+                string[] cells = line.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries);
 
                 if (cells.Length < 4)
                 {
@@ -231,7 +254,7 @@ namespace GNAy.Tools.NET47
                 {
                     if (cell.Contains(keywords1[0]) && cell.EndsWith(keywords1[1]))
                     {
-                        string[] _MMdd = cell.Split(separators2, StringSplitOptions.RemoveEmptyEntries);
+                        string[] _MMdd = cell.Split(separators1, StringSplitOptions.RemoveEmptyEntries);
                         DateTime holiday = new DateTime(yyyy, int.Parse(_MMdd[0]), int.Parse(_MMdd[1]));
                         obj[holiday] = $"{holiday.DayOfWeek}, {string.Join(", ", cells)}";
                     }

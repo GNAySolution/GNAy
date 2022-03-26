@@ -34,7 +34,7 @@ namespace GNAy.Capital.Trade.Controllers
             LogAPIMessage(nKind);
             LogAPIMessage(nCode);
 
-            if (nKind == SK_SUBJECT_CONNECTION_STOCKS_READY)
+            if (nKind == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
             {
                 MainWindow.Instance.InvokeRequired(delegate
                 {
@@ -398,7 +398,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 int sec = sSecond % 10;
 
-                if (QuoteStatus == SK_SUBJECT_CONNECTION_STOCKS_READY && sec >= 0 && sec < 5)
+                if (QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY && sec >= 0 && sec < 5)
                 {
                     //要求報價主機傳送目前時間。
                     //注意：為避免收盤後無報價資料傳送，導致連線被防火牆切斷，目前solace固定每五秒會自動更新時間，請固定每十五秒呼叫此函式，確保連線正常

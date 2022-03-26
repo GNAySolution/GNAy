@@ -9,6 +9,11 @@ namespace GNAy.Capital.Models
     public class StatusCode
     {
         /// <summary>
+        /// 報價商品載入完成
+        /// </summary>
+        public const int SK_SUBJECT_CONNECTION_STOCKS_READY = 3003;
+
+        /// <summary>
         /// https://docs.microsoft.com/zh-tw/windows/win32/debug/system-error-codes
         /// </summary>
         public const int WinError = 16000;

@@ -806,8 +806,8 @@ namespace GNAy.Capital.Trade
                     });
 
                     Thread.Sleep(3 * 1000);
-                    SpinWait.SpinUntil(() => CapitalCtrl.QuoteStatus == CapitalController.SK_SUBJECT_CONNECTION_STOCKS_READY, 2 * 60 * 1000);
-                    if (CapitalCtrl.QuoteStatus != CapitalController.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
+                    SpinWait.SpinUntil(() => CapitalCtrl.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY, 2 * 60 * 1000);
+                    if (CapitalCtrl.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
                     {
                         //TODO: Send alert mail.
                         CapitalCtrl.Disconnect();

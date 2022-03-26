@@ -59,7 +59,7 @@ namespace GNAy.Capital.Models
         public List<string> QuoteLive { get; set; }
 
         /// <summary>
-        /// 儲存行情報價到資料夾
+        /// 儲存報價到資料夾
         /// </summary>
         public string QuoteFolderPath { get; set; }
         /// <summary>

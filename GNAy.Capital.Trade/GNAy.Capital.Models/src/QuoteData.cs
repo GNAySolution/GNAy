@@ -16,7 +16,7 @@ namespace GNAy.Capital.Models
     {
         public static readonly Dictionary<string, (TradeColumnAttribute, PropertyInfo)> PropertyMap = typeof(QuoteData).GetColumnAttrMapByProperty<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
         public static readonly SortedDictionary<int, (TradeColumnAttribute, PropertyInfo)> ColumnGetters = typeof(QuoteData).GetColumnAttrMapByIndex<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
-        public static readonly SortedDictionary<int, (TradeColumnAttribute, PropertyInfo)> ColumnSetters = typeof(QuoteData).GetColumnAttrMapByIndex<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
+        public static readonly Dictionary<string, (TradeColumnAttribute, PropertyInfo)> ColumnSetters = typeof(QuoteData).GetColumnAttrMapByName<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
 
         private string _creator;
         [TradeColumn("建立者", 0)]
@@ -451,13 +451,11 @@ namespace GNAy.Capital.Models
 
         public void SetValues(List<string> columnNames, string[] cells)
         {
-            foreach ((ColumnAttribute, PropertyInfo) property in ColumnSetters.Values)
+            for (int i = 0; i < columnNames.Count; ++i)
             {
-                int index = columnNames.IndexOf(property.Item1.Name);
-
-                if (index >= 0)
+                if (ColumnSetters.TryGetValue(columnNames[i], out (TradeColumnAttribute, PropertyInfo) value))
                 {
-                    property.Item2.SetValueFromString(this, cells[index], property.Item1.StringFormat);
+                    value.Item2.SetValueFromString(this, cells[i], value.Item1.StringFormat);
                 }
             }
         }

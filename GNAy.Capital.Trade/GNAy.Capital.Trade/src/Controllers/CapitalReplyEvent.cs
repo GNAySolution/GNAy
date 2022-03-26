@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GNAy.Capital.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,7 +30,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             AccountTimer = (DateTime.Now, $"nTime={nTime}");
 
-            if (QuoteStatus == SK_SUBJECT_CONNECTION_STOCKS_READY && !string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileClosePrefix))
+            if (QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY && !string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileClosePrefix))
             {
                 SaveQuotes(MainWindow.AppCtrl.Config.QuoteFolder, false, MainWindow.AppCtrl.Settings.QuoteFileClosePrefix);
             }

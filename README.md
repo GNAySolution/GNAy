@@ -17,6 +17,10 @@
 * 臺灣證券交易所市場開休市日期
 * https://www.twse.com.tw/zh/holidaySchedule/holidaySchedule
 
+###### Futures_MTX_1DayK.csv
+* 範例參考期交所的小台日K資訊，整理使其更易於發想交易策略，以及回測驗證多年績效
+* https://www.taifex.com.tw/cht/3/dlFutDailyMarketView
+
 ## GNAy.Capital.Models.csproj
 * 策略交易框架，相關模型、資料、設定
 
