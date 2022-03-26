@@ -74,7 +74,7 @@ namespace GNAy.Capital.Trade
                 Title = $"{Title}(附加偵錯)";
             }
 
-            TextBoxQuoteFolderPath.Text = AppCtrl.Settings.QuoteFolderPath;
+            TextBoxQuoteFolderTest.Text = AppCtrl.Settings.QuoteFolderPath;
 
             _timer1 = new DispatcherTimer(DispatcherPriority.Send)
             {
@@ -282,7 +282,7 @@ namespace GNAy.Capital.Trade
                     AppCtrl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(2))}");
                     AppCtrl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={AppCtrl.Config.IsHoliday(StartTime.AddDays(3))}");
 
-                    AppCtrl.LogTrace($"{AppCtrl.Config.Archive.FullName}|Exists={AppCtrl.Config.Archive.Exists}");
+                    AppCtrl.LogTrace($"{AppCtrl.Config.Archive.FullName}|Version={AppCtrl.Config.Version}|Exists={AppCtrl.Config.Archive.Exists}");
                 });
 
                 if (!AppCtrl.Config.Archive.Exists)
@@ -752,10 +752,7 @@ namespace GNAy.Capital.Trade
                 AppCtrl.LogTrace(msg);
                 StatusBarItemBA2.Text = msg;
 
-                if (CapitalCtrl != null)
-                {
-                    ButtonSaveQuotes_Click(null, null);
-                }
+                ButtonSaveQuotesTest_Click(null, null);
 
                 foreach (DateTime timeToExit in AppCtrl.Settings.TimeToExit)
                 {
@@ -1005,29 +1002,25 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonSaveQuotes_Click(object sender, RoutedEventArgs e)
+        private void ButtonSaveQuotesTest_Click(object sender, RoutedEventArgs e)
         {
+            if (CapitalCtrl == null)
+            {
+                return;
+            }
+            else if (string.IsNullOrWhiteSpace(TextBoxQuoteFolderTest.Text))
+            {
+                return;
+            }
+
             AppCtrl.LogTrace("Start");
 
             try
             {
-                DirectoryInfo folder = null;
-
-                if (!string.IsNullOrWhiteSpace(TextBoxQuoteFolderPath.Text))
-                {
-                    folder = new DirectoryInfo(TextBoxQuoteFolderPath.Text);
-
-                    if (AppCtrl.Config.QuoteFolder != null && folder.FullName != AppCtrl.Config.QuoteFolder.FullName)
-                    {
-                        AppCtrl.LogWarn($"UI上填入的資料夾({TextBoxQuoteFolderPath.Text})與設定檔定義的資料夾({AppCtrl.Settings.QuoteFolderPath})不同，程式以UI上的為準");
-                    }
-
-                    folder.Create();
-                    folder.Refresh();
-                }
-
+                DirectoryInfo folder = new DirectoryInfo(TextBoxQuoteFolderTest.Text);
+                folder.Create();
+                folder.Refresh();
                 CapitalCtrl.SaveQuotesAsync(quoteFolder: folder);
-                CapitalCtrl.SaveQuotesAsync(false, "Last_", string.Empty, folder);
             }
             catch (Exception ex)
             {

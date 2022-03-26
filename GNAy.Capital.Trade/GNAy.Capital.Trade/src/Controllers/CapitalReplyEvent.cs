@@ -28,6 +28,11 @@ namespace GNAy.Capital.Trade.Controllers
         private void SKCenter_OnTimer(int nTime)
         {
             AccountTimer = (DateTime.Now, $"nTime={nTime}");
+
+            if (QuoteStatus == SK_SUBJECT_CONNECTION_STOCKS_READY && !string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileClosePrefix))
+            {
+                SaveQuotes(MainWindow.AppCtrl.Config.QuoteFolder, false, MainWindow.AppCtrl.Settings.QuoteFileClosePrefix);
+            }
         }
 
         /// <summary>

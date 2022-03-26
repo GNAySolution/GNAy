@@ -6,6 +6,10 @@
 * https://www.capital.com.tw/Service2/download/api.asp
 * 需要先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
 
+###### vcredist_x64.exe
+* 使用群益API前，要先安裝憑證(CAP-*.pfx)，以及微軟Visual C++ 2010 Service Pack 1 MFC 可轉散發套件的安全性更新
+* https://docs.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
+
 ###### GNAy.Capital.Trade.dwp.config
 * 讀取帳號密碼的基本範例，專案不對帳密做儲存或特別處理，有需要請自行修改程式碼
 

@@ -203,11 +203,12 @@ namespace GNAy.Capital.Trade.Controllers
                 config = new AppConfig(JsonConvert.DeserializeObject<AppSettings>(sr.ReadToEnd()), configFile);
             }
 
-            //AppConfig rawConfig = new AppConfig();
-            //if (rawConfig.Version > config.Version)
-            //{
-            //    //TODO: Migrate old config to new version.
-            //}
+            Version newVer = new Version(new AppSettings().Version);
+            if (config.Version < newVer)
+            {
+                LogError($"設定檔({configFile.Name})版本過舊({config.Version} < {newVer})");
+                //TODO: Migrate old config to new version.
+            }
 
             return config;
         }
@@ -272,6 +273,10 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (MainWindow.CapitalCtrl != null)
                 {
+                    if (!string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileClosePrefix))
+                    {
+                        MainWindow.CapitalCtrl.SaveQuotes(MainWindow.AppCtrl.Config.QuoteFolder, false, MainWindow.AppCtrl.Settings.QuoteFileClosePrefix);
+                    }
                     MainWindow.CapitalCtrl.Disconnect();
                 }
 

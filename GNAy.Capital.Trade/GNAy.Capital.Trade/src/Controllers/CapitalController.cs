@@ -482,6 +482,8 @@ namespace GNAy.Capital.Trade.Controllers
                 return false;
             }
 
+            bool firstTick = false;
+
             //quote.Symbol = raw.bstrStockNo;
             //quote.Name = raw.bstrStockName;
             //quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
@@ -490,11 +492,21 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestBuyQty = raw.nBc;
             quote.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
             quote.BestSellQty = raw.nAc;
-            quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
-            quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
-            quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
+            if (raw.nSimulate == 0)
+            {
+                if (quote.Simulate > 0 && quote.OpenPrice == 0) //結束試撮，開盤
+                {
+                    firstTick = true;
+                }
+                else if (quote.OpenPrice == 0) //盤中或收盤後啟動
+                {
+                    quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
+                }
+                quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
+                quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
+            }
             quote.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
-            //quote.Simulate = raw.nSimulate;
+            quote.Simulate = raw.nSimulate;
             quote.TotalQty = raw.nTQty;
             //quote.TradeDateRaw = raw.nTradingDay;
             quote.HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal);
@@ -508,7 +520,6 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
                 quote.DealQty = raw.nTickQty;
-                quote.Simulate = raw.nSimulate;
                 if (raw.nTradingDay > quote.TradeDateRaw)
                 {
                     quote.TradeDateRaw = raw.nTradingDay;
@@ -519,6 +530,22 @@ namespace GNAy.Capital.Trade.Controllers
             quote.UpdateTime = DateTime.Now;
 
             QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
+
+            if (firstTick)
+            {
+                quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
+
+                if (quote.OpenPrice != quote.DealPrice) //TODO: 可能是試撮開盤，待確認
+                {
+                    MainWindow.AppCtrl.LogWarn($"SKAPI|開盤價不等於成交價|{quote.Symbol}|{quote.Name}|OpenPrice({quote.OpenPrice}) != quote.DealPrice({quote.DealPrice})");
+                    quote.OpenPrice = quote.DealPrice;
+                }
+
+                if (!string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileOpenPrefix))
+                {
+                    SaveQuotes(MainWindow.AppCtrl.Config.QuoteFolder, true, MainWindow.AppCtrl.Settings.QuoteFileOpenPrefix, string.Empty, quote);
+                }
+            }
 
             return true;
         }
@@ -577,18 +604,13 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void ReadLastClosePriceAsync()
         {
-            if (QuoteIndexMap.Count <= 0)
-            {
-                return;
-            }
-
             Task.Factory.StartNew(() =>
             {
                 try
                 {
                     Thread.Sleep(3 * 1000);
 
-                    string fileName = $"{QuoteIndexMap.Values.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}";
+                    string partialName = $"{QuoteIndexMap.Values.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}";
 
                     MainWindow.AppCtrl.Config.QuoteFolder.Refresh();
                     FileInfo[] files = MainWindow.AppCtrl.Config.QuoteFolder.GetFiles("*.csv");
@@ -597,7 +619,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     for (int i = files.Length - 1; i >= 0; --i)
                     {
-                        if (files[i].Name.Contains(fileName) && i > 0)
+                        if (files[i].Name.Contains(partialName) && i > 0)
                         {
                             lastQuote1 = files[i - 1];
 
@@ -636,6 +658,59 @@ namespace GNAy.Capital.Trade.Controllers
                     MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
                 }
             });
+        }
+
+        private void RecoverOpenQuotesFromFile()
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileOpenPrefix))
+                {
+                    return;
+                }
+
+                string partialName = $"{MainWindow.AppCtrl.Settings.QuoteFileOpenPrefix}{QuoteIndexMap.Values.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}";
+
+                MainWindow.AppCtrl.Config.QuoteFolder.Refresh();
+                FileInfo[] files = MainWindow.AppCtrl.Config.QuoteFolder.GetFiles("*.csv");
+                FileInfo openQuoteFile = files.LastOrDefault(x => x.Name.Contains(partialName));
+
+                if (openQuoteFile == null)
+                {
+                    return;
+                }
+                MainWindow.AppCtrl.LogTrace($"SKAPI|{openQuoteFile.FullName}");
+
+                List<string> columnNames = new List<string>();
+                string[] separators = new string[] { "\"", "," };
+
+                foreach (string line in File.ReadLines(openQuoteFile.FullName, TextEncoding.UTF8WithoutBOM))
+                {
+                    if (columnNames.Count <= 0)
+                    {
+                        columnNames.AddRange(line.Split(','));
+                        continue;
+                    }
+
+                    QuoteData quoteLast = new QuoteData();
+                    quoteLast.SetValues(columnNames, line.Split(separators, StringSplitOptions.RemoveEmptyEntries));
+                    if (quoteLast.Simulate != 0)
+                    {
+                        continue;
+                    }
+
+                    QuoteData quoteSub = QuoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
+                    if (quoteSub != null)
+                    {
+                        MainWindow.AppCtrl.LogWarn($"SKAPI|檔案回補開盤價|{quoteSub.Symbol}|{quoteSub.Name}|OpenPrice={quoteSub.OpenPrice}");
+                        quoteSub.OpenPrice = quoteLast.OpenPrice;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
         }
 
         public void SubQuotesAsync()
@@ -681,17 +756,24 @@ namespace GNAy.Capital.Trade.Controllers
                 MainWindow.AppCtrl.LogTrace("SKAPI|End");
             }
 
-            if (QuoteIndexMap.Count > 0 && !MainWindow.AppCtrl.Config.IsHoliday(now)) //假日不訂閱即時報價
+            if (QuoteIndexMap.Count > 0)
             {
+                RecoverOpenQuotesFromFile();
+
                 Task.Factory.StartNew(() =>
                 {
                     try
                     {
                         int nCode = -1;
+                        bool isHoliday = MainWindow.AppCtrl.Config.IsHoliday(now);
 
                         foreach (QuoteData quote in QuoteIndexMap.Values)
                         {
-                            if (!MainWindow.AppCtrl.Settings.QuoteLive.Contains(quote.Symbol))
+                            if (isHoliday) //假日不訂閱即時報價
+                            {
+                                continue;
+                            }
+                            else if (!MainWindow.AppCtrl.Settings.QuoteLive.Contains(quote.Symbol))
                             {
                                 continue;
                             }
@@ -740,9 +822,9 @@ namespace GNAy.Capital.Trade.Controllers
                         MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
                     }
                 });
-            }
 
-            ReadLastClosePriceAsync();
+                ReadLastClosePriceAsync();
+            }
         }
 
         public void RequestKLine(string product = "")
@@ -775,24 +857,19 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void SaveQuotes(bool append = true, string prefix = "", string suffix = "", DirectoryInfo quoteFolder = null)
+        public void SaveQuotes(DirectoryInfo folder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
         {
             if (QuoteIndexMap.Count <= 0)
             {
                 return;
             }
 
-            MainWindow.AppCtrl.LogTrace($"SKAPI|Start|append={append}|prefix={prefix}|suffix={suffix}|quoteFolder={quoteFolder?.Name}");
-
             try
             {
-                if (quoteFolder == null)
-                {
-                    quoteFolder = MainWindow.AppCtrl.Config.QuoteFolder;
-                }
+                MainWindow.AppCtrl.LogTrace($"SKAPI|Start|folder={folder?.Name}|append={append}|prefix={prefix}|suffix={suffix}");
 
                 QuoteData[] quotes = QuoteIndexMap.Values.ToArray();
-                string path = Path.Combine(quoteFolder.FullName, $"{prefix}{quotes.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}{suffix}.csv");
+                string path = Path.Combine(folder.FullName, $"{prefix}{quotes.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}{suffix}.csv");
                 bool exists = File.Exists(path);
 
                 using (StreamWriter sw = new StreamWriter(path, append, TextEncoding.UTF8WithoutBOM))
@@ -802,7 +879,21 @@ namespace GNAy.Capital.Trade.Controllers
                         sw.WriteLine(string.Join(",", QuoteData.ColumnGetters.Values.Select(x => x.Item1.Name)));
                     }
 
-                    foreach (QuoteData quote in quotes)
+                    if (quote == null)
+                    {
+                        foreach (QuoteData q in quotes)
+                        {
+                            try
+                            {
+                                sw.WriteLine(q.ToCSVString());
+                            }
+                            catch (Exception ex)
+                            {
+                                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                            }
+                        }
+                    }
+                    else
                     {
                         try
                         {
@@ -825,14 +916,14 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public Task SaveQuotesAsync(bool append = true, string prefix = "", string suffix = "", DirectoryInfo quoteFolder = null)
+        public Task SaveQuotesAsync(DirectoryInfo quoteFolder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
         {
             if (QuoteIndexMap.Count <= 0)
             {
                 return null;
             }
 
-            return Task.Factory.StartNew(() => SaveQuotes(append, prefix, suffix, quoteFolder));
+            return Task.Factory.StartNew(() => SaveQuotes(quoteFolder, append, prefix, suffix, quote));
         }
 
         public int ReadCertification()

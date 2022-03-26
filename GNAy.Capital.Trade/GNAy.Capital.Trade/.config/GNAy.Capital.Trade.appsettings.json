@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.323.1",
+  "Version": "0.22.326.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -36,6 +36,9 @@
     "MTX05"
   ],
   "QuoteFolderPath": "QuoteData",
+  "QuoteFileOpenPrefix": "Open_",
+  "QuoteFileClosePrefix": "Last_",
+  "QuoteFileRecoverPrefix": "Recover_",
   "SendOrder": false,
   "OrderAndDeal": false
 }

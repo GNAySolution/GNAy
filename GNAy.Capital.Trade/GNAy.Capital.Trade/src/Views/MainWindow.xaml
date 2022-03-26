@@ -36,8 +36,8 @@
                             <Button x:Name="ButtonSubQuotes" Content="訂閱即時報價" HorizontalAlignment="Left" Margin="123,106,0,0" VerticalAlignment="Top" Click="ButtonSubQuotes_Click"/>
                             <Button x:Name="ButtonRequestKLine" Content="查詢KLine" HorizontalAlignment="Left" Margin="59,130,0,0" VerticalAlignment="Top" Click="ButtonRequestKLine_Click"/>
                             <Button x:Name="ButtonQueryQuotes" Content="回補行情報價" HorizontalAlignment="Left" Margin="123,130,0,0" VerticalAlignment="Top" Click="ButtonQueryQuotes_Click"/>
-                            <TextBox x:Name="TextBoxQuoteFolderPath" Text="行情報價資料夾" ToolTip="儲存報價資料到此資料夾" HorizontalAlignment="Left" Margin="79,154,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                            <Button x:Name="ButtonSaveQuotes" Content="儲存報價資料" HorizontalAlignment="Left" Margin="123,176,0,0" VerticalAlignment="Top" Click="ButtonSaveQuotes_Click"/>
+                            <TextBox x:Name="TextBoxQuoteFolderTest" Text="報價資料夾測試用" ToolTip="測試儲存報價到此資料夾" HorizontalAlignment="Left" Margin="79,154,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                            <Button x:Name="ButtonSaveQuotesTest" Content="儲存報價資料" HorizontalAlignment="Left" Margin="123,176,0,0" VerticalAlignment="Top" Click="ButtonSaveQuotesTest_Click"/>
                             <Button x:Name="ButtonReadCertification" Content="讀取下單憑證" HorizontalAlignment="Left" Margin="204,58,0,0" VerticalAlignment="Top" Click="ButtonReadCertification_Click"/>
                             <Button x:Name="ButtonGetOrderAccs" Content="取得下單帳號" HorizontalAlignment="Left" Margin="285,58,0,0" VerticalAlignment="Top" Click="ButtonGetOrderAccs_Click"/>
                             <Button x:Name="ButtonUnlockOrder" Content="下單解鎖" HorizontalAlignment="Left" Margin="228,82,0,0" VerticalAlignment="Top" Click="ButtonUnlockOrder_Click"/>
@@ -123,6 +123,10 @@
                                     <DataGridTextColumn Binding="{Binding Message}" IsReadOnly="True" CanUserSort="False"/>
                                 </DataGrid.Columns>
                             </DataGrid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="觸價警示">
+                        <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
                 </TabControl>
@@ -278,10 +282,19 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding HighLow, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding Reference, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
@@ -407,26 +420,52 @@
         </Border>
         <Border Grid.Row="1" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5">
-                <Label Content="股票權證帳號" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top"/>
+                <Label Content="股票權證下單帳號" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top"/>
                 <!--https://stackoverflow.com/questions/16197928/wpf-combobox-binding-to-observablecollection-->
-                <ComboBox x:Name="ComboBoxStockAccs" ToolTip="股票權證帳號" HorizontalAlignment="Left" Margin="97,10,0,0" VerticalAlignment="Top" Width="120">
+                <ComboBox x:Name="ComboBoxStockAccs" ToolTip="股票權證下單帳號" HorizontalAlignment="Left" Margin="10,33,0,0" VerticalAlignment="Top" Width="120">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Label Content="國內期權帳號" HorizontalAlignment="Left" Margin="222,8,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxFuturesAccs" ToolTip="國內期權帳號" HorizontalAlignment="Left" Margin="309,10,0,0" VerticalAlignment="Top" Width="120">
+                <Label Content="國內期權下單帳號" HorizontalAlignment="Left" Margin="135,8,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxFuturesAccs" ToolTip="國內期權下單帳號" HorizontalAlignment="Left" Margin="135,33,0,0" VerticalAlignment="Top" Width="120">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="141,36,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
-                <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="353,36,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
-                <TabControl x:Name="TabControlBB" Margin="0,100,0,30" SelectedIndex="0">
+                <Label Content="觸價商品代碼" HorizontalAlignment="Left" Margin="260,8,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxTouchedProduct" ToolTip="觸價商品代碼" HorizontalAlignment="Left" Margin="260,33,0,0" VerticalAlignment="Top" Width="120">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Symbol}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Label Content="觸價商品欄位" HorizontalAlignment="Left" Margin="385,8,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxTouchedColumn" ToolTip="觸價商品欄位" HorizontalAlignment="Left" Margin="385,33,0,0" VerticalAlignment="Top" Width="120">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Column}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Label Content="大於小於等於數值" HorizontalAlignment="Left" Margin="510,8,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxTouchedValue" Text="大於小於等於數值" ToolTip="系統會自動補上等於" HorizontalAlignment="Left" Margin="510,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="觸價後取消警示" HorizontalAlignment="Left" Margin="635,8,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxTouchedCancel" ToolTip="觸價後取消警示" HorizontalAlignment="Left" Margin="635,33,0,0" VerticalAlignment="Top" Width="120">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Cancel}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="54,59,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
+                <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="179,59,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
+                <TabControl x:Name="TabControlBB" Margin="0,150,0,30" SelectedIndex="0">
                     <TabItem Header="委託回報">
                         <Grid Background="#FFE5E5E5">
                         </Grid>

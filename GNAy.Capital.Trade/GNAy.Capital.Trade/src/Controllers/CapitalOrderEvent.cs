@@ -58,10 +58,8 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrMessage"></param>
         private void m_pSKOrder_OnAsyncOrder(int nThreaID, int nCode, string bstrMessage)
         {
-            string msg = $"SKAPI|nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}";
-
-            MainWindow.AppCtrl.LogTrace(msg);
-            AppendReply(String.Empty, msg);
+            MainWindow.AppCtrl.LogTrace($"SKAPI|nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}");
+            AppendReply(String.Empty, $"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}");
         }
 
         /// <summary>
@@ -73,10 +71,8 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrOrderLinkedID"></param>
         private void m_pSKOrder_OnAsyncOrderOLID(int nThreaID, int nCode, string bstrMessage, string bstrOrderLinkedID)
         {
-            string msg = $"SKAPI|nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}";
-
-            MainWindow.AppCtrl.LogTrace(msg);
-            AppendReply(String.Empty, msg);
+            MainWindow.AppCtrl.LogTrace($"SKAPI|nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}");
+            AppendReply(String.Empty, $"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}");
         }
 
         /// <summary>
@@ -85,7 +81,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnRealBalanceReport(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace(bstrData);
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -95,7 +91,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnOpenInterest(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace(bstrData);
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
     }

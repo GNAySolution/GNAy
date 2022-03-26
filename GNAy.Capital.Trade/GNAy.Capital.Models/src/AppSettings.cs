@@ -57,10 +57,23 @@ namespace GNAy.Capital.Models
         /// SKQuoteLib_RequestLiveTick
         /// </summary>
         public List<string> QuoteLive { get; set; }
+
         /// <summary>
-        /// 定時儲存行情報價
+        /// 儲存行情報價到資料夾
         /// </summary>
         public string QuoteFolderPath { get; set; }
+        /// <summary>
+        /// 開盤報價檔名前綴
+        /// </summary>
+        public string QuoteFileOpenPrefix { get; set; }
+        /// <summary>
+        /// 收盤報價檔名前綴
+        /// </summary>
+        public string QuoteFileClosePrefix { get; set; }
+        /// <summary>
+        /// 回補報價檔名前綴
+        /// </summary>
+        public string QuoteFileRecoverPrefix { get; set; }
 
         /// <summary>
         /// false=測試或跑回測時，不實際下單
@@ -73,7 +86,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.323.1";
+            Version = "0.22.326.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -103,7 +116,11 @@ namespace GNAy.Capital.Models
             //QuoteRequest = new List<string>() { "TSEA", "OTCA", "0050", "00632R", "0056", "2330" }; //
             QuoteLive = new List<string>();
             //QuoteLive = new List<string>() { "UD06", "UN2206", "TX04", "TX05", "MTX04", "MTX05" }; //
+
             QuoteFolderPath = "QuoteData";
+            QuoteFileOpenPrefix = "Open_";
+            QuoteFileClosePrefix = "Last_";
+            QuoteFileRecoverPrefix = "Recover_";
 
             SendOrder = false;
             OrderAndDeal = false;
