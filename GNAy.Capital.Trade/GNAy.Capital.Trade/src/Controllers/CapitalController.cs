@@ -536,7 +536,11 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
 
-                if (quote.OpenPrice != quote.DealPrice) //TODO: 群益API開盤價可能是從試撮開始，待確認
+                if (quote.OpenPrice == quote.DealPrice)
+                {
+                    MainWindow.AppCtrl.LogTrace($"SKAPI|開盤|{quote.Symbol}|{quote.Name}|OpenPrice({quote.OpenPrice}) != quote.DealPrice({quote.DealPrice})");
+                }
+                else //TODO: 開盤價可能從試撮開始，待確認
                 {
                     MainWindow.AppCtrl.LogWarn($"SKAPI|開盤價不等於成交價|{quote.Symbol}|{quote.Name}|OpenPrice({quote.OpenPrice}) != quote.DealPrice({quote.DealPrice})");
                     quote.OpenPrice = quote.DealPrice;
@@ -551,7 +555,7 @@ namespace GNAy.Capital.Trade.Controllers
             return true;
         }
 
-        private void ReadLastClosePrice(FileInfo quoteFile, string[] separators)
+        private void ReadLastClosePrice(FileInfo quoteFile)
         {
             if (quoteFile == null)
             {
@@ -568,12 +572,11 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (columnNames.Count <= 0)
                     {
-                        columnNames.AddRange(line.Split(','));
+                        columnNames.AddRange(line.Split(Separator.CSV));
                         continue;
                     }
 
-                    QuoteData quoteLast = new QuoteData();
-                    quoteLast.SetValues(columnNames, line.Split(separators, StringSplitOptions.RemoveEmptyEntries));
+                    QuoteData quoteLast = QuoteData.Create(columnNames, line);
                     if (quoteLast.Simulate != 0)
                     {
                         continue;
@@ -650,8 +653,8 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                     }
 
-                    ReadLastClosePrice(lastQuote1, Separator.CSV);
-                    ReadLastClosePrice(lastQuote2, Separator.CSV);
+                    ReadLastClosePrice(lastQuote1);
+                    ReadLastClosePrice(lastQuote2);
                 }
                 catch (Exception ex)
                 {
@@ -687,12 +690,11 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (columnNames.Count <= 0)
                     {
-                        columnNames.AddRange(line.Split(','));
+                        columnNames.AddRange(line.Split(Separator.CSV));
                         continue;
                     }
 
-                    QuoteData quoteLast = new QuoteData();
-                    quoteLast.SetValues(columnNames, line.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries));
+                    QuoteData quoteLast = QuoteData.Create(columnNames, line);
                     if (quoteLast.Simulate != 0)
                     {
                         continue;
@@ -824,6 +826,40 @@ namespace GNAy.Capital.Trade.Controllers
 
                 ReadLastClosePriceAsync();
             }
+        }
+
+        public void RecoverQuotesAsync(string products)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                MainWindow.AppCtrl.LogTrace($"SKAPI|Start|products={products}");
+
+                try
+                {
+                    foreach (string product in products.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        short pageA = -1;
+                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestTicks(ref pageA, product.Trim()); //訂閱要求傳送成交明細以及五檔
+                        if (nCode != 0)
+                        {
+                            LogAPIMessage(nCode);
+                            continue;
+                        }
+                        if (pageA < 0)
+                        {
+                            MainWindow.AppCtrl.LogError($"SKAPI|Recover quote failed.|Symbol={product}|pageA={pageA}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                }
+                finally
+                {
+                    MainWindow.AppCtrl.LogTrace("SKAPI|End");
+                }
+            });
         }
 
         public void RequestKLine(string product = "")

@@ -1,4 +1,5 @@
 ﻿using GNAy.Capital.Models;
+using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
 using SKCOMLib;
 using System;
@@ -93,35 +94,50 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nSimulate"></param>
         private void m_SKQuoteLib_OnNotifyHistoryTicks(short sMarketNo, int nStockIdx, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nPtr={nPtr}|nDate={nDate}|lTimehms={lTimehms}|lTimemillismicros={lTimemillismicros}|nBid={nBid}|nAsk={nAsk}|nClose={nClose}|nQty={nQty}|nSimulate={nSimulate}");
+            //MainWindow.AppCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nPtr={nPtr}|nDate={nDate}|lTimehms={lTimehms}|lTimemillismicros={lTimemillismicros}|nBid={nBid}|nAsk={nAsk}|nClose={nClose}|nQty={nQty}|nSimulate={nSimulate}");
 
-            //[-0219-add Qty-]
-            string strData = "";
+            try
+            {
+                if (!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote))
+                {
+                    quote = new QuoteData()
+                    {
+                        Market = sMarketNo,
+                        Index = nStockIdx,
+                    };
+                }
+                //else
+                //{
+                //    quote = quote.DeepClone();
+                //}
 
-            //if (chkbox_msms.Checked == true)
-            //    strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
-            //else if (chkbox_msms.Checked == false)
-                strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + " " + lTimemillismicros.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
+                quote.Count = nPtr;
+                if (nDate > quote.TradeDateRaw)
+                {
+                    quote.TradeDateRaw = nDate;
+                }
+                quote.MatchedTimeRaw = String.Format("{0}.{1}", lTimehms.ToString().PadLeft(6, '0'), lTimemillismicros.ToString().PadLeft(6, '0'));
+                quote.BestBuyPrice = nBid / (decimal)Math.Pow(10, quote.DecimalPos);
+                quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
+                quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
+                quote.DealQty = nQty;
+                quote.Simulate = nSimulate;
 
-            //if (Box_M.Checked == true) //含市價揭示轉換
-            //{
-            //    if (nBid == kMarketPrice)
-            //        strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + "," + "M" + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
-            //    else if (nAsk == kMarketPrice)
-            //        strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + "," + nBid.ToString() + "," + "M" + "," + nClose.ToString() + "," + nQty.ToString();
-            //    else
-            //        strData = nStockIdx.ToString() + "," + nPtr.ToString() + "," + nDate.ToString() + " " + lTimehms.ToString() + "," + nBid.ToString() + "," + nAsk.ToString() + "," + nClose.ToString() + "," + nQty.ToString();
-            //}
+                quote.Updater = "OnNotifyHistoryTicks";
+                quote.UpdateTime = DateTime.Now;
 
+                QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
 
-            //[揭示]//0:一般;1:試算揭示// 0331-會無歷史tick
-            //if (strData != "")// &&( (chkBoxSimulate.Checked) || (!chkBoxSimulate.Checked && nSimulate == 0)))
-            //    listTicks.Items.Add("[OnNotifyHistoryTickLONG]" + strData);
-
-            //if (listTicks.Items.Count < 200)
-            //    listTicks.SelectedIndex = listTicks.Items.Count - 1;
-            //else
-            //    listTicks.Items.Clear();
+                if (!string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileRecoverPrefix))
+                {
+                    string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{sMarketNo}_{nStockIdx}" : quote.Symbol;
+                    MainWindow.CapitalCtrl.SaveQuotes(MainWindow.AppCtrl.Config.QuoteFolder, true, $"{MainWindow.AppCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_", string.Empty, quote);
+                }
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
         }
 
         /// <summary>

@@ -88,6 +88,8 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _name, value); }
         }
 
+        public string SymbolAndName => $"{Symbol},{Name}";
+
         private string _matchedTimeRaw;
         [TradeColumn("成交時間", 7)]
         public string MatchedTimeRaw
@@ -449,7 +451,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        public void SetValues(List<string> columnNames, string[] cells)
+        public void SetValues(IList<string> columnNames, string[] cells)
         {
             for (int i = 0; i < columnNames.Count; ++i)
             {
@@ -458,6 +460,13 @@ namespace GNAy.Capital.Models
                     value.Item2.SetValueFromString(this, cells[i], value.Item1.StringFormat);
                 }
             }
+        }
+
+        public static QuoteData Create(IList<string> columnNames, string lineCSV)
+        {
+            QuoteData quote = new QuoteData();
+            quote.SetValues(columnNames, lineCSV.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries));
+            return quote;
         }
     }
 }

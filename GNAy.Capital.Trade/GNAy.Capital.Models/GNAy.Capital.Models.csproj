@@ -46,6 +46,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\AppConfig.cs" />
     <Compile Include="src\APIReplyData.cs" />
+    <Compile Include="src\TradeColumnTouched.cs" />
     <Compile Include="src\TradeColumnAttribute.cs" />
     <Compile Include="src\OrderAccData.cs" />
     <Compile Include="src\QuoteData.cs" />
