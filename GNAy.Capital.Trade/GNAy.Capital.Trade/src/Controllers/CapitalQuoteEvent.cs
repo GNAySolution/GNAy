@@ -121,12 +121,45 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealQty = nQty;
+                if (quote.Market == MarketFutures || quote.Market == MarketOptions)
+                {
+                    if (quote.Simulate > 0 && nSimulate == 0) //前一筆是試撮，後一筆不是試撮
+                    {
+                        quote.OpenPrice = quote.DealPrice;
+                    }
+                }
+                else
+                {
+                    if (quote.Simulate > 0 && nSimulate == 0 && quote.OpenPrice == 0) //前一筆是試撮，後一筆不是試撮
+                    {
+                        quote.OpenPrice = quote.DealPrice;
+                    }
+                    else if (nSimulate == 0 && quote.OpenPrice == 0 && quote.DealQty > 0)
+                    {
+                        quote.OpenPrice = quote.DealPrice;
+                    }
+                }
                 quote.Simulate = nSimulate;
 
                 quote.Updater = "OnNotifyHistoryTicks";
                 quote.UpdateTime = DateTime.Now;
 
                 QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
+
+                if (quote.Simulate == 0)
+                {
+                    if (quote.OpenPrice != 0)
+                    {
+                        if (quote.HighPrice < quote.DealPrice)
+                        {
+                            quote.HighPrice = quote.DealPrice;
+                        }
+                        if (quote.LowPrice > quote.DealPrice || quote.LowPrice == 0)
+                        {
+                            quote.LowPrice = quote.DealPrice;
+                        }
+                    }
+                }
 
                 if (!string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileRecoverPrefix))
                 {
@@ -171,6 +204,8 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
+                bool firstTick = false;
+
                 quote.Count = nPtr;
                 if (nDate > quote.TradeDateRaw)
                 {
@@ -181,12 +216,40 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealQty = nQty;
+                if (IsAMMarket.Item1 && (quote.Market == MarketFutures || quote.Market == MarketOptions))
+                {
+                    if (quote.Simulate > 0 && nSimulate == 0) //前一筆是試撮，後一筆不是試撮
+                    {
+                        quote.OpenPrice = quote.DealPrice;
+                        firstTick = true;
+                    }
+                }
                 quote.Simulate = nSimulate;
 
                 quote.Updater = "OnNotifyTicks";
                 quote.UpdateTime = DateTime.Now;
 
                 QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
+
+                if (IsAMMarket.Item1 && (quote.Market == MarketFutures || quote.Market == MarketOptions))
+                {
+                    if (quote.OpenPrice != 0)
+                    {
+                        if (quote.HighPrice < quote.DealPrice)
+                        {
+                            quote.HighPrice = quote.DealPrice;
+                        }
+                        if (quote.LowPrice > quote.DealPrice || quote.LowPrice == 0)
+                        {
+                            quote.LowPrice = quote.DealPrice;
+                        }
+                    }
+                }
+
+                if (firstTick)
+                {
+                    MainWindow.AppCtrl.LogTrace($"SKAPI|開盤|{quote.Market}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}");
+                }
             }
             catch (Exception ex)
             {
@@ -226,165 +289,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nSimulate"></param>
         private void m_SKQuoteLib_OnNotifyBest5(short sMarketNo, int nStockIdx, int nBestBid1, int nBestBidQty1, int nBestBid2, int nBestBidQty2, int nBestBid3, int nBestBidQty3, int nBestBid4, int nBestBidQty4, int nBestBid5, int nBestBidQty5, int nExtendBid, int nExtendBidQty, int nBestAsk1, int nBestAskQty1, int nBestAsk2, int nBestAskQty2, int nBestAsk3, int nBestAskQty3, int nBestAsk4, int nBestAskQty4, int nBestAsk5, int nBestAskQty5, int nExtendAsk, int nExtendAskQty, int nSimulate)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nBestBid1={nBestBid1}|nBestBidQty1={nBestBidQty1}|nBestBid2={nBestBid2}|nBestBidQty2={nBestBidQty2}|nBestBid3={nBestBid3}|nBestBidQty3={nBestBidQty3}|nBestBid4={nBestBid4}|nBestBidQty4={nBestBidQty4}|nBestBid5={nBestBid5}|nBestBidQty5={nBestBidQty5}|nExtendBid={nExtendBid}|nExtendBidQty={nExtendBidQty}|nBestAsk1={nBestAsk1}|nBestAskQty1={nBestAskQty1}|nBestAsk2={nBestAsk2}|nBestAskQty2={nBestAskQty2}|nBestAsk3={nBestAsk3}|nBestAskQty3={nBestAskQty3}|nBestAsk4={nBestAsk4}|nBestAskQty4={nBestAskQty4}|nBestAsk5={nBestAsk5}|nBestAskQty5={nBestAskQty5}|nExtendAsk={nExtendAsk}|nExtendAskQty={nExtendAskQty}|nSimulate={nSimulate}");
-
-            //0:一般;1:試算揭示
-            if (nSimulate == 0)
-            {
-                //GridBest5Ask.ForeColor = Color.Black;
-                //GridBest5Bid.ForeColor = Color.Black;
-            }
-            else
-            {
-                //GridBest5Ask.ForeColor = Color.Gray;
-                //GridBest5Bid.ForeColor = Color.Gray;
-            }
-
-            SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
-            double dDigitNum = 0.000;
-            string strStockNoTick = "6005"; //txtTick.Text.Trim(); //股票代碼
-
-            int nCode = 0;
-            //[--]//
-            if (sMarketNo == 6 || sMarketNo == 5)
-                nCode = m_SKQuoteLib.SKQuoteLib_GetStockByMarketAndNo(sMarketNo, strStockNoTick, ref pSKStockLONG); //根據市場別編號與商品代號，取回商品報價的相關資訊
-            else
-                nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(strStockNoTick, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
-            //[-1022-a-]
-            if (nCode == 0)
-                dDigitNum = (Math.Pow(10, pSKStockLONG.sDecimal));
-            else
-                dDigitNum = 100.00;//default value
-
-            //if (m_dtBest5Ask.Rows.Count == 0 && m_dtBest5Bid.Rows.Count == 0)
-            //{
-            //    DataRow myDataRow;
-
-            //    myDataRow = m_dtBest5Ask.NewRow();
-            //    myDataRow["m_nAskQty"] = nBestAskQty1;
-            //    if (nBestAsk1 == kMarketPrice)
-            //        myDataRow["m_nAsk"] = "M";
-            //    else
-            //        myDataRow["m_nAsk"] = (nBestAsk1 / dDigitNum).ToString();///100.00;
-            //    m_dtBest5Ask.Rows.Add(myDataRow);
-
-            //    myDataRow = m_dtBest5Ask.NewRow();
-            //    myDataRow["m_nAskQty"] = nBestAskQty2;
-
-            //    if (nBestAsk2 == kMarketPrice)
-            //        myDataRow["m_nAsk"] = "M";
-            //    else
-            //        myDataRow["m_nAsk"] = (nBestAsk2 / dDigitNum).ToString();//100.00;
-            //    m_dtBest5Ask.Rows.Add(myDataRow);
-
-            //    myDataRow = m_dtBest5Ask.NewRow();
-            //    myDataRow["m_nAskQty"] = nBestAskQty3;
-
-            //    if (nBestAsk3 == kMarketPrice)
-            //        myDataRow["m_nAsk"] = "M";
-            //    else
-            //        myDataRow["m_nAsk"] = (nBestAsk3 / dDigitNum).ToString();//100.00;
-            //    m_dtBest5Ask.Rows.Add(myDataRow);
-
-            //    myDataRow = m_dtBest5Ask.NewRow();
-            //    myDataRow["m_nAskQty"] = nBestAskQty4;
-
-            //    if (nBestAsk4 == kMarketPrice)
-            //        myDataRow["m_nAsk"] = "M";
-            //    else
-            //        myDataRow["m_nAsk"] = (nBestAsk4 / dDigitNum).ToString();// 100.00;
-            //    m_dtBest5Ask.Rows.Add(myDataRow);
-
-            //    myDataRow = m_dtBest5Ask.NewRow();
-            //    myDataRow["m_nAskQty"] = nBestAskQty5;
-
-            //    if (nBestAsk5 == kMarketPrice)
-            //        myDataRow["m_nAsk"] = "M";
-            //    else
-            //        myDataRow["m_nAsk"] = (nBestAsk5 / dDigitNum).ToString();// 100.00;
-            //    m_dtBest5Ask.Rows.Add(myDataRow);
-
-            //    myDataRow = m_dtBest5Bid.NewRow();
-            //    myDataRow["m_nAskQty"] = nBestBidQty1;
-
-            //    if (nBestBid1 == kMarketPrice)
-            //        myDataRow["m_nAsk"] = "M";
-            //    else myDataRow["m_nAsk"] = (nBestBid1 / dDigitNum).ToString();
-            //    m_dtBest5Bid.Rows.Add(myDataRow);
-
-            //    myDataRow = m_dtBest5Bid.NewRow();
-            //    myDataRow["m_nAskQty"] = nBestBidQty2;
-            //    if (nBestBid2 == kMarketPrice)
-            //        myDataRow["m_nAsk"] = "M";
-            //    else myDataRow["m_nAsk"] = (nBestBid2 / dDigitNum).ToString();
-            //    m_dtBest5Bid.Rows.Add(myDataRow);
-
-            //    myDataRow = m_dtBest5Bid.NewRow();
-            //    myDataRow["m_nAskQty"] = nBestBidQty3;
-            //    if (nBestBid3 == kMarketPrice)
-            //        myDataRow["m_nAsk"] = "M";
-            //    else
-            //        myDataRow["m_nAsk"] = (nBestBid3 / dDigitNum).ToString();
-            //    m_dtBest5Bid.Rows.Add(myDataRow);
-
-            //    myDataRow = m_dtBest5Bid.NewRow();
-            //    myDataRow["m_nAskQty"] = nBestBidQty4;
-            //    if (nBestBid4 == kMarketPrice)
-            //        myDataRow["m_nAsk"] = "M";
-            //    else
-            //        myDataRow["m_nAsk"] = (nBestBid4 / dDigitNum).ToString();
-            //    m_dtBest5Bid.Rows.Add(myDataRow);
-
-            //    myDataRow = m_dtBest5Bid.NewRow();
-            //    myDataRow["m_nAskQty"] = nBestBidQty5;
-            //    if (nBestBid5 == kMarketPrice)
-            //        myDataRow["m_nAsk"] = "M";
-            //    else
-            //        myDataRow["m_nAsk"] = (nBestBid5 / dDigitNum).ToString();
-            //    m_dtBest5Bid.Rows.Add(myDataRow);
-            //}
-            //else
-            //{
-            //    m_dtBest5Ask.Rows[0]["m_nAskQty"] = nBestAskQty1;
-            //    if (nBestAsk1 == kMarketPrice) m_dtBest5Ask.Rows[0]["m_nAsk"] = "M";
-            //    else m_dtBest5Ask.Rows[0]["m_nAsk"] = (nBestAsk1 / dDigitNum).ToString();
-
-            //    m_dtBest5Ask.Rows[1]["m_nAskQty"] = nBestAskQty2;
-            //    if (nBestAsk2 == kMarketPrice) m_dtBest5Ask.Rows[0]["m_nAsk"] = "M";
-            //    else m_dtBest5Ask.Rows[1]["m_nAsk"] = (nBestAsk2 / dDigitNum).ToString();
-
-            //    m_dtBest5Ask.Rows[2]["m_nAskQty"] = nBestAskQty3;
-            //    if (nBestAsk3 == kMarketPrice) m_dtBest5Ask.Rows[0]["m_nAsk"] = "M";
-            //    else m_dtBest5Ask.Rows[2]["m_nAsk"] = (nBestAsk3 / dDigitNum).ToString();
-
-            //    m_dtBest5Ask.Rows[3]["m_nAskQty"] = nBestAskQty4;
-            //    if (nBestAsk4 == kMarketPrice) m_dtBest5Ask.Rows[0]["m_nAsk"] = "M";
-            //    else m_dtBest5Ask.Rows[3]["m_nAsk"] = (nBestAsk4 / dDigitNum).ToString();
-
-            //    m_dtBest5Ask.Rows[4]["m_nAskQty"] = nBestAskQty5;
-            //    if (nBestAsk5 == kMarketPrice) m_dtBest5Ask.Rows[0]["m_nAsk"] = "M";
-            //    else m_dtBest5Ask.Rows[4]["m_nAsk"] = (nBestAsk5 / dDigitNum).ToString();
-
-            //    m_dtBest5Bid.Rows[0]["m_nAskQty"] = nBestBidQty1;
-            //    if (nBestBid1 == kMarketPrice) m_dtBest5Bid.Rows[0]["m_nAsk"] = "M";
-            //    else m_dtBest5Bid.Rows[0]["m_nAsk"] = (nBestBid1 / dDigitNum).ToString();
-
-            //    m_dtBest5Bid.Rows[1]["m_nAskQty"] = nBestBidQty2;
-            //    if (nBestBid2 == kMarketPrice) m_dtBest5Bid.Rows[0]["m_nAsk"] = "M";
-            //    else m_dtBest5Bid.Rows[1]["m_nAsk"] = (nBestBid2 / dDigitNum).ToString();
-
-            //    m_dtBest5Bid.Rows[2]["m_nAskQty"] = nBestBidQty3;
-            //    if (nBestBid3 == kMarketPrice) m_dtBest5Bid.Rows[0]["m_nAsk"] = "M";
-            //    else m_dtBest5Bid.Rows[2]["m_nAsk"] = (nBestBid3 / dDigitNum).ToString();
-
-            //    m_dtBest5Bid.Rows[3]["m_nAskQty"] = nBestBidQty4;
-            //    if (nBestBid4 == kMarketPrice) m_dtBest5Bid.Rows[0]["m_nAsk"] = "M";
-            //    else m_dtBest5Bid.Rows[3]["m_nAsk"] = (nBestBid4 / dDigitNum).ToString();
-
-            //    m_dtBest5Bid.Rows[4]["m_nAskQty"] = nBestBidQty5;
-            //    if (nBestBid5 == kMarketPrice) m_dtBest5Bid.Rows[0]["m_nAsk"] = "M";
-            //    else m_dtBest5Bid.Rows[4]["m_nAsk"] = (nBestBid5 / dDigitNum).ToString();
-            //}
+            //MainWindow.AppCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nBestBid1={nBestBid1}|nBestBidQty1={nBestBidQty1}|nBestBid2={nBestBid2}|nBestBidQty2={nBestBidQty2}|nBestBid3={nBestBid3}|nBestBidQty3={nBestBidQty3}|nBestBid4={nBestBid4}|nBestBidQty4={nBestBidQty4}|nBestBid5={nBestBid5}|nBestBidQty5={nBestBidQty5}|nExtendBid={nExtendBid}|nExtendBidQty={nExtendBidQty}|nBestAsk1={nBestAsk1}|nBestAskQty1={nBestAskQty1}|nBestAsk2={nBestAsk2}|nBestAskQty2={nBestAskQty2}|nBestAsk3={nBestAsk3}|nBestAskQty3={nBestAskQty3}|nBestAsk4={nBestAsk4}|nBestAskQty4={nBestAskQty4}|nBestAsk5={nBestAsk5}|nBestAskQty5={nBestAskQty5}|nExtendAsk={nExtendAsk}|nExtendAskQty={nExtendAskQty}|nSimulate={nSimulate}");
         }
 
         /// <summary>

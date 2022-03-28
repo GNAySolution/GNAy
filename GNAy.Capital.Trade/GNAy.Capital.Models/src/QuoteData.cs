@@ -55,7 +55,7 @@ namespace GNAy.Capital.Models
         public DateTime UpdateDate => UpdateTime.Date;
 
         private DateTime _updateTime;
-        [TradeColumn("更新時", 3, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        [TradeColumn("更新時", 3, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", TouchedAlert = true)]
         public DateTime UpdateTime
         {
             get { return _updateTime; }
@@ -104,7 +104,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        [TradeColumn("成交時間", -1)]
+        [TradeColumn("成交時間", -1, TouchedAlert = true)]
         public DateTime MatchedTime => DateTime.ParseExact(MatchedTimeRaw.ToString(), "HHmmss.ffffff", CultureInfo.InvariantCulture);
 
         private decimal _dealPrice;
@@ -118,6 +118,8 @@ namespace GNAy.Capital.Models
                 {
                     OnPropertyChanged(nameof(UpDown));
                     OnPropertyChanged(nameof(UpDownPct));
+                    OnPropertyChanged(nameof(DealHigh));
+                    OnPropertyChanged(nameof(DealLow));
                     OnPropertyChanged(nameof(RowBackground));
                 }
             }
@@ -185,7 +187,7 @@ namespace GNAy.Capital.Models
         }
 
         [TradeColumn("開盤漲跌", "開盤漲", 17, StringFormat = "0.00", TouchedAlert = true)]
-        public decimal OpenUpDown => (OpenPrice != 0 && Reference != 0 && Simulate == 0) ? OpenPrice - Reference : 0;
+        public decimal OpenUpDown => (OpenPrice != 0 && Reference != 0) ? OpenPrice - Reference : 0;
 
         private decimal _highPrice;
         [TradeColumn("最高價", 18, StringFormat = "0.00", TouchedAlert = true)]
@@ -195,27 +197,35 @@ namespace GNAy.Capital.Models
             set
             {
                 OnPropertyChanged(ref _highPrice, value);
+                OnPropertyChanged(nameof(DealHigh));
                 OnPropertyChanged(nameof(HighLow));
             }
         }
 
+        [TradeColumn("成交最高價差", "成高差", 19, StringFormat = "0.00", TouchedAlert = true)]
+        public decimal DealHigh => (HighPrice != 0) ? DealPrice - HighPrice : 0;
+
         private decimal _lowPrice;
-        [TradeColumn("最低價", 19, StringFormat = "0.00", TouchedAlert = true)]
+        [TradeColumn("最低價", 20, StringFormat = "0.00", TouchedAlert = true)]
         public decimal LowPrice
         {
             get { return _lowPrice; }
             set
             {
                 OnPropertyChanged(ref _lowPrice, value);
+                OnPropertyChanged(nameof(DealLow));
                 OnPropertyChanged(nameof(HighLow));
             }
         }
 
-        [TradeColumn("最高最低價差", "高低差", 20, StringFormat = "0.00", TouchedAlert = true)]
+        [TradeColumn("成交最低價差", "成低差", 21, StringFormat = "0.00", TouchedAlert = true)]
+        public decimal DealLow => (LowPrice != 0) ? DealPrice - LowPrice : 0;
+
+        [TradeColumn("最高最低價差", "高低差", 22, StringFormat = "0.00", TouchedAlert = true)]
         public decimal HighLow => HighPrice - LowPrice;
 
         private decimal _reference;
-        [TradeColumn("參考價", 21, StringFormat = "0.00")]
+        [TradeColumn("參考價", 23, StringFormat = "0.00")]
         public decimal Reference
         {
             get { return _reference; }
@@ -232,7 +242,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _lastClosePrice;
-        [TradeColumn("前盤收盤價格", "前盤收價", 22, StringFormat = "0.00")]
+        [TradeColumn("前盤收盤價格", "前盤收價", 24, StringFormat = "0.00")]
         public decimal LastClosePrice
         {
             get { return _lastClosePrice; }
@@ -245,11 +255,11 @@ namespace GNAy.Capital.Models
             }
         }
 
-        [TradeColumn("開盤與前盤收盤價差", "開前價差", 23, StringFormat = "0.00", TouchedAlert = true)]
-        public decimal OpenLastCloseUpDown => (OpenPrice != 0 && LastClosePrice != 0 && Simulate == 0) ? OpenPrice - LastClosePrice : 0;
+        [TradeColumn("開盤與前盤收盤價差", "開前價差", 25, StringFormat = "0.00", TouchedAlert = true)]
+        public decimal OpenLastCloseUpDown => (OpenPrice != 0 && LastClosePrice != 0) ? OpenPrice - LastClosePrice : 0;
 
         private int _simulate;
-        [TradeColumn("試撮", "試", 24)]
+        [TradeColumn("試撮", "試", 26)]
         public int Simulate
         {
             get { return _simulate; }
@@ -263,7 +273,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _totalQty;
-        [TradeColumn("總量", 25, TouchedAlert = true)]
+        [TradeColumn("總量", 27, TouchedAlert = true)]
         public int TotalQty
         {
             get { return _totalQty; }
@@ -271,7 +281,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _tradeDateRaw;
-        [TradeColumn("交易日", 26)]
+        [TradeColumn("交易日", 28)]
         public int TradeDateRaw
         {
             get { return _tradeDateRaw; }
@@ -288,7 +298,7 @@ namespace GNAy.Capital.Models
         public DateTime TradeDate => (TradeDateRaw <= 0) ? DateTime.MaxValue.Date : DateTime.ParseExact(TradeDateRaw.ToString().PadLeft(8, '0'), "yyyyMMdd", CultureInfo.InvariantCulture);
 
         private decimal _highPriceLimit;
-        [TradeColumn("漲停", 27, StringFormat = "0.00")]
+        [TradeColumn("漲停", 29, StringFormat = "0.00")]
         public decimal HighPriceLimit
         {
             get { return _highPriceLimit; }
@@ -296,7 +306,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _lowPriceLimit;
-        [TradeColumn("跌停", 28, StringFormat = "0.00")]
+        [TradeColumn("跌停", 30, StringFormat = "0.00")]
         public decimal LowPriceLimit
         {
             get { return _lowPriceLimit; }
@@ -312,7 +322,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _index;
-        [TradeColumn("索引", 29)]
+        [TradeColumn("索引", 31)]
         public int Index
         {
             get { return _index; }
@@ -320,7 +330,7 @@ namespace GNAy.Capital.Models
         }
 
         private short _page;
-        [TradeColumn("Page", "P", 30)]
+        [TradeColumn("Page", "P", 32)]
         public short Page
         {
             get { return _page; }
@@ -328,7 +338,7 @@ namespace GNAy.Capital.Models
         }
 
         private short _market;
-        [TradeColumn("市場", "市", 31)]
+        [TradeColumn("市場", "市", 33)]
         public short Market
         {
             get { return _market; }
@@ -336,7 +346,7 @@ namespace GNAy.Capital.Models
         }
 
         private short _decimalPos;
-        [TradeColumn("小數位數", "D", 32)]
+        [TradeColumn("小數位數", "D", 34)]
         public short DecimalPos
         {
             get { return _decimalPos; }
@@ -344,7 +354,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _totalQtyBefore;
-        [TradeColumn("昨量", 33)]
+        [TradeColumn("昨量", 35)]
         public int TotalQtyBefore
         {
             get { return _totalQtyBefore; }

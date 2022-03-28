@@ -63,10 +63,6 @@ namespace GNAy.Capital.Models
         /// </summary>
         public string QuoteFolderPath { get; set; }
         /// <summary>
-        /// 開盤報價檔名前綴
-        /// </summary>
-        public string QuoteFileOpenPrefix { get; set; }
-        /// <summary>
         /// 收盤報價檔名前綴
         /// </summary>
         public string QuoteFileClosePrefix { get; set; }
@@ -86,7 +82,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.326.1";
+            Version = "0.22.328.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -118,7 +114,6 @@ namespace GNAy.Capital.Models
             //QuoteLive = new List<string>() { "UD06", "UN2206", "TX04", "TX05", "MTX04", "MTX05" }; //
 
             QuoteFolderPath = "QuoteData";
-            QuoteFileOpenPrefix = "Open_";
             QuoteFileClosePrefix = "Last_";
             QuoteFileRecoverPrefix = "Recover_";
 

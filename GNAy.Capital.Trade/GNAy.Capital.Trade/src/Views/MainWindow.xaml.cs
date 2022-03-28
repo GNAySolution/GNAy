@@ -5,7 +5,6 @@ using GNAy.Tools.WPF;
 using NLog;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -40,8 +39,6 @@ namespace GNAy.Capital.Trade
 
         private readonly MainWindowController AppControl;
         private CapitalController CapitalControl;
-
-        private ObservableCollection<TradeColumnTouched> TouchedColumnCollection;
 
         private readonly DispatcherTimer _timer1;
         private readonly DispatcherTimer _timer2;
@@ -78,8 +75,6 @@ namespace GNAy.Capital.Trade
             }
 
             TextBoxQuoteFolderTest.Text = AppCtrl.Settings.QuoteFolderPath;
-
-            TouchedColumnCollection = null;
 
             _timer1 = new DispatcherTimer(DispatcherPriority.Send)
             {
@@ -824,6 +819,7 @@ namespace GNAy.Capital.Trade
                     this.InvokeRequired(delegate
                     {
                         ButtonIsConnected_Click(null, null);
+                        ButtonGetProductInfo_Click(null, null);
                         ButtonSubQuotes_Click(null, null);
                         ButtonGetOrderAccs_Click(null, null);
                     });
@@ -953,6 +949,24 @@ namespace GNAy.Capital.Trade
             }
         }
 
+        private void ButtonGetProductInfo_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                CapitalCtrl.GetProductInfo();
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
         private void ButtonSubQuotes_Click(object sender, RoutedEventArgs e)
         {
             AppCtrl.LogTrace("Start");
@@ -960,20 +974,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 CapitalCtrl.SubQuotesAsync();
-
-                if (ComboBoxTouchedProduct.ItemsSource == null)
-                {
-                    ComboBoxTouchedProduct.ItemsSource = DataGridQuoteSubscribed.ItemsSource;
-
-                    TouchedColumnCollection = ComboBoxTouchedColumn.SetAndGetItemsSource<TradeColumnTouched>();
-                    foreach ((TradeColumnAttribute, PropertyInfo) value in QuoteData.PropertyMap.Values)
-                    {
-                        if (value.Item1.TouchedAlert)
-                        {
-                            TouchedColumnCollection.Add(new TradeColumnTouched(value.Item2.Name, value.Item1));
-                        }
-                    }
-                }
+                AppCtrl.SetTouchedRule();
             }
             catch (Exception ex)
             {
@@ -1118,6 +1119,24 @@ namespace GNAy.Capital.Trade
             {
                 OrderAccData acc = (OrderAccData)ComboBoxFuturesAccs.SelectedItem;
                 CapitalCtrl.GetOpenInterest(acc.FullAccount);
+            }
+            catch (Exception ex)
+            {
+                AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                AppCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonSaveTouchedRule_Click(object sender, RoutedEventArgs e)
+        {
+            AppCtrl.LogTrace("Start");
+
+            try
+            {
+                //
             }
             catch (Exception ex)
             {

@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -28,6 +29,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private readonly ObservableCollection<AppLogInDataGrid> AppLogCollection;
 
+        private ObservableCollection<TradeColumnTouched> TouchedColumnCollection;
+
         public MainWindowController()
         {
             CreatedTime = DateTime.Now;
@@ -37,6 +40,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             MainWindow.Instance.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             AppLogCollection = MainWindow.Instance.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
+
+            TouchedColumnCollection = null;
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
@@ -296,6 +301,40 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 LogTrace("End");
             }
+        }
+
+        public bool SetTouchedRule()
+        {
+            LogTrace("Start");
+
+            try
+            {
+                if (TouchedColumnCollection == null || TouchedColumnCollection.Count <= 0)
+                {
+                    MainWindow.Instance.ComboBoxTouchedProduct.ItemsSource = MainWindow.Instance.DataGridQuoteSubscribed.ItemsSource;
+
+                    TouchedColumnCollection = MainWindow.Instance.ComboBoxTouchedColumn.SetAndGetItemsSource<TradeColumnTouched>();
+                    foreach ((TradeColumnAttribute, PropertyInfo) value in QuoteData.PropertyMap.Values)
+                    {
+                        if (value.Item1.TouchedAlert)
+                        {
+                            TouchedColumnCollection.Add(new TradeColumnTouched(value.Item2.Name, value.Item1));
+                        }
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                LogTrace("End");
+            }
+
+            return false;
         }
     }
 }

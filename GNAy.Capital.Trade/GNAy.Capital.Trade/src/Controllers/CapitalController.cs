@@ -437,9 +437,9 @@ namespace GNAy.Capital.Trade.Controllers
                 BestBuyQty = raw.nBc,
                 BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal),
                 BestSellQty = raw.nAc,
-                OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal),
-                HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal),
-                LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal),
+                //OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal),
+                //HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal),
+                //LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal),
                 Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal),
                 Simulate = raw.nSimulate,
                 TotalQty = raw.nTQty,
@@ -447,7 +447,7 @@ namespace GNAy.Capital.Trade.Controllers
                 HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal),
                 LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal),
                 Index = raw.nStockIdx,
-                Market = short.TryParse(raw.bstrMarketNo, out short x) ? x : (short)-1,
+                Market = short.Parse(raw.bstrMarketNo),
                 DecimalPos = raw.sDecimal,
                 TotalQtyBefore = raw.nYQty,
             };
@@ -493,16 +493,17 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestBuyQty = raw.nBc;
             quote.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
             quote.BestSellQty = raw.nAc;
-            if (raw.nSimulate == 0)
+            if (IsAMMarket.Item1 && (quote.Market == MarketFutures || quote.Market == MarketOptions))
             {
-                if (quote.Simulate > 0 && quote.OpenPrice == 0) //結束試撮，開盤
+                if (quote.Simulate > 0 && raw.nSimulate == 0) //前一筆是試撮，後一筆不是試撮
                 {
+                    quote.OpenPrice = quote.DealPrice;
                     firstTick = true;
                 }
-                else if (quote.OpenPrice == 0) //盤中或收盤後啟動
-                {
-                    quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
-                }
+            }
+            else if (raw.nSimulate == 0)
+            {
+                quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
                 quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
                 quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
             }
@@ -532,24 +533,24 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
 
+            if (IsAMMarket.Item1 && (quote.Market == MarketFutures || quote.Market == MarketOptions))
+            {
+                if (quote.OpenPrice != 0)
+                {
+                    if (quote.HighPrice < quote.DealPrice)
+                    {
+                        quote.HighPrice = quote.DealPrice;
+                    }
+                    if (quote.LowPrice > quote.DealPrice || quote.LowPrice == 0)
+                    {
+                        quote.LowPrice = quote.DealPrice;
+                    }
+                }
+            }
+
             if (firstTick)
             {
-                quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
-
-                if (quote.OpenPrice == quote.DealPrice)
-                {
-                    MainWindow.AppCtrl.LogTrace($"SKAPI|開盤|{quote.Symbol}|{quote.Name}|OpenPrice({quote.OpenPrice}) != quote.DealPrice({quote.DealPrice})");
-                }
-                else //TODO: 開盤價可能從試撮開始，待確認
-                {
-                    MainWindow.AppCtrl.LogWarn($"SKAPI|開盤價不等於成交價|{quote.Symbol}|{quote.Name}|OpenPrice({quote.OpenPrice}) != quote.DealPrice({quote.DealPrice})");
-                    quote.OpenPrice = quote.DealPrice;
-                }
-
-                if (!string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileOpenPrefix))
-                {
-                    SaveQuotes(MainWindow.AppCtrl.Config.QuoteFolder, true, MainWindow.AppCtrl.Settings.QuoteFileOpenPrefix, string.Empty, quote);
-                }
+                MainWindow.AppCtrl.LogTrace($"SKAPI|開盤|{quote.Market}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}");
             }
 
             return true;
@@ -614,7 +615,14 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     Thread.Sleep(3 * 1000);
 
-                    string partialName = $"{QuoteIndexMap.Values.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}";
+                    DateTime now = DateTime.Now;
+                    int tradeDate = QuoteIndexMap.Values.Max(x => x.TradeDateRaw);
+                    if (now.Hour >= 14 && tradeDate <= int.Parse(now.ToString("yyyyMMdd")) && !IsAMMarket.Item1) //還沒收到夜盤商品檔
+                    {
+                        return;
+                    }
+
+                    string partialName = $"{tradeDate}{IsAMMarket.Item2}";
 
                     MainWindow.AppCtrl.Config.QuoteFolder.Refresh();
                     FileInfo[] files = MainWindow.AppCtrl.Config.QuoteFolder.GetFiles("*.csv");
@@ -663,16 +671,58 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
+        public void GetProductInfo()
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
+
+            try
+            {
+                if (QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
+                {
+                    throw new ArgumentException($"SKAPI|QuoteStatus != {StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY}|QuoteStatusStr={QuoteStatusStr}");
+                }
+                else if (QuoteIndexMap.Count > 0)
+                {
+                    throw new ArgumentException($"SKAPI|QuoteCollection.Count > 0|Count={QuoteIndexMap.Count}|Quotes are subscribed.");
+                }
+
+                foreach (string product in MainWindow.AppCtrl.Config.QuoteSubscribed)
+                {
+                    SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
+                    int nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(product, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
+                    if (nCode != 0)
+                    {
+                        LogAPIMessage(nCode);
+                        continue;
+                    }
+
+                    QuoteData quote = CreateQuote(pSKStockLONG);
+                    QuoteIndexMap.Add(quote.Index, quote);
+                    QuoteCollection.Add(quote);
+                }
+
+                ReadLastClosePriceAsync();
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                MainWindow.AppCtrl.LogTrace("SKAPI|End");
+            }
+        }
+
         private void RecoverOpenQuotesFromFile()
         {
             try
             {
-                if (!string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileOpenPrefix))
+                if (string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileClosePrefix))
                 {
                     return;
                 }
 
-                string partialName = $"{MainWindow.AppCtrl.Settings.QuoteFileOpenPrefix}{QuoteIndexMap.Values.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}";
+                string partialName = $"{MainWindow.AppCtrl.Settings.QuoteFileClosePrefix}{QuoteIndexMap.Values.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}";
 
                 MainWindow.AppCtrl.Config.QuoteFolder.Refresh();
                 FileInfo[] files = MainWindow.AppCtrl.Config.QuoteFolder.GetFiles("*.csv");
@@ -703,8 +753,10 @@ namespace GNAy.Capital.Trade.Controllers
                     QuoteData quoteSub = QuoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
                     if (quoteSub != null)
                     {
-                        MainWindow.AppCtrl.LogWarn($"SKAPI|檔案回補開盤價|{quoteSub.Symbol}|{quoteSub.Name}|OpenPrice={quoteSub.OpenPrice}");
                         quoteSub.OpenPrice = quoteLast.OpenPrice;
+                        quoteSub.HighPrice = quoteLast.HighPrice;
+                        quoteSub.LowPrice = quoteLast.LowPrice;
+                        MainWindow.AppCtrl.LogTrace($"SKAPI|檔案回補開盤|{quoteSub.Market}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.OpenPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}");
                     }
                 }
             }
@@ -716,116 +768,77 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void SubQuotesAsync()
         {
+            if (QuoteIndexMap.Count <= 0)
+            {
+                return;
+            }
+
             MainWindow.AppCtrl.LogTrace($"SKAPI|Start");
 
-            DateTime now = DateTime.Now;
+            RecoverOpenQuotesFromFile();
 
-            try
+            Task.Factory.StartNew(() =>
             {
-                if (QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
+                try
                 {
-                    throw new ArgumentException($"SKAPI|QuoteStatus != {StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY}|QuoteStatusStr={QuoteStatusStr}");
-                }
-                else if (QuoteIndexMap.Count > 0)
-                {
-                    throw new ArgumentException($"SKAPI|QuoteCollection.Count > 0|Count={QuoteIndexMap.Count}|Quotes are subscribed.");
-                }
+                    DateTime now = DateTime.Now;
+                    bool isHoliday = MainWindow.AppCtrl.Config.IsHoliday(now);
 
-                int nCode = -1;
-
-                foreach (string product in MainWindow.AppCtrl.Config.QuoteSubscribed)
-                {
-                    SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
-                    nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(product, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
-                    if (nCode != 0)
+                    foreach (QuoteData quote in QuoteIndexMap.Values)
                     {
-                        LogAPIMessage(nCode);
-                        continue;
-                    }
-
-                    QuoteData quote = CreateQuote(pSKStockLONG);
-                    QuoteIndexMap.Add(quote.Index, quote);
-                    QuoteCollection.Add(quote);
-                }
-            }
-            catch (Exception ex)
-            {
-                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
-            }
-            finally
-            {
-                MainWindow.AppCtrl.LogTrace("SKAPI|End");
-            }
-
-            if (QuoteIndexMap.Count > 0)
-            {
-                RecoverOpenQuotesFromFile();
-
-                Task.Factory.StartNew(() =>
-                {
-                    try
-                    {
-                        int nCode = -1;
-                        bool isHoliday = MainWindow.AppCtrl.Config.IsHoliday(now);
-
-                        foreach (QuoteData quote in QuoteIndexMap.Values)
+                        if (isHoliday) //假日不訂閱即時報價
                         {
-                            if (isHoliday) //假日不訂閱即時報價
-                            {
-                                continue;
-                            }
-                            else if (!MainWindow.AppCtrl.Settings.QuoteLive.Contains(quote.Symbol))
-                            {
-                                continue;
-                            }
-                            else if (!MainWindow.AppCtrl.Config.IsAMMarket(now) && quote.Market != MarketFutures && quote.Market != MarketOptions) //期貨選擇權夜盤，上市櫃已經收盤
-                            {
-                                continue;
-                            }
-
-                            short pageA = -1;
-                            nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref pageA, quote.Symbol); //訂閱與要求傳送即時成交明細。(本功能不會訂閱最佳五檔，亦不包含歷史Ticks)
-                            if (nCode != 0)
-                            {
-                                LogAPIMessage(nCode);
-                                continue;
-                            }
-                            if (pageA < 0)
-                            {
-                                MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|Symbol={quote.Symbol}|pageA={pageA}");
-                            }
-
-                            quote.Page = pageA;
+                            continue;
+                        }
+                        else if (!MainWindow.AppCtrl.Settings.QuoteLive.Contains(quote.Symbol))
+                        {
+                            continue;
+                        }
+                        else if (!MainWindow.AppCtrl.Config.IsAMMarket(now) && quote.Market != MarketFutures && quote.Market != MarketOptions) //期貨選擇權夜盤，上市櫃已經收盤
+                        {
+                            continue;
                         }
 
-                        if (MainWindow.AppCtrl.Config.QuoteSubscribed.Count > 0)
+                        short pageA = -1;
+                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref pageA, quote.Symbol); //訂閱與要求傳送即時成交明細。(本功能不會訂閱最佳五檔，亦不包含歷史Ticks)
+                        if (nCode != 0)
                         {
-                            string requests = string.Join(",", MainWindow.AppCtrl.Config.QuoteSubscribed);
-                            short pageB = 1;
+                            LogAPIMessage(nCode);
+                            continue;
+                        }
+                        if (pageA < 0)
+                        {
+                            MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|Symbol={quote.Symbol}|pageA={pageA}");
+                        }
 
-                            nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageB, requests); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
-                            if (nCode != 0)
-                            {
-                                LogAPIMessage(nCode);
+                        quote.Page = pageA;
+                    }
 
-                                //nCode=3030|SK_SUBJECT_NO_QUOTE_SUBSCRIBE|即時行情連線數已達上限，行情訂閱功能受限
-                                MainWindow.AppCtrl.LogWarn($"SKAPI|QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}");
-                                QuoteStatus = nCode + StatusCode.BaseWarnValue;
-                            }
-                            if (pageB < 0)
-                            {
-                                MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|requests={requests}|pageB={pageB}");
-                            }
+                    if (MainWindow.AppCtrl.Config.QuoteSubscribed.Count > 0)
+                    {
+                        string requests = string.Join(",", MainWindow.AppCtrl.Config.QuoteSubscribed);
+                        short pageB = 1;
+
+                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageB, requests); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
+                        if (nCode != 0)
+                        {
+                            LogAPIMessage(nCode);
+
+                            //nCode=3030|SK_SUBJECT_NO_QUOTE_SUBSCRIBE|即時行情連線數已達上限，行情訂閱功能受限
+                            MainWindow.AppCtrl.LogWarn($"SKAPI|QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}");
+                            QuoteStatus = nCode + StatusCode.BaseWarnValue;
+                        }
+                        if (pageB < 0)
+                        {
+                            MainWindow.AppCtrl.LogError($"SKAPI|Sub quote failed.|requests={requests}|pageB={pageB}");
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
-                    }
-                });
-
-                ReadLastClosePriceAsync();
-            }
+                }
+                catch (Exception ex)
+                {
+                    MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                }
+            });
         }
 
         public void RecoverQuotesAsync(string products)
@@ -903,8 +916,16 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 MainWindow.AppCtrl.LogTrace($"SKAPI|Start|folder={folder?.Name}|append={append}|prefix={prefix}|suffix={suffix}");
 
+                DateTime now = DateTime.Now;
                 QuoteData[] quotes = QuoteIndexMap.Values.ToArray();
-                string path = Path.Combine(folder.FullName, $"{prefix}{quotes.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}{suffix}.csv");
+                int tradeDate = quotes.Max(x => x.TradeDateRaw);
+
+                if (now.Hour >= 14 && tradeDate <= int.Parse(now.ToString("yyyyMMdd")) && !IsAMMarket.Item1) //還沒收到夜盤商品檔
+                {
+                    return;
+                }
+
+                string path = Path.Combine(folder.FullName, $"{prefix}{tradeDate}{IsAMMarket.Item2}{suffix}.csv");
                 bool exists = File.Exists(path);
 
                 using (StreamWriter sw = new StreamWriter(path, append, TextEncoding.UTF8WithoutBOM))
