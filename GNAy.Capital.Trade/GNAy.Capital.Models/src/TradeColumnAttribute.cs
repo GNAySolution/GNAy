@@ -12,11 +12,11 @@ namespace GNAy.Capital.Models
         /// <summary>
         /// 欄位值可以被設定觸價通知
         /// </summary>
-        public bool TouchedAlert { get; set; }
+        public bool Trigger { get; set; }
 
         public TradeColumnAttribute(string name, string shortName, int index) : base(name, shortName, index)
         {
-            TouchedAlert = false;
+            Trigger = false;
         }
 
         public TradeColumnAttribute(string name, int index) : this(name, name, index)

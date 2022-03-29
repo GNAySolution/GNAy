@@ -16,12 +16,6 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public partial class CapitalController
     {
-        public const int MarketTSE = 0;
-        public const int MarketOTC = 1;
-        public const int MarketFutures = 2;
-        public const int MarketOptions = 3;
-        public const int MarketEmerging = 4;
-
         public readonly DateTime CreatedTime;
 
         private SKCenterLib m_pSKCenter { get; set; }
@@ -33,8 +27,6 @@ namespace GNAy.Capital.Trade.Controllers
         private SKReplyLib m_pSKReply2 { get; set; }
         private SKQuoteLib m_pSKQuote2 { get; set; }
         private SKOrderLib m_pSKOrder2 { get; set; }
-
-        public readonly (bool, string) IsAMMarket;
 
         public int LoginAccountResult { get; private set; }
         public string Account { get; private set; }
@@ -58,6 +50,9 @@ namespace GNAy.Capital.Trade.Controllers
         public (DateTime, string) AccountTimer { get; private set; }
         public (DateTime, string, string) QuoteTimer { get; private set; }
 
+        public readonly bool IsAMMarket;
+        public string QuoteFileNameBase { get; private set; }
+
         private readonly Dictionary<int, APIReplyData> APIReplyMap;
         private readonly ObservableCollection<APIReplyData> APIReplyCollection;
 
@@ -73,8 +68,6 @@ namespace GNAy.Capital.Trade.Controllers
         {
             CreatedTime = DateTime.Now;
 
-            IsAMMarket = MainWindow.AppCtrl.Config.IsAMMarket(CreatedTime) ? (true, "_1") : (false, "_0");
-
             LoginAccountResult = -1;
             Account = String.Empty;
             DWP = String.Empty;
@@ -83,6 +76,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             AccountTimer = (DateTime.MinValue, string.Empty);
             QuoteTimer = (DateTime.MinValue, string.Empty, string.Empty);
+
+            IsAMMarket = MainWindow.AppCtrl.Config.IsAMMarket(CreatedTime);
+            QuoteFileNameBase = string.Empty;
 
             APIReplyMap = new Dictionary<int, APIReplyData>();
             MainWindow.Instance.DataGridAPIReply.SetHeadersByBindings(APIReplyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
@@ -243,9 +239,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 string strSKAPIVersion = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(account); //取得目前註冊SKAPI 版本及位元
                 MainWindow.AppCtrl.LogTrace($"SKAPI|Version={strSKAPIVersion}");
-
-                string isAM = IsAMMarket.Item1 ? "早盤" : "夜盤";
-                MainWindow.Instance.StatusBarItemAA4.Text = $"{isAM}|SKAPIVersionAndBit={strSKAPIVersion}";
+                MainWindow.Instance.StatusBarItemAA4.Text = $"SKAPIVersionAndBit={strSKAPIVersion}";
             }
             catch (Exception ex)
             {
@@ -493,19 +487,22 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestBuyQty = raw.nBc;
             quote.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
             quote.BestSellQty = raw.nAc;
-            if (IsAMMarket.Item1 && (quote.Market == MarketFutures || quote.Market == MarketOptions))
+            if (quote.DealQty > 0)
             {
-                if (quote.Simulate > 0 && raw.nSimulate == 0) //前一筆是試撮，後一筆不是試撮
+                if (IsAMMarket && (quote.Market == ConstValue.MarketFutures || quote.Market == ConstValue.MarketOptions))
                 {
-                    quote.OpenPrice = quote.DealPrice;
-                    firstTick = true;
+                    if (raw.nSimulate.IsRealTrading() && quote.OpenPrice == 0) //開盤第一筆成交
+                    {
+                        quote.OpenPrice = quote.DealPrice;
+                        firstTick = true;
+                    }
                 }
-            }
-            else if (raw.nSimulate == 0)
-            {
-                quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
-                quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
-                quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
+                else if (raw.nSimulate.IsRealTrading())
+                {
+                    quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
+                    quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
+                    quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
+                }
             }
             quote.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
             quote.Simulate = raw.nSimulate;
@@ -533,7 +530,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
 
-            if (IsAMMarket.Item1 && (quote.Market == MarketFutures || quote.Market == MarketOptions))
+            if (IsAMMarket && (quote.Market == ConstValue.MarketFutures || quote.Market == ConstValue.MarketOptions))
             {
                 if (quote.OpenPrice != 0)
                 {
@@ -578,7 +575,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
 
                     QuoteData quoteLast = QuoteData.Create(columnNames, line);
-                    if (quoteLast.Simulate != 0)
+                    if (!quoteLast.Simulate.IsRealTrading())
                     {
                         continue;
                     }
@@ -586,7 +583,7 @@ namespace GNAy.Capital.Trade.Controllers
                     QuoteData quoteSub = QuoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
                     if (quoteSub != null && quoteSub.LastClosePrice == 0)
                     {
-                        if (quoteLast.Market == MarketFutures || quoteLast.Market == MarketOptions)
+                        if (quoteLast.Market == ConstValue.MarketFutures || quoteLast.Market == ConstValue.MarketOptions)
                         {
                             quoteSub.LastClosePrice = quoteLast.DealPrice;
                         }
@@ -609,21 +606,15 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void ReadLastClosePriceAsync()
         {
+            if (string.IsNullOrWhiteSpace(QuoteFileNameBase))
+            {
+                return;
+            }
+
             Task.Factory.StartNew(() =>
             {
                 try
                 {
-                    Thread.Sleep(3 * 1000);
-
-                    DateTime now = DateTime.Now;
-                    int tradeDate = QuoteIndexMap.Values.Max(x => x.TradeDateRaw);
-                    if (now.Hour >= 14 && tradeDate <= int.Parse(now.ToString("yyyyMMdd")) && !IsAMMarket.Item1) //還沒收到夜盤商品檔
-                    {
-                        return;
-                    }
-
-                    string partialName = $"{tradeDate}{IsAMMarket.Item2}";
-
                     MainWindow.AppCtrl.Config.QuoteFolder.Refresh();
                     FileInfo[] files = MainWindow.AppCtrl.Config.QuoteFolder.GetFiles("*.csv");
                     FileInfo lastQuote1 = null;
@@ -631,7 +622,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     for (int i = files.Length - 1; i >= 0; --i)
                     {
-                        if (files[i].Name.Contains(partialName) && i > 0)
+                        if (files[i].Name.Contains(QuoteFileNameBase) && i > 0 && !files[i - 1].Name.Contains(QuoteFileNameBase))
                         {
                             lastQuote1 = files[i - 1];
 
@@ -686,6 +677,8 @@ namespace GNAy.Capital.Trade.Controllers
                     throw new ArgumentException($"SKAPI|QuoteCollection.Count > 0|Count={QuoteIndexMap.Count}|Quotes are subscribed.");
                 }
 
+                QuoteFileNameBase = string.Empty;
+
                 foreach (string product in MainWindow.AppCtrl.Config.QuoteSubscribed)
                 {
                     SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
@@ -699,6 +692,22 @@ namespace GNAy.Capital.Trade.Controllers
                     QuoteData quote = CreateQuote(pSKStockLONG);
                     QuoteIndexMap.Add(quote.Index, quote);
                     QuoteCollection.Add(quote);
+                }
+
+                if (QuoteIndexMap.Count > 0)
+                {
+                    DateTime now = DateTime.Now;
+                    int tradeDate = QuoteIndexMap.Values.Max(x => x.TradeDateRaw);
+
+                    if (now.Hour >= 14 && tradeDate <= int.Parse(now.ToString("yyyyMMdd")) && !IsAMMarket)
+                    {
+                        QuoteFileNameBase = $"{tradeDate}_1";
+                        MainWindow.AppCtrl.LogTrace($"SKAPI|未訂閱或尚未收到夜盤商品基本資料|QuoteFileNameBase={QuoteFileNameBase}");
+                    }
+                    else
+                    {
+                        QuoteFileNameBase = $"{tradeDate}_0";
+                    }
                 }
 
                 ReadLastClosePriceAsync();
@@ -715,18 +724,16 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void RecoverOpenQuotesFromFile()
         {
+            if (string.IsNullOrWhiteSpace(QuoteFileNameBase))
+            {
+                return;
+            }
+
             try
             {
-                if (string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileClosePrefix))
-                {
-                    return;
-                }
-
-                string partialName = $"{MainWindow.AppCtrl.Settings.QuoteFileClosePrefix}{QuoteIndexMap.Values.Max(x => x.TradeDateRaw)}{IsAMMarket.Item2}";
-
                 MainWindow.AppCtrl.Config.QuoteFolder.Refresh();
                 FileInfo[] files = MainWindow.AppCtrl.Config.QuoteFolder.GetFiles("*.csv");
-                FileInfo openQuoteFile = files.LastOrDefault(x => x.Name.Contains(partialName));
+                FileInfo openQuoteFile = files.LastOrDefault(x => x.Name.Contains(QuoteFileNameBase));
 
                 if (openQuoteFile == null)
                 {
@@ -745,7 +752,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
 
                     QuoteData quoteLast = QuoteData.Create(columnNames, line);
-                    if (quoteLast.Simulate != 0)
+                    if (!quoteLast.Simulate.IsRealTrading())
                     {
                         continue;
                     }
@@ -794,7 +801,7 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
-                        else if (!MainWindow.AppCtrl.Config.IsAMMarket(now) && quote.Market != MarketFutures && quote.Market != MarketOptions) //期貨選擇權夜盤，上市櫃已經收盤
+                        else if (!MainWindow.AppCtrl.Config.IsAMMarket(now) && quote.Market != ConstValue.MarketFutures && quote.Market != ConstValue.MarketOptions) //期貨選擇權夜盤，上市櫃已經收盤
                         {
                             continue;
                         }
@@ -907,7 +914,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void SaveQuotes(DirectoryInfo folder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
         {
-            if (QuoteIndexMap.Count <= 0)
+            if (QuoteIndexMap.Count <= 0 || string.IsNullOrWhiteSpace(QuoteFileNameBase))
             {
                 return;
             }
@@ -916,16 +923,8 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 MainWindow.AppCtrl.LogTrace($"SKAPI|Start|folder={folder?.Name}|append={append}|prefix={prefix}|suffix={suffix}");
 
-                DateTime now = DateTime.Now;
                 QuoteData[] quotes = QuoteIndexMap.Values.ToArray();
-                int tradeDate = quotes.Max(x => x.TradeDateRaw);
-
-                if (now.Hour >= 14 && tradeDate <= int.Parse(now.ToString("yyyyMMdd")) && !IsAMMarket.Item1) //還沒收到夜盤商品檔
-                {
-                    return;
-                }
-
-                string path = Path.Combine(folder.FullName, $"{prefix}{tradeDate}{IsAMMarket.Item2}{suffix}.csv");
+                string path = Path.Combine(folder.FullName, $"{prefix}{QuoteFileNameBase}{suffix}.csv");
                 bool exists = File.Exists(path);
 
                 using (StreamWriter sw = new StreamWriter(path, append, TextEncoding.UTF8WithoutBOM))
@@ -974,7 +973,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public Task SaveQuotesAsync(DirectoryInfo quoteFolder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
         {
-            if (QuoteIndexMap.Count <= 0)
+            if (QuoteIndexMap.Count <= 0 || string.IsNullOrWhiteSpace(QuoteFileNameBase))
             {
                 return null;
             }
@@ -999,10 +998,10 @@ namespace GNAy.Capital.Trade.Controllers
                 m_pSKOrder.OnAsyncOrderOLID += m_pSKOrder_OnAsyncOrderOLID;
                 m_pSKOrder.OnRealBalanceReport += m_pSKOrder_OnRealBalanceReport;
                 m_pSKOrder.OnOpenInterest += m_pSKOrder_OnOpenInterest;
-                //m_pSKOrder.OnStopLossReport += m_pSKOrder_OnStopLossReport;
-                //m_pSKOrder.OnFutureRights += m_pSKOrder_OnFutureRights;
-                //m_pSKOrder.OnRequestProfitReport += m_pSKOrder_OnRequestProfitReport;
-                //m_pSKOrder.OnMarginPurchaseAmountLimit += m_pSKOrder_OnMarginPurchaseAmountLimit;
+                m_pSKOrder.OnStopLossReport += m_pSKOrder_OnStopLossReport;
+                m_pSKOrder.OnFutureRights += m_pSKOrder_OnFutureRights;
+                m_pSKOrder.OnRequestProfitReport += m_pSKOrder_OnRequestProfitReport;
+                //TODO: m_pSKOrder.OnMarginPurchaseAmountLimit += m_pSKOrder_OnMarginPurchaseAmountLimit;
                 //m_pSKOrder.OnBalanceQuery += m_pSKOrder_OnBalanceQueryReport;
                 //m_pSKOrder.OnTSSmartStrategyReport += m_pSKOrder_OnTSStrategyReport;
                 //m_pSKOrder.OnProfitLossGWReport += m_pSKOrder_OnTSProfitLossGWReport;

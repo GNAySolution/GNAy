@@ -94,5 +94,35 @@ namespace GNAy.Capital.Trade.Controllers
             MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
+
+        /// <summary>
+        /// 智慧單(包含停損單、二擇一、MIT)查詢。透過呼叫 GetStopLossReport 後，資訊由該事件回傳
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnStopLossReport(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppendReply(String.Empty, bstrData);
+        }
+
+        /// <summary>
+        /// 國內期貨權益數。透過呼叫 GetFutureRights 後，資訊由該事件回傳
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnFutureRights(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppendReply(String.Empty, bstrData);
+        }
+
+        /// <summary>
+        /// 證券即時損益試算。透過呼叫 GetRequestProfitReport後，資訊由該事件回傳
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnRequestProfitReport(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppendReply(String.Empty, bstrData);
+        }
     }
 }

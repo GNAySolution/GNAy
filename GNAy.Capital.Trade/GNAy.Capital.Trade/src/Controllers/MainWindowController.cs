@@ -29,7 +29,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private readonly ObservableCollection<AppLogInDataGrid> AppLogCollection;
 
-        private ObservableCollection<TradeColumnTouched> TouchedColumnCollection;
+        private ObservableCollection<TradeColumnTrigger> TriggerColumnCollection;
 
         public MainWindowController()
         {
@@ -41,7 +41,7 @@ namespace GNAy.Capital.Trade.Controllers
             MainWindow.Instance.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             AppLogCollection = MainWindow.Instance.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
 
-            TouchedColumnCollection = null;
+            TriggerColumnCollection = null;
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
@@ -303,22 +303,22 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public bool SetTouchedRule()
+        public bool SetTriggerRule()
         {
             LogTrace("Start");
 
             try
             {
-                if (TouchedColumnCollection == null || TouchedColumnCollection.Count <= 0)
+                if (TriggerColumnCollection == null || TriggerColumnCollection.Count <= 0)
                 {
-                    MainWindow.Instance.ComboBoxTouchedProduct.ItemsSource = MainWindow.Instance.DataGridQuoteSubscribed.ItemsSource;
+                    MainWindow.Instance.ComboBoxTriggerProduct.ItemsSource = MainWindow.Instance.DataGridQuoteSubscribed.ItemsSource;
 
-                    TouchedColumnCollection = MainWindow.Instance.ComboBoxTouchedColumn.SetAndGetItemsSource<TradeColumnTouched>();
+                    TriggerColumnCollection = MainWindow.Instance.ComboBoxTriggerColumn.SetAndGetItemsSource<TradeColumnTrigger>();
                     foreach ((TradeColumnAttribute, PropertyInfo) value in QuoteData.PropertyMap.Values)
                     {
-                        if (value.Item1.TouchedAlert)
+                        if (value.Item1.Trigger)
                         {
-                            TouchedColumnCollection.Add(new TradeColumnTouched(value.Item2.Name, value.Item1));
+                            TriggerColumnCollection.Add(new TradeColumnTrigger(value.Item2.Name, value.Item1));
                         }
                     }
                 }

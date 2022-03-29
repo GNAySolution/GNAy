@@ -45,7 +45,7 @@
                             <Button x:Name="ButtonGetOpenInterest" Content="期權未平倉" HorizontalAlignment="Left" Margin="309,78,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="AA2">
+                    <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
@@ -124,10 +124,6 @@
                                     <DataGridTextColumn Binding="{Binding Message}" IsReadOnly="True" CanUserSort="False"/>
                                 </DataGrid.Columns>
                             </DataGrid>
-                        </Grid>
-                    </TabItem>
-                    <TabItem Header="觸價警示">
-                        <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
                 </TabControl>
@@ -454,7 +450,7 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <Label Content="觸價商品代碼" HorizontalAlignment="Left" Margin="260,8,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxTouchedProduct" ToolTip="{Binding Path=SelectedItem.SymbolAndName, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="260,33,0,0" VerticalAlignment="Top" Width="120">
+                <ComboBox x:Name="ComboBoxTriggerProduct" ToolTip="{Binding Path=SelectedItem.SymbolAndName, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="260,33,0,0" VerticalAlignment="Top" Width="120">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding SymbolAndName}"/>
@@ -462,7 +458,7 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <Label Content="觸價商品欄位" HorizontalAlignment="Left" Margin="385,8,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxTouchedColumn" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="385,33,0,0" VerticalAlignment="Top" Width="120">
+                <ComboBox x:Name="ComboBoxTriggerColumn" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="385,33,0,0" VerticalAlignment="Top" Width="120">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
@@ -470,9 +466,9 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <Label Content="大於小於等於數值" HorizontalAlignment="Left" Margin="510,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTouchedValue" Text="大於小於等於數值" ToolTip="系統會自動補上等於" HorizontalAlignment="Left" Margin="510,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxTriggerValue" Text="大於小於等於數值" ToolTip="系統會自動補上等於" HorizontalAlignment="Left" Margin="510,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="觸價後取消警示" HorizontalAlignment="Left" Margin="635,8,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxTouchedCancel" ToolTip="觸價後取消警示" HorizontalAlignment="Left" Margin="635,33,0,0" VerticalAlignment="Top" Width="120" IsEditable="True">
+                <ComboBox x:Name="ComboBoxTriggerCancel" ToolTip="觸價後取消警示" HorizontalAlignment="Left" Margin="635,33,0,0" VerticalAlignment="Top" Width="120" IsEditable="True">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Cancel}"/>
@@ -480,14 +476,14 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <Label Content="觸價後執行策略" HorizontalAlignment="Left" Margin="760,8,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxTouchedStrategy" ToolTip="觸價後執行策略" HorizontalAlignment="Left" Margin="760,33,0,0" VerticalAlignment="Top" Width="120" IsEditable="True">
+                <ComboBox x:Name="ComboBoxTriggerStrategy" ToolTip="觸價後執行策略" HorizontalAlignment="Left" Margin="760,33,0,0" VerticalAlignment="Top" Width="120" IsEditable="True">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Strategy}"/>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Button x:Name="ButtonSaveTouchedRule" Content="儲存觸價條件" HorizontalAlignment="Left" Margin="885,35,0,0" VerticalAlignment="Top" Click="ButtonSaveTouchedRule_Click"/>
+                <Button x:Name="ButtonSaveTriggerRule" Content="儲存觸價條件" HorizontalAlignment="Left" Margin="885,35,0,0" VerticalAlignment="Top" Click="ButtonSaveTriggerRule_Click"/>
                 <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="54,59,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
                 <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="179,59,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
                 <TabControl x:Name="TabControlBB" Margin="0,150,0,30" SelectedIndex="0">

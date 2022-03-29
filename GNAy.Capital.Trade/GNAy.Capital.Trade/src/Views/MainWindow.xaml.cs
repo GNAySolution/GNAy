@@ -956,6 +956,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 CapitalCtrl.GetProductInfo();
+                StatusBarItemAB2.Text = $"Sub={AppControl.Config.QuoteSubscribed.Count}|Live={AppControl.Settings.QuoteLive.Count}|QuoteFile={CapitalCtrl.QuoteFileNameBase}";
             }
             catch (Exception ex)
             {
@@ -974,7 +975,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 CapitalCtrl.SubQuotesAsync();
-                AppCtrl.SetTouchedRule();
+                AppCtrl.SetTriggerRule();
             }
             catch (Exception ex)
             {
@@ -1130,7 +1131,7 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonSaveTouchedRule_Click(object sender, RoutedEventArgs e)
+        private void ButtonSaveTriggerRule_Click(object sender, RoutedEventArgs e)
         {
             AppCtrl.LogTrace("Start");
 
