@@ -22,6 +22,13 @@ namespace GNAy.Capital.Models
         public readonly List<string> QuoteSubscribed;
         public readonly DirectoryInfo QuoteFolder;
 
+        public readonly DirectoryInfo TriggerFolder;
+
+        /// <summary>
+        /// 程式在正常時間啟動
+        /// </summary>
+        public readonly bool StartOnTime;
+
         public readonly FileInfo Archive;
 
         public AppConfig(AppSettings settings, FileInfo archive)
@@ -68,6 +75,28 @@ namespace GNAy.Capital.Models
                 QuoteFolder.Create();
                 QuoteFolder.Refresh();
             }
+
+            TriggerFolder = null;
+            if (!string.IsNullOrWhiteSpace(settings.TriggerFolderPath))
+            {
+                TriggerFolder = new DirectoryInfo(settings.TriggerFolderPath);
+                TriggerFolder.Create();
+                TriggerFolder.Refresh();
+            }
+
+            bool startDelayed = false; //因為一些異常情況，程式沒有在正常時間啟動
+            if (IsAMMarket(CreatedTime))
+            {
+                if (CreatedTime > settings.TimeToStart[0])
+                {
+                    startDelayed = true;
+                }
+            }
+            else if (CreatedTime > settings.TimeToStart[1] || IsHoliday(CreatedTime) || CreatedTime.Hour < 8)
+            {
+                startDelayed = true;
+            }
+            StartOnTime = !startDelayed;
 
             Archive = archive;
         }

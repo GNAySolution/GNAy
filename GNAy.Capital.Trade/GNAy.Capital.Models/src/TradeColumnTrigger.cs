@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace GNAy.Capital.Models
 {
+    [Serializable]
     public class TradeColumnTrigger : NotifyPropertyChanged
     {
         public string Creator { get; set; }

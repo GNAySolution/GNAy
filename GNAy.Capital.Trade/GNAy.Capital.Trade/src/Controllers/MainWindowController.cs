@@ -22,12 +22,14 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         public readonly DateTime CreatedTime;
+
         public readonly string ProcessName;
+        public readonly int ProcessID;
+
+        private readonly ObservableCollection<AppLogInDataGrid> AppLogCollection;
 
         public readonly AppConfig Config;
         public AppSettings Settings => Config.Settings;
-
-        private readonly ObservableCollection<AppLogInDataGrid> AppLogCollection;
 
         private ObservableCollection<TradeColumnTrigger> TriggerColumnCollection;
 
@@ -35,11 +37,21 @@ namespace GNAy.Capital.Trade.Controllers
         {
             CreatedTime = DateTime.Now;
 
-            ProcessName = Process.GetCurrentProcess().ProcessName.Replace(".vshost", string.Empty);
-            Config = LoadSettings();
+            Process p = Process.GetCurrentProcess();
+            ProcessName = p.ProcessName.Replace(".vshost", string.Empty);
+            ProcessID = p.Id;
 
             MainWindow.Instance.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             AppLogCollection = MainWindow.Instance.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
+
+            Config = LoadSettings();
+
+            Version newVer = new Version(new AppSettings().Version);
+            if (Config.Version < newVer)
+            {
+                LogError($"設定檔({Config.Archive.Name})版本過舊({Config.Version} < {newVer})");
+                //TODO: Migrate old config to new version.
+            }
 
             TriggerColumnCollection = null;
 
@@ -206,13 +218,6 @@ namespace GNAy.Capital.Trade.Controllers
             using (StreamReader sr = new StreamReader(configFile.FullName, TextEncoding.UTF8WithoutBOM))
             {
                 config = new AppConfig(JsonConvert.DeserializeObject<AppSettings>(sr.ReadToEnd()), configFile);
-            }
-
-            Version newVer = new Version(new AppSettings().Version);
-            if (config.Version < newVer)
-            {
-                LogError($"設定檔({configFile.Name})版本過舊({config.Version} < {newVer})");
-                //TODO: Migrate old config to new version.
             }
 
             return config;

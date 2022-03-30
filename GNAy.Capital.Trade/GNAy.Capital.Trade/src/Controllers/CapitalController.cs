@@ -489,7 +489,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestSellQty = raw.nAc;
             if (quote.DealQty > 0)
             {
-                if (IsAMMarket && (quote.Market == ConstValue.MarketFutures || quote.Market == ConstValue.MarketOptions))
+                if (IsAMMarket && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions) && (MainWindow.AppCtrl.Config.StartOnTime || quote.Recovered))
                 {
                     if (raw.nSimulate.IsRealTrading() && quote.OpenPrice == 0) //開盤第一筆成交
                     {
@@ -497,7 +497,7 @@ namespace GNAy.Capital.Trade.Controllers
                         firstTick = true;
                     }
                 }
-                else if (raw.nSimulate.IsRealTrading())
+                else if (raw.nSimulate.IsRealTrading() && !quote.Recovered)
                 {
                     quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
                     quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
@@ -530,7 +530,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
 
-            if (IsAMMarket && (quote.Market == ConstValue.MarketFutures || quote.Market == ConstValue.MarketOptions))
+            if (IsAMMarket && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions) && (MainWindow.AppCtrl.Config.StartOnTime || quote.Recovered))
             {
                 if (quote.OpenPrice != 0)
                 {
@@ -562,7 +562,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                MainWindow.AppCtrl.LogTrace($"SKAPI|Start|{quoteFile.FullName}");
+                MainWindow.AppCtrl.LogTrace($"SKAPI|Start|{quoteFile.Name}");
 
                 List<string> columnNames = new List<string>();
 
@@ -583,7 +583,7 @@ namespace GNAy.Capital.Trade.Controllers
                     QuoteData quoteSub = QuoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
                     if (quoteSub != null && quoteSub.LastClosePrice == 0)
                     {
-                        if (quoteLast.Market == ConstValue.MarketFutures || quoteLast.Market == ConstValue.MarketOptions)
+                        if (quoteLast.Market == Definition.MarketFutures || quoteLast.Market == Definition.MarketOptions)
                         {
                             quoteSub.LastClosePrice = quoteLast.DealPrice;
                         }
@@ -690,6 +690,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
 
                     QuoteData quote = CreateQuote(pSKStockLONG);
+                    quote.PropertyChanged += MainWindow.TriggerCtrl.OnQuotePropertyChanged;
                     QuoteIndexMap.Add(quote.Index, quote);
                     QuoteCollection.Add(quote);
                 }
@@ -703,6 +704,10 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         QuoteFileNameBase = $"{tradeDate}_1";
                         MainWindow.AppCtrl.LogTrace($"SKAPI|未訂閱或尚未收到夜盤商品基本資料|QuoteFileNameBase={QuoteFileNameBase}");
+                    }
+                    else if (IsAMMarket)
+                    {
+                        QuoteFileNameBase = $"{tradeDate}_1";
                     }
                     else
                     {
@@ -739,7 +744,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return;
                 }
-                MainWindow.AppCtrl.LogTrace($"SKAPI|{openQuoteFile.FullName}");
+                MainWindow.AppCtrl.LogTrace($"SKAPI|{openQuoteFile.Name}");
 
                 List<string> columnNames = new List<string>();
 
@@ -758,11 +763,12 @@ namespace GNAy.Capital.Trade.Controllers
                     }
 
                     QuoteData quoteSub = QuoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
-                    if (quoteSub != null)
+                    if (quoteSub != null && IsAMMarket && (quoteSub.Market == Definition.MarketFutures || quoteSub.Market == Definition.MarketOptions))
                     {
                         quoteSub.OpenPrice = quoteLast.OpenPrice;
                         quoteSub.HighPrice = quoteLast.HighPrice;
                         quoteSub.LowPrice = quoteLast.LowPrice;
+                        quoteSub.Recovered = true;
                         MainWindow.AppCtrl.LogTrace($"SKAPI|檔案回補開盤|{quoteSub.Market}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.OpenPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}");
                     }
                 }
@@ -801,7 +807,7 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
-                        else if (!MainWindow.AppCtrl.Config.IsAMMarket(now) && quote.Market != ConstValue.MarketFutures && quote.Market != ConstValue.MarketOptions) //期貨選擇權夜盤，上市櫃已經收盤
+                        else if (!MainWindow.AppCtrl.Config.IsAMMarket(now) && quote.Market != Definition.MarketFutures && quote.Market != Definition.MarketOptions) //期貨選擇權夜盤，上市櫃已經收盤
                         {
                             continue;
                         }
@@ -1001,10 +1007,10 @@ namespace GNAy.Capital.Trade.Controllers
                 m_pSKOrder.OnStopLossReport += m_pSKOrder_OnStopLossReport;
                 m_pSKOrder.OnFutureRights += m_pSKOrder_OnFutureRights;
                 m_pSKOrder.OnRequestProfitReport += m_pSKOrder_OnRequestProfitReport;
-                //TODO: m_pSKOrder.OnMarginPurchaseAmountLimit += m_pSKOrder_OnMarginPurchaseAmountLimit;
-                //m_pSKOrder.OnBalanceQuery += m_pSKOrder_OnBalanceQueryReport;
-                //m_pSKOrder.OnTSSmartStrategyReport += m_pSKOrder_OnTSStrategyReport;
-                //m_pSKOrder.OnProfitLossGWReport += m_pSKOrder_OnTSProfitLossGWReport;
+                m_pSKOrder.OnMarginPurchaseAmountLimit += m_pSKOrder_OnMarginPurchaseAmountLimit;
+                m_pSKOrder.OnBalanceQuery += m_pSKOrder_OnBalanceQueryReport;
+                m_pSKOrder.OnTSSmartStrategyReport += m_pSKOrder_OnTSStrategyReport;
+                //TODO: m_pSKOrder.OnProfitLossGWReport += m_pSKOrder_OnTSProfitLossGWReport;
                 //m_pSKOrder.OnOFOpenInterestGWReport += m_pSKOrder_OnOFOpenInterestGW;
                 //m_pSKOrder.OnTelnetTest += m_pSKOrder_OnTelnetTest;
 

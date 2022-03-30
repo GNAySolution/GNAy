@@ -124,5 +124,35 @@ namespace GNAy.Capital.Trade.Controllers
             MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
+
+        /// <summary>
+        /// 資券配額查詢。透過呼叫 GetMarginPurchaseAmountLimit後，資訊由該事件回傳
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnMarginPurchaseAmountLimit(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppendReply(String.Empty, bstrData);
+        }
+
+        /// <summary>
+        /// 集保庫存查詢。透過呼叫 GetBalanceQuery後，資訊由該事件回傳
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnBalanceQueryReport(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppendReply(String.Empty, bstrData);
+        }
+
+        /// <summary>
+        /// 證券智慧單被動查詢結果。透過呼叫 GetTSSmartStrategyReport 後，資訊由該事件回傳
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnTSStrategyReport(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppendReply(String.Empty, bstrData);
+        }
     }
 }

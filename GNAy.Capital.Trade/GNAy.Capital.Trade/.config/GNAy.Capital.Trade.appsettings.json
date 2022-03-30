@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.328.1",
+  "Version": "0.22.330.3",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -16,6 +16,10 @@
   "TimerInterval1": 300,
   "TimerInterval2": 45000,
   "AutoRun": true,
+  "TimeToStart": [
+    "08:43:00",
+    "14:58:00"
+  ],
   "TimeToExit": [
     "05:03:00",
     "13:48:00"
@@ -38,6 +42,7 @@
   "QuoteFolderPath": "QuoteData",
   "QuoteFileClosePrefix": "Last_",
   "QuoteFileRecoverPrefix": "Recover_",
+  "TriggerFolderPath": "TriggerData",
   "SendOrder": false,
   "OrderAndDeal": false
 }

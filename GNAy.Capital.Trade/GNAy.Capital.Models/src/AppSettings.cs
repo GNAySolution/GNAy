@@ -38,6 +38,10 @@ namespace GNAy.Capital.Models
         /// </summary>
         public bool AutoRun { get; set; }
         /// <summary>
+        /// 在台指期日盤夜盤開盤前啟動程式
+        /// </summary>
+        public List<DateTime> TimeToStart { get; set; }
+        /// <summary>
         /// 在台指期日盤夜盤收盤後關閉程式
         /// </summary>
         public List<DateTime> TimeToExit { get; set; }
@@ -72,6 +76,11 @@ namespace GNAy.Capital.Models
         public string QuoteFileRecoverPrefix { get; set; }
 
         /// <summary>
+        /// 觸價資料
+        /// </summary>
+        public string TriggerFolderPath { get; set; }
+
+        /// <summary>
         /// false=測試或跑回測時，不實際下單
         /// </summary>
         public bool SendOrder { get; set; }
@@ -82,7 +91,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.328.1";
+            Version = "0.22.330.3";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -99,6 +108,12 @@ namespace GNAy.Capital.Models
             TimerInterval2 = 45 * 1000;
 
             AutoRun = true;
+            TimeToStart = new List<DateTime>();
+            //TimeToStart = new List<DateTime>() //
+            //{
+            //    DateTime.ParseExact("08:43", "HH:mm", CultureInfo.InvariantCulture),
+            //    DateTime.ParseExact("14:58", "HH:mm", CultureInfo.InvariantCulture),
+            //};
             TimeToExit = new List<DateTime>();
             //TimeToExit = new List<DateTime>() //
             //{
@@ -116,6 +131,8 @@ namespace GNAy.Capital.Models
             QuoteFolderPath = "QuoteData";
             QuoteFileClosePrefix = "Last_";
             QuoteFileRecoverPrefix = "Recover_";
+
+            TriggerFolderPath = "TriggerData";
 
             SendOrder = false;
             OrderAndDeal = false;

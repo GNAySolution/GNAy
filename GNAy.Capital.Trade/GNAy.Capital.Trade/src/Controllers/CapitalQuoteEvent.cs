@@ -207,7 +207,7 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.DealQty = nQty;
                 if (quote.DealQty > 0)
                 {
-                    if (IsAMMarket && (quote.Market == ConstValue.MarketFutures || quote.Market == ConstValue.MarketOptions))
+                    if (IsAMMarket && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions) && (MainWindow.AppCtrl.Config.StartOnTime || quote.Recovered))
                     {
                         if (nSimulate.IsRealTrading() && quote.OpenPrice == 0) //開盤第一筆成交
                         {
@@ -223,7 +223,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
 
-                if (IsAMMarket && (quote.Market == ConstValue.MarketFutures || quote.Market == ConstValue.MarketOptions))
+                if (IsAMMarket && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions) && (MainWindow.AppCtrl.Config.StartOnTime || quote.Recovered))
                 {
                     if (quote.OpenPrice != 0)
                     {

@@ -361,6 +361,14 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _totalQtyBefore, value); }
         }
 
+        private bool _recovered;
+        [TradeColumn("從檔案回補報價資料", "回補", -1)]
+        public bool Recovered
+        {
+            get { return _recovered; }
+            set { OnPropertyChanged(ref _recovered, value); }
+        }
+
         public int RowBackground
         {
             get
@@ -405,6 +413,7 @@ namespace GNAy.Capital.Models
             Market = -1;
             DecimalPos = 0;
             TotalQtyBefore = 0;
+            Recovered = false;
         }
 
         public string ToCSVString()
