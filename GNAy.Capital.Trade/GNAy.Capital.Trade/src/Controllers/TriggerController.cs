@@ -14,17 +14,17 @@ namespace GNAy.Capital.Trade.Controllers
     {
         public readonly DateTime CreatedTime;
 
-        private readonly ObservableCollection<string> TriggerCancelKinds;
+        private readonly ObservableCollection<string> _triggerCancelKinds;
 
-        private readonly SortedDictionary<string, TriggerData> TriggerMap;
-        private readonly ObservableCollection<TriggerData> TriggerCollection;
+        private readonly SortedDictionary<string, TriggerData> _triggerMap;
+        private readonly ObservableCollection<TriggerData> _triggerCollection;
 
         public TriggerController()
         {
             CreatedTime = DateTime.Now;
 
             //https://www.codeproject.com/Questions/1117817/Basic-WPF-binding-to-collection-in-combobox
-            TriggerCancelKinds = new ObservableCollection<string>()
+            _triggerCancelKinds = new ObservableCollection<string>()
             {
                 Definition.TriggerCancel0.Item2,
                 Definition.TriggerCancel1.Item2,
@@ -32,41 +32,41 @@ namespace GNAy.Capital.Trade.Controllers
                 Definition.TriggerCancel3.Item2,
                 Definition.TriggerCancel4.Item2,
             };
-            MainWindow.Instance.ComboBoxTriggerCancel.ItemsSource = TriggerCancelKinds.GetViewSource();
-            MainWindow.Instance.ComboBoxTriggerCancel.SelectedIndex = Definition.TriggerCancel0.Item1;
+            AppCtrl.Instance.MainForm.ComboBoxTriggerCancel.ItemsSource = _triggerCancelKinds.GetViewSource();
+            AppCtrl.Instance.MainForm.ComboBoxTriggerCancel.SelectedIndex = Definition.TriggerCancel0.Item1;
 
-            TriggerMap = new SortedDictionary<string, TriggerData>();
-            MainWindow.Instance.DataGridTriggerRule.SetHeadersByBindings(TriggerData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
-            TriggerCollection = MainWindow.Instance.DataGridTriggerRule.SetAndGetItemsSource<TriggerData>();
+            _triggerMap = new SortedDictionary<string, TriggerData>();
+            AppCtrl.Instance.MainForm.DataGridTriggerRule.SetHeadersByBindings(TriggerData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
+            _triggerCollection = AppCtrl.Instance.MainForm.DataGridTriggerRule.SetAndGetItemsSource<TriggerData>();
         }
 
         public void OnQuotePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             try
             {
-                //MainWindow.Instance
+                //
             }
             catch (Exception ex)
             {
-                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                AppCtrl.Instance.LogException(ex, ex.StackTrace);
             }
         }
 
         public void AddRule()
         {
-            MainWindow.AppCtrl.LogTrace("Start");
+            AppCtrl.Instance.LogTrace("Start");
 
             try
             {
-                //MainWindow.Instance
+                //AppCtrl.Instance.MainForm
             }
             catch (Exception ex)
             {
-                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                AppCtrl.Instance.LogException(ex, ex.StackTrace);
             }
             finally
             {
-                MainWindow.AppCtrl.LogTrace("End");
+                AppCtrl.Instance.LogTrace("End");
             }
         }
     }

@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -17,32 +18,48 @@ using System.Threading.Tasks;
 
 namespace GNAy.Capital.Trade.Controllers
 {
-    public class MainWindowController
+    public partial class AppController
     {
+        public static AppController Instance { get; private set; }
+
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         public readonly DateTime CreatedTime;
 
+        public readonly MainWindow MainForm;
+
         public readonly string ProcessName;
         public readonly int ProcessID;
 
-        private readonly ObservableCollection<AppLogInDataGrid> AppLogCollection;
+        private readonly ObservableCollection<AppLogInDataGrid> _appLogCollection;
 
         public readonly AppConfig Config;
         public AppSettings Settings => Config.Settings;
 
-        private ObservableCollection<TradeColumnTrigger> TriggerColumnCollection;
+        public CapitalController Capital { get; private set; }
+        public TriggerController Trigger { get; private set; }
 
-        public MainWindowController()
+        private ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
+
+        private readonly System.Timers.Timer _bgTimer;
+
+        public AppController(MainWindow mainForm)
         {
             CreatedTime = DateTime.Now;
+
+            Instance = this;
+
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
+
+            MainForm = mainForm;
 
             Process p = Process.GetCurrentProcess();
             ProcessName = p.ProcessName.Replace(".vshost", string.Empty);
             ProcessID = p.Id;
 
-            MainWindow.Instance.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
-            AppLogCollection = MainWindow.Instance.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
+            mainForm.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
+            _appLogCollection = mainForm.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
 
             Config = LoadSettings();
 
@@ -53,11 +70,24 @@ namespace GNAy.Capital.Trade.Controllers
                 //TODO: Migrate old config to new version.
             }
 
-            TriggerColumnCollection = null;
-
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+
+            Capital = null;
+            Trigger = null;
+
+            _triggerColumnCollection = null;
+
+            _lastTimeToSaveQuote = DateTime.Now;
+            //https://docs.microsoft.com/zh-tw/dotnet/api/system.timers.timer?view=net-6.0
+            _bgTimer = new System.Timers.Timer(Settings.TimerIntervalBackground);
+            _bgTimer.Elapsed += OnTimedEvent;
+            _bgTimer.AutoReset = true;
+            _bgTimer.Enabled = true;
         }
+
+        protected AppController() : this(null)
+        { }
 
         private void AppendLog(LogLevel level, string msg, int lineNumber, string memberName)
         {
@@ -71,25 +101,25 @@ namespace GNAy.Capital.Trade.Controllers
                 CallerMemberName = memberName,
             };
 
-            MainWindow.Instance.InvokeRequired(delegate
+            MainForm.InvokeRequired(delegate
             {
                 try
                 {
                     if (level == LogLevel.Warn || level == LogLevel.Error)
                     {
-                        MainWindow.Instance.TabControlBA.SelectedIndex = 0;
+                        MainForm.TabControlBA.SelectedIndex = 0;
                     }
 
-                    AppLogCollection.Add(log);
+                    _appLogCollection.Add(log);
 
-                    while (AppLogCollection.Count > Settings.DataGridAppLogRowsMax)
+                    while (_appLogCollection.Count > Settings.DataGridAppLogRowsMax)
                     {
-                        AppLogCollection.RemoveAt(0);
+                        _appLogCollection.RemoveAt(0);
                     }
 
-                    if (!MainWindow.Instance.DataGridAppLog.IsMouseOver)
+                    if (!MainForm.DataGridAppLog.IsMouseOver)
                     {
-                        MainWindow.Instance.DataGridAppLog.ScrollToBorder();
+                        MainForm.DataGridAppLog.ScrollToBorder();
                     }
                 }
                 catch
@@ -207,6 +237,7 @@ namespace GNAy.Capital.Trade.Controllers
                     break;
                 }
             }
+
             if (!configFile.Exists)
             {
                 using (StreamWriter sw = new StreamWriter(configFile.FullName, false, TextEncoding.UTF8WithoutBOM))
@@ -215,6 +246,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 //configFile.Refresh();
             }
+
             using (StreamReader sr = new StreamReader(configFile.FullName, TextEncoding.UTF8WithoutBOM))
             {
                 config = new AppConfig(JsonConvert.DeserializeObject<AppSettings>(sr.ReadToEnd()), configFile);
@@ -262,6 +294,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
+                _bgTimer.Enabled = false;
+
                 if (level == null || level == LogLevel.Trace)
                 {
                     exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseTraceValue;
@@ -279,15 +313,15 @@ namespace GNAy.Capital.Trade.Controllers
                     exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseWarnValue;
                 }
 
-                Log(level, String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"{msg}|exitCode={exitCode}", lineNumber, memberName);
+                Log(level, String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"exitCode={exitCode}|{msg}", lineNumber, memberName);
 
-                if (MainWindow.CapitalCtrl != null)
+                if (Capital != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileClosePrefix))
+                    if (!string.IsNullOrWhiteSpace(Settings.QuoteFileClosePrefix))
                     {
-                        MainWindow.CapitalCtrl.SaveQuotes(MainWindow.AppCtrl.Config.QuoteFolder, false, MainWindow.AppCtrl.Settings.QuoteFileClosePrefix);
+                        Capital.SaveQuotes(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
                     }
-                    MainWindow.CapitalCtrl.Disconnect();
+                    Capital.Disconnect();
                 }
 
                 //TODO: Send info mail.
@@ -308,22 +342,48 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
+        public bool InitialCapital()
+        {
+            LogTrace("Start");
+
+            try
+            {
+                if (Capital == null)
+                {
+                    Capital = new CapitalController();
+                    Trigger = new TriggerController();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                LogTrace("End");
+            }
+
+            return false;
+        }
+
         public bool SetTriggerRule()
         {
             LogTrace("Start");
 
             try
             {
-                if (TriggerColumnCollection == null || TriggerColumnCollection.Count <= 0)
+                if (_triggerColumnCollection == null || _triggerColumnCollection.Count <= 0)
                 {
-                    MainWindow.Instance.ComboBoxTriggerProduct.ItemsSource = MainWindow.Instance.DataGridQuoteSubscribed.ItemsSource;
+                    MainForm.ComboBoxTriggerProduct.ItemsSource = MainForm.DataGridQuoteSubscribed.ItemsSource;
 
-                    TriggerColumnCollection = MainWindow.Instance.ComboBoxTriggerColumn.SetAndGetItemsSource<TradeColumnTrigger>();
+                    _triggerColumnCollection = MainForm.ComboBoxTriggerColumn.SetAndGetItemsSource<TradeColumnTrigger>();
                     foreach ((TradeColumnAttribute, PropertyInfo) value in QuoteData.PropertyMap.Values)
                     {
                         if (value.Item1.Trigger)
                         {
-                            TriggerColumnCollection.Add(new TradeColumnTrigger(value.Item2.Name, value.Item1));
+                            _triggerColumnCollection.Add(new TradeColumnTrigger(value.Item2.Name, value.Item1));
                         }
                     }
                 }

@@ -17,7 +17,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nConfirmCode"></param>
         private void SKReply_OnAnnouncement(string strUserID, string bstrMessage, out short nConfirmCode)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|bstrMessage={bstrMessage}");
+            AppCtrl.Instance.LogTrace($"SKAPI|strUserID={strUserID}|bstrMessage={bstrMessage}");
             AppendReply(strUserID, bstrMessage);
             nConfirmCode = -1;
         }
@@ -29,11 +29,6 @@ namespace GNAy.Capital.Trade.Controllers
         private void SKCenter_OnTimer(int nTime)
         {
             AccountTimer = (DateTime.Now, $"nTime={nTime}");
-
-            if (QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY && !string.IsNullOrWhiteSpace(MainWindow.AppCtrl.Settings.QuoteFileClosePrefix))
-            {
-                SaveQuotes(MainWindow.AppCtrl.Config.QuoteFolder, false, MainWindow.AppCtrl.Settings.QuoteFileClosePrefix);
-            }
         }
 
         /// <summary>
@@ -45,13 +40,13 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (nErrorCode == 0)
             {
-                MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|nErrorCode={nErrorCode}");
+                AppCtrl.Instance.LogTrace($"SKAPI|strUserID={strUserID}|nErrorCode={nErrorCode}");
                 AppendReply(strUserID, $"{nErrorCode}");
                 return;
             }
 
             string msg = LogAPIMessage(QuoteStatus);
-            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|{msg}");
+            AppCtrl.Instance.LogWarn($"SKAPI|strUserID={strUserID}|{msg}");
             AppendReply(strUserID, msg);
         }
 
@@ -64,13 +59,13 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (nErrorCode == 0)
             {
-                MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|nErrorCode={nErrorCode}");
+                AppCtrl.Instance.LogTrace($"SKAPI|strUserID={strUserID}|nErrorCode={nErrorCode}");
                 AppendReply(strUserID, $"{nErrorCode}");
                 return;
             }
 
             string msg = LogAPIMessage(QuoteStatus);
-            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|{msg}");
+            AppCtrl.Instance.LogWarn($"SKAPI|strUserID={strUserID}|{msg}");
             AppendReply(strUserID, msg);
         }
 
@@ -83,13 +78,13 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (nCode == 0)
             {
-                MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|nCode={nCode}");
+                AppCtrl.Instance.LogTrace($"SKAPI|strUserID={strUserID}|nCode={nCode}");
                 AppendReply(strUserID, $"{nCode}");
                 return;
             }
 
             string msg = LogAPIMessage(QuoteStatus);
-            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|{msg}");
+            AppCtrl.Instance.LogWarn($"SKAPI|strUserID={strUserID}|{msg}");
             AppendReply(strUserID, msg);
         }
 
@@ -102,13 +97,13 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (nErrorCode == 0)
             {
-                MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|nErrorCode={nErrorCode}");
+                AppCtrl.Instance.LogTrace($"SKAPI|strUserID={strUserID}|nErrorCode={nErrorCode}");
                 AppendReply(strUserID, $"{nErrorCode}");
                 return;
             }
 
             string msg = LogAPIMessage(QuoteStatus);
-            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|{msg}");
+            AppCtrl.Instance.LogWarn($"SKAPI|strUserID={strUserID}|{msg}");
             AppendReply(strUserID, msg);
         }
 
@@ -118,7 +113,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="strUserID"></param>
         private void OnComplete(string strUserID)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}");
+            AppCtrl.Instance.LogTrace($"SKAPI|strUserID={strUserID}");
             AppendReply(strUserID, String.Empty);
         }
 
@@ -129,13 +124,13 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="strData"></param>
         private void OnNewData(string strUserID, string strData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|strData={strData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|strUserID={strUserID}|strData={strData}");
             AppendReply(strUserID, strData);
         }
 
         private void m_SKReplyLib_OnReportCount(string strUserID, int nCount)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}|nCount={nCount}");
+            AppCtrl.Instance.LogTrace($"SKAPI|strUserID={strUserID}|nCount={nCount}");
             AppendReply(strUserID, $"{nCount}");
         }
 
@@ -151,7 +146,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrMarket"></param>
         private void OnClear(string bstrMarket)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrMarket={bstrMarket}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrMarket={bstrMarket}");
             AppendReply(String.Empty, bstrMarket);
         }
 
@@ -161,7 +156,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="strUserID"></param>
         private void OnClearMessage(string strUserID)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|strUserID={strUserID}");
+            AppCtrl.Instance.LogTrace($"SKAPI|strUserID={strUserID}");
             AppendReply(strUserID, String.Empty);
         }
     }

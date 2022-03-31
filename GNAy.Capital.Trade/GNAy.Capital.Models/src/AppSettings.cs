@@ -25,13 +25,17 @@ namespace GNAy.Capital.Models
         public int DataGridAppLogRowsMax { get; set; }
 
         /// <summary>
+        /// 與UI無關，背景執行的Timer
+        /// </summary>
+        public int TimerIntervalBackground { get; set; }
+        /// <summary>
         /// 例行性檢查
         /// </summary>
-        public int TimerInterval1 { get; set; }
+        public int TimerIntervalUI1 { get; set; }
         /// <summary>
         /// 檢查行情報價斷線重連
         /// </summary>
-        public int TimerInterval2 { get; set; }
+        public int TimerIntervalUI2 { get; set; }
 
         /// <summary>
         /// 排程啟動自動執行
@@ -74,6 +78,10 @@ namespace GNAy.Capital.Models
         /// 回補報價檔名前綴
         /// </summary>
         public string QuoteFileRecoverPrefix { get; set; }
+        /// <summary>
+        /// 間隔幾秒備份報價資料
+        /// </summary>
+        public int QuoteSaveInterval { get; set; }
 
         /// <summary>
         /// 觸價資料
@@ -91,7 +99,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.330.3";
+            Version = "0.22.331.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -104,8 +112,9 @@ namespace GNAy.Capital.Models
 
             DataGridAppLogRowsMax = 500;
 
-            TimerInterval1 = 300;
-            TimerInterval2 = 45 * 1000;
+            TimerIntervalBackground = 30;
+            TimerIntervalUI1 = 300;
+            TimerIntervalUI2 = 35 * 1000;
 
             AutoRun = true;
             TimeToStart = new List<DateTime>();
@@ -122,7 +131,7 @@ namespace GNAy.Capital.Models
             //};
 
             QuoteMarkets = new List<int>();
-            //QuoteMarkets = new List<int>() { 0, 1, 2, 4 };
+            //QuoteMarkets = new List<int>() { Definition.MarketTSE, Definition.MarketOTC, Definition.MarketFutures, Definition.MarketEmerging };
             QuoteRequest = new List<string>();
             //QuoteRequest = new List<string>() { "TSEA", "OTCA", "0050", "00632R", "0056", "2330" }; //
             QuoteLive = new List<string>();
@@ -131,6 +140,7 @@ namespace GNAy.Capital.Models
             QuoteFolderPath = "QuoteData";
             QuoteFileClosePrefix = "Last_";
             QuoteFileRecoverPrefix = "Recover_";
+            QuoteSaveInterval = 45;
 
             TriggerFolderPath = "TriggerData";
 

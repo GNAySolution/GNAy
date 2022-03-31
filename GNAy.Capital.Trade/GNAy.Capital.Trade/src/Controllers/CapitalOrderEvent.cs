@@ -16,7 +16,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrAccountData"></param>
         private void m_OrderObj_OnAccount(string bstrLogInID, string bstrAccountData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrLogInID={bstrLogInID}|bstrAccountData={bstrAccountData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrLogInID={bstrLogInID}|bstrAccountData={bstrAccountData}");
             AppendReply(bstrLogInID, bstrAccountData);
 
             try
@@ -35,18 +35,18 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (cells[0] == "TS")
                 {
-                    StockAccCollection.Add(acc);
-                    MainWindow.Instance.ComboBoxStockAccs.SelectedIndex = 0;
+                    _stockAccCollection.Add(acc);
+                    AppCtrl.Instance.MainForm.ComboBoxStockAccs.SelectedIndex = 0;
                 }
                 else if (cells[0] == "TF") //cells[0] == "OF"
                 {
-                    FuturesAccCollection.Add(acc);
-                    MainWindow.Instance.ComboBoxFuturesAccs.SelectedIndex = 0;
+                    _futuresAccCollection.Add(acc);
+                    AppCtrl.Instance.MainForm.ComboBoxFuturesAccs.SelectedIndex = 0;
                 }
             }
             catch (Exception ex)
             {
-                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+                AppCtrl.Instance.LogException(ex, ex.StackTrace);
             }
         }
 
@@ -58,7 +58,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrMessage"></param>
         private void m_pSKOrder_OnAsyncOrder(int nThreaID, int nCode, string bstrMessage)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}");
+            AppCtrl.Instance.LogTrace($"SKAPI|nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}");
             AppendReply(String.Empty, $"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}");
         }
 
@@ -71,7 +71,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrOrderLinkedID"></param>
         private void m_pSKOrder_OnAsyncOrderOLID(int nThreaID, int nCode, string bstrMessage, string bstrOrderLinkedID)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}");
+            AppCtrl.Instance.LogTrace($"SKAPI|nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}");
             AppendReply(String.Empty, $"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}");
         }
 
@@ -81,7 +81,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnRealBalanceReport(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -91,7 +91,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnOpenInterest(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -101,7 +101,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnStopLossReport(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -111,7 +111,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnFutureRights(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -121,7 +121,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnRequestProfitReport(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -131,7 +131,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnMarginPurchaseAmountLimit(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -141,7 +141,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnBalanceQueryReport(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -151,7 +151,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnTSStrategyReport(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -161,7 +161,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnTSProfitLossGWReport(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -171,7 +171,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnOFOpenInterestGW(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
 
@@ -181,7 +181,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnTelnetTest(string bstrData)
         {
-            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppCtrl.Instance.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
     }
