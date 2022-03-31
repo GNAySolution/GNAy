@@ -154,5 +154,35 @@ namespace GNAy.Capital.Trade.Controllers
             MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
             AppendReply(String.Empty, bstrData);
         }
+
+        /// <summary>
+        /// 證券新損益查詢結果。透過呼叫 GetProfitLossGWReport 後，資訊由該事件回傳。(現股當沖)
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnTSProfitLossGWReport(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppendReply(String.Empty, bstrData);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnOFOpenInterestGW(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppendReply(String.Empty, bstrData);
+        }
+
+        /// <summary>
+        /// 透過呼叫 SKOrderLib_TelnetTest 後，資訊由該事件回傳
+        /// </summary>
+        /// <param name="bstrData"></param>
+        private void m_pSKOrder_OnTelnetTest(string bstrData)
+        {
+            MainWindow.AppCtrl.LogTrace($"SKAPI|bstrData={bstrData}");
+            AppendReply(String.Empty, bstrData);
+        }
     }
 }

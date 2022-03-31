@@ -765,6 +765,8 @@ namespace GNAy.Capital.Trade.Controllers
                     QuoteData quoteSub = QuoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
                     if (quoteSub != null && IsAMMarket && (quoteSub.Market == Definition.MarketFutures || quoteSub.Market == Definition.MarketOptions))
                     {
+                        quoteSub.DealPrice = quoteLast.DealPrice;
+                        quoteSub.DealQty = quoteLast.DealQty;
                         quoteSub.OpenPrice = quoteLast.OpenPrice;
                         quoteSub.HighPrice = quoteLast.HighPrice;
                         quoteSub.LowPrice = quoteLast.LowPrice;
@@ -1010,9 +1012,9 @@ namespace GNAy.Capital.Trade.Controllers
                 m_pSKOrder.OnMarginPurchaseAmountLimit += m_pSKOrder_OnMarginPurchaseAmountLimit;
                 m_pSKOrder.OnBalanceQuery += m_pSKOrder_OnBalanceQueryReport;
                 m_pSKOrder.OnTSSmartStrategyReport += m_pSKOrder_OnTSStrategyReport;
-                //TODO: m_pSKOrder.OnProfitLossGWReport += m_pSKOrder_OnTSProfitLossGWReport;
-                //m_pSKOrder.OnOFOpenInterestGWReport += m_pSKOrder_OnOFOpenInterestGW;
-                //m_pSKOrder.OnTelnetTest += m_pSKOrder_OnTelnetTest;
+                m_pSKOrder.OnProfitLossGWReport += m_pSKOrder_OnTSProfitLossGWReport;
+                m_pSKOrder.OnOFOpenInterestGWReport += m_pSKOrder_OnOFOpenInterestGW;
+                m_pSKOrder.OnTelnetTest += m_pSKOrder_OnTelnetTest;
 
                 ReadCertResult = m_pSKOrder.SKOrderLib_Initialize(); //下單物件初始化。産生下單物件後需先執行初始動作
                 LogAPIMessage(ReadCertResult);

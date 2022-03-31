@@ -42,7 +42,32 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void OnQuotePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            //
+            try
+            {
+                //MainWindow.Instance
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+        }
+
+        public void AddRule()
+        {
+            MainWindow.AppCtrl.LogTrace("Start");
+
+            try
+            {
+                //MainWindow.Instance
+            }
+            catch (Exception ex)
+            {
+                MainWindow.AppCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                MainWindow.AppCtrl.LogTrace("End");
+            }
         }
     }
 }

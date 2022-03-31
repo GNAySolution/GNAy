@@ -288,6 +288,7 @@ namespace GNAy.Capital.Trade
                 AppControl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={AppControl.Config.IsHoliday(StartTime.AddDays(2))}");
                 AppControl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={AppControl.Config.IsHoliday(StartTime.AddDays(3))}");
 
+                AppControl.LogTrace($"{AppControl.Config.Archive.FullName}");
                 AppControl.LogTrace($"{AppControl.Config.Archive.Name}|Version={AppControl.Config.Version}|Exists={AppControl.Config.Archive.Exists}");
 
                 if (!AppControl.Config.Archive.Exists)
@@ -1183,7 +1184,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //
+                TriggerControl.AddRule();
             }
             catch (Exception ex)
             {

@@ -40,7 +40,7 @@ namespace GNAy.Capital.Models
         /// <summary>
         /// 等於
         /// </summary>
-        public const string IsEqualTo = ">";
+        public const string IsEqualTo = "=";
 
         /// <summary>
         /// 小於或等於
