@@ -41,7 +41,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
 
-        private readonly System.Timers.Timer _bgTimer;
+        private readonly System.Timers.Timer _timer;
 
         public AppController(MainWindow mainForm)
         {
@@ -80,10 +80,10 @@ namespace GNAy.Capital.Trade.Controllers
 
             _lastTimeToSaveQuote = DateTime.Now;
             //https://docs.microsoft.com/zh-tw/dotnet/api/system.timers.timer?view=net-6.0
-            _bgTimer = new System.Timers.Timer(Settings.TimerIntervalBackground);
-            _bgTimer.Elapsed += OnTimedEvent;
-            _bgTimer.AutoReset = true;
-            _bgTimer.Enabled = true;
+            _timer = new System.Timers.Timer(Settings.TimerIntervalBackground);
+            _timer.Elapsed += OnTimedEvent;
+            _timer.AutoReset = true;
+            _timer.Enabled = true;
         }
 
         protected AppController() : this(null)
@@ -294,7 +294,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                _bgTimer.Enabled = false;
+                _timer.Enabled = false;
 
                 if (level == null || level == LogLevel.Trace)
                 {

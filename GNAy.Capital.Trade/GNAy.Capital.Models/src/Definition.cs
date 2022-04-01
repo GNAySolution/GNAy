@@ -38,6 +38,11 @@ namespace GNAy.Capital.Models
         public const string IsGreaterThanOrEqualTo = ">=";
 
         /// <summary>
+        /// 大於
+        /// </summary>
+        public const string IsGreaterThan = ">";
+
+        /// <summary>
         /// 等於
         /// </summary>
         public const string IsEqualTo = "=";
@@ -46,6 +51,11 @@ namespace GNAy.Capital.Models
         /// 小於或等於
         /// </summary>
         public const string IsLessThanOrEqualTo = "<=";
+
+        /// <summary>
+        /// 小於
+        /// </summary>
+        public const string IsLessThan = "<";
 
         /// <summary>
         /// 觸價後取消監控，取消自己

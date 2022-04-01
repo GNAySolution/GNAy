@@ -15,7 +15,7 @@ namespace GNAy.Capital.Trade.Controllers
             //Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
             //                  e.SignalTime);
 
-            _bgTimer.Stop();
+            _timer.Stop();
 
             DateTime now = DateTime.Now;
 
@@ -31,10 +31,8 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 LogException(ex, ex.StackTrace);
             }
-            finally
-            {
-                _bgTimer.Start();
-            }
+
+            _timer.Start();
         }
     }
 }

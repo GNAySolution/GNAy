@@ -566,20 +566,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                 List<string> columnNames = new List<string>();
 
-                foreach (string line in File.ReadLines(quoteFile.FullName, TextEncoding.UTF8WithoutBOM))
+                foreach (QuoteData quoteLast in QuoteData.ForeachQuoteFromCSVFile(quoteFile.FullName, columnNames))
                 {
-                    if (columnNames.Count <= 0)
-                    {
-                        columnNames.AddRange(line.Split(Separator.CSV));
-                        continue;
-                    }
-
-                    QuoteData quoteLast = QuoteData.Create(columnNames, line);
-                    if (!quoteLast.Simulate.IsRealTrading())
-                    {
-                        continue;
-                    }
-
                     QuoteData quoteSub = _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
                     if (quoteSub != null && quoteSub.LastClosePrice == 0)
                     {
@@ -738,30 +726,18 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 AppCtrl.Instance.Config.QuoteFolder.Refresh();
                 FileInfo[] files = AppCtrl.Instance.Config.QuoteFolder.GetFiles("*.csv");
-                FileInfo openQuoteFile = files.LastOrDefault(x => x.Name.Contains(QuoteFileNameBase));
+                FileInfo quoteFile = files.LastOrDefault(x => x.Name.Contains(QuoteFileNameBase));
 
-                if (openQuoteFile == null)
+                if (quoteFile == null)
                 {
                     return;
                 }
-                AppCtrl.Instance.LogTrace($"SKAPI|{openQuoteFile.Name}");
+                AppCtrl.Instance.LogTrace($"SKAPI|{quoteFile.Name}");
 
                 List<string> columnNames = new List<string>();
 
-                foreach (string line in File.ReadLines(openQuoteFile.FullName, TextEncoding.UTF8WithoutBOM))
+                foreach (QuoteData quoteLast in QuoteData.ForeachQuoteFromCSVFile(quoteFile.FullName, columnNames))
                 {
-                    if (columnNames.Count <= 0)
-                    {
-                        columnNames.AddRange(line.Split(Separator.CSV));
-                        continue;
-                    }
-
-                    QuoteData quoteLast = QuoteData.Create(columnNames, line);
-                    if (!quoteLast.Simulate.IsRealTrading())
-                    {
-                        continue;
-                    }
-
                     QuoteData quoteSub = _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
                     if (quoteSub != null && IsAMMarket && (quoteSub.Market == Definition.MarketFutures || quoteSub.Market == Definition.MarketOptions))
                     {
@@ -939,7 +915,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (!append || !exists)
                     {
-                        sw.WriteLine(string.Join(",", QuoteData.ColumnGetters.Values.Select(x => x.Item1.Name)));
+                        sw.WriteLine(QuoteData.CSVColumnNames);
                     }
 
                     if (quote == null)

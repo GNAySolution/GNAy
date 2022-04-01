@@ -233,7 +233,7 @@ namespace GNAy.Tools.NET47
         /// <param name="yyyy"></param>
         /// <param name="keywords1"></param>
         /// <param name="keywords2"></param>
-        public static void LoadHolidays(this IDictionary<DateTime, string> obj, string[] lines, int yyyy, IList<string> keywords1, IEnumerable<string> keywords2)
+        public static void LoadHolidays(this IDictionary<DateTime, string> obj, IList<string> lines, int yyyy, IList<string> keywords1, IEnumerable<string> keywords2)
         {
             string[] separators1 = new string[] { keywords1[0], keywords1[1] };
 

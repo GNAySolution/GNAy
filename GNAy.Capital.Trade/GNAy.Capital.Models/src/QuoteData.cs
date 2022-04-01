@@ -17,6 +17,7 @@ namespace GNAy.Capital.Models
         public static readonly Dictionary<string, (TradeColumnAttribute, PropertyInfo)> PropertyMap = typeof(QuoteData).GetColumnAttrMapByProperty<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
         public static readonly SortedDictionary<int, (TradeColumnAttribute, PropertyInfo)> ColumnGetters = typeof(QuoteData).GetColumnAttrMapByIndex<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
         public static readonly Dictionary<string, (TradeColumnAttribute, PropertyInfo)> ColumnSetters = typeof(QuoteData).GetColumnAttrMapByName<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
+        public static readonly string CSVColumnNames = string.Join(",", ColumnGetters.Values.Select(x => x.Item1.Name));
 
         private string _creator;
         [TradeColumn("建立者", 0)]
@@ -69,7 +70,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        [TradeColumn("經過", 4, Trigger = true)]
+        [TradeColumn("經過", 4)]
         public string Elapsed => ((UpdateTime == DateTime.MaxValue) ? TimeSpan.MaxValue : (DateTime.Now - UpdateTime)).ToString(@"hh\:mm\:ss");
 
         private string _symbol;
@@ -463,14 +464,14 @@ namespace GNAy.Capital.Models
             {
                 if (!append || !exists)
                 {
-                    sw.WriteLine(string.Join(",", ColumnGetters.Values.Select(x => x.Item1.Name)));
+                    sw.WriteLine(CSVColumnNames);
                 }
 
                 sw.WriteLine(ToCSVString());
             }
         }
 
-        public void SetValues(IList<string> columnNames, string[] cells)
+        public void SetValues(IList<string> columnNames, IList<string> cells)
         {
             for (int i = 0; i < columnNames.Count; ++i)
             {
@@ -483,9 +484,29 @@ namespace GNAy.Capital.Models
 
         public static QuoteData Create(IList<string> columnNames, string lineCSV)
         {
-            QuoteData quote = new QuoteData();
-            quote.SetValues(columnNames, lineCSV.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries));
-            return quote;
+            QuoteData data = new QuoteData();
+            data.SetValues(columnNames, lineCSV.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries));
+            return data;
+        }
+
+        public static IEnumerable<QuoteData> ForeachQuoteFromCSVFile(string quotePath, List<string> columnNames)
+        {
+            foreach (string line in File.ReadLines(quotePath, TextEncoding.UTF8WithoutBOM))
+            {
+                if (columnNames.Count <= 0)
+                {
+                    columnNames.AddRange(line.Split(Separator.CSV));
+                    continue;
+                }
+
+                QuoteData data = Create(columnNames, line);
+                if (!data.Simulate.IsRealTrading())
+                {
+                    continue;
+                }
+
+                yield return data;
+            }
         }
     }
 }
