@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,11 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public class TriggerController
     {
+        private static string[] _timeFormats = new string[] { "HHmmss", "HHmm", "HH", "HH:mm:ss", "HH:mm" };
+
         public readonly DateTime CreatedTime;
+
+        private readonly object _syncRoot;
 
         private readonly ObservableCollection<string> _triggerCancelKinds;
 
@@ -25,15 +30,10 @@ namespace GNAy.Capital.Trade.Controllers
         {
             CreatedTime = DateTime.Now;
 
+            _syncRoot = new object();
+
             //https://www.codeproject.com/Questions/1117817/Basic-WPF-binding-to-collection-in-combobox
-            _triggerCancelKinds = new ObservableCollection<string>()
-            {
-                Definition.TriggerCancel0.Item2,
-                Definition.TriggerCancel1.Item2,
-                Definition.TriggerCancel2.Item2,
-                Definition.TriggerCancel3.Item2,
-                Definition.TriggerCancel4.Item2,
-            };
+            _triggerCancelKinds = new ObservableCollection<string>(Definition.TriggerCancelKinds);
             AppCtrl.Instance.MainForm.ComboBoxTriggerCancel.ItemsSource = _triggerCancelKinds.GetViewSource();
             AppCtrl.Instance.MainForm.ComboBoxTriggerCancel.SelectedIndex = Definition.TriggerCancel0.Item1;
 
@@ -60,7 +60,12 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (AppCtrl.Instance.MainForm.ComboBoxTriggerProduct.SelectedIndex < 0)
+                if (AppCtrl.Instance.Config.TriggerFolder == null)
+                {
+                    AppCtrl.Instance.LogError($"觸價資料夾不存在，無法建立觸價資料");
+                    return;
+                }
+                else if (AppCtrl.Instance.MainForm.ComboBoxTriggerProduct.SelectedIndex < 0)
                 {
                     return;
                 }
@@ -125,7 +130,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    AppCtrl.Instance.LogError($"條件設定錯誤，開頭必須是大於({Definition.IsGreaterThan})小於({Definition.IsLessThan})或等於({Definition.IsEqualTo})");
+                    AppCtrl.Instance.LogError($"條件錯誤，開頭必須是大於({Definition.IsGreaterThan})小於({Definition.IsLessThan})或等於({Definition.IsEqualTo})");
                     return;
                 }
 
@@ -135,8 +140,40 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    AppCtrl.Instance.LogError($"條件設定錯誤，無法解析為數值({bodyValue})");
+                    AppCtrl.Instance.LogError($"條件錯誤，無法解析({bodyValue})");
                     return;
+                }
+
+                string duration = AppCtrl.Instance.MainForm.TextBoxTriggerTimeDuration.Text.Replace(" ", string.Empty);
+                DateTime? startTime = null;
+                DateTime? endTime = null;
+
+                string[] times = duration.Split('~');
+
+                if (times.Length > 0 && !string.IsNullOrWhiteSpace(times[0]))
+                {
+                    if (DateTime.TryParseExact(times[0], _timeFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _s))
+                    {
+                        startTime = _s;
+                    }
+                    else
+                    {
+                        AppCtrl.Instance.LogError($"開始時間錯誤，無法解析({times[0]})({duration})");
+                        return;
+                    }
+                }
+
+                if (times.Length > 1 && !string.IsNullOrWhiteSpace(times[1]))
+                {
+                    if (DateTime.TryParseExact(times[1], _timeFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _e))
+                    {
+                        endTime = _e;
+                    }
+                    else
+                    {
+                        AppCtrl.Instance.LogError($"結束時間錯誤，無法解析({times[1]})({duration})");
+                        return;
+                    }
                 }
 
                 TriggerData trigger = new TriggerData(orderAcc, AppCtrl.Instance.MainForm.ComboBoxTriggerColumn.SelectedItem as TradeColumnTrigger)
@@ -148,22 +185,35 @@ namespace GNAy.Capital.Trade.Controllers
                     Rule = rule,
                     Value = value,
                     CancelIndex = AppCtrl.Instance.MainForm.ComboBoxTriggerCancel.SelectedIndex,
-                    CancelStr = AppCtrl.Instance.MainForm.ComboBoxTriggerCancel.SelectedItem as string,
                     Strategy = AppCtrl.Instance.MainForm.TextBoxTriggerStrategy.Text.Trim(),
+                    StartTime = startTime,
+                    EndTime = endTime,
                 };
 
                 string key = $"{trigger.OrderAcc},{trigger.Symbol},{trigger.ColumnProperty}";
 
-                if (_triggerMap.TryGetValue(key, out TriggerData _old))
+                lock (_syncRoot)
                 {
-                    AppCtrl.Instance.LogWarn($"{trigger.ColumnName}({key})，欄位已經設定，將進行重置");
-                    _triggerCollection.Remove(_old);
+                    if (_triggerMap.TryGetValue(key, out TriggerData _old))
+                    {
+                        if (_old.StatusIndex == Definition.TriggerStatus3.Item1)
+                        {
+                            AppCtrl.Instance.LogWarn($"{trigger.ColumnName}({key})，舊設定已觸發，將新增設定");
+                            _triggerMap.Remove(key);
+                        }
+                        else
+                        {
+                            AppCtrl.Instance.LogWarn($"{trigger.ColumnName}({key})，欄位已經設定，將進行重置");
+                            _triggerMap.Remove(key);
+                            _triggerCollection.Remove(_old);
+                        }
+                    }
+
+                    _triggerMap.Add(key, trigger);
+                    _triggerCollection.Add(trigger);
                 }
 
-                _triggerMap[key] = trigger;
-                _triggerCollection.Add(trigger);
-
-                SaveTriggers(AppCtrl.Instance.Config.TriggerFolder);
+                SaveTriggers();
             }
             catch (Exception ex)
             {
@@ -175,7 +225,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void SaveTriggers(DirectoryInfo folder)
+        public void SaveTriggers()
         {
             if (_triggerMap.Count <= 0)
             {
@@ -186,10 +236,12 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                AppCtrl.Instance.LogTrace($"SKAPI|Start|folder={folder.Name}");
+                AppCtrl.Instance.LogTrace("Start");
 
                 TriggerData[] triggers = _triggerMap.Values.ToArray();
-                string path = Path.Combine(folder.FullName, $"Triggers_{now:MMdd_HHmm}.csv");
+                string path = Path.Combine(AppCtrl.Instance.Config.TriggerFolder.FullName, $"{now:MMdd_HHmm}.csv");
+
+                AppCtrl.Instance.LogTrace(path);
 
                 using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
                 {
@@ -214,7 +266,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
             finally
             {
-                AppCtrl.Instance.LogTrace("SKAPI|End");
+                AppCtrl.Instance.LogTrace("End");
             }
         }
     }

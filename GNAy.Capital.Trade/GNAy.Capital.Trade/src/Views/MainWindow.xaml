@@ -45,12 +45,16 @@
                             <Button x:Name="ButtonGetOpenInterest" Content="期權未平倉" HorizontalAlignment="Left" Margin="309,78,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
                         </Grid>
                     </TabItem>
+                    <TabItem Header="行事曆">
+                        <Grid Background="#FFE5E5E5">
+                        </Grid>
+                    </TabItem>
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
                             <DataGrid x:Name="DataGridTriggerRule" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Binding="{Binding UpdateTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding Executing}" IsReadOnly="True" CanUserSort="False">
+                                    <DataGridTextColumn Binding="{Binding StatusStr}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="FontWeight" Value="DemiBold"/>
@@ -89,6 +93,8 @@
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding CancelStr}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Strategy}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding StartTime, StringFormat='{}{0:HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding EndTime, StringFormat='{}{0:HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
@@ -544,7 +550,9 @@
                 <ComboBox x:Name="ComboBoxTriggerCancel" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="635,33,0,0" VerticalAlignment="Top" Width="120"/>
                 <Label Content="觸價後執行策略" HorizontalAlignment="Left" Margin="760,8,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxTriggerStrategy" Text="觸價後執行策略" ToolTip="觸價後執行策略" HorizontalAlignment="Left" Margin="760,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <Button x:Name="ButtonSaveTriggerRule" Content="儲存觸價條件" HorizontalAlignment="Left" Margin="885,35,0,0" VerticalAlignment="Top" Click="ButtonSaveTriggerRule_Click"/>
+                <Label Content="監控時間區間" HorizontalAlignment="Left" Margin="885,8,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxTriggerTimeDuration" Text="監控時間區間" ToolTip="監控時間區間" HorizontalAlignment="Left" Margin="885,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Button x:Name="ButtonSaveTriggerRule" Content="儲存觸價條件" HorizontalAlignment="Left" Margin="1010,35,0,0" VerticalAlignment="Top" Click="ButtonSaveTriggerRule_Click"/>
                 <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="54,59,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
                 <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="179,59,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
                 <TabControl x:Name="TabControlBB" Margin="0,150,0,30" SelectedIndex="0">

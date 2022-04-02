@@ -26,6 +26,11 @@ namespace GNAy.Capital.Trade.Controllers
                     _lastTimeToSaveQuote = now;
                     Capital.SaveQuotes(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
                 }
+
+                //TODO
+                //lock (Trigger.SyncRoot)
+                //{
+                //}
             }
             catch (Exception ex)
             {

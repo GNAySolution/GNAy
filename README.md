@@ -2,7 +2,7 @@
 * Yang的程式學習紀錄
 
 ## GNAy.Capital.Trade.csproj
-* 策略交易框架與範例，基於群益API，SKCOM.dll，開發中
+* 策略交易框架與範例，交易輔助程式，基於群益API(SKCOM.dll)，開發中
 * https://www.capital.com.tw/Service2/download/api.asp
 * 需要先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
 

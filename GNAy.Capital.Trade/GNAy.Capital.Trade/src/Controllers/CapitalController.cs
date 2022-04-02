@@ -423,6 +423,10 @@ namespace GNAy.Capital.Trade.Controllers
         {
             QuoteData quote = new QuoteData()
             {
+                Creator = nameof(CreateQuote),
+                CreatedTime = DateTime.Now,
+                Updater = nameof(CreateQuote),
+                UpdateTime = DateTime.Now,
                 Symbol = raw.bstrStockNo,
                 Name = raw.bstrStockName,
                 DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal),
@@ -445,11 +449,6 @@ namespace GNAy.Capital.Trade.Controllers
                 DecimalPos = raw.sDecimal,
                 TotalQtyBefore = raw.nYQty,
             };
-
-            quote.Creator = nameof(CreateQuote);
-            quote.CreatedTime = DateTime.Now;
-            quote.Updater = quote.Creator;
-            quote.UpdateTime = quote.CreatedTime;
 
             return quote;
         }
@@ -476,6 +475,42 @@ namespace GNAy.Capital.Trade.Controllers
                 AppCtrl.Instance.LogError($"SKAPI|quote.Market != raw.bstrMarketNo|Market={quote.Market}|bstrMarketNo={raw.bstrMarketNo}");
                 return false;
             }
+            //成交開盤分別收到
+            //else if (raw.nOpen != 0 && (raw.nClose == 0 || raw.nTickQty == 0))
+            //else if (!IsAMMarket && quote.Page < 0 && (quote.Market == Definition.MarketTSE || quote.Market == Definition.MarketOTC))
+            //{
+            //    QuoteData quoteBK = new QuoteData()
+            //    {
+            //        Creator = nameof(UpdateQuote),
+            //        CreatedTime = DateTime.Now,
+            //        Updater = nameof(UpdateQuote),
+            //        UpdateTime = DateTime.Now,
+            //        Symbol = raw.bstrStockNo,
+            //        Name = raw.bstrStockName,
+            //        DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal),
+            //        DealQty = raw.nTickQty,
+            //        BestBuyPrice = raw.nBid / (decimal)Math.Pow(10, raw.sDecimal),
+            //        BestBuyQty = raw.nBc,
+            //        BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal),
+            //        BestSellQty = raw.nAc,
+            //        OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal),
+            //        HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal),
+            //        LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal),
+            //        Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal),
+            //        Simulate = raw.nSimulate,
+            //        TotalQty = raw.nTQty,
+            //        TradeDateRaw = raw.nTradingDay,
+            //        HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal),
+            //        LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal),
+            //        Index = raw.nStockIdx,
+            //        Market = short.Parse(raw.bstrMarketNo),
+            //        DecimalPos = raw.sDecimal,
+            //        TotalQtyBefore = raw.nYQty,
+            //    };
+
+            //    SaveQuotes(AppCtrl.Instance.Config.QuoteFolder, true, $"Unknown_", string.Empty, quoteBK);
+            //    return false;
+            //}
 
             bool firstTick = false;
 
@@ -497,12 +532,12 @@ namespace GNAy.Capital.Trade.Controllers
                         firstTick = true;
                     }
                 }
-                else if (raw.nSimulate.IsRealTrading() && !quote.Recovered)
-                {
-                    quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
-                    quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
-                    quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
-                }
+            }
+            if (raw.nSimulate.IsRealTrading() && !quote.Recovered)
+            {
+                quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
+                quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
+                quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
             }
             quote.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
             quote.Simulate = raw.nSimulate;
@@ -562,7 +597,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                AppCtrl.Instance.LogTrace($"SKAPI|Start|{quoteFile.Name}");
+                AppCtrl.Instance.LogTrace($"SKAPI|Start|{quoteFile.FullName}");
 
                 List<string> columnNames = new List<string>();
 
@@ -594,7 +629,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void ReadLastClosePriceAsync()
         {
-            if (string.IsNullOrWhiteSpace(QuoteFileNameBase))
+            if (string.IsNullOrWhiteSpace(QuoteFileNameBase) && string.IsNullOrWhiteSpace(AppCtrl.Instance.Settings.QuoteFileClosePrefix))
             {
                 return;
             }
@@ -604,7 +639,7 @@ namespace GNAy.Capital.Trade.Controllers
                 try
                 {
                     AppCtrl.Instance.Config.QuoteFolder.Refresh();
-                    FileInfo[] files = AppCtrl.Instance.Config.QuoteFolder.GetFiles("*.csv");
+                    FileInfo[] files = AppCtrl.Instance.Config.QuoteFolder.GetFiles($"{AppCtrl.Instance.Settings.QuoteFileClosePrefix}*.csv");
                     FileInfo lastQuote1 = null;
                     FileInfo lastQuote2 = null;
 
@@ -717,7 +752,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void RecoverOpenQuotesFromFile()
         {
-            if (string.IsNullOrWhiteSpace(QuoteFileNameBase))
+            if (!IsAMMarket && string.IsNullOrWhiteSpace(QuoteFileNameBase) && string.IsNullOrWhiteSpace(AppCtrl.Instance.Settings.QuoteFileClosePrefix))
             {
                 return;
             }
@@ -725,21 +760,21 @@ namespace GNAy.Capital.Trade.Controllers
             try
             {
                 AppCtrl.Instance.Config.QuoteFolder.Refresh();
-                FileInfo[] files = AppCtrl.Instance.Config.QuoteFolder.GetFiles("*.csv");
+                FileInfo[] files = AppCtrl.Instance.Config.QuoteFolder.GetFiles($"{AppCtrl.Instance.Settings.QuoteFileClosePrefix}*.csv");
                 FileInfo quoteFile = files.LastOrDefault(x => x.Name.Contains(QuoteFileNameBase));
 
                 if (quoteFile == null)
                 {
                     return;
                 }
-                AppCtrl.Instance.LogTrace($"SKAPI|{quoteFile.Name}");
+                AppCtrl.Instance.LogTrace($"SKAPI|{quoteFile.FullName}");
 
                 List<string> columnNames = new List<string>();
 
                 foreach (QuoteData quoteLast in QuoteData.ForeachQuoteFromCSVFile(quoteFile.FullName, columnNames))
                 {
                     QuoteData quoteSub = _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
-                    if (quoteSub != null && IsAMMarket && (quoteSub.Market == Definition.MarketFutures || quoteSub.Market == Definition.MarketOptions))
+                    if (quoteSub != null && (quoteSub.Market == Definition.MarketFutures || quoteSub.Market == Definition.MarketOptions))
                     {
                         quoteSub.DealPrice = quoteLast.DealPrice;
                         quoteSub.DealQty = quoteLast.DealQty;

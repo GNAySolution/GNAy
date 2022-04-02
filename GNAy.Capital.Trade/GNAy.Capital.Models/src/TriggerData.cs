@@ -68,20 +68,29 @@ namespace GNAy.Capital.Models
             }
         }
 
-        private bool _executing;
-        [Column("執行中", 4)]
-        public bool Executing
+        private int _statusIndex;
+        [Column("狀態索引", 4)]
+        public int StatusIndex
         {
-            get { return _executing; }
-            set { OnPropertyChanged(ref _executing, value); }
+            get { return _statusIndex; }
+            set
+            {
+                if (OnPropertyChanged(ref _statusIndex, value))
+                {
+                    OnPropertyChanged(nameof(StatusStr));
+                }
+            }
         }
 
+        [Column("狀態描述", "狀態", 5)]
+        public string StatusStr => Definition.TriggerStatusKinds[StatusIndex];
+
         private OrderAccData _orderAccData;
-        [Column("下單帳號", 5)]
+        [Column("下單帳號", 6)]
         public string OrderAcc => _orderAccData.Account;
 
         private string _symbol;
-        [Column("代碼", 6)]
+        [Column("代碼", 7)]
         public string Symbol
         {
             get { return _symbol; }
@@ -90,14 +99,14 @@ namespace GNAy.Capital.Models
 
         private TradeColumnTrigger _column;
 
-        [Column("欄位", 7)]
+        [Column("欄位", 8)]
         public string ColumnName => _column.Name;
 
-        [Column("屬性", 8)]
+        [Column("屬性", 9)]
         public string ColumnProperty => _column.Property;
 
         private string _rule;
-        [Column("條件", 9)]
+        [Column("條件", 10)]
         public string Rule
         {
             get { return _rule; }
@@ -105,7 +114,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _value;
-        [Column("目標值", 10)]
+        [Column("目標值", 11)]
         public decimal Value
         {
             get { return _value; }
@@ -113,27 +122,56 @@ namespace GNAy.Capital.Models
         }
 
         private int _cancelIndex;
-        [Column("觸價取消索引", 11)]
+        [Column("觸價取消索引", 12)]
         public int CancelIndex
         {
             get { return _cancelIndex; }
-            set { OnPropertyChanged(ref _cancelIndex, value); }
+            set
+            {
+                if (OnPropertyChanged(ref _cancelIndex, value))
+                {
+                    OnPropertyChanged(nameof(CancelStr));
+                }
+            }
         }
 
-        private string _cancelStr;
-        [Column("觸價取消字串", "觸價後取消", 12)]
-        public string CancelStr
-        {
-            get { return _cancelStr; }
-            set { OnPropertyChanged(ref _cancelStr, value); }
-        }
+        [Column("觸價取消描述", "觸價後取消", 13)]
+        public string CancelStr => Definition.TriggerCancelKinds[CancelIndex];
 
         private string _strategy;
-        [Column("觸價後執行", 13)]
+        [Column("觸價後執行", 14)]
         public string Strategy
         {
             get { return _strategy; }
             set { OnPropertyChanged(ref _strategy, value); }
+        }
+
+        private DateTime? _startTime;
+        [Column("監控開始", 15, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        public DateTime? StartTime
+        {
+            get { return _startTime; }
+            set
+            {
+                if (OnPropertyChanged(ref _startTime, value))
+                {
+                    OnPropertyChanged(nameof(UpdateDate));
+                }
+            }
+        }
+
+        private DateTime? _endTime;
+        [Column("監控結束", 16, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        public DateTime? EndTime
+        {
+            get { return _endTime; }
+            set
+            {
+                if (OnPropertyChanged(ref _endTime, value))
+                {
+                    OnPropertyChanged(nameof(UpdateDate));
+                }
+            }
         }
 
         public TriggerData(OrderAccData orderAcc, TradeColumnTrigger column)
@@ -142,15 +180,16 @@ namespace GNAy.Capital.Models
             CreatedTime = DateTime.Now;
             Updater = String.Empty;
             UpdateTime = DateTime.MaxValue;
-            Executing = false;
+            StatusIndex = Definition.TriggerStatus0.Item1;
             _orderAccData = orderAcc;
             Symbol = String.Empty;
             _column = column;
             Rule = String.Empty;
             Value = 0;
-            CancelIndex = -1;
-            CancelStr = String.Empty;
+            CancelIndex = Definition.TriggerCancel0.Item1;
             Strategy = String.Empty;
+            StartTime = null;
+            EndTime = null;
         }
 
         public TriggerData() : this(null, null)

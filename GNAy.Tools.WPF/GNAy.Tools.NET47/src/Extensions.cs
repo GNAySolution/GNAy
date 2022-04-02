@@ -107,35 +107,67 @@ namespace GNAy.Tools.NET47
             {
                 return ((DateTime)value).ToString(format);
             }
+            else if (propertyType == typeof(DateTime?))
+            {
+                return ((DateTime?)value).Value.ToString(format);
+            }
             else if (propertyType == typeof(decimal))
             {
                 return ((decimal)value).ToString(format);
+            }
+            else if (propertyType == typeof(decimal?))
+            {
+                return ((decimal?)value).Value.ToString(format);
             }
             else if (propertyType == typeof(double))
             {
                 return ((double)value).ToString(format);
             }
+            else if (propertyType == typeof(double?))
+            {
+                return ((double?)value).Value.ToString(format);
+            }
             else if (propertyType == typeof(float))
             {
                 return ((float)value).ToString(format);
+            }
+            else if (propertyType == typeof(float?))
+            {
+                return ((float?)value).Value.ToString(format);
             }
             else if (propertyType == typeof(long))
             {
                 return ((long)value).ToString(format);
             }
+            else if (propertyType == typeof(long?))
+            {
+                return ((long?)value).Value.ToString(format);
+            }
             else if (propertyType == typeof(int))
             {
                 return ((int)value).ToString(format);
+            }
+            else if (propertyType == typeof(int?))
+            {
+                return ((int?)value).Value.ToString(format);
             }
             else if (propertyType == typeof(short))
             {
                 return ((short)value).ToString(format);
             }
+            else if (propertyType == typeof(short?))
+            {
+                return ((short?)value).Value.ToString(format);
+            }
             else if (propertyType == typeof(byte))
             {
                 return ((byte)value).ToString(format);
             }
-            
+            else if (propertyType == typeof(byte?))
+            {
+                return ((byte?)value).Value.ToString(format);
+            }
+
             throw new NotSupportedException($"PropertyType ({propertyType.FullName}) is not supported.");
         }
 

@@ -84,7 +84,7 @@ namespace GNAy.Capital.Models
         public int QuoteSaveInterval { get; set; }
 
         /// <summary>
-        /// 觸價資料
+        /// 觸價資料夾
         /// </summary>
         public string TriggerFolderPath { get; set; }
 
