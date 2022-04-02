@@ -475,7 +475,7 @@ namespace GNAy.Capital.Trade.Controllers
                 AppCtrl.Instance.LogError($"SKAPI|quote.Market != raw.bstrMarketNo|Market={quote.Market}|bstrMarketNo={raw.bstrMarketNo}");
                 return false;
             }
-            //成交開盤分別收到
+            //開盤成交分別收到
             //else if (raw.nOpen != 0 && (raw.nClose == 0 || raw.nTickQty == 0))
             //else if (!IsAMMarket && quote.Page < 0 && (quote.Market == Definition.MarketTSE || quote.Market == Definition.MarketOTC))
             //{

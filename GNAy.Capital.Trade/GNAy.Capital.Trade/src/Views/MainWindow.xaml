@@ -552,9 +552,9 @@
                 <TextBox x:Name="TextBoxTriggerStrategy" Text="觸價後執行策略" ToolTip="觸價後執行策略" HorizontalAlignment="Left" Margin="760,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="監控時間區間" HorizontalAlignment="Left" Margin="885,8,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxTriggerTimeDuration" Text="監控時間區間" ToolTip="監控時間區間" HorizontalAlignment="Left" Margin="885,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <Button x:Name="ButtonSaveTriggerRule" Content="儲存觸價條件" HorizontalAlignment="Left" Margin="1010,35,0,0" VerticalAlignment="Top" Click="ButtonSaveTriggerRule_Click"/>
-                <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="54,59,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
-                <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="179,59,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
+                <Button x:Name="ButtonSaveTriggerRule" Content="儲存觸價條件" HorizontalAlignment="Left" Margin="10,59,0,0" VerticalAlignment="Top" Click="ButtonSaveTriggerRule_Click"/>
+                <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="135,59,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
+                <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="260,59,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
                 <TabControl x:Name="TabControlBB" Margin="0,150,0,30" SelectedIndex="0">
                     <TabItem Header="委託回報">
                         <Grid Background="#FFE5E5E5">

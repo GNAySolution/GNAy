@@ -1,5 +1,5 @@
 # GNAy
-* Yang的程式學習紀錄
+* Yang的專案開發紀錄
 
 ## GNAy.Capital.Trade.csproj
 * 策略交易框架與範例，交易輔助程式，基於群益API(SKCOM.dll)，開發中

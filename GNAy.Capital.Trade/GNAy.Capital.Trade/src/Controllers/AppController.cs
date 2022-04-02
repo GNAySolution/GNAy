@@ -79,7 +79,7 @@ namespace GNAy.Capital.Trade.Controllers
             _triggerColumnCollection = null;
 
             _lastTimeToSaveQuote = DateTime.Now;
-            //https://docs.microsoft.com/zh-tw/dotnet/api/system.timers.timer?view=net-6.0
+
             _timer = new System.Timers.Timer(Settings.TimerIntervalBackground);
             _timer.Elapsed += OnTimedEvent;
             _timer.AutoReset = true;

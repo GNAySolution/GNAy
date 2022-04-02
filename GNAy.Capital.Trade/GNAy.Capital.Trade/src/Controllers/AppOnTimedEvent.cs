@@ -10,6 +10,11 @@ namespace GNAy.Capital.Trade.Controllers
     {
         private DateTime _lastTimeToSaveQuote;
 
+        /// <summary>
+        /// https://docs.microsoft.com/zh-tw/dotnet/api/system.timers.timer?view=net-6.0
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
         private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
         {
             //Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
@@ -26,11 +31,15 @@ namespace GNAy.Capital.Trade.Controllers
                     _lastTimeToSaveQuote = now;
                     Capital.SaveQuotes(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
                 }
+            }
+            catch (Exception ex)
+            {
+                LogException(ex, ex.StackTrace);
+            }
 
-                //TODO
-                //lock (Trigger.SyncRoot)
-                //{
-                //}
+            try
+            {
+                Trigger?.UpdateStatus();
             }
             catch (Exception ex)
             {
