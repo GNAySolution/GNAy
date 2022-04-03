@@ -31,7 +31,6 @@ namespace GNAy.Capital.Trade
     public partial class MainWindow : Window
     {
         public readonly DateTime StartTime;
-
         private readonly AppController _appCtrl;
 
         private readonly DispatcherTimer _timer1;
@@ -42,7 +41,6 @@ namespace GNAy.Capital.Trade
             InitializeComponent();
 
             StartTime = DateTime.Now;
-
             _appCtrl = new AppController(this);
 
             //https://www.796t.com/post/MWV3bG0=.html

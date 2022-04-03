@@ -18,6 +18,8 @@ namespace GNAy.Capital.Models
         public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> ColumnSetters = typeof(TriggerData).GetColumnAttrMapByName<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
         public static readonly string CSVColumnNames = string.Join(",", ColumnGetters.Values.Select(x => x.Item1.Name));
 
+        public readonly object SyncRoot;
+
         private string _creator;
         [Column("建立者", 0)]
         public string Creator
@@ -89,6 +91,8 @@ namespace GNAy.Capital.Models
         [Column("下單帳號", 6)]
         public string OrderAcc => _orderAccData.Account;
 
+        public QuoteData Quote;
+
         private string _symbol;
         [Column("代碼", 7)]
         public string Symbol
@@ -151,13 +155,7 @@ namespace GNAy.Capital.Models
         public DateTime? StartTime
         {
             get { return _startTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _startTime, value))
-                {
-                    OnPropertyChanged(nameof(UpdateDate));
-                }
-            }
+            set { OnPropertyChanged(ref _startTime, value); }
         }
 
         private DateTime? _endTime;
@@ -165,23 +163,19 @@ namespace GNAy.Capital.Models
         public DateTime? EndTime
         {
             get { return _endTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _endTime, value))
-                {
-                    OnPropertyChanged(nameof(UpdateDate));
-                }
-            }
+            set { OnPropertyChanged(ref _endTime, value); }
         }
 
         public TriggerData(OrderAccData orderAcc, TradeColumnTrigger column)
         {
+            SyncRoot = new object();
             Creator = String.Empty;
             CreatedTime = DateTime.Now;
             Updater = String.Empty;
             UpdateTime = DateTime.MaxValue;
             StatusIndex = Definition.TriggerStatus0.Item1;
             _orderAccData = orderAcc;
+            Quote = null;
             Symbol = String.Empty;
             _column = column;
             Rule = String.Empty;

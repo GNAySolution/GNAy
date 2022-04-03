@@ -20,8 +20,6 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public partial class AppController
     {
-        public static AppController Instance { get; private set; }
-
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         public readonly DateTime CreatedTime;
@@ -46,8 +44,6 @@ namespace GNAy.Capital.Trade.Controllers
         public AppController(MainWindow mainForm)
         {
             CreatedTime = DateTime.Now;
-
-            Instance = this;
 
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
@@ -350,8 +346,8 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (Capital == null)
                 {
-                    Capital = new CapitalController();
-                    Trigger = new TriggerController();
+                    Capital = new CapitalController(this);
+                    Trigger = new TriggerController(this);
                 }
 
                 return true;

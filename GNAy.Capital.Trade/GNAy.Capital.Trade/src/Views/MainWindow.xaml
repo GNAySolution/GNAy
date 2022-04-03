@@ -49,56 +49,6 @@
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
-                    <TabItem Header="觸價警示">
-                        <Grid Background="#FFE5E5E5">
-                            <DataGrid x:Name="DataGridTriggerRule" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding UpdateTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding StatusStr}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="FontWeight" Value="DemiBold"/>
-                                                <Setter Property="Foreground" Value="MediumBlue"/>
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                    </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding OrderAcc}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding Symbol}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="FontWeight" Value="DemiBold"/>
-                                                <Setter Property="Foreground" Value="MediumBlue"/>
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                    </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding ColumnName}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding ColumnProperty}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding Rule}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right"/>
-                                                <Setter Property="FontWeight" Value="DemiBold"/>
-                                                <Setter Property="Foreground" Value="MediumBlue"/>
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                    </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding Value, StringFormat='{}{0:0.00####}'}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right"/>
-                                                <Setter Property="FontWeight" Value="DemiBold"/>
-                                                <Setter Property="Foreground" Value="MediumBlue"/>
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                    </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding CancelStr}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding Strategy}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding StartTime, StringFormat='{}{0:HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding EndTime, StringFormat='{}{0:HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
-                    </TabItem>
                 </TabControl>
                 <!--https://stackoverflow.com/questions/2311458/wpf-statusbar-is-not-positioned-at-the-bottom-of-the-window-->
                 <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
@@ -556,6 +506,56 @@
                 <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="135,59,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
                 <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="260,59,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
                 <TabControl x:Name="TabControlBB" Margin="0,150,0,30" SelectedIndex="0">
+                    <TabItem Header="觸價警示">
+                        <Grid Background="#FFE5E5E5">
+                            <DataGrid x:Name="DataGridTriggerRule" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding UpdateTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding StatusStr}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding OrderAcc}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding Symbol}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding ColumnName}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding ColumnProperty}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding Rule}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding Value, StringFormat='{}{0:0.00####}'}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding CancelStr}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding Strategy}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding StartTime, StringFormat='{}{0:HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding EndTime, StringFormat='{}{0:HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </TabItem>
                     <TabItem Header="委託回報">
                         <Grid Background="#FFE5E5E5">
                         </Grid>
