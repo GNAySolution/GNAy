@@ -550,8 +550,8 @@
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding CancelStr}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Strategy}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding StartTime, StringFormat='{}{0:HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding EndTime, StringFormat='{}{0:HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding StartTime, StringFormat='{}{0:MM/dd HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding EndTime, StringFormat='{}{0:MM/dd HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

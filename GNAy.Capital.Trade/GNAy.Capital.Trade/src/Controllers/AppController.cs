@@ -373,13 +373,13 @@ namespace GNAy.Capital.Trade.Controllers
                 if (_triggerColumnCollection == null || _triggerColumnCollection.Count <= 0)
                 {
                     MainForm.ComboBoxTriggerProduct.ItemsSource = MainForm.DataGridQuoteSubscribed.ItemsSource;
-
                     _triggerColumnCollection = MainForm.ComboBoxTriggerColumn.SetAndGetItemsSource<TradeColumnTrigger>();
+
                     foreach ((TradeColumnAttribute, PropertyInfo) value in QuoteData.PropertyMap.Values)
                     {
-                        if (value.Item1.Trigger)
+                        if (value.Item1.IsTrigger)
                         {
-                            _triggerColumnCollection.Add(new TradeColumnTrigger(value.Item2.Name, value.Item1));
+                            _triggerColumnCollection.Add(new TradeColumnTrigger(value.Item1, value.Item2));
                         }
                     }
                 }

@@ -719,7 +719,6 @@ namespace GNAy.Capital.Trade.Controllers
 
                     QuoteData quote = CreateQuote(pSKStockLONG);
                     _appCtrl.Trigger.Reset(quote);
-                    quote.PropertyChanged += _appCtrl.Trigger.OnQuotePropertyChanged;
                     _quoteIndexMap.Add(quote.Index, quote);
                     _quoteCollection.Add(quote);
                 }
@@ -758,7 +757,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void RecoverOpenQuotesFromFile()
         {
-            if (!IsAMMarket && string.IsNullOrWhiteSpace(QuoteFileNameBase) && string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileClosePrefix))
+            if (!IsAMMarket || string.IsNullOrWhiteSpace(QuoteFileNameBase) || string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileClosePrefix))
             {
                 return;
             }

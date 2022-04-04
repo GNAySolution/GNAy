@@ -61,32 +61,32 @@ namespace GNAy.Capital.Models
         /// <summary>
         /// 觸價狀態，等待中
         /// </summary>
-        public static (int, string) TriggerStatus0 = (0, "等待中");
+        public static (int, string) TriggerStatusWaiting = (0, "等待中");
 
         /// <summary>
         /// 觸價狀態，已取消
         /// </summary>
-        public static (int, string) TriggerStatus1 = (1, "已取消");
+        public static (int, string) TriggerStatusCancelled = (1, "已取消");
 
         /// <summary>
         /// 觸價狀態，監控中
         /// </summary>
-        public static (int, string) TriggerStatus2 = (2, "監控中");
+        public static (int, string) TriggerStatusMonitoring = (2, "監控中");
 
         /// <summary>
         /// 觸價狀態，已觸發
         /// </summary>
-        public static (int, string) TriggerStatus3 = (3, "已觸發");
+        public static (int, string) TriggerStatusExecuted = (3, "已觸發");
 
         /// <summary>
         /// https://stackoverflow.com/questions/4680035/read-only-list-in-c-sharp
         /// </summary>
         public static ReadOnlyCollection<string> TriggerStatusKinds = new List<string>()
         {
-            TriggerStatus0.Item2,
-            TriggerStatus1.Item2,
-            TriggerStatus2.Item2,
-            TriggerStatus3.Item2,
+            TriggerStatusWaiting.Item2,
+            TriggerStatusCancelled.Item2,
+            TriggerStatusMonitoring.Item2,
+            TriggerStatusExecuted.Item2,
         }.AsReadOnly();
 
         /// <summary>

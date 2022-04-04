@@ -88,7 +88,7 @@ namespace GNAy.Capital.Models
         public string StatusStr => Definition.TriggerStatusKinds[StatusIndex];
 
         private OrderAccData _orderAccData;
-        [Column("下單帳號", 6)]
+        [Column("帳號", 6)]
         public string OrderAcc => _orderAccData.Account;
 
         public QuoteData Quote;
@@ -101,13 +101,13 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _symbol, value); }
         }
 
-        private TradeColumnTrigger _column;
+        public TradeColumnTrigger Column { get; private set; }
 
         [Column("欄位", 8)]
-        public string ColumnName => _column.Name;
+        public string ColumnName => Column.Attribute.Name;
 
         [Column("屬性", 9)]
-        public string ColumnProperty => _column.Property;
+        public string ColumnProperty => Column.Property.Name;
 
         private string _rule;
         [Column("條件", 10)]
@@ -166,18 +166,18 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _endTime, value); }
         }
 
-        public TriggerData(OrderAccData orderAcc, TradeColumnTrigger column)
+        public TriggerData(OrderAccData orderAcc, QuoteData quote, TradeColumnTrigger column)
         {
             SyncRoot = new object();
             Creator = String.Empty;
             CreatedTime = DateTime.Now;
             Updater = String.Empty;
             UpdateTime = DateTime.MaxValue;
-            StatusIndex = Definition.TriggerStatus0.Item1;
+            StatusIndex = Definition.TriggerStatusWaiting.Item1;
             _orderAccData = orderAcc;
-            Quote = null;
-            Symbol = String.Empty;
-            _column = column;
+            Quote = quote;
+            Symbol = quote.Symbol;
+            Column = column;
             Rule = String.Empty;
             Value = 0;
             CancelIndex = Definition.TriggerCancel0.Item1;
@@ -186,7 +186,7 @@ namespace GNAy.Capital.Models
             EndTime = null;
         }
 
-        public TriggerData() : this(null, null)
+        public TriggerData() : this(null, null, null)
         { }
 
         public string ToCSVString()

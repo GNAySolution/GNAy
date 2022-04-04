@@ -776,7 +776,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 string msg = $"{now:MM/dd HH:mm.ss}|IsHoliday={_appCtrl.Config.IsHoliday(now)}";
-                _appCtrl.LogTrace(msg);
+                //_appCtrl.LogTrace(msg);
                 StatusBarItemBA2.Text = msg;
 
                 ButtonSaveQuotesTest_Click(null, null);

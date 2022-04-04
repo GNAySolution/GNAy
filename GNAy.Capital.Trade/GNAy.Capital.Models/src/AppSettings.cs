@@ -99,7 +99,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.403.1";
+            Version = "0.22.404.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -112,7 +112,7 @@ namespace GNAy.Capital.Models
 
             DataGridAppLogRowsMax = 500;
 
-            TimerIntervalBackground = 300;
+            TimerIntervalBackground = 30;
             TimerIntervalUI1 = 300;
             TimerIntervalUI2 = 35 * 1000;
 

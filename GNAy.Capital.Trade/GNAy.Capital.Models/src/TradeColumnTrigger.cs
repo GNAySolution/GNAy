@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,49 +11,24 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class TradeColumnTrigger : NotifyPropertyChanged
     {
-        public string Creator { get; set; }
+        public TradeColumnAttribute Attribute { get; private set; }
+        public PropertyInfo Property { get; private set; }
 
-        public DateTime CreatedDate => CreatedTime.Date;
-
-        private DateTime _createdTime;
-        public DateTime CreatedTime
-        {
-            get { return _createdTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _createdTime, value))
-                {
-                    OnPropertyChanged(nameof(CreatedDate));
-                }
-            }
-        }
-
-        public string Property { get; private set; }
-        public string Name { get; private set; }
-        public string ShortName { get; private set; }
-        public int Index { get; private set; }
-        public bool Trigger { get; private set; }
-
-        public string DisplayName => $"{Name},{Property}";
+        public string DisplayName => string.Join(",", Attribute.Name, Property.PropertyType.Name, Attribute.ValueFormat);
         public string ToolTip => ToString();
 
-        public TradeColumnTrigger(string propertyName, TradeColumnAttribute attr)
+        public TradeColumnTrigger(TradeColumnAttribute attr, PropertyInfo property)
         {
-            Creator = String.Empty;
-            CreatedTime = DateTime.Now;
-            Property = propertyName;
-            Name = attr.Name;
-            ShortName = attr.ShortName;
-            Index = attr.Index;
-            Trigger = attr.Trigger;
+            Attribute = attr;
+            Property = property;
         }
 
-        private TradeColumnTrigger() : this(string.Empty, null)
+        private TradeColumnTrigger() : this(null, null)
         { }
 
         public override string ToString()
         {
-            return string.Join(",", Property, Name, ShortName, Index, Trigger);
+            return string.Join(",", Property.Name, Property.PropertyType.Name, Attribute.Name, Attribute.ShortName, Attribute.ValueFormat);
         }
     }
 }

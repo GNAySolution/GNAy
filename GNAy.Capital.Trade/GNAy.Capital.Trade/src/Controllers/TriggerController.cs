@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -17,7 +16,7 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public class TriggerController
     {
-        private static string[] _timeFormats = new string[] { "HHmmss", "Hmmss", "HHmm", "Hmm", "HH", "H", "HH:mm:ss", "H:mm:ss", "HH:mm", "H:mm" };
+        private static string[] _timeFormats = new string[] { "HHmmss", "HHmm", "HH" };
 
         public readonly DateTime CreatedTime;
         private readonly AppController _appCtrl;
@@ -51,16 +50,14 @@ namespace GNAy.Capital.Trade.Controllers
         private TriggerController() : this(null)
         { }
 
-        private void SaveTriggers()
+        private void SaveTriggers(ICollection<TriggerData> triggers)
         {
-            if (_triggerMap.Count <= 0)
-            {
-                return;
-            }
-
             try
             {
-                _appCtrl.LogTrace("Trigger|Start");
+                if (triggers == null)
+                {
+                    triggers = _triggerCollection.ToArray();
+                }
 
                 string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, $"{DateTime.Now:MMdd_HHmm}.csv");
                 _appCtrl.LogTrace($"Trigger|{path}");
@@ -69,7 +66,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     sw.WriteLine(TriggerData.CSVColumnNames);
 
-                    foreach (TriggerData trigger in _triggerMap.Values.ToArray())
+                    foreach (TriggerData trigger in triggers)
                     {
                         try
                         {
@@ -86,95 +83,114 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _appCtrl.LogException(ex, ex.StackTrace);
             }
-            finally
-            {
-                _appCtrl.LogTrace("Trigger|End");
-            }
         }
 
         private void SaveTriggersAsync()
         {
-            if (_triggerMap.Count <= 0)
-            {
-                return;
-            }
-
-            Task.Factory.StartNew(() => SaveTriggers());
+            Task.Factory.StartNew(() => SaveTriggers(null));
         }
 
-        private bool Check(string key, TriggerData trigger, QuoteData quote)
+        private bool UpdateStatus(string key, TriggerData trigger, QuoteData quote)
         {
+            if (quote == null)
+            {
+                return false;
+            }
+
             bool saveTriggers = false;
 
             DateTime now = DateTime.Now;
 
             lock (trigger.SyncRoot)
             {
-                if (trigger.StatusIndex == Definition.TriggerStatus1.Item1 || trigger.StatusIndex == Definition.TriggerStatus3.Item1)
+                if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
                 {
-                    return false;
+                    return saveTriggers;
                 }
-                else if (trigger.StatusIndex == Definition.TriggerStatus0.Item1 && (!trigger.StartTime.HasValue || trigger.StartTime.Value <= now))
+                else if (trigger.StatusIndex == Definition.TriggerStatusCancelled.Item1 || trigger.StatusIndex == Definition.TriggerStatusExecuted.Item1)
                 {
-                    trigger.StatusIndex = Definition.TriggerStatus2.Item1;
+                    return saveTriggers;
+                }
+                else if (trigger.StatusIndex == Definition.TriggerStatusWaiting.Item1 && (!trigger.StartTime.HasValue || trigger.StartTime.Value <= now))
+                {
+                    trigger.StatusIndex = Definition.TriggerStatusMonitoring.Item1;
+                    saveTriggers = true;
+                    _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{Definition.TriggerStatusWaiting.Item2} -> {trigger.StatusStr}");
+                }
+                else if (trigger.StatusIndex == Definition.TriggerStatusMonitoring.Item1)
+                { }
+                else
+                {
+                    return saveTriggers;
+                }
+
+                object valueObj = trigger.Column.Property.GetValue(quote);
+                decimal value = 0;
+
+                if (trigger.Column.Property.PropertyType == typeof(DateTime))
+                {
+                    value = decimal.Parse(((DateTime)valueObj).ToString(trigger.Column.Attribute.ValueFormat));
+                }
+                else if (trigger.Column.Property.PropertyType == typeof(string))
+                {
+                    value = decimal.Parse((string)valueObj);
                 }
                 else
                 {
-                    return false;
+                    value = (decimal)valueObj;
                 }
 
-                //if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
-
-                if (trigger.EndTime.HasValue && trigger.EndTime.Value <= now && trigger.StatusIndex != Definition.TriggerStatus3.Item1)
+                if (trigger.Rule == Definition.IsGreaterThanOrEqualTo)
                 {
-                    trigger.StatusIndex = Definition.TriggerStatus1.Item1;
+                    if (value >= trigger.Value)
+                    {
+                        trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
+                        saveTriggers = true;
+                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{value} {trigger.Rule} {trigger.Value}|{trigger.StatusStr}");
+
+                        //
+                    }
+                }
+                else if (trigger.Rule == Definition.IsLessThanOrEqualTo)
+                {
+                    if (value <= trigger.Value)
+                    {
+                        trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
+                        saveTriggers = true;
+                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{value} {trigger.Rule} {trigger.Value}|{trigger.StatusStr}");
+
+                        //
+                    }
+                }
+                else if (trigger.Rule == Definition.IsEqualTo)
+                {
+                    if (value == trigger.Value)
+                    {
+                        trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
+                        saveTriggers = true;
+                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{value} {trigger.Rule} {trigger.Value}|{trigger.StatusStr}");
+
+                        //
+                    }
+                }
+                else
+                {
+                    trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
                     saveTriggers = true;
-                    _appCtrl.LogTrace($"Trigger|{trigger.ColumnName}({key})|觸價逾時，取消監控");
+                    _appCtrl.LogError($"Trigger|條件({trigger.Rule})錯誤，必須是大於({Definition.IsGreaterThan})小於({Definition.IsLessThan})或等於({Definition.IsEqualTo})");
+                    return saveTriggers;
+                }
+
+                if (trigger.EndTime.HasValue && trigger.EndTime.Value <= now && trigger.StatusIndex != Definition.TriggerStatusExecuted.Item1)
+                {
+                    trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
+                    saveTriggers = true;
+                    _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|觸價逾時，監控取消");
+                    return saveTriggers;
                 }
             }
 
             return saveTriggers;
-        }
-
-        private void CheckAsync(string key, TriggerData trigger, QuoteData quote)
-        {
-            Task.Factory.StartNew(() =>
-            {
-                try
-                {
-                    if (Check(key, trigger, quote))
-                    {
-                        SaveTriggers();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _appCtrl.LogException(ex, ex.StackTrace);
-                }
-            });
-        }
-
-        public void OnQuotePropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            try
-            {
-                if (sender is QuoteData quote)
-                {
-                    string partialKey = $",{quote.Symbol},{e.PropertyName}";
-
-                    foreach (KeyValuePair<string, TriggerData> pair in _triggerMap)
-                    {
-                        if (pair.Key.EndsWith(partialKey))
-                        {
-                            CheckAsync(pair.Key, pair.Value, quote);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(ex, ex.StackTrace);
-            }
         }
 
         /// <summary>
@@ -199,7 +215,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _waitToAdd.TryDequeue(out TriggerData trigger);
 
-                string key = $"{trigger.OrderAcc},{trigger.Symbol},{trigger.ColumnProperty}";
+                string key = $"{trigger.OrderAcc},{trigger.Symbol},{trigger.ColumnProperty},{trigger.Rule}";
 
                 _appCtrl.MainForm.InvokeRequired(delegate
                 {
@@ -207,14 +223,14 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         if (!_triggerMap.TryGetValue(key, out TriggerData _old))
                         { }
-                        else if (_old.StatusIndex == Definition.TriggerStatus3.Item1)
+                        else if (_old.StatusIndex == Definition.TriggerStatusExecuted.Item1)
                         {
-                            _appCtrl.LogWarn($"Trigger|{trigger.ColumnName}({key})，舊設定已觸發，將新增設定");
+                            _appCtrl.LogWarn($"Trigger|{key}({trigger.ColumnName})，舊設定已觸發，將新增設定");
                             _triggerMap.Remove(key);
                         }
                         else
                         {
-                            _appCtrl.LogWarn($"Trigger|{trigger.ColumnName}({key})，舊設定尚未觸發，將進行重置");
+                            _appCtrl.LogWarn($"Trigger|{key}({trigger.ColumnName})，舊設定尚未觸發，將進行重置");
                             _triggerMap.Remove(key);
                             _triggerCollection.Remove(_old);
                         }
@@ -242,7 +258,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 try
                 {
-                    if (Check(pair.Key, pair.Value, pair.Value.Quote))
+                    if (UpdateStatus(pair.Key, pair.Value, pair.Value.Quote))
                     {
                         saveTriggers = true;
                     }
@@ -255,22 +271,31 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (saveTriggers)
             {
-                SaveTriggers();
+                SaveTriggers(_triggerCollection);
             }
         }
 
         public void ClearQuotes()
         {
+            _appCtrl.LogTrace("Trigger|Start");
+
             try
             {
-                foreach (TriggerData trigger in _triggerMap.Values)
+                Parallel.ForEach(_triggerMap.Values, trigger =>
                 {
-                    trigger.Quote = null;
-                }
+                    lock (trigger.SyncRoot)
+                    {
+                        trigger.Quote = null;
+                    }
+                });
             }
             catch (Exception ex)
             {
                 _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("Trigger|End");
             }
         }
 
@@ -278,12 +303,36 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
+                _appCtrl.LogTrace($"Trigger|Start|Symbol={quote.Symbol}|Page={quote.Page}");
+
                 _waitToReset.Enqueue(quote);
             }
             catch (Exception ex)
             {
                 _appCtrl.LogException(ex, ex.StackTrace);
             }
+            finally
+            {
+                _appCtrl.LogTrace("Trigger|End");
+            }
+        }
+
+        private string ToHHmmss(string time)
+        {
+            time = time.Replace(":", string.Empty);
+
+            if (time.Length == 1)
+            {
+                time = time.PadLeft(2, '0');
+            }
+            else if (time.Length == 3)
+            {
+                time = time.PadLeft(4, '0');
+            }
+
+            time = time.PadRight(6, '0');
+
+            return time;
         }
 
         public void AddRule()
@@ -294,7 +343,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (_appCtrl.Config.TriggerFolder == null)
                 {
-                    _appCtrl.LogError($"Trigger|觸價資料夾不存在，無法建立觸價資料");
+                    _appCtrl.LogError($"Trigger|未設定觸價資料夾(Settings.TriggerFolderPath)，無法建立觸價資料");
                     return;
                 }
                 else if (_appCtrl.MainForm.ComboBoxTriggerProduct.SelectedIndex < 0)
@@ -362,7 +411,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError($"Trigger|條件錯誤，開頭必須是大於({Definition.IsGreaterThan})小於({Definition.IsLessThan})或等於({Definition.IsEqualTo})");
+                    _appCtrl.LogError($"Trigger|條件({rule})錯誤，開頭必須是大於({Definition.IsGreaterThan})小於({Definition.IsLessThan})或等於({Definition.IsEqualTo})");
                     return;
                 }
 
@@ -384,6 +433,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (times.Length > 0 && !string.IsNullOrWhiteSpace(times[0]))
                 {
+                    times[0] = ToHHmmss(times[0]);
+
                     if (DateTime.TryParseExact(times[0], _timeFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _s))
                     {
                         startTime = _s;
@@ -397,6 +448,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (times.Length > 1 && !string.IsNullOrWhiteSpace(times[1]))
                 {
+                    times[1] = ToHHmmss(times[1]);
+
                     if (DateTime.TryParseExact(times[1], _timeFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _e))
                     {
                         endTime = _e;
@@ -415,17 +468,15 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (endTime.HasValue && endTime.Value.Hour <= 5 && (selectedQuote.Market == Definition.MarketFutures || selectedQuote.Market == Definition.MarketOptions))
                 {
-                    endTime.Value.AddDays(1);
+                    endTime = endTime.Value.AddDays(1);
                     _appCtrl.LogTrace($"Trigger|期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}");
                 }
 
-                TriggerData trigger = new TriggerData(orderAcc, _appCtrl.MainForm.ComboBoxTriggerColumn.SelectedItem as TradeColumnTrigger)
+                TriggerData trigger = new TriggerData(orderAcc, selectedQuote, _appCtrl.MainForm.ComboBoxTriggerColumn.SelectedItem as TradeColumnTrigger)
                 {
                     Creator = nameof(AddRule),
                     Updater = nameof(AddRule),
                     UpdateTime = DateTime.Now,
-                    Quote = selectedQuote,
-                    Symbol = selectedQuote.Symbol,
                     Rule = rule,
                     Value = value,
                     CancelIndex = _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex,

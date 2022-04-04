@@ -56,7 +56,7 @@ namespace GNAy.Capital.Models
         public DateTime UpdateDate => UpdateTime.Date;
 
         private DateTime _updateTime;
-        [TradeColumn("更新時", 3, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", Trigger = true)]
+        [TradeColumn("更新時", 3, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", IsTrigger = true, ValueFormat = "HHmmss.ffffff")]
         public DateTime UpdateTime
         {
             get { return _updateTime; }
@@ -92,7 +92,7 @@ namespace GNAy.Capital.Models
         public string SymbolAndName => $"{Symbol},{Name}";
 
         private string _matchedTimeRaw;
-        [TradeColumn("成交時間", 7, Trigger = true)]
+        [TradeColumn("成交時間", 7, IsTrigger = true, ValueFormat = "HHmmss.ffffff")]
         public string MatchedTimeRaw
         {
             get { return _matchedTimeRaw; }
@@ -109,7 +109,7 @@ namespace GNAy.Capital.Models
         public DateTime MatchedTime => DateTime.ParseExact(MatchedTimeRaw.ToString(), "HHmmss.ffffff", CultureInfo.InvariantCulture);
 
         private decimal _dealPrice;
-        [TradeColumn("成交價", "成價", 8, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("成交價", "成價", 8, StringFormat = "0.00", IsTrigger = true)]
         public decimal DealPrice
         {
             get { return _dealPrice; }
@@ -127,21 +127,21 @@ namespace GNAy.Capital.Models
         }
 
         private int _dealQty;
-        [TradeColumn("成交量", "成量", 9, Trigger = true)]
+        [TradeColumn("成交量", "成量", 9, IsTrigger = true)]
         public int DealQty
         {
             get { return _dealQty; }
             set { OnPropertyChanged(ref _dealQty, value); }
         }
 
-        [TradeColumn("漲跌", 10, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("漲跌", 10, StringFormat = "0.00", IsTrigger = true)]
         public decimal UpDown => (DealPrice != 0 && Reference != 0) ? DealPrice - Reference : 0;
 
-        [TradeColumn("漲跌幅", 11, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("漲跌幅", 11, StringFormat = "0.00", IsTrigger = true)]
         public decimal UpDownPct => (DealPrice != 0 && Reference != 0) ? (DealPrice - Reference) / Reference * 100 : 0;
 
         private decimal _bestBuyPrice;
-        [TradeColumn("買價", 12, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("買價", 12, StringFormat = "0.00", IsTrigger = true)]
         public decimal BestBuyPrice
         {
             get { return _bestBuyPrice; }
@@ -149,7 +149,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _bestBuyQty;
-        [TradeColumn("買量", 13, Trigger = true)]
+        [TradeColumn("買量", 13, IsTrigger = true)]
         public int BestBuyQty
         {
             get { return _bestBuyQty; }
@@ -157,7 +157,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _bestSellPrice;
-        [TradeColumn("賣價", 14, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("賣價", 14, StringFormat = "0.00", IsTrigger = true)]
         public decimal BestSellPrice
         {
             get { return _bestSellPrice; }
@@ -165,7 +165,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _bestSellyQty;
-        [TradeColumn("賣量", 15, Trigger = true)]
+        [TradeColumn("賣量", 15, IsTrigger = true)]
         public int BestSellQty
         {
             get { return _bestSellyQty; }
@@ -173,7 +173,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _openPrice;
-        [TradeColumn("開盤價", 16, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("開盤價", 16, StringFormat = "0.00", IsTrigger = true)]
         public decimal OpenPrice
         {
             get { return _openPrice; }
@@ -187,11 +187,11 @@ namespace GNAy.Capital.Models
             }
         }
 
-        [TradeColumn("開盤漲跌", "開盤漲", 17, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("開盤漲跌", "開盤漲", 17, StringFormat = "0.00", IsTrigger = true)]
         public decimal OpenUpDown => (OpenPrice != 0 && Reference != 0) ? OpenPrice - Reference : 0;
 
         private decimal _highPrice;
-        [TradeColumn("最高價", 18, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("最高價", 18, StringFormat = "0.00", IsTrigger = true)]
         public decimal HighPrice
         {
             get { return _highPrice; }
@@ -203,11 +203,11 @@ namespace GNAy.Capital.Models
             }
         }
 
-        [TradeColumn("成交最高價差", "成高差", 19, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("成交最高價差", "成高差", 19, StringFormat = "0.00", IsTrigger = true)]
         public decimal DealHigh => (HighPrice != 0) ? DealPrice - HighPrice : 0;
 
         private decimal _lowPrice;
-        [TradeColumn("最低價", 20, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("最低價", 20, StringFormat = "0.00", IsTrigger = true)]
         public decimal LowPrice
         {
             get { return _lowPrice; }
@@ -219,10 +219,10 @@ namespace GNAy.Capital.Models
             }
         }
 
-        [TradeColumn("成交最低價差", "成低差", 21, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("成交最低價差", "成低差", 21, StringFormat = "0.00", IsTrigger = true)]
         public decimal DealLow => (LowPrice != 0) ? DealPrice - LowPrice : 0;
 
-        [TradeColumn("最高最低價差", "高低差", 22, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("最高最低價差", "高低差", 22, StringFormat = "0.00", IsTrigger = true)]
         public decimal HighLow => HighPrice - LowPrice;
 
         private decimal _reference;
@@ -256,7 +256,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        [TradeColumn("開盤與前盤收盤價差", "開前價差", 25, StringFormat = "0.00", Trigger = true)]
+        [TradeColumn("開盤與前盤收盤價差", "開前價差", 25, StringFormat = "0.00", IsTrigger = true)]
         public decimal OpenLastCloseUpDown => (OpenPrice != 0 && LastClosePrice != 0) ? OpenPrice - LastClosePrice : 0;
 
         private int _simulate;
@@ -274,7 +274,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _totalQty;
-        [TradeColumn("總量", 27, Trigger = true)]
+        [TradeColumn("總量", 27, IsTrigger = true)]
         public int TotalQty
         {
             get { return _totalQty; }
@@ -282,7 +282,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _tradeDateRaw;
-        [TradeColumn("交易日", 28, Trigger = true)]
+        [TradeColumn("交易日", 28, IsTrigger = true, ValueFormat = "yyyyMMdd")]
         public int TradeDateRaw
         {
             get { return _tradeDateRaw; }

@@ -12,11 +12,17 @@ namespace GNAy.Capital.Models
         /// <summary>
         /// 欄位值可以被設定觸價通知
         /// </summary>
-        public bool Trigger { get; set; }
+        public bool IsTrigger { get; set; }
+
+        /// <summary>
+        /// 欄位值(通常是DateTime)轉換為數值時的格式設定
+        /// </summary>
+        public string ValueFormat { get; set; }
 
         public TradeColumnAttribute(string name, string shortName, int index) : base(name, shortName, index)
         {
-            Trigger = false;
+            IsTrigger = false;
+            ValueFormat = string.Empty;
         }
 
         public TradeColumnAttribute(string name, int index) : this(name, name, index)
