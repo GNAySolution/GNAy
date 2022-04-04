@@ -90,34 +90,24 @@ namespace GNAy.Capital.Models
         }.AsReadOnly();
 
         /// <summary>
-        /// 觸價後取消監控，同帳號同代碼同欄位
+        /// 觸價後取消監控，同代碼同欄位
         /// </summary>
-        public static (int, string) TriggerCancel0 = (0, "同帳號同代碼同欄位");
+        public static (int, string) TriggerCancel0 = (0, "同代碼同欄位");
 
         /// <summary>
-        /// 觸價後取消監控，同帳號同代碼全欄位
+        /// 觸價後取消監控，同代碼全欄位
         /// </summary>
-        public static (int, string) TriggerCancel1 = (1, "同帳號同代碼全欄位");
+        public static (int, string) TriggerCancel1 = (1, "同代碼全欄位");
 
         /// <summary>
-        /// 觸價後取消監控，同帳號全代碼
+        /// 觸價後取消監控，全代碼同欄位
         /// </summary>
-        public static (int, string) TriggerCancel2 = (2, "同帳號全代碼");
+        public static (int, string) TriggerCancel2 = (2, "全代碼同欄位");
 
         /// <summary>
-        /// 觸價後取消監控，全帳號同代碼同欄位
+        /// 觸價後取消監控，全代碼全欄位
         /// </summary>
-        public static (int, string) TriggerCancel3 = (3, "全帳號同代碼同欄位");
-
-        /// <summary>
-        /// 觸價後取消監控，全帳號同代碼全欄位
-        /// </summary>
-        public static (int, string) TriggerCancel4 = (4, "全帳號同代碼全欄位");
-
-        /// <summary>
-        /// 觸價後取消監控，全帳號全代碼
-        /// </summary>
-        public static (int, string) TriggerCancel5 = (5, "全帳號全代碼");
+        public static (int, string) TriggerCancel3 = (3, "全代碼全欄位");
 
         public static ReadOnlyCollection<string> TriggerCancelKinds = new List<string>()
         {
@@ -125,8 +115,6 @@ namespace GNAy.Capital.Models
             TriggerCancel1.Item2,
             TriggerCancel2.Item2,
             TriggerCancel3.Item2,
-            TriggerCancel4.Item2,
-            TriggerCancel5.Item2,
         }.AsReadOnly();
     }
 }

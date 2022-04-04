@@ -21,6 +21,9 @@
 * 範例參考期交所的小台日K資訊，整理使其更易於發想交易策略，以及回測驗證多年績效
 * https://www.taifex.com.tw/cht/3/dlFutDailyMarketView
 
+###### 0404_1830.csv
+* 觸價條件範例與測試
+
 ## GNAy.Capital.Models.csproj
 * 策略交易框架，相關模型、資料、設定
 

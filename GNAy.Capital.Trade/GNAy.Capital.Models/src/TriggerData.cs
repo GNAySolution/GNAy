@@ -87,9 +87,13 @@ namespace GNAy.Capital.Models
         [Column("狀態描述", "狀態", 5)]
         public string StatusStr => Definition.TriggerStatusKinds[StatusIndex];
 
-        private OrderAccData _orderAccData;
-        [Column("帳號", 6)]
-        public string OrderAcc => _orderAccData.Account;
+        private string _primaryKey;
+        [Column("自定義唯一鍵", "唯一鍵", 6)]
+        public string PrimaryKey
+        {
+            get { return _primaryKey; }
+            set { OnPropertyChanged(ref _primaryKey, value); }
+        }
 
         public QuoteData Quote;
 
@@ -166,7 +170,7 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _endTime, value); }
         }
 
-        public TriggerData(OrderAccData orderAcc, QuoteData quote, TradeColumnTrigger column)
+        public TriggerData(QuoteData quote, TradeColumnTrigger column)
         {
             SyncRoot = new object();
             Creator = String.Empty;
@@ -174,7 +178,7 @@ namespace GNAy.Capital.Models
             Updater = String.Empty;
             UpdateTime = DateTime.MaxValue;
             StatusIndex = Definition.TriggerStatusWaiting.Item1;
-            _orderAccData = orderAcc;
+            PrimaryKey = String.Empty;
             Quote = quote;
             Symbol = quote.Symbol;
             Column = column;
@@ -186,7 +190,7 @@ namespace GNAy.Capital.Models
             EndTime = null;
         }
 
-        public TriggerData() : this(null, null, null)
+        public TriggerData() : this(null, null)
         { }
 
         public string ToCSVString()

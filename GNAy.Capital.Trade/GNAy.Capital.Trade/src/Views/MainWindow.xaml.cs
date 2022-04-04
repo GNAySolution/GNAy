@@ -736,29 +736,6 @@ namespace GNAy.Capital.Trade
                 {
                     StatusBarItemAB1.Text = $"({DataGridQuoteSubscribed.Columns.Count},{DataGridQuoteSubscribed.Items.Count})";
                 }
-
-                if (ComboBoxStockAccs.IsMouseOver)
-                {
-                    if (ComboBoxStockAccs.SelectedIndex >= 0)
-                    {
-                        StatusBarItemBB2.Text = $"{nameof(ComboBoxStockAccs)}|{ComboBoxStockAccs.SelectedIndex}|{ComboBoxStockAccs.SelectedItem}";
-                    }
-                    else
-                    {
-                        StatusBarItemBB2.Text = $"{nameof(ComboBoxStockAccs)}|{ComboBoxStockAccs.SelectedIndex}";
-                    }
-                }
-                else if (ComboBoxFuturesAccs.IsMouseOver)
-                {
-                    if (ComboBoxFuturesAccs.SelectedIndex >= 0)
-                    {
-                        StatusBarItemBB2.Text = $"{nameof(ComboBoxFuturesAccs)}|{ComboBoxFuturesAccs.SelectedIndex}|{ComboBoxFuturesAccs.SelectedItem}";
-                    }
-                    else
-                    {
-                        StatusBarItemBB2.Text = $"{nameof(ComboBoxFuturesAccs)}|{ComboBoxFuturesAccs.SelectedIndex}";
-                    }
-                }
             }
             catch (Exception ex)
             {
