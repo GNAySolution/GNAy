@@ -113,24 +113,32 @@ namespace GNAy.Capital.Models
         [Column("屬性", 9)]
         public string ColumnProperty => Column.Property.Name;
 
+        private decimal _columnValue;
+        [Column("欄位值", 10)]
+        public decimal ColumnValue
+        {
+            get { return _columnValue; }
+            set { OnPropertyChanged(ref _columnValue, value); }
+        }
+
         private string _rule;
-        [Column("條件", 10)]
+        [Column("條件", 11)]
         public string Rule
         {
             get { return _rule; }
             set { OnPropertyChanged(ref _rule, value); }
         }
 
-        private decimal _value;
-        [Column("目標值", 11)]
-        public decimal Value
+        private decimal _targetValue;
+        [Column("目標值", 12)]
+        public decimal TargetValue
         {
-            get { return _value; }
-            set { OnPropertyChanged(ref _value, value); }
+            get { return _targetValue; }
+            set { OnPropertyChanged(ref _targetValue, value); }
         }
 
         private int _cancelIndex;
-        [Column("觸價取消索引", 12)]
+        [Column("觸價取消索引", 13)]
         public int CancelIndex
         {
             get { return _cancelIndex; }
@@ -143,11 +151,11 @@ namespace GNAy.Capital.Models
             }
         }
 
-        [Column("觸價取消描述", "觸價後取消", 13)]
+        [Column("觸價取消描述", "觸價後取消", 14)]
         public string CancelStr => Definition.TriggerCancelKinds[CancelIndex];
 
         private string _strategy;
-        [Column("觸價後執行", 14)]
+        [Column("觸價後執行", 15)]
         public string Strategy
         {
             get { return _strategy; }
@@ -155,7 +163,7 @@ namespace GNAy.Capital.Models
         }
 
         private DateTime? _startTime;
-        [Column("監控開始", 15, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        [Column("監控開始", 16, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
         public DateTime? StartTime
         {
             get { return _startTime; }
@@ -163,7 +171,7 @@ namespace GNAy.Capital.Models
         }
 
         private DateTime? _endTime;
-        [Column("監控結束", 16, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        [Column("監控結束", 17, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
         public DateTime? EndTime
         {
             get { return _endTime; }
@@ -182,8 +190,9 @@ namespace GNAy.Capital.Models
             Quote = quote;
             Symbol = quote.Symbol;
             Column = column;
+            ColumnValue = 0;
             Rule = String.Empty;
-            Value = 0;
+            TargetValue = 0;
             CancelIndex = Definition.TriggerCancel0.Item1;
             Strategy = String.Empty;
             StartTime = null;

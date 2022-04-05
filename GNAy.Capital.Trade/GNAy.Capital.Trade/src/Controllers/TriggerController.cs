@@ -56,7 +56,7 @@ namespace GNAy.Capital.Trade.Controllers
         private TriggerController() : this(null)
         { }
 
-        private void SaveTriggers(ICollection<TriggerData> triggers)
+        private void SaveData(ICollection<TriggerData> triggers)
         {
             try
             {
@@ -91,9 +91,9 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void SaveTriggersAsync()
+        private void SaveDataAsync()
         {
-            Task.Factory.StartNew(() => SaveTriggers(null));
+            Task.Factory.StartNew(() => SaveData(null));
         }
 
         private bool UpdateStatus(string key, TriggerData trigger, QuoteData quote)
@@ -127,37 +127,34 @@ namespace GNAy.Capital.Trade.Controllers
                 { }
                 else
                 {
-                    trigger.Updater = nameof(UpdateStatus);
-                    trigger.UpdateTime = now;
                     return saveTriggers;
+                }
+
+                object valueObj = trigger.Column.Property.GetValue(quote);
+
+                if (trigger.Column.Property.PropertyType == typeof(DateTime))
+                {
+                    trigger.ColumnValue = decimal.Parse(((DateTime)valueObj).ToString(trigger.Column.Attribute.ValueFormat));
+                }
+                else if (trigger.Column.Property.PropertyType == typeof(string))
+                {
+                    trigger.ColumnValue = decimal.Parse((string)valueObj);
+                }
+                else
+                {
+                    trigger.ColumnValue = (decimal)valueObj;
                 }
 
                 trigger.Updater = nameof(UpdateStatus);
                 trigger.UpdateTime = now;
 
-                object valueObj = trigger.Column.Property.GetValue(quote);
-                decimal value = 0;
-
-                if (trigger.Column.Property.PropertyType == typeof(DateTime))
-                {
-                    value = decimal.Parse(((DateTime)valueObj).ToString(trigger.Column.Attribute.ValueFormat));
-                }
-                else if (trigger.Column.Property.PropertyType == typeof(string))
-                {
-                    value = decimal.Parse((string)valueObj);
-                }
-                else
-                {
-                    value = (decimal)valueObj;
-                }
-
                 if (trigger.Rule == Definition.IsGreaterThanOrEqualTo)
                 {
-                    if (value >= trigger.Value)
+                    if (trigger.ColumnValue >= trigger.TargetValue)
                     {
                         trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
                         saveTriggers = true;
-                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{value} {trigger.Rule} {trigger.Value}|{trigger.StatusStr}");
+                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
 
                         _executedMap.TryAdd(key, trigger);
 
@@ -166,11 +163,11 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (trigger.Rule == Definition.IsLessThanOrEqualTo)
                 {
-                    if (value <= trigger.Value)
+                    if (trigger.ColumnValue <= trigger.TargetValue)
                     {
                         trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
                         saveTriggers = true;
-                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{value} {trigger.Rule} {trigger.Value}|{trigger.StatusStr}");
+                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
 
                         _executedMap.TryAdd(key, trigger);
 
@@ -179,11 +176,11 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (trigger.Rule == Definition.IsEqualTo)
                 {
-                    if (value == trigger.Value)
+                    if (trigger.ColumnValue == trigger.TargetValue)
                     {
                         trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
                         saveTriggers = true;
-                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{value} {trigger.Rule} {trigger.Value}|{trigger.StatusStr}");
+                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
 
                         _executedMap.TryAdd(key, trigger);
 
@@ -194,7 +191,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
                     saveTriggers = true;
-                    _appCtrl.LogError($"Trigger|條件({trigger.Rule})錯誤，必須是大於({Definition.IsGreaterThan})小於({Definition.IsLessThan})或等於({Definition.IsEqualTo})");
+                    _appCtrl.LogError($"Trigger|條件({trigger.Rule})錯誤，必須是大於小於等於");
                     return saveTriggers;
                 }
 
@@ -253,7 +250,7 @@ namespace GNAy.Capital.Trade.Controllers
                         _triggerMap.Add(trigger.PrimaryKey, trigger);
                         _triggerCollection.Add(trigger);
 
-                        SaveTriggersAsync();
+                        SaveDataAsync();
                     }
                     catch (Exception ex)
                     {
@@ -293,7 +290,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (saveTriggers)
             {
-                SaveTriggers(_triggerCollection);
+                SaveData(_triggerCollection);
             }
         }
 
@@ -325,7 +322,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                _appCtrl.LogTrace($"Trigger|Start|Symbol={quote.Symbol}|Page={quote.Page}");
+                //_appCtrl.LogTrace($"Trigger|Start|Symbol={quote.Symbol}|Page={quote.Page}");
 
                 _waitToReset.Enqueue(quote);
             }
@@ -335,7 +332,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
             finally
             {
-                _appCtrl.LogTrace("Trigger|End");
+                //_appCtrl.LogTrace("Trigger|End");
             }
         }
 
@@ -345,11 +342,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (time.Length == 1)
             {
-                time = time.PadLeft(2, '0').PadRight(6, '0');
+                time = time.PadLeft(2, '0');
             }
             else if (time.Length == 3)
             {
-                time = time.PadLeft(4, '0').PadRight(6, '0');
+                time = time.PadLeft(4, '0');
             }
             else if (time.Length == 5)
             {
@@ -427,7 +424,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError($"Trigger|條件({rule})錯誤，開頭必須是大於({Definition.IsGreaterThan})小於({Definition.IsLessThan})或等於({Definition.IsEqualTo})");
+                    _appCtrl.LogError($"Trigger|條件({rule})錯誤，開頭必須是大於小於等於");
                     return;
                 }
 
@@ -506,7 +503,7 @@ namespace GNAy.Capital.Trade.Controllers
                     UpdateTime = DateTime.Now,
                     PrimaryKey = primaryKey,
                     Rule = rule,
-                    Value = value,
+                    TargetValue = value,
                     CancelIndex = _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex,
                     Strategy = _appCtrl.MainForm.TextBoxTriggerStrategy.Text.Trim(),
                     StartTime = startTime,
@@ -522,6 +519,60 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 _appCtrl.MainForm.TabControlBB.SelectedIndex = 0;
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("Trigger|End");
+            }
+        }
+
+        public void RecoverSetting(FileInfo file)
+        {
+            _appCtrl.LogTrace("Trigger|Start");
+
+            try
+            {
+                if (file == null)
+                {
+                    if (_appCtrl.Config.TriggerFolder == null)
+                    {
+                        return;
+                    }
+
+                    _appCtrl.Config.TriggerFolder.Refresh();
+                    file = _appCtrl.Config.TriggerFolder.GetFiles("*.csv").LastOrDefault();
+                }
+
+                if (file == null)
+                {
+                    return;
+                }
+
+                List<string> columnNames = new List<string>();
+
+                //foreach (TriggerData trigger in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
+                //{
+                //    try
+                //    {
+                //        if (!string.IsNullOrWhiteSpace(trigger.PrimaryKey))
+                //        {
+                //            continue;
+                //        }
+
+                //        _triggerMap.Add(trigger.PrimaryKey, trigger);
+                //        _triggerCollection.Add(trigger);
+
+                //        //TODO
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        _appCtrl.LogException(ex, ex.StackTrace);
+                //    }
+                //}
             }
             catch (Exception ex)
             {

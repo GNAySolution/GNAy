@@ -8,17 +8,21 @@
         Title="MainWindow" Height="990" Width="1760" Activated="Window_Activated" Closing="Window_Closing" Deactivated="Window_Deactivated" FocusableChanged="Window_FocusableChanged" GotFocus="Window_GotFocus" GotKeyboardFocus="Window_GotKeyboardFocus" GotMouseCapture="Window_GotMouseCapture" IsVisibleChanged="Window_IsVisibleChanged" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" Loaded="Window_Loaded" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus" LostKeyboardFocus="Window_LostKeyboardFocus" LostMouseCapture="Window_LostMouseCapture" MouseDoubleClick="Window_MouseDoubleClick" MouseDown="Window_MouseDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseLeftButtonUp="Window_MouseLeftButtonUp" MouseMove="Window_MouseMove" MouseRightButtonDown="Window_MouseRightButtonDown" MouseRightButtonUp="Window_MouseRightButtonUp" MouseUp="Window_MouseUp" PreviewMouseWheel="Window_PreviewMouseWheel" SizeChanged="Window_SizeChanged" StateChanged="Window_StateChanged" ToolTipClosing="Window_ToolTipClosing" ToolTipOpening="Window_ToolTipOpening">
     <Grid>
         <!--https://dotblogs.com.tw/clark/2013/03/31/99679-->
+        <!--http://www.skcircle.com/?id=1113-->
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="ColumnDef" Width="700"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="RowDef" Height="300"/>
+            <RowDefinition x:Name="RowDef1" Height="300"/>
+            <RowDefinition x:Name="RowDef2" Height="300"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <GridSplitter Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="6"/>
-        <GridSplitter Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6"/>
-        <GridSplitter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6"/>
+        <GridSplitter Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="6" Background="Blue"/>
+        <GridSplitter Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
+        <GridSplitter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
+        <GridSplitter Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
+        <GridSplitter Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
         <Border Grid.Row="0" Grid.Column="0" Margin="2">
             <Grid Background="#FFE5E5E5">
                 <TabControl x:Name="TabControlAA" Margin="0,0,0,30" SelectedIndex="0">
@@ -73,54 +77,6 @@
         <Border Grid.Row="1" Grid.Column="0" Margin="2">
             <Grid Background="#FFE5E5E5">
                 <TabControl x:Name="TabControlBA" Margin="0,0,0,30" SelectedIndex="0">
-                    <TabItem Header="AppLog">
-                        <Grid Background="#FFE5E5E5">
-                            <DataGrid x:Name="DataGridAppLog" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding CreatedTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding Level}" IsReadOnly="True" CanUserSort="False">
-                                        <!--https://stackoverflow.com/questions/5549617/change-datagrid-cell-colour-based-on-values-->
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Style.Triggers>
-                                                    <Trigger Property="Text" Value="WARN">
-                                                        <Setter Property="Background" Value="Khaki"/>
-                                                    </Trigger>
-                                                    <Trigger Property="Text" Value="ERROR">
-                                                        <Setter Property="Background" Value="Pink"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                    </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding ThreadID}" IsReadOnly="True" CanUserSort="False">
-                                        <!--https://stackoverflow.com/questions/18177153/text-alignment-in-datagrid-->
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right"/>
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                    </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding CallerLineNumber}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right"/>
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                    </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding CallerMemberName}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="FontWeight" Value="DemiBold"/>
-                                                <Setter Property="Foreground" Value="MediumBlue"/>
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                    </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding Message}" IsReadOnly="True" CanUserSort="False"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
-                    </TabItem>
                     <TabItem Header="API回覆">
                         <Grid Background="#FFE5E5E5">
                             <DataGrid x:Name="DataGridAPIReply" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
@@ -170,6 +126,77 @@
                     <Separator/>
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemBA4" Text="BA4"/>
+                    </StatusBarItem>
+                </StatusBar>
+            </Grid>
+        </Border>
+        <Border Grid.Row="2" Grid.Column="0" Margin="2">
+            <Grid Background="#FFE5E5E5">
+                <TabControl x:Name="TabControlCA" Margin="0,0,0,30" SelectedIndex="0">
+                    <TabItem Header="AppLog">
+                        <Grid Background="#FFE5E5E5">
+                            <DataGrid x:Name="DataGridAppLog" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding CreatedTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding Level}" IsReadOnly="True" CanUserSort="False">
+                                        <!--https://stackoverflow.com/questions/5549617/change-datagrid-cell-colour-based-on-values-->
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <Trigger Property="Text" Value="WARN">
+                                                        <Setter Property="Background" Value="Khaki"/>
+                                                    </Trigger>
+                                                    <Trigger Property="Text" Value="ERROR">
+                                                        <Setter Property="Background" Value="Pink"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding ThreadID}" IsReadOnly="True" CanUserSort="False">
+                                        <!--https://stackoverflow.com/questions/18177153/text-alignment-in-datagrid-->
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding CallerLineNumber}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding CallerMemberName}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding Message}" IsReadOnly="True" CanUserSort="False"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+                <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemCA1" Text="CA1"/>
+                    </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemCA2" Text="CA2"/>
+                    </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemCA3" Text="CA3"/>
+                    </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemCA4" Text="CA4"/>
                     </StatusBarItem>
                 </StatusBar>
             </Grid>
@@ -538,7 +565,7 @@
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding ColumnName}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding ColumnProperty}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding Rule}" IsReadOnly="True" CanUserSort="False">
+                                    <DataGridTextColumn Binding="{Binding ColumnValue, StringFormat='{}{0:0.00####}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -547,7 +574,14 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding Value, StringFormat='{}{0:0.00####}'}" IsReadOnly="True" CanUserSort="False">
+                                    <DataGridTextColumn Binding="{Binding Rule}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding TargetValue, StringFormat='{}{0:0.00####}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -575,18 +609,6 @@
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
-                    <TabItem Header="委託回報">
-                        <Grid Background="#FFE5E5E5">
-                        </Grid>
-                    </TabItem>
-                    <TabItem Header="成交回報">
-                        <Grid Background="#FFE5E5E5">
-                        </Grid>
-                    </TabItem>
-                    <TabItem Header="庫存未平倉">
-                        <Grid Background="#FFE5E5E5">
-                        </Grid>
-                    </TabItem>
                 </TabControl>
                 <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
                     <StatusBarItem>
@@ -607,6 +629,45 @@
                     <Separator/>
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemBB5" Text="BB5"/>
+                    </StatusBarItem>
+                </StatusBar>
+            </Grid>
+        </Border>
+        <Border Grid.Row="2" Grid.Column="1" Margin="2">
+            <Grid Background="#FFE5E5E5">
+                <TabControl x:Name="TabControlCB" Margin="0,0,0,30" SelectedIndex="0">
+                    <TabItem Header="委託回報">
+                        <Grid Background="#FFE5E5E5">
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="成交回報">
+                        <Grid Background="#FFE5E5E5">
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="庫存未平倉">
+                        <Grid Background="#FFE5E5E5">
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+                <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemCB1" Text="CB1"/>
+                    </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemCB2" Text="CB2"/>
+                    </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemCB3" Text="CB3"/>
+                    </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemCB4" Text="CB4"/>
+                    </StatusBarItem>
+                    <Separator/>
+                    <StatusBarItem>
+                        <TextBlock x:Name="StatusBarItemCB5" Text="CB5"/>
                     </StatusBarItem>
                 </StatusBar>
             </Grid>

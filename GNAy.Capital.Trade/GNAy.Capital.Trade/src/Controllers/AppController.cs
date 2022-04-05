@@ -62,7 +62,7 @@ namespace GNAy.Capital.Trade.Controllers
             Version newVer = new Version(new AppSettings().Version);
             if (Config.Version < newVer)
             {
-                LogError($"設定檔({Config.Archive.Name})版本過舊({Config.Version} < {newVer})");
+                LogError($"AppCrtl|設定檔({Config.Archive.Name})版本過舊({Config.Version} < {newVer})");
                 //TODO: Migrate old config to new version.
             }
 
@@ -103,7 +103,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (level == LogLevel.Warn || level == LogLevel.Error)
                     {
-                        MainForm.TabControlBA.SelectedIndex = 0;
+                        MainForm.TabControlCA.SelectedIndex = 0;
                     }
 
                     _appLogCollection.Add(log);
@@ -284,7 +284,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void Exit(string msg = "", LogLevel level = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            LogTrace("Start");
+            LogTrace("AppCrtl|Start");
 
             int exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseErrorValue;
 
@@ -334,13 +334,13 @@ namespace GNAy.Capital.Trade.Controllers
             }
             finally
             {
-                LogTrace("End");
+                LogTrace("AppCrtl|End");
             }
         }
 
         public bool InitialCapital()
         {
-            LogTrace("Start");
+            LogTrace("AppCrtl|Start");
 
             try
             {
@@ -358,7 +358,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
             finally
             {
-                LogTrace("End");
+                LogTrace("AppCrtl|End");
             }
 
             return false;
@@ -366,7 +366,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public bool SetTriggerRule()
         {
-            LogTrace("Start");
+            LogTrace("AppCrtl|Start");
 
             try
             {
@@ -382,6 +382,8 @@ namespace GNAy.Capital.Trade.Controllers
                             _triggerColumnCollection.Add(new TradeColumnTrigger(value.Item1, value.Item2));
                         }
                     }
+
+                    Trigger.RecoverSetting(null);
                 }
 
                 return true;
@@ -392,7 +394,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
             finally
             {
-                LogTrace("End");
+                LogTrace("AppCrtl|End");
             }
 
             return false;

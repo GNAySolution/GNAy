@@ -713,18 +713,19 @@ namespace GNAy.Capital.Trade
                     StatusBarItemAA3.Text = $"({Width},{Height},{pt.X},{pt.Y})";
                 }
 
-                if (TabControlBA.SelectedIndex == 0 && DataGridAppLog.ItemsSource != null)
-                {
-                    StatusBarItemBA1.Text = $"({DataGridAppLog.Columns.Count},{DataGridAppLog.Items.Count})";
-                }
-                else if (TabControlBA.SelectedIndex == 1 && DataGridAPIReply.ItemsSource != null)
+                if (TabControlBA.SelectedIndex == 0 && DataGridAPIReply.ItemsSource != null)
                 {
                     StatusBarItemBA1.Text = $"({DataGridAPIReply.Columns.Count},{DataGridAPIReply.Items.Count})";
                 }
 
+                if (TabControlCA.SelectedIndex == 0 && DataGridAppLog.ItemsSource != null)
+                {
+                    StatusBarItemCA1.Text = $"({DataGridAppLog.Columns.Count},{DataGridAppLog.Items.Count})";
+                }
+
                 if (_appCtrl.Capital != null)
                 {
-                    StatusBarItemBA3.Text = $"{_appCtrl.Capital.AccountTimer.Item1:mm:ss}|{_appCtrl.Capital.AccountTimer.Item2}";
+                    StatusBarItemBA2.Text = $"{_appCtrl.Capital.AccountTimer.Item1:mm:ss}|{_appCtrl.Capital.AccountTimer.Item2}";
                     StatusBarItemAB5.Text = _appCtrl.Capital.QuoteStatusStr;
                     StatusBarItemAB3.Text = $"{_appCtrl.Capital.QuoteTimer.Item1:mm:ss.fff}|{_appCtrl.Capital.QuoteTimer.Item2}|{_appCtrl.Capital.QuoteTimer.Item3}";
 
@@ -732,9 +733,14 @@ namespace GNAy.Capital.Trade
                     StatusBarItemAA2.Text = $"{StatusBarItemAA2.Text}|{elapsed}";
                 }
 
-                if (DataGridQuoteSubscribed.ItemsSource != null)
+                if (TabControlAB.SelectedIndex == 0 && DataGridQuoteSubscribed.ItemsSource != null)
                 {
                     StatusBarItemAB1.Text = $"({DataGridQuoteSubscribed.Columns.Count},{DataGridQuoteSubscribed.Items.Count})";
+                }
+
+                if (TabControlBB.SelectedIndex == 0 && DataGridTriggerRule.ItemsSource != null)
+                {
+                    StatusBarItemBB1.Text = $"({DataGridTriggerRule.Columns.Count},{DataGridTriggerRule.Items.Count})";
                 }
             }
             catch (Exception ex)
@@ -754,7 +760,7 @@ namespace GNAy.Capital.Trade
             {
                 string msg = $"{now:MM/dd HH:mm.ss}|IsHoliday={_appCtrl.Config.IsHoliday(now)}";
                 //_appCtrl.LogTrace(msg);
-                StatusBarItemBA2.Text = msg;
+                StatusBarItemCA2.Text = msg;
 
                 ButtonSaveQuotesTest_Click(null, null);
 

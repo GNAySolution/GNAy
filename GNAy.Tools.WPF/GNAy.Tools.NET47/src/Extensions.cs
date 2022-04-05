@@ -26,10 +26,22 @@ namespace GNAy.Tools.NET47
 
             foreach (PropertyInfo pi in piArr)
             {
-                Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
-                if (attr is T column)
+                try
                 {
-                    result.Add(pi.Name, (column, pi));
+                    Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
+
+                    if (attr is T column)
+                    {
+                        result.Add(pi.Name, (column, pi));
+                    }
+                }
+                catch (ArgumentException ex)
+                {
+                    throw new ArgumentException($"{pi.Name}|{ex.Message}");
+                }
+                catch
+                {
+                    throw;
                 }
             }
 
@@ -44,15 +56,27 @@ namespace GNAy.Tools.NET47
             foreach (PropertyInfo pi in piArr)
             {
                 Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
+
                 if (attr is T column && column.Index >= 0)
                 {
-                    if (flags.HasFlag(BindingFlags.GetProperty) && pi.CanRead)
+                    try
                     {
-                        result.Add(column.Index, (column, pi));
+                        if (flags.HasFlag(BindingFlags.GetProperty) && pi.CanRead)
+                        {
+                            result.Add(column.Index, (column, pi));
+                        }
+                        else if (flags.HasFlag(BindingFlags.SetProperty) && pi.CanWrite)
+                        {
+                            result.Add(column.Index, (column, pi));
+                        }
                     }
-                    else if (flags.HasFlag(BindingFlags.SetProperty) && pi.CanWrite)
+                    catch (ArgumentException ex)
                     {
-                        result.Add(column.Index, (column, pi));
+                        throw new ArgumentException($"{column.Name}|{column.Index}|{ex.Message}");
+                    }
+                    catch
+                    {
+                        throw;
                     }
                 }
             }
@@ -68,15 +92,27 @@ namespace GNAy.Tools.NET47
             foreach (PropertyInfo pi in piArr)
             {
                 Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
+
                 if (attr is T column && column.Index >= 0)
                 {
-                    if (flags.HasFlag(BindingFlags.GetProperty) && pi.CanRead)
+                    try
                     {
-                        result.Add(column.Name, (column, pi));
+                        if (flags.HasFlag(BindingFlags.GetProperty) && pi.CanRead)
+                        {
+                            result.Add(column.Name, (column, pi));
+                        }
+                        else if (flags.HasFlag(BindingFlags.SetProperty) && pi.CanWrite)
+                        {
+                            result.Add(column.Name, (column, pi));
+                        }
                     }
-                    else if (flags.HasFlag(BindingFlags.SetProperty) && pi.CanWrite)
+                    catch (ArgumentException ex)
                     {
-                        result.Add(column.Name, (column, pi));
+                        throw new ArgumentException($"{column.Name}|{column.Index}|{ex.Message}");
+                    }
+                    catch
+                    {
+                        throw;
                     }
                 }
             }

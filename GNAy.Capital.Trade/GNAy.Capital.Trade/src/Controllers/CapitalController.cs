@@ -162,7 +162,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 try
                 {
-                    _appCtrl.MainForm.TabControlBA.SelectedIndex = 1;
+                    _appCtrl.MainForm.TabControlBA.SelectedIndex = 0;
 
                     _apiReplyCollection.Add(replay);
 
