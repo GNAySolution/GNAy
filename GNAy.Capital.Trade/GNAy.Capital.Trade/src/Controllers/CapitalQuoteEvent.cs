@@ -118,7 +118,8 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     quote.TradeDateRaw = nDate;
                 }
-                quote.MatchedTimeRaw = String.Format("{0}.{1}", lTimehms.ToString().PadLeft(6, '0'), lTimemillismicros.ToString().PadLeft(6, '0'));
+                quote.MatchedTimeHHmmss = lTimehms;
+                quote.MatchedTimefff = lTimemillismicros;
                 quote.BestBuyPrice = nBid / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
@@ -189,11 +190,11 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.LogError($"SKAPI|!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote)|nStockIdx={nStockIdx}");
                     return;
                 }
-                else if (quote.Market != sMarketNo)
-                {
-                    _appCtrl.LogError($"SKAPI|quote.Market != raw.bstrMarketNo|Market={quote.Market}|sMarketNo={sMarketNo}");
-                    return;
-                }
+                //else if (quote.Market != sMarketNo)
+                //{
+                //    _appCtrl.LogError($"SKAPI|quote.Market != raw.bstrMarketNo|Market={quote.Market}|sMarketNo={sMarketNo}");
+                //    return;
+                //}
 
                 bool firstTick = false;
 
@@ -202,7 +203,8 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     quote.TradeDateRaw = nDate;
                 }
-                quote.MatchedTimeRaw = String.Format("{0}.{1}", lTimehms.ToString().PadLeft(6, '0'), lTimemillismicros.ToString().PadLeft(6, '0'));
+                quote.MatchedTimeHHmmss = lTimehms;
+                quote.MatchedTimefff = lTimemillismicros;
                 quote.BestBuyPrice = nBid / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);

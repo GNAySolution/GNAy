@@ -65,7 +65,7 @@ namespace GNAy.Capital.Trade.Controllers
                     triggers = _triggerCollection.ToArray();
                 }
 
-                string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, $"{DateTime.Now:MMdd_HHmm}.csv");
+                string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, string.Format("{0}.csv", DateTime.Now.ToString(_appCtrl.Settings.TriggerFileFormat)));
                 _appCtrl.LogTrace($"Trigger|{path}");
 
                 using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
@@ -105,11 +105,13 @@ namespace GNAy.Capital.Trade.Controllers
 
             bool saveTriggers = false;
 
-            DateTime now = DateTime.Now;
-
             lock (trigger.SyncRoot)
             {
                 if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
+                {
+                    return saveTriggers;
+                }
+                else if (quote.Simulate.IsSimulating())
                 {
                     return saveTriggers;
                 }
@@ -117,7 +119,16 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveTriggers;
                 }
-                else if (trigger.StatusIndex == Definition.TriggerStatusWaiting.Item1 && (!trigger.StartTime.HasValue || trigger.StartTime.Value <= now))
+                else if (trigger.StatusIndex != Definition.TriggerStatusExecuted.Item1 && trigger.EndTime.HasValue && trigger.EndTime.Value <= DateTime.Now)
+                {
+                    trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
+                    saveTriggers = true;
+                    _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|觸價逾時，監控取消");
+                    trigger.Updater = nameof(UpdateStatus);
+                    trigger.UpdateTime = DateTime.Now;
+                    return saveTriggers;
+                }
+                else if (trigger.StatusIndex == Definition.TriggerStatusWaiting.Item1 && (!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now))
                 {
                     trigger.StatusIndex = Definition.TriggerStatusMonitoring.Item1;
                     saveTriggers = true;
@@ -146,7 +157,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 trigger.Updater = nameof(UpdateStatus);
-                trigger.UpdateTime = now;
+                trigger.UpdateTime = DateTime.Now;
 
                 if (trigger.Rule == Definition.IsGreaterThanOrEqualTo)
                 {
@@ -192,14 +203,6 @@ namespace GNAy.Capital.Trade.Controllers
                     trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
                     saveTriggers = true;
                     _appCtrl.LogError($"Trigger|條件({trigger.Rule})錯誤，必須是大於小於等於");
-                    return saveTriggers;
-                }
-
-                if (trigger.EndTime.HasValue && trigger.EndTime.Value <= now && trigger.StatusIndex != Definition.TriggerStatusExecuted.Item1)
-                {
-                    trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
-                    saveTriggers = true;
-                    _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|觸價逾時，監控取消");
                     return saveTriggers;
                 }
             }
@@ -356,6 +359,76 @@ namespace GNAy.Capital.Trade.Controllers
             return time;
         }
 
+        private (bool, DateTime?, DateTime?) TimeParse(QuoteData quote, params string[] times)
+        {
+            try
+            {
+                DateTime? startTime = null;
+                DateTime? endTime = null;
+
+                if (times.Length > 0 && !string.IsNullOrWhiteSpace(times[0]))
+                {
+                    times[0] = ToHHmmss(times[0]);
+
+                    if (DateTime.TryParseExact(times[0], _timeFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _s))
+                    {
+                        startTime = _s;
+                    }
+                    else
+                    {
+                        _appCtrl.LogError($"Trigger|開始時間錯誤，無法解析({times[0]})");
+                        return (false, null, null);
+                    }
+                }
+
+                if (times.Length > 1 && !string.IsNullOrWhiteSpace(times[1]))
+                {
+                    times[1] = ToHHmmss(times[1]);
+
+                    if (DateTime.TryParseExact(times[1], _timeFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _e))
+                    {
+                        endTime = _e;
+                    }
+                    else
+                    {
+                        _appCtrl.LogError($"Trigger|結束時間錯誤，無法解析({times[1]})");
+                        return (false, null, null);
+                    }
+                }
+
+                if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && quote.Market != Definition.MarketFutures && quote.Market != Definition.MarketOptions)
+                {
+                    _appCtrl.LogError($"Trigger|非期貨選擇權，結束時間({times[1]})不可小於開始時間({times[0]})");
+                    return (false, null, null);
+                }
+                else if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && endTime.Value.Hour >= 5)
+                {
+                    _appCtrl.LogError($"Trigger|結束時間({times[1]})不可大於等於凌晨5點");
+                    return (false, null, null);
+                }
+
+                if (startTime.HasValue && startTime.Value.Hour < 5 && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions))
+                {
+                    startTime = startTime.Value.AddDays(1);
+                    _appCtrl.LogTrace($"Trigger|期貨選擇權，開始時間跨日，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}");
+                }
+
+                if (endTime.HasValue && endTime.Value.Hour < 5 && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions))
+                {
+                    endTime = endTime.Value.AddDays(1);
+                    _appCtrl.LogTrace($"Trigger|期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}");
+                }
+
+                return (true, startTime, endTime);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+
+            return (false, null, null);
+        }
+
         public void AddRule()
         {
             _appCtrl.LogTrace("Trigger|Start");
@@ -439,61 +512,11 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 string duration = _appCtrl.MainForm.TextBoxTriggerTimeDuration.Text.Replace(" ", string.Empty);
-                DateTime? startTime = null;
-                DateTime? endTime = null;
+                (bool, DateTime?, DateTime?) parseResult = TimeParse(selectedQuote, duration.Split('~'));
 
-                string[] times = duration.Split('~');
-
-                if (times.Length > 0 && !string.IsNullOrWhiteSpace(times[0]))
+                if (!parseResult.Item1)
                 {
-                    times[0] = ToHHmmss(times[0]);
-
-                    if (DateTime.TryParseExact(times[0], _timeFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _s))
-                    {
-                        startTime = _s;
-                    }
-                    else
-                    {
-                        _appCtrl.LogError($"Trigger|開始時間錯誤，無法解析({times[0]})({duration})");
-                        return;
-                    }
-                }
-
-                if (times.Length > 1 && !string.IsNullOrWhiteSpace(times[1]))
-                {
-                    times[1] = ToHHmmss(times[1]);
-
-                    if (DateTime.TryParseExact(times[1], _timeFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _e))
-                    {
-                        endTime = _e;
-                    }
-                    else
-                    {
-                        _appCtrl.LogError($"Trigger|結束時間錯誤，無法解析({times[1]})({duration})");
-                        return;
-                    }
-                }
-
-                if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && selectedQuote.Market != Definition.MarketFutures && selectedQuote.Market != Definition.MarketOptions)
-                {
-                    _appCtrl.LogError($"Trigger|非期貨選擇權，結束時間({times[1]})不可小於開始時間({times[0]})");
                     return;
-                }
-                else if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && endTime.Value.Hour >= 5)
-                {
-                    _appCtrl.LogError($"Trigger|結束時間({times[1]})不可大於等於凌晨5點");
-                    return;
-                }
-
-                if (startTime.HasValue && startTime.Value.Hour < 5 && (selectedQuote.Market == Definition.MarketFutures || selectedQuote.Market == Definition.MarketOptions))
-                {
-                    startTime = startTime.Value.AddDays(1);
-                    _appCtrl.LogTrace($"Trigger|期貨選擇權，開始時間跨日，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}");
-                }
-                if (endTime.HasValue && endTime.Value.Hour < 5 && (selectedQuote.Market == Definition.MarketFutures || selectedQuote.Market == Definition.MarketOptions))
-                {
-                    endTime = endTime.Value.AddDays(1);
-                    _appCtrl.LogTrace($"Trigger|期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}");
                 }
 
                 TriggerData trigger = new TriggerData(selectedQuote, _appCtrl.MainForm.ComboBoxTriggerColumn.SelectedItem as TradeColumnTrigger)
@@ -506,8 +529,8 @@ namespace GNAy.Capital.Trade.Controllers
                     TargetValue = value,
                     CancelIndex = _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex,
                     Strategy = _appCtrl.MainForm.TextBoxTriggerStrategy.Text.Trim(),
-                    StartTime = startTime,
-                    EndTime = endTime,
+                    StartTime = parseResult.Item2,
+                    EndTime = parseResult.Item3,
                 };
 
                 _waitToAdd.Enqueue(trigger);
@@ -544,7 +567,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
 
                     _appCtrl.Config.TriggerFolder.Refresh();
-                    file = _appCtrl.Config.TriggerFolder.GetFiles("*.csv").LastOrDefault();
+                    file = _appCtrl.Config.TriggerFolder.GetFiles("*.csv").LastOrDefault(x => Path.GetFileNameWithoutExtension(x.Name).Length == _appCtrl.Settings.TriggerFileFormat.Length);
                 }
 
                 if (file == null)
@@ -554,25 +577,52 @@ namespace GNAy.Capital.Trade.Controllers
 
                 List<string> columnNames = new List<string>();
 
-                //foreach (TriggerData trigger in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
-                //{
-                //    try
-                //    {
-                //        if (!string.IsNullOrWhiteSpace(trigger.PrimaryKey))
-                //        {
-                //            continue;
-                //        }
+                foreach (TriggerData trigger in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
+                {
+                    try
+                    {
+                        if (string.IsNullOrWhiteSpace(trigger.PrimaryKey))
+                        {
+                            continue;
+                        }
 
-                //        _triggerMap.Add(trigger.PrimaryKey, trigger);
-                //        _triggerCollection.Add(trigger);
+                        QuoteData quote = _appCtrl.Capital.GetQuote(trigger.Symbol);
 
-                //        //TODO
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        _appCtrl.LogException(ex, ex.StackTrace);
-                //    }
-                //}
+                        if (quote == null)
+                        {
+                            continue;
+                        }
+
+                        trigger.Quote = quote;
+
+                        string startTime = trigger.StartTime.HasValue ? trigger.StartTime.Value.ToString("HHmmss") : string.Empty;
+                        string endTime = trigger.EndTime.HasValue ? trigger.EndTime.Value.ToString("HHmmss") : string.Empty;
+                        (bool, DateTime?, DateTime?) parseResult = TimeParse(quote, startTime, endTime);
+
+                        if (!parseResult.Item1)
+                        {
+                            continue;
+                        }
+
+                        trigger.StartTime = parseResult.Item2;
+                        trigger.EndTime = parseResult.Item3;
+
+                        trigger.Creator = nameof(RecoverSetting);
+                        trigger.Updater = nameof(RecoverSetting);
+                        trigger.UpdateTime = DateTime.Now;
+                        trigger.StatusIndex = Definition.TriggerStatusWaiting.Item1;
+
+                        _appCtrl.MainForm.InvokeRequired(delegate
+                        {
+                            _triggerMap.Add(trigger.PrimaryKey, trigger);
+                            _triggerCollection.Add(trigger);
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(ex, ex.StackTrace);
+                    }
+                }
             }
             catch (Exception ex)
             {

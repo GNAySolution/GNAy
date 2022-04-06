@@ -39,7 +39,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
 
-        private readonly System.Timers.Timer _timer;
+        private readonly System.Timers.Timer _timerBG;
+        private readonly System.Timers.Timer _timerTrigger;
 
         public AppController(MainWindow mainForm)
         {
@@ -59,11 +60,16 @@ namespace GNAy.Capital.Trade.Controllers
 
             Config = LoadSettings();
 
-            Version newVer = new Version(new AppSettings().Version);
+            AppSettings newSetting = new AppSettings();
+            Version newVer = new Version(newSetting.Version);
             if (Config.Version < newVer)
             {
                 LogError($"AppCrtl|設定檔({Config.Archive.Name})版本過舊({Config.Version} < {newVer})");
                 //TODO: Migrate old config to new version.
+            }
+            if (Config.TriggerFolder != null && string.IsNullOrWhiteSpace(Settings.TriggerFileFormat))
+            {
+                Settings.TriggerFileFormat = newSetting.TriggerFileFormat;
             }
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -76,10 +82,19 @@ namespace GNAy.Capital.Trade.Controllers
 
             _lastTimeToSaveQuote = DateTime.Now;
 
-            _timer = new System.Timers.Timer(Settings.TimerIntervalBackground);
-            _timer.Elapsed += OnTimedEvent;
-            _timer.AutoReset = true;
-            _timer.Enabled = true;
+            _timerBG = new System.Timers.Timer(Settings.TimerIntervalBackground);
+            _timerBG.Elapsed += OnTimedEvent;
+            _timerBG.AutoReset = true;
+            _timerBG.Enabled = true;
+
+            _timerTrigger = new System.Timers.Timer(Settings.TimerIntervalTrigger);
+            Task.Factory.StartNew(() =>
+            {
+                SpinWait.SpinUntil(() => Trigger != null);
+                _timerTrigger.Elapsed += OnTimedTrigger;
+                _timerTrigger.AutoReset = true;
+                _timerTrigger.Enabled = true;
+            });
         }
 
         protected AppController() : this(null)
@@ -290,7 +305,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                _timer.Enabled = false;
+                _timerBG.Enabled = false;
+                _timerTrigger.Enabled = false;
 
                 if (level == null || level == LogLevel.Trace)
                 {
@@ -382,8 +398,6 @@ namespace GNAy.Capital.Trade.Controllers
                             _triggerColumnCollection.Add(new TradeColumnTrigger(value.Item1, value.Item2));
                         }
                     }
-
-                    Trigger.RecoverSetting(null);
                 }
 
                 return true;

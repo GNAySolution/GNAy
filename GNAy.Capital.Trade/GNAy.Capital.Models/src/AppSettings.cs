@@ -29,7 +29,11 @@ namespace GNAy.Capital.Models
         /// </summary>
         public int TimerIntervalBackground { get; set; }
         /// <summary>
-        /// 例行性檢查
+        /// 檢查Trigger，對效能要求較高，另開Timer獨立執行
+        /// </summary>
+        public int TimerIntervalTrigger { get; set; }
+        /// <summary>
+        /// 監控UI
         /// </summary>
         public int TimerIntervalUI1 { get; set; }
         /// <summary>
@@ -87,6 +91,7 @@ namespace GNAy.Capital.Models
         /// 觸價資料夾
         /// </summary>
         public string TriggerFolderPath { get; set; }
+        public string TriggerFileFormat { get; set; }
 
         /// <summary>
         /// false=測試或跑回測時，不實際下單
@@ -99,7 +104,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.404.1";
+            Version = "0.22.406.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -112,8 +117,9 @@ namespace GNAy.Capital.Models
 
             DataGridAppLogRowsMax = 500;
 
-            TimerIntervalBackground = 30;
-            TimerIntervalUI1 = 300;
+            TimerIntervalBackground = 900;
+            TimerIntervalTrigger = 30;
+            TimerIntervalUI1 = 350;
             TimerIntervalUI2 = 35 * 1000;
 
             AutoRun = true;
@@ -133,9 +139,9 @@ namespace GNAy.Capital.Models
             QuoteMarkets = new List<int>();
             //QuoteMarkets = new List<int>() { Definition.MarketTSE, Definition.MarketOTC, Definition.MarketFutures, Definition.MarketEmerging };
             QuoteRequest = new List<string>();
-            //QuoteRequest = new List<string>() { "TSEA", "OTCA", "0050", "00632R", "0056", "2330" }; //
+            //QuoteRequest = new List<string>() { "TSEA", "0050", "00632R", "TX06", "MTX06" }; //
             QuoteLive = new List<string>();
-            //QuoteLive = new List<string>() { "UD06", "UN2206", "TX04", "TX05", "MTX04", "MTX05" }; //
+            //QuoteLive = new List<string>() { "2330", "UD06", "UN2206", "TX05", "MTX05" }; //
 
             QuoteFolderPath = "QuoteData";
             QuoteFileClosePrefix = "Last_";
@@ -143,6 +149,7 @@ namespace GNAy.Capital.Models
             QuoteSaveInterval = 45;
 
             TriggerFolderPath = "TriggerData";
+            TriggerFileFormat = "MMdd_HHmm";
 
             SendOrder = false;
             OrderAndDeal = false;

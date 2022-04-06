@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace GNAy.Capital.Trade.Controllers
 {
@@ -15,12 +16,12 @@ namespace GNAy.Capital.Trade.Controllers
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+        private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
             //Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
             //                  e.SignalTime);
 
-            _timer.Stop();
+            _timerBG.Stop();
 
             DateTime now = DateTime.Now;
 
@@ -37,16 +38,25 @@ namespace GNAy.Capital.Trade.Controllers
                 LogException(ex, ex.StackTrace);
             }
 
+            _timerBG.Start();
+        }
+
+        private void OnTimedTrigger(Object source, ElapsedEventArgs e)
+        {
+            _timerTrigger.Stop();
+
             try
             {
-                Trigger?.UpdateStatus();
+                Trigger.UpdateStatus();
             }
             catch (Exception ex)
             {
                 LogException(ex, ex.StackTrace);
             }
-
-            _timer.Start();
+            finally
+            {
+                _timerTrigger.Start();
+            }
         }
     }
 }

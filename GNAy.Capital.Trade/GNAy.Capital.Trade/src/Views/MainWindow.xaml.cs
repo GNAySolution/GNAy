@@ -835,6 +835,9 @@ namespace GNAy.Capital.Trade
                     });
 
                     Thread.Sleep(3 * 1000);
+                    _appCtrl.Trigger.RecoverSetting(null);
+
+                    Thread.Sleep(3 * 1000);
                     this.InvokeRequired(delegate { _timer2.Start(); });
                 });
             }
@@ -1048,7 +1051,7 @@ namespace GNAy.Capital.Trade
                 DirectoryInfo folder = new DirectoryInfo(TextBoxQuoteFolderTest.Text);
                 folder.Create();
                 folder.Refresh();
-                _appCtrl.Capital.SaveQuotesAsync(quoteFolder: folder);
+                _appCtrl.Capital.SaveQuotesAsync(folder);
             }
             catch (Exception ex)
             {

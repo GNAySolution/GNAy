@@ -219,7 +219,15 @@ namespace GNAy.Tools.NET47
             {
                 obj.SetValue(instance, new StringBuilder(value));
             }
+            else if (string.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
             else if (propertyType == typeof(DateTime))
+            {
+                obj.SetValue(instance, DateTime.ParseExact(value, format, CultureInfo.InvariantCulture));
+            }
+            else if (propertyType == typeof(DateTime?))
             {
                 obj.SetValue(instance, DateTime.ParseExact(value, format, CultureInfo.InvariantCulture));
             }
@@ -227,7 +235,15 @@ namespace GNAy.Tools.NET47
             {
                 obj.SetValue(instance, decimal.Parse(value));
             }
+            else if (propertyType == typeof(decimal?))
+            {
+                obj.SetValue(instance, decimal.Parse(value));
+            }
             else if (propertyType == typeof(double))
+            {
+                obj.SetValue(instance, double.Parse(value));
+            }
+            else if (propertyType == typeof(double?))
             {
                 obj.SetValue(instance, double.Parse(value));
             }
@@ -235,7 +251,15 @@ namespace GNAy.Tools.NET47
             {
                 obj.SetValue(instance, float.Parse(value));
             }
+            else if (propertyType == typeof(float?))
+            {
+                obj.SetValue(instance, float.Parse(value));
+            }
             else if (propertyType == typeof(long))
+            {
+                obj.SetValue(instance, long.Parse(value));
+            }
+            else if (propertyType == typeof(long?))
             {
                 obj.SetValue(instance, long.Parse(value));
             }
@@ -243,11 +267,23 @@ namespace GNAy.Tools.NET47
             {
                 obj.SetValue(instance, int.Parse(value));
             }
+            else if (propertyType == typeof(int?))
+            {
+                obj.SetValue(instance, int.Parse(value));
+            }
             else if (propertyType == typeof(short))
             {
                 obj.SetValue(instance, short.Parse(value));
             }
+            else if (propertyType == typeof(short?))
+            {
+                obj.SetValue(instance, short.Parse(value));
+            }
             else if (propertyType == typeof(byte))
+            {
+                obj.SetValue(instance, byte.Parse(value));
+            }
+            else if (propertyType == typeof(byte?))
             {
                 obj.SetValue(instance, byte.Parse(value));
             }

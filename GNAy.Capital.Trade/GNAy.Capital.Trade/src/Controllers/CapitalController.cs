@@ -470,50 +470,14 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.LogError($"SKAPI|quote.Symbol != raw.bstrStockNo|Symbol={quote.Symbol}|bstrStockNo={raw.bstrStockNo}");
                 return false;
             }
-            else if (quote.Name != raw.bstrStockName)
-            {
-                _appCtrl.LogError($"SKAPI|quote.Name != raw.bstrStockName|Name={quote.Name}|bstrStockName={raw.bstrStockName}");
-                return false;
-            }
-            else if ($"{quote.Market}" != raw.bstrMarketNo)
-            {
-                _appCtrl.LogError($"SKAPI|quote.Market != raw.bstrMarketNo|Market={quote.Market}|bstrMarketNo={raw.bstrMarketNo}");
-                return false;
-            }
-            //開盤成交分別收到
-            //else if (raw.nOpen != 0 && (raw.nClose == 0 || raw.nTickQty == 0))
-            //else if (!IsAMMarket && quote.Page < 0 && (quote.Market == Definition.MarketTSE || quote.Market == Definition.MarketOTC))
+            //else if (quote.Name != raw.bstrStockName)
             //{
-            //    QuoteData quoteBK = new QuoteData()
-            //    {
-            //        Creator = nameof(UpdateQuote),
-            //        CreatedTime = DateTime.Now,
-            //        Updater = nameof(UpdateQuote),
-            //        UpdateTime = DateTime.Now,
-            //        Symbol = raw.bstrStockNo,
-            //        Name = raw.bstrStockName,
-            //        DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal),
-            //        DealQty = raw.nTickQty,
-            //        BestBuyPrice = raw.nBid / (decimal)Math.Pow(10, raw.sDecimal),
-            //        BestBuyQty = raw.nBc,
-            //        BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal),
-            //        BestSellQty = raw.nAc,
-            //        OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal),
-            //        HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal),
-            //        LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal),
-            //        Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal),
-            //        Simulate = raw.nSimulate,
-            //        TotalQty = raw.nTQty,
-            //        TradeDateRaw = raw.nTradingDay,
-            //        HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal),
-            //        LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal),
-            //        Index = raw.nStockIdx,
-            //        Market = short.Parse(raw.bstrMarketNo),
-            //        DecimalPos = raw.sDecimal,
-            //        TotalQtyBefore = raw.nYQty,
-            //    };
-
-            //    SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"Unknown_", string.Empty, quoteBK);
+            //    _appCtrl.LogError($"SKAPI|quote.Name != raw.bstrStockName|Name={quote.Name}|bstrStockName={raw.bstrStockName}");
+            //    return false;
+            //}
+            //else if ($"{quote.Market}" != raw.bstrMarketNo)
+            //{
+            //    _appCtrl.LogError($"SKAPI|quote.Market != raw.bstrMarketNo|Market={quote.Market}|bstrMarketNo={raw.bstrMarketNo}");
             //    return false;
             //}
 
@@ -906,6 +870,11 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
+        public QuoteData GetQuote(string symbol)
+        {
+            return _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == symbol);
+        }
+
         public void RequestKLine(string product = "")
         {
             _appCtrl.LogTrace($"SKAPI|Start|product={product}");
@@ -938,7 +907,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void SaveQuotes(DirectoryInfo folder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
         {
-            if (QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY || _quoteIndexMap.Count <= 0 || string.IsNullOrWhiteSpace(QuoteFileNameBase))
+            if (_quoteIndexMap.Count <= 0 || string.IsNullOrWhiteSpace(QuoteFileNameBase))
             {
                 return;
             }
@@ -997,7 +966,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public Task SaveQuotesAsync(DirectoryInfo quoteFolder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
         {
-            if (QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY || _quoteIndexMap.Count <= 0 || string.IsNullOrWhiteSpace(QuoteFileNameBase))
+            if (_quoteIndexMap.Count <= 0 || string.IsNullOrWhiteSpace(QuoteFileNameBase))
             {
                 return null;
             }

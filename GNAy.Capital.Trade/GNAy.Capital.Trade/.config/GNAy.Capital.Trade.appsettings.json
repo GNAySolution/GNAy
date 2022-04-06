@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.404.1",
+  "Version": "0.22.406.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -13,8 +13,9 @@
     "補假"
   ],
   "DataGridAppLogRowsMax": 500,
-  "TimerIntervalBackground": 30,
-  "TimerIntervalUI1": 300,
+  "TimerIntervalBackground": 900,
+  "TimerIntervalTrigger": 30,
+  "TimerIntervalUI1": 350,
   "TimerIntervalUI2": 35000,
   "AutoRun": true,
   "TimeToStart": [
@@ -30,14 +31,14 @@
     "TSEA",
     "0050",
     "00632R",
-    "2330"
+    "TX06",
+    "MTX06"
   ],
   "QuoteLive": [
+    "2330",
     "UD06",
     "UN2206",
-    "TX04",
     "TX05",
-    "MTX04",
     "MTX05"
   ],
   "QuoteFolderPath": "QuoteData",
@@ -45,6 +46,7 @@
   "QuoteFileRecoverPrefix": "Recover_",
   "QuoteSaveInterval": 45,
   "TriggerFolderPath": "TriggerData",
+  "TriggerFileFormat": "MMdd_HHmm",
   "SendOrder": false,
   "OrderAndDeal": false
 }

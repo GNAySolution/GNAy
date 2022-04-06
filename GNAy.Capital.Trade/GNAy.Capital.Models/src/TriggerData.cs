@@ -199,7 +199,7 @@ namespace GNAy.Capital.Models
             EndTime = null;
         }
 
-        public TriggerData() : this(null, null)
+        private TriggerData() : this(null, null)
         { }
 
         public string ToCSVString()
@@ -229,29 +229,37 @@ namespace GNAy.Capital.Models
             {
                 if (ColumnSetters.TryGetValue(columnNames[i], out (ColumnAttribute, PropertyInfo) value))
                 {
-                    value.Item2.SetValueFromString(this, cells[i], value.Item1.StringFormat);
+                    value.Item2.SetValueFromString(this, cells.Count > i ? cells[i] : null, value.Item1.StringFormat);
                 }
             }
         }
 
-        public static TriggerData Create(IList<string> columnNames, string lineCSV)
+        public static TriggerData Create(IList<string> columnNames, int propertyIndex, string lineCSV)
         {
-            TriggerData data = new TriggerData();
-            data.SetValues(columnNames, lineCSV.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries));
+            string[] cells = lineCSV.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries);
+            string propertyName = cells[propertyIndex];
+            (TradeColumnAttribute, PropertyInfo) property = QuoteData.PropertyMap[propertyName];
+
+            TriggerData data = new TriggerData(new QuoteData(), new TradeColumnTrigger(property.Item1, property.Item2));
+            data.SetValues(columnNames, cells);
+
             return data;
         }
 
         public static IEnumerable<TriggerData> ForeachQuoteFromCSVFile(string quotePath, List<string> columnNames)
         {
+            int propertyIndex = -1;
+
             foreach (string line in File.ReadLines(quotePath, TextEncoding.UTF8WithoutBOM))
             {
                 if (columnNames.Count <= 0)
                 {
                     columnNames.AddRange(line.Split(Separator.CSV));
+                    propertyIndex = columnNames.FindIndex(x => x == PropertyMap[nameof(ColumnProperty)].Item1.Name);
                     continue;
                 }
 
-                TriggerData data = Create(columnNames, line);
+                TriggerData data = Create(columnNames, propertyIndex, line);
 
                 yield return data;
             }

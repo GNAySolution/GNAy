@@ -5,17 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GNAy.Capital.Trade"
         mc:Ignorable="d"
-        Title="MainWindow" Height="990" Width="1760" Activated="Window_Activated" Closing="Window_Closing" Deactivated="Window_Deactivated" FocusableChanged="Window_FocusableChanged" GotFocus="Window_GotFocus" GotKeyboardFocus="Window_GotKeyboardFocus" GotMouseCapture="Window_GotMouseCapture" IsVisibleChanged="Window_IsVisibleChanged" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" Loaded="Window_Loaded" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus" LostKeyboardFocus="Window_LostKeyboardFocus" LostMouseCapture="Window_LostMouseCapture" MouseDoubleClick="Window_MouseDoubleClick" MouseDown="Window_MouseDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseLeftButtonUp="Window_MouseLeftButtonUp" MouseMove="Window_MouseMove" MouseRightButtonDown="Window_MouseRightButtonDown" MouseRightButtonUp="Window_MouseRightButtonUp" MouseUp="Window_MouseUp" PreviewMouseWheel="Window_PreviewMouseWheel" SizeChanged="Window_SizeChanged" StateChanged="Window_StateChanged" ToolTipClosing="Window_ToolTipClosing" ToolTipOpening="Window_ToolTipOpening">
+        Title="MainWindow" Height="1035" Width="1840" Activated="Window_Activated" Closing="Window_Closing" Deactivated="Window_Deactivated" FocusableChanged="Window_FocusableChanged" GotFocus="Window_GotFocus" GotKeyboardFocus="Window_GotKeyboardFocus" GotMouseCapture="Window_GotMouseCapture" IsVisibleChanged="Window_IsVisibleChanged" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" Loaded="Window_Loaded" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus" LostKeyboardFocus="Window_LostKeyboardFocus" LostMouseCapture="Window_LostMouseCapture" MouseDoubleClick="Window_MouseDoubleClick" MouseDown="Window_MouseDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseLeftButtonUp="Window_MouseLeftButtonUp" MouseMove="Window_MouseMove" MouseRightButtonDown="Window_MouseRightButtonDown" MouseRightButtonUp="Window_MouseRightButtonUp" MouseUp="Window_MouseUp" PreviewMouseWheel="Window_PreviewMouseWheel" SizeChanged="Window_SizeChanged" StateChanged="Window_StateChanged" ToolTipClosing="Window_ToolTipClosing" ToolTipOpening="Window_ToolTipOpening">
     <Grid>
         <!--https://dotblogs.com.tw/clark/2013/03/31/99679-->
         <!--http://www.skcircle.com/?id=1113-->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="ColumnDef" Width="700"/>
+            <ColumnDefinition x:Name="ColumnDef" Width="750"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="RowDef1" Height="300"/>
-            <RowDefinition x:Name="RowDef2" Height="300"/>
+            <RowDefinition x:Name="RowDef2" Height="350"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <GridSplitter Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="6" Background="Blue"/>
@@ -239,7 +239,20 @@
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding Symbol}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Name}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding MatchedTime, StringFormat='{}{0:HH:mm:ss.ffff}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding MatchedTimeHHmmss, StringFormat='{}{0:000000}'}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding MatchedTimefff, StringFormat='{}{0:000000}'}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding DealPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
@@ -538,6 +551,19 @@
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
                             <DataGrid x:Name="DataGridTriggerRule" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
+                                <DataGrid.RowStyle>
+                                    <!--https://stackoverflow.com/questions/18053281/how-to-set-datagrids-row-background-based-on-a-property-value-using-data-bindi-->
+                                    <Style TargetType="DataGridRow">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding StatusIndex}" Value="3">
+                                                <Setter Property="Background" Value="Pink"></Setter>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding StatusIndex}" Value="1">
+                                                <Setter Property="Background" Value="LightGray"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Binding="{Binding UpdateTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding StatusStr}" IsReadOnly="True" CanUserSort="False">
@@ -551,7 +577,7 @@
                                     <DataGridTextColumn Binding="{Binding PrimaryKey}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="HorizontalAlignment" Value="Center"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
