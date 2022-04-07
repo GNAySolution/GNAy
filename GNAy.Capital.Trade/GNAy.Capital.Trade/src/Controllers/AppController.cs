@@ -23,7 +23,6 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         public readonly DateTime CreatedTime;
-
         public readonly MainWindow MainForm;
 
         public readonly string ProcessName;
@@ -45,11 +44,10 @@ namespace GNAy.Capital.Trade.Controllers
         public AppController(MainWindow mainForm)
         {
             CreatedTime = DateTime.Now;
+            MainForm = mainForm;
 
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
-
-            MainForm = mainForm;
 
             Process p = Process.GetCurrentProcess();
             ProcessName = p.ProcessName.Replace(".vshost", string.Empty);

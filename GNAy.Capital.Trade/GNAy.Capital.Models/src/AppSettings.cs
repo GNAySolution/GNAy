@@ -88,6 +88,15 @@ namespace GNAy.Capital.Models
         public int QuoteSaveInterval { get; set; }
 
         /// <summary>
+        /// 設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
+        /// </summary>
+        public int OrderMaxQty { get; set; }
+        /// <summary>
+        /// 設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
+        /// </summary>
+        public int OrderMaxCount { get; set; }
+
+        /// <summary>
         /// 觸價資料夾
         /// </summary>
         public string TriggerFolderPath { get; set; }
@@ -104,7 +113,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.406.1";
+            Version = "0.22.407.3";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -119,7 +128,7 @@ namespace GNAy.Capital.Models
 
             TimerIntervalBackground = 900;
             TimerIntervalTrigger = 30;
-            TimerIntervalUI1 = 350;
+            TimerIntervalUI1 = 200;
             TimerIntervalUI2 = 35 * 1000;
 
             AutoRun = true;
@@ -147,6 +156,9 @@ namespace GNAy.Capital.Models
             QuoteFileClosePrefix = "Last_";
             QuoteFileRecoverPrefix = "Recover_";
             QuoteSaveInterval = 45;
+
+            OrderMaxQty = 50;
+            OrderMaxCount = 10;
 
             TriggerFolderPath = "TriggerData";
             TriggerFileFormat = "MMdd_HHmm";

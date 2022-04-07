@@ -81,7 +81,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //
+                _appCtrl.MainForm.StatusBarItemAA4.Text = nameof(Window_Activated);
             }
             catch (Exception ex)
             {
@@ -113,7 +113,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //
+                _appCtrl.MainForm.StatusBarItemAA4.Text = nameof(Window_Deactivated);
             }
             catch (Exception ex)
             {
@@ -255,26 +255,36 @@ namespace GNAy.Capital.Trade
         {
             _appCtrl.LogTrace("Start");
 
+            Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    if (!_appCtrl.Config.StartOnTime)
+                    {
+                        _appCtrl.LogWarn($"程式沒有在正常時間啟動");
+                    }
+
+                    _appCtrl.LogTrace($"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-3))}");
+                    _appCtrl.LogTrace($"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-2))}");
+                    _appCtrl.LogTrace($"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-1))}");
+                    _appCtrl.LogTrace($"{StartTime.AddDays(0):MM/dd HH:mm}|{StartTime.AddDays(+0).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(0))}|Today");
+                    _appCtrl.LogTrace($"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(1))}");
+                    _appCtrl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(2))}");
+                    _appCtrl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(3))}");
+
+                    _appCtrl.LogTrace($"{_appCtrl.Config.Archive.FullName}");
+                    _appCtrl.LogTrace($"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}");
+
+                    _appCtrl.LogTrace($"AutoRun={_appCtrl.Settings.AutoRun}");
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(ex, ex.StackTrace);
+                }
+            });
+
             try
             {
-                if (!_appCtrl.Config.StartOnTime)
-                {
-                    _appCtrl.LogWarn($"程式沒有在正常時間啟動");
-                }
-
-                _appCtrl.LogTrace($"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-3))}");
-                _appCtrl.LogTrace($"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-2))}");
-                _appCtrl.LogTrace($"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-1))}");
-                _appCtrl.LogTrace($"{StartTime.AddDays(0):MM/dd HH:mm}|{StartTime.AddDays(+0).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(0))}|Today");
-                _appCtrl.LogTrace($"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(1))}");
-                _appCtrl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(2))}");
-                _appCtrl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(3))}");
-
-                _appCtrl.LogTrace($"{_appCtrl.Config.Archive.FullName}");
-                _appCtrl.LogTrace($"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}");
-
-                _appCtrl.LogTrace($"AutoRun={_appCtrl.Settings.AutoRun}");
-
                 if (!_appCtrl.Config.Archive.Exists)
                 {
                     //https://docs.microsoft.com/zh-tw/dotnet/desktop/wpf/windows/how-to-open-message-box?view=netdesktop-6.0
@@ -387,7 +397,7 @@ namespace GNAy.Capital.Trade
 
         private void Window_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            //_appCtrl.LogTrace("Start");
 
             try
             {
@@ -399,7 +409,7 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                //_appCtrl.LogTrace("End");
             }
         }
 
@@ -725,11 +735,12 @@ namespace GNAy.Capital.Trade
 
                 if (_appCtrl.Capital != null)
                 {
-                    StatusBarItemBA2.Text = $"{_appCtrl.Capital.AccountTimer.Item1:mm:ss}|{_appCtrl.Capital.AccountTimer.Item2}";
+                    StatusBarItemBA3.Text = $"{_appCtrl.Capital.AccountTimer.Item1:mm:ss}|{_appCtrl.Capital.AccountTimer.Item2}";
+                    StatusBarItemBA4.Text = _appCtrl.Capital.QuoteTimer;
                     StatusBarItemAB5.Text = _appCtrl.Capital.QuoteStatusStr;
-                    StatusBarItemAB3.Text = $"{_appCtrl.Capital.QuoteTimer.Item1:mm:ss.fff}|{_appCtrl.Capital.QuoteTimer.Item2}|{_appCtrl.Capital.QuoteTimer.Item3}";
+                    StatusBarItemAB3.Text = $"{_appCtrl.Capital.QuoteLastUpdated.UpdateTime:mm:ss.fff}|{_appCtrl.Capital.QuoteLastUpdated.Updater}";
 
-                    elapsed = (now - _appCtrl.Capital.QuoteTimer.Item1).ToString("mm':'ss'.'fff");
+                    elapsed = (now - _appCtrl.Capital.QuoteLastUpdated.UpdateTime).ToString("mm':'ss'.'fff");
                     StatusBarItemAA2.Text = $"{StatusBarItemAA2.Text}|{elapsed}";
                 }
 
@@ -1105,12 +1116,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.UnlockOrder(0);
-                _appCtrl.Capital.UnlockOrder(1);
-                _appCtrl.Capital.UnlockOrder(2);
-                _appCtrl.Capital.UnlockOrder(3);
-                _appCtrl.Capital.UnlockOrder(4);
-                _appCtrl.Capital.UnlockOrder(5);
+                _appCtrl.Capital.UnlockOrder();
             }
             catch (Exception ex)
             {
@@ -1141,6 +1147,60 @@ namespace GNAy.Capital.Trade
             }
         }
 
+        private void ButtonSetOrderMaxQty_Click(object sender, RoutedEventArgs e)
+        {
+            _appCtrl.LogTrace("Start");
+
+            try
+            {
+                _appCtrl.Capital.SetOrderMaxQty();
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonSetOrderMaxCount_Click(object sender, RoutedEventArgs e)
+        {
+            _appCtrl.LogTrace("Start");
+
+            try
+            {
+                _appCtrl.Capital.SetOrderMaxCount();
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonRecoverTriggerSetting_Click(object sender, RoutedEventArgs e)
+        {
+            _appCtrl.LogTrace("Start");
+
+            try
+            {
+                _appCtrl.Trigger.RecoverSetting(null);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("End");
+            }
+        }
+
         private void ButtonSaveTriggerRule_Click(object sender, RoutedEventArgs e)
         {
             _appCtrl.LogTrace("Start");
@@ -1148,6 +1208,27 @@ namespace GNAy.Capital.Trade
             try
             {
                 _appCtrl.Trigger.AddRule();
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("End");
+            }
+        }
+
+        private void DataGridTriggerRule_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            _appCtrl.LogTrace("Start");
+
+            try
+            {
+                if (DataGridTriggerRule.SelectedItem is TriggerData trigger)
+                {
+                    _appCtrl.LogTrace($"{trigger.PrimaryKey}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})");
+                }
             }
             catch (Exception ex)
             {

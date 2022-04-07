@@ -136,8 +136,6 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.Updater = nameof(OnNotifyHistoryTicks);
                 quote.UpdateTime = DateTime.Now;
 
-                QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
-
                 if (quote.Simulate.IsRealTrading())
                 {
                     if (quote.OpenPrice != 0)
@@ -152,6 +150,8 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                     }
                 }
+
+                QuoteLastUpdated = quote;
 
                 if (!string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileRecoverPrefix))
                 {
@@ -225,8 +225,6 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.Updater = nameof(OnNotifyTicks);
                 quote.UpdateTime = DateTime.Now;
 
-                QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
-
                 if (IsAMMarket && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions) && (_appCtrl.Config.StartOnTime || quote.Recovered))
                 {
                     if (quote.OpenPrice != 0)
@@ -241,6 +239,8 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                     }
                 }
+
+                QuoteLastUpdated = quote;
 
                 if (firstTick)
                 {
@@ -309,7 +309,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nTotal"></param>
         private void OnNotifyServerTime(short sHour, short sMinute, short sSecond, int nTotal)
         {
-            QuoteTimer = (DateTime.Now, $"{sHour}:{sMinute}:{sSecond} ({nTotal})", nameof(OnNotifyServerTime));
+            QuoteTimer = $"{sHour}:{sMinute}:{sSecond} ({nTotal})";
 
             try
             {

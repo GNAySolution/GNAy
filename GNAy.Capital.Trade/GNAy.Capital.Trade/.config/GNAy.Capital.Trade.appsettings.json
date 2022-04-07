@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.406.1",
+  "Version": "0.22.407.3",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -15,7 +15,7 @@
   "DataGridAppLogRowsMax": 500,
   "TimerIntervalBackground": 900,
   "TimerIntervalTrigger": 30,
-  "TimerIntervalUI1": 350,
+  "TimerIntervalUI1": 200,
   "TimerIntervalUI2": 35000,
   "AutoRun": true,
   "TimeToStart": [
@@ -45,6 +45,8 @@
   "QuoteFileClosePrefix": "Last_",
   "QuoteFileRecoverPrefix": "Recover_",
   "QuoteSaveInterval": 45,
+  "OrderMaxQty": 50,
+  "OrderMaxCount": 10,
   "TriggerFolderPath": "TriggerData",
   "TriggerFileFormat": "MMdd_HHmm",
   "SendOrder": false,

@@ -8,6 +8,6 @@ namespace GNAy.Tools.NET47
 {
     public class Separator
     {
-        public static char[] CSV = new char[] { '\"', ',' };
+        public static readonly char[] CSV = new char[] { '\"', ',' };
     }
 }

@@ -25,7 +25,7 @@ namespace GNAy.Capital.Trade.Controllers
                 string[] cells = bstrAccountData.Split(',');
                 OrderAccData acc = new OrderAccData()
                 {
-                    MarketKind = cells[0],
+                    MarketType = cells[0],
                     Branch = cells[1],
                     BranchCode = cells[2],
                     Account = cells[3],
@@ -33,12 +33,12 @@ namespace GNAy.Capital.Trade.Controllers
                     MemberName = cells[5],
                 };
 
-                if (cells[0] == "TS")
+                if (cells[0] == Definition.MarketTypeStock.Item2)
                 {
                     _stockAccCollection.Add(acc);
                     _appCtrl.MainForm.ComboBoxStockAccs.SelectedIndex = 0;
                 }
-                else if (cells[0] == "TF") //cells[0] == "OF"
+                else if (cells[0] == Definition.MarketTypeFutures.Item2) //cells[0] == "OF"
                 {
                     _futuresAccCollection.Add(acc);
                     _appCtrl.MainForm.ComboBoxFuturesAccs.SelectedIndex = 0;

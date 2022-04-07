@@ -32,7 +32,7 @@ namespace GNAy.Capital.Models
         }
 
         [Column("市場", -1)]
-        public string MarketKind { get; set; }
+        public string MarketType { get; set; }
 
         [Column("分公司", -1)]
         public string Branch { get; set; }
@@ -57,7 +57,7 @@ namespace GNAy.Capital.Models
         {
             Creator = String.Empty;
             CreatedTime = DateTime.Now;
-            MarketKind = String.Empty;
+            MarketType = String.Empty;
             Branch = String.Empty;
             BranchCode = String.Empty;
             Account = String.Empty;
@@ -67,7 +67,7 @@ namespace GNAy.Capital.Models
 
         public override string ToString()
         {
-            return string.Join(",", MarketKind, Branch, BranchCode, Account, Identity, MemberName);
+            return string.Join(",", MarketType, Branch, BranchCode, Account, Identity, MemberName);
         }
     }
 }

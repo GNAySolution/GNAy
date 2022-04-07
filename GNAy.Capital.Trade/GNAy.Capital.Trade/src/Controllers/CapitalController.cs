@@ -49,7 +49,7 @@ namespace GNAy.Capital.Trade.Controllers
         }
 
         public (DateTime, string) AccountTimer { get; private set; }
-        public (DateTime, string, string) QuoteTimer { get; private set; }
+        public string QuoteTimer { get; private set; }
 
         public readonly bool IsAMMarket;
         public string QuoteFileNameBase { get; private set; }
@@ -57,6 +57,7 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly Dictionary<int, APIReplyData> _apiReplyMap;
         private readonly ObservableCollection<APIReplyData> _apiReplyCollection;
 
+        public QuoteData QuoteLastUpdated { get; private set; }
         private readonly Dictionary<int, QuoteData> _quoteIndexMap;
         private readonly ObservableCollection<QuoteData> _quoteCollection;
 
@@ -77,7 +78,7 @@ namespace GNAy.Capital.Trade.Controllers
             QuoteStatus = -1;
 
             AccountTimer = (DateTime.MinValue, string.Empty);
-            QuoteTimer = (DateTime.MinValue, string.Empty, string.Empty);
+            QuoteTimer = string.Empty;
 
             IsAMMarket = _appCtrl.Config.IsAMMarket(CreatedTime);
             QuoteFileNameBase = string.Empty;
@@ -86,6 +87,7 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.MainForm.DataGridAPIReply.SetHeadersByBindings(APIReplyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _apiReplyCollection = _appCtrl.MainForm.DataGridAPIReply.SetAndGetItemsSource<APIReplyData>();
 
+            QuoteLastUpdated = new QuoteData();
             _quoteIndexMap = new Dictionary<int, QuoteData>();
             _appCtrl.MainForm.DataGridQuoteSubscribed.SetHeadersByBindings(QuoteData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _quoteCollection = _appCtrl.MainForm.DataGridQuoteSubscribed.SetAndGetItemsSource<QuoteData>();
@@ -244,7 +246,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 string strSKAPIVersion = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(account); //取得目前註冊SKAPI 版本及位元
                 _appCtrl.LogTrace($"SKAPI|Version={strSKAPIVersion}");
-                _appCtrl.MainForm.StatusBarItemAA4.Text = $"SKAPIVersionAndBit={strSKAPIVersion}";
+                _appCtrl.MainForm.StatusBarItemBA2.Text = $"SKAPIVersionAndBit={strSKAPIVersion}";
             }
             catch (Exception ex)
             {
@@ -532,8 +534,6 @@ namespace GNAy.Capital.Trade.Controllers
             quote.Updater = nameof(UpdateQuote);
             quote.UpdateTime = DateTime.Now;
 
-            QuoteTimer = (quote.UpdateTime, QuoteTimer.Item2, quote.Updater);
-
             if (IsAMMarket && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions) && (_appCtrl.Config.StartOnTime || quote.Recovered))
             {
                 if (quote.OpenPrice != 0)
@@ -548,6 +548,8 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                 }
             }
+
+            QuoteLastUpdated = quote;
 
             if (firstTick)
             {
@@ -1053,24 +1055,92 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        /// <summary>
-        /// <para>下單解鎖。下單函式上鎖後需經由此函式解鎖才可繼續下單</para>
-        /// <para>0：TS(證券)</para>
-        /// <para>1：TF(期貨)</para>
-        /// <para>2：TO(選擇權)</para>
-        /// <para>3：OS(複委託)</para>
-        /// <para>4：OF(海外期貨)</para>
-        /// <para>5：OO(海外選擇權)</para>
-        /// </summary>
-        /// <param name="marketKind"></param>
-        public void UnlockOrder(int marketKind)
+        public void UnlockOrder(int marketType = -1)
         {
-            _appCtrl.LogTrace($"SKAPI|Start|marketKind={marketKind}");
+            _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}");
 
             try
             {
-                int m_nCode = m_pSKOrder.UnlockOrder(marketKind);
-                LogAPIMessage(m_nCode);
+                if (marketType >= 0)
+                {
+                    int m_nCode = m_pSKOrder.UnlockOrder(marketType); //下單解鎖。下單函式上鎖後需經由此函式解鎖才可繼續下單
+                    LogAPIMessage(m_nCode);
+                    return;
+                }
+
+                for (int i = 0; i < Definition.MarketTypes.Count; ++i)
+                {
+                    int m_nCode = m_pSKOrder.UnlockOrder(i); //下單解鎖。下單函式上鎖後需經由此函式解鎖才可繼續下單
+                    LogAPIMessage(m_nCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("SKAPI|End");
+            }
+        }
+
+        public void SetOrderMaxQty(int marketType = -1, int maxQty = -1)
+        {
+            try
+            {
+                if (maxQty <= 0)
+                {
+                    maxQty = _appCtrl.Settings.OrderMaxQty;
+                }
+
+                _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}|maxQty={maxQty}");
+
+                if (marketType >= 0)
+                {
+                    int m_nCode = m_pSKOrder.SetMaxQty(marketType, maxQty); //設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
+                    LogAPIMessage(m_nCode);
+                    return;
+                }
+
+                for (int i = 0; i < Definition.MarketTypes.Count; ++i)
+                {
+                    int m_nCode = m_pSKOrder.SetMaxQty(i, maxQty); //設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
+                    LogAPIMessage(m_nCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("SKAPI|End");
+            }
+        }
+
+        public void SetOrderMaxCount(int marketType = -1, int maxCount = -1)
+        {
+            try
+            {
+                if (maxCount <= 0)
+                {
+                    maxCount = _appCtrl.Settings.OrderMaxCount;
+                }
+
+                _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}|maxCount={maxCount}");
+
+                if (marketType >= 0)
+                {
+                    int m_nCode = m_pSKOrder.SetMaxCount(marketType, maxCount); //設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
+                    LogAPIMessage(m_nCode);
+                    return;
+                }
+
+                for (int i = 0; i < Definition.MarketTypes.Count; ++i)
+                {
+                    int m_nCode = m_pSKOrder.SetMaxCount(i, maxCount); //設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
+                    LogAPIMessage(m_nCode);
+                }
             }
             catch (Exception ex)
             {

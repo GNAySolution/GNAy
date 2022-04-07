@@ -16,7 +16,7 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public class TriggerController
     {
-        private static string[] _timeFormats = new string[] { "HHmmss", "HHmm", "HH" };
+        private static readonly string[] _timeFormats = new string[] { "HHmmss", "HHmm", "HH" };
 
         public readonly DateTime CreatedTime;
         private readonly AppController _appCtrl;
@@ -123,7 +123,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
                     saveTriggers = true;
-                    _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|觸價逾時，監控取消");
+                    _appCtrl.LogTrace($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|觸價逾時，監控取消");
                     trigger.Updater = nameof(UpdateStatus);
                     trigger.UpdateTime = DateTime.Now;
                     return saveTriggers;
@@ -132,7 +132,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     trigger.StatusIndex = Definition.TriggerStatusMonitoring.Item1;
                     saveTriggers = true;
-                    _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{Definition.TriggerStatusWaiting.Item2} -> {trigger.StatusStr}");
+                    _appCtrl.LogTrace($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|{Definition.TriggerStatusWaiting.Item2} -> {trigger.StatusStr}");
                 }
                 else if (trigger.StatusIndex == Definition.TriggerStatusMonitoring.Item1)
                 { }
@@ -165,7 +165,7 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
                         saveTriggers = true;
-                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
+                        _appCtrl.LogTrace($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
 
                         _executedMap.TryAdd(key, trigger);
 
@@ -178,7 +178,7 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
                         saveTriggers = true;
-                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
+                        _appCtrl.LogTrace($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
 
                         _executedMap.TryAdd(key, trigger);
 
@@ -191,7 +191,7 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
                         saveTriggers = true;
-                        _appCtrl.LogTrace($"Trigger|{key}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
+                        _appCtrl.LogTrace($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
 
                         _executedMap.TryAdd(key, trigger);
 
@@ -202,7 +202,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
                     saveTriggers = true;
-                    _appCtrl.LogError($"Trigger|條件({trigger.Rule})錯誤，必須是大於小於等於");
+                    _appCtrl.LogError($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|條件({trigger.Rule})錯誤，必須是大於小於等於");
                     return saveTriggers;
                 }
             }
@@ -253,7 +253,10 @@ namespace GNAy.Capital.Trade.Controllers
                         _triggerMap.Add(trigger.PrimaryKey, trigger);
                         _triggerCollection.Add(trigger);
 
-                        SaveDataAsync();
+                        if (_waitToAdd.Count <= 0)
+                        {
+                            SaveDataAsync();
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -407,13 +410,13 @@ namespace GNAy.Capital.Trade.Controllers
                     return (false, null, null);
                 }
 
-                if (startTime.HasValue && startTime.Value.Hour < 5 && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions))
+                if (startTime.HasValue && startTime.Value < DateTime.Now && startTime.Value.Hour < 5 && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions))
                 {
                     startTime = startTime.Value.AddDays(1);
                     _appCtrl.LogTrace($"Trigger|期貨選擇權，開始時間跨日，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}");
                 }
 
-                if (endTime.HasValue && endTime.Value.Hour < 5 && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions))
+                if (endTime.HasValue && endTime.Value < DateTime.Now && endTime.Value.Hour < 5 && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions))
                 {
                     endTime = endTime.Value.AddDays(1);
                     _appCtrl.LogTrace($"Trigger|期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}");
@@ -468,7 +471,6 @@ namespace GNAy.Capital.Trade.Controllers
 
                 string rule = _appCtrl.MainForm.TextBoxTriggerRuleValue.Text.Replace(" ", string.Empty);
                 string bodyValue = string.Empty;
-                decimal value = 0;
 
                 if (rule.StartsWith(Definition.IsGreaterThanOrEqualTo))
                 {
@@ -501,7 +503,7 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
-                if (decimal.TryParse(bodyValue, out value))
+                if (decimal.TryParse(bodyValue, out decimal value))
                 {
                     _appCtrl.MainForm.TextBoxTriggerRuleValue.Text = $"{rule}{bodyValue}";
                 }
@@ -559,6 +561,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
+                if (_triggerMap.Count > 0)
+                {
+                    return;
+                }
+
                 if (file == null)
                 {
                     if (_appCtrl.Config.TriggerFolder == null)
@@ -576,6 +583,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 List<string> columnNames = new List<string>();
+                decimal counter = 0;
 
                 foreach (TriggerData trigger in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
                 {
@@ -612,10 +620,23 @@ namespace GNAy.Capital.Trade.Controllers
                         trigger.UpdateTime = DateTime.Now;
                         trigger.StatusIndex = Definition.TriggerStatusWaiting.Item1;
 
+                        if ((!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now) && !_appCtrl.Config.StartOnTime)
+                        {
+                            trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
+                            _appCtrl.LogTrace($"Trigger|{trigger.PrimaryKey}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|程式沒有在正常時間啟動，不執行此監控");
+                        }
+
+                        _waitToAdd.Enqueue(trigger);
+
+                        ++counter;
+                        if (decimal.TryParse(trigger.PrimaryKey, out decimal _pk) && _pk > counter)
+                        {
+                            counter = _pk;
+                        }
+
                         _appCtrl.MainForm.InvokeRequired(delegate
                         {
-                            _triggerMap.Add(trigger.PrimaryKey, trigger);
-                            _triggerCollection.Add(trigger);
+                            _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{counter + 1}";
                         });
                     }
                     catch (Exception ex)

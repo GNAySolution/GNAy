@@ -9,15 +9,15 @@
     <Grid>
         <!--https://dotblogs.com.tw/clark/2013/03/31/99679-->
         <!--http://www.skcircle.com/?id=1113-->
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="ColumnDef" Width="750"/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="RowDef1" Height="300"/>
             <RowDefinition x:Name="RowDef2" Height="350"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="ColumnDef" Width="750"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
         <GridSplitter Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="6" Background="Blue"/>
         <GridSplitter Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
         <GridSplitter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
@@ -47,6 +47,9 @@
                             <Button x:Name="ButtonGetOrderAccs" Content="取得下單帳號" HorizontalAlignment="Left" Margin="297,54,0,0" VerticalAlignment="Top" Click="ButtonGetOrderAccs_Click"/>
                             <Button x:Name="ButtonUnlockOrder" Content="下單解鎖" HorizontalAlignment="Left" Margin="240,78,0,0" VerticalAlignment="Top" Click="ButtonUnlockOrder_Click"/>
                             <Button x:Name="ButtonGetOpenInterest" Content="期權未平倉" HorizontalAlignment="Left" Margin="309,78,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
+                            <Button x:Name="ButtonSetOrderMaxQty" Content="限制委託量" HorizontalAlignment="Left" Margin="228,102,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxQty_Click"/>
+                            <Button x:Name="ButtonSetOrderMaxCount" Content="限制委託筆數" HorizontalAlignment="Left" Margin="297,102,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxCount_Click"/>
+                            <Button x:Name="ButtonRecoverTriggerSetting" Content="回補觸價設定" HorizontalAlignment="Left" Margin="216,126,0,0" VerticalAlignment="Top" Click="ButtonRecoverTriggerSetting_Click"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="行事曆">
@@ -550,7 +553,7 @@
                 <TabControl x:Name="TabControlBB" Margin="0,150,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
-                            <DataGrid x:Name="DataGridTriggerRule" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
+                            <DataGrid x:Name="DataGridTriggerRule" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" SelectionUnit="FullRow" IsSynchronizedWithCurrentItem="True" MouseDoubleClick="DataGridTriggerRule_MouseDoubleClick">
                                 <DataGrid.RowStyle>
                                     <!--https://stackoverflow.com/questions/18053281/how-to-set-datagrids-row-background-based-on-a-property-value-using-data-bindi-->
                                     <Style TargetType="DataGridRow">

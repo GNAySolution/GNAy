@@ -33,6 +33,23 @@ namespace GNAy.Capital.Models
             return obj == RealTrade;
         }
 
+        public static (int, string, string) MarketTypeStock = (0, "TS", "證券");
+        public static (int, string, string) MarketTypeFutures = (1, "TF", "期貨");
+        public static (int, string, string) MarketTypeOptions = (2, "TO", "選擇權");
+        public static (int, string, string) MarketTypeOverseaStock = (3, "OS", "複委託");
+        public static (int, string, string) MarketTypeOverseaFutures = (4, "OF", "海外期貨");
+        public static (int, string, string) MarketTypeOverseaOptions = (5, "OO", "海外選擇權");
+
+        public static ReadOnlyCollection<string> MarketTypes = new List<string>()
+        {
+            MarketTypeStock.Item2,
+            MarketTypeFutures.Item2,
+            MarketTypeOptions.Item2,
+            MarketTypeOverseaStock.Item2,
+            MarketTypeOverseaFutures.Item2,
+            MarketTypeOverseaOptions.Item2,
+        }.AsReadOnly();
+
         /// <summary>
         /// 大於或等於
         /// </summary>

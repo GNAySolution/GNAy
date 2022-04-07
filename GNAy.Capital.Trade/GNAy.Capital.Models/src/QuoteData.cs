@@ -96,14 +96,14 @@ namespace GNAy.Capital.Models
         }
 
         private int _matchedTimefff;
-        [TradeColumn("成交毫秒", "成毫秒", 7, StringFormat = "000000")]
+        [TradeColumn("成交微秒", "成微秒", 7, StringFormat = "000000")]
         public int MatchedTimefff
         {
             get { return _matchedTimefff; }
             set { OnPropertyChanged(ref _matchedTimefff, value); }
         }
 
-        [TradeColumn("成交時間", 8, StringFormat = "HHmmss.ffff")]
+        [TradeColumn("成交時間", 8, StringFormat = "HHmmss.ffffff")]
         public DateTime MatchedTime => DateTime.ParseExact(String.Format("{0}.{1}", MatchedTimeHHmmss.ToString().PadLeft(6, '0'), MatchedTimefff.ToString().PadLeft(6, '0')), "HHmmss.ffffff", CultureInfo.InvariantCulture);
 
         private decimal _dealPrice;
