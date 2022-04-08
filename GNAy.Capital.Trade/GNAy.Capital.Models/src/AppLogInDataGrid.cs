@@ -33,7 +33,7 @@ namespace GNAy.Capital.Models
         {
             ThreadID = 0;
             CallerLineNumber = 0;
-            CallerMemberName = String.Empty;
+            CallerMemberName = string.Empty;
         }
     }
 }

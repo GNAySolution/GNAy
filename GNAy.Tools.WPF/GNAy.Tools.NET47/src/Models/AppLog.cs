@@ -40,11 +40,11 @@ namespace GNAy.Tools.NET47.Models
 
         public AppLog()
         {
-            Creator = String.Empty;
+            Creator = string.Empty;
             CreatedTime = DateTime.Now;
-            Project = String.Empty;
-            Level = String.Empty;
-            Message = String.Empty;
+            Project = string.Empty;
+            Level = string.Empty;
+            Message = string.Empty;
         }
     }
 }

@@ -113,7 +113,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void OnComplete(string strUserID)
         {
             _appCtrl.LogTrace($"SKAPI|strUserID={strUserID}");
-            AppendReply(strUserID, String.Empty);
+            AppendReply(strUserID, string.Empty);
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void OnClear(string bstrMarket)
         {
             _appCtrl.LogTrace($"SKAPI|bstrMarket={bstrMarket}");
-            AppendReply(String.Empty, bstrMarket);
+            AppendReply(string.Empty, bstrMarket);
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void OnClearMessage(string strUserID)
         {
             _appCtrl.LogTrace($"SKAPI|strUserID={strUserID}");
-            AppendReply(strUserID, String.Empty);
+            AppendReply(strUserID, string.Empty);
         }
     }
 }

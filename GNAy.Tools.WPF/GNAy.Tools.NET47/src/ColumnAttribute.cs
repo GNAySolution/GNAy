@@ -19,7 +19,7 @@ namespace GNAy.Tools.NET47
             Name = name;
             ShortName = shortName;
             Index = index;
-            StringFormat = String.Empty;
+            StringFormat = string.Empty;
         }
 
         public ColumnAttribute(string name, int index) : this(name, name, index)

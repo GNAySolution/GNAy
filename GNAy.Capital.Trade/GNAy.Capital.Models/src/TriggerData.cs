@@ -178,25 +178,34 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _endTime, value); }
         }
 
+        private string _comment;
+        [Column("註解", 18)]
+        public string Comment
+        {
+            get { return _comment; }
+            set { OnPropertyChanged(ref _comment, value); }
+        }
+
         public TriggerData(QuoteData quote, TradeColumnTrigger column)
         {
             SyncRoot = new object();
-            Creator = String.Empty;
+            Creator = string.Empty;
             CreatedTime = DateTime.Now;
-            Updater = String.Empty;
+            Updater = string.Empty;
             UpdateTime = DateTime.MaxValue;
             StatusIndex = Definition.TriggerStatusWaiting.Item1;
-            PrimaryKey = String.Empty;
+            PrimaryKey = string.Empty;
             Quote = quote;
             Symbol = quote.Symbol;
             Column = column;
             ColumnValue = 0;
-            Rule = String.Empty;
+            Rule = string.Empty;
             TargetValue = 0;
             CancelIndex = Definition.TriggerCancel0.Item1;
-            Strategy = String.Empty;
+            Strategy = string.Empty;
             StartTime = null;
             EndTime = null;
+            Comment = string.Empty;
         }
 
         private TriggerData() : this(null, null)

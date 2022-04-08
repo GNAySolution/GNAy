@@ -104,7 +104,7 @@ namespace GNAy.Capital.Models
         }
 
         [TradeColumn("成交時間", 8, StringFormat = "HHmmss.ffffff")]
-        public DateTime MatchedTime => DateTime.ParseExact(String.Format("{0}.{1}", MatchedTimeHHmmss.ToString().PadLeft(6, '0'), MatchedTimefff.ToString().PadLeft(6, '0')), "HHmmss.ffffff", CultureInfo.InvariantCulture);
+        public DateTime MatchedTime => DateTime.ParseExact(string.Format("{0}.{1}", MatchedTimeHHmmss.ToString().PadLeft(6, '0'), MatchedTimefff.ToString().PadLeft(6, '0')), "HHmmss.ffffff", CultureInfo.InvariantCulture);
 
         private decimal _dealPrice;
         [TradeColumn("成交價", "成價", 9, StringFormat = "0.00", IsTrigger = true)]
@@ -383,12 +383,12 @@ namespace GNAy.Capital.Models
 
         public QuoteData()
         {
-            Creator = String.Empty;
+            Creator = string.Empty;
             CreatedTime = DateTime.Now;
-            Updater = String.Empty;
+            Updater = string.Empty;
             UpdateTime = DateTime.MaxValue;
-            Symbol = String.Empty;
-            Name = String.Empty;
+            Symbol = string.Empty;
+            Name = string.Empty;
             MatchedTimeHHmmss = 0;
             MatchedTimefff = 0;
             DealPrice = 0;

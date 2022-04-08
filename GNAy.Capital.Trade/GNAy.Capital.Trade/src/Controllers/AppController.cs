@@ -128,7 +128,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (!MainForm.DataGridAppLog.IsMouseOver)
                     {
-                        MainForm.DataGridAppLog.ScrollToBorder();
+                        MainForm.DataGridAppLog.ScrollToBorderEnd();
                     }
                 }
                 catch
@@ -323,7 +323,7 @@ namespace GNAy.Capital.Trade.Controllers
                     exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseWarnValue;
                 }
 
-                Log(level, String.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"exitCode={exitCode}|{msg}", lineNumber, memberName);
+                Log(level, string.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"exitCode={exitCode}|{msg}", lineNumber, memberName);
 
                 if (Capital != null)
                 {

@@ -55,14 +55,14 @@ namespace GNAy.Capital.Models
 
         public OrderAccData()
         {
-            Creator = String.Empty;
+            Creator = string.Empty;
             CreatedTime = DateTime.Now;
-            MarketType = String.Empty;
-            Branch = String.Empty;
-            BranchCode = String.Empty;
-            Account = String.Empty;
-            Identity = String.Empty;
-            MemberName = String.Empty;
+            MarketType = string.Empty;
+            Branch = string.Empty;
+            BranchCode = string.Empty;
+            Account = string.Empty;
+            Identity = string.Empty;
+            MemberName = string.Empty;
         }
 
         public override string ToString()

@@ -503,6 +503,7 @@
         </Border>
         <Border Grid.Row="1" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5">
+                <Button x:Name="ButtonCancelTrigger" Content="取消觸價監控" HorizontalAlignment="Left" Margin="10,11,0,0" VerticalAlignment="Top" Click="ButtonCancelTrigger_Click"/>
                 <Button x:Name="ButtonSaveTriggerRule" Content="儲存觸價條件" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Click="ButtonSaveTriggerRule_Click"/>
                 <Label Content="自定義觸價唯一鍵" HorizontalAlignment="Left" Margin="91,8,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxTriggerPrimaryKey" Text="自定義觸價唯一鍵" ToolTip="自定義觸價唯一鍵" HorizontalAlignment="Left" Margin="91,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
@@ -553,7 +554,12 @@
                 <TabControl x:Name="TabControlBB" Margin="0,150,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
-                            <DataGrid x:Name="DataGridTriggerRule" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" SelectionUnit="FullRow" IsSynchronizedWithCurrentItem="True" MouseDoubleClick="DataGridTriggerRule_MouseDoubleClick">
+                            <DataGrid x:Name="DataGridTriggerRule" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
+                                <DataGrid.Resources>
+                                    <Style TargetType="{x:Type DataGridCell}">
+                                        <EventSetter Event="MouseDoubleClick" Handler="DataGridTriggerRuleCell_MouseDoubleClick"/>
+                                    </Style>
+                                </DataGrid.Resources>
                                 <DataGrid.RowStyle>
                                     <!--https://stackoverflow.com/questions/18053281/how-to-set-datagrids-row-background-based-on-a-property-value-using-data-bindi-->
                                     <Style TargetType="DataGridRow">
@@ -630,6 +636,7 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding EndTime, StringFormat='{}{0:MM/dd HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding Comment}" IsReadOnly="True" CanUserSort="False"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

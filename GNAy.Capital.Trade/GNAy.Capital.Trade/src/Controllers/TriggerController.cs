@@ -274,7 +274,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             _executedMap.Clear();
 
-            Parallel.ForEach(_triggerMap, pair =>
+            foreach (KeyValuePair<string, TriggerData> pair in _triggerMap)
+            //Parallel.ForEach(_triggerMap, pair =>
             {
                 try
                 {
@@ -287,7 +288,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     _appCtrl.LogException(ex, ex.StackTrace);
                 }
-            });
+            }
 
             if (_executedMap.Count >= 0)
             {
@@ -432,6 +433,23 @@ namespace GNAy.Capital.Trade.Controllers
             return (false, null, null);
         }
 
+        public void Cancel(string primaryKey)
+        {
+            _appCtrl.LogTrace($"Trigger|Start|primaryKey={primaryKey}");
+
+            try
+            {
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("Trigger|End");
+            }
+        }
+
         public void AddRule()
         {
             _appCtrl.LogTrace("Trigger|Start");
@@ -555,7 +573,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void RecoverSetting(FileInfo file)
+        public void RecoverSetting(FileInfo file = null)
         {
             _appCtrl.LogTrace("Trigger|Start");
 

@@ -60,13 +60,13 @@ namespace GNAy.Capital.Models
 
         public APIReplyData()
         {
-            Creator = String.Empty;
+            Creator = string.Empty;
             CreatedTime = DateTime.Now;
             ThreadID = 0;
             CallerLineNumber = 0;
-            CallerMemberName = String.Empty;
-            Account = String.Empty;
-            Message = String.Empty;
+            CallerMemberName = string.Empty;
+            Account = string.Empty;
+            Message = string.Empty;
         }
     }
 }

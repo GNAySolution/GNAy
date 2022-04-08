@@ -72,8 +72,8 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl = appCtrl;
 
             LoginAccountResult = -1;
-            Account = String.Empty;
-            DWP = String.Empty;
+            Account = string.Empty;
+            DWP = string.Empty;
 
             QuoteStatus = -1;
 
@@ -175,7 +175,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (!_appCtrl.MainForm.DataGridAPIReply.IsMouseOver)
                     {
-                        _appCtrl.MainForm.DataGridAPIReply.ScrollToBorder();
+                        _appCtrl.MainForm.DataGridAPIReply.ScrollToBorderEnd();
                     }
                 }
                 catch

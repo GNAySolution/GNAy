@@ -164,5 +164,42 @@ namespace GNAy.Tools.WPF
 
             return false;
         }
+
+        public static ScrollViewer ScrollToBorderHome(this DependencyObject obj)
+        {
+            ScrollViewer viewer = GetScrollViewer(obj);
+            viewer?.ScrollToHome();
+            return viewer;
+        }
+
+        public static ScrollViewer ScrollToBorderEnd(this DependencyObject obj)
+        {
+            ScrollViewer viewer = GetScrollViewer(obj);
+            viewer?.ScrollToEnd();
+            return viewer;
+        }
+
+        /// <summary>
+        /// https://stackoverflow.com/questions/3869309/how-to-find-its-owner-datagrid-and-datagridrow-from-datagridcell-in-wpf
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static DataGridRow FindRowOwner(this DataGridCell obj)
+        {
+            DependencyObject parent = VisualTreeHelper.GetParent(obj);
+
+            while (parent != null && parent.GetType() != typeof(DataGridRow))
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+
+            return parent as DataGridRow;
+        }
+
+        public static T GetItem<T>(this DataGridCell obj) where T : class
+        {
+            DataGridRow row = obj.FindRowOwner();
+            return row == null ? null : (T)row.Item;
+        }
     }
 }

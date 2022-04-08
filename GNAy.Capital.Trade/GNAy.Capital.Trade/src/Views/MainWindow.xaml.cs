@@ -846,7 +846,10 @@ namespace GNAy.Capital.Trade
                     });
 
                     Thread.Sleep(3 * 1000);
-                    _appCtrl.Trigger.RecoverSetting(null);
+                    _appCtrl.Capital.UnlockOrder();
+                    _appCtrl.Capital.SetOrderMaxQty();
+                    _appCtrl.Capital.SetOrderMaxCount();
+                    _appCtrl.Trigger.RecoverSetting();
 
                     Thread.Sleep(3 * 1000);
                     this.InvokeRequired(delegate { _timer2.Start(); });
@@ -1189,7 +1192,25 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Trigger.RecoverSetting(null);
+                _appCtrl.Trigger.RecoverSetting();
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonCancelTrigger_Click(object sender, RoutedEventArgs e)
+        {
+            _appCtrl.LogTrace("Start");
+
+            try
+            {
+                _appCtrl.Trigger.Cancel(TextBoxTriggerPrimaryKey.Text);
             }
             catch (Exception ex)
             {
@@ -1219,16 +1240,40 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void DataGridTriggerRule_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void DataGridTriggerRuleCell_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             _appCtrl.LogTrace("Start");
 
             try
             {
-                if (DataGridTriggerRule.SelectedItem is TriggerData trigger)
+                TriggerData trigger = (sender as DataGridCell).GetItem<TriggerData>();
+                _appCtrl.LogTrace($"{trigger.StatusStr}|{trigger.PrimaryKey}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})");
+
+                TextBoxTriggerPrimaryKey.Text = trigger.PrimaryKey;
+
+                ComboBoxTriggerProduct.SelectedIndex = -1;
+                for (int i = 0; i < ComboBoxTriggerProduct.Items.Count; ++i)
                 {
-                    _appCtrl.LogTrace($"{trigger.PrimaryKey}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})");
+                    ComboBoxTriggerProduct.SelectedIndex = i;
+                    if (ComboBoxTriggerProduct.SelectedItem is QuoteData quote && quote.Symbol == trigger.Symbol)
+                    {
+                        break;
+                    }
                 }
+
+                ComboBoxTriggerColumn.SelectedIndex = -1;
+                for (int i = 0; i < ComboBoxTriggerColumn.Items.Count; ++i)
+                {
+                    ComboBoxTriggerColumn.SelectedIndex = i;
+                    if (ComboBoxTriggerColumn.SelectedItem is TradeColumnTrigger column && column.Property.Name == trigger.ColumnProperty)
+                    {
+                        break;
+                    }
+                }
+
+                TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00}";
+
+                ComboBoxTriggerCancel.SelectedIndex = trigger.CancelIndex;
             }
             catch (Exception ex)
             {
