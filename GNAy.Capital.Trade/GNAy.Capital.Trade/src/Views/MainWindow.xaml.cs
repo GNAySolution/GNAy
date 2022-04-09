@@ -589,15 +589,7 @@ namespace GNAy.Capital.Trade
 
                 ComboBox cb = null;
 
-                if (ComboBoxStockAccs.IsMouseOver && !ComboBoxStockAccs.IsFocused)
-                {
-                    cb = ComboBoxStockAccs;
-                }
-                else if (ComboBoxFuturesAccs.IsMouseOver && !ComboBoxFuturesAccs.IsFocused)
-                {
-                    cb = ComboBoxFuturesAccs;
-                }
-                else if (ComboBoxTriggerProduct.IsMouseOver && !ComboBoxTriggerProduct.IsFocused)
+                if (ComboBoxTriggerProduct.IsMouseOver && !ComboBoxTriggerProduct.IsFocused)
                 {
                     cb = ComboBoxTriggerProduct;
                 }
@@ -608,6 +600,14 @@ namespace GNAy.Capital.Trade
                 else if (ComboBoxTriggerCancel.IsMouseOver && !ComboBoxTriggerCancel.IsFocused)
                 {
                     cb = ComboBoxTriggerCancel;
+                }
+                else if (ComboBoxStockAccs.IsMouseOver && !ComboBoxStockAccs.IsFocused)
+                {
+                    cb = ComboBoxStockAccs;
+                }
+                else if (ComboBoxFuturesAccs.IsMouseOver && !ComboBoxFuturesAccs.IsFocused)
+                {
+                    cb = ComboBoxFuturesAccs;
                 }
 
                 if (cb == null)
@@ -1247,33 +1247,68 @@ namespace GNAy.Capital.Trade
             try
             {
                 TriggerData trigger = (sender as DataGridCell).GetItem<TriggerData>();
-                _appCtrl.LogTrace($"{trigger.StatusStr}|{trigger.PrimaryKey}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})");
-
-                TextBoxTriggerPrimaryKey.Text = trigger.PrimaryKey;
+                _appCtrl.LogTrace(trigger.ToLog());
 
                 ComboBoxTriggerProduct.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxTriggerProduct.Items.Count; ++i)
                 {
                     ComboBoxTriggerProduct.SelectedIndex = i;
-                    if (ComboBoxTriggerProduct.SelectedItem is QuoteData quote && quote.Symbol == trigger.Symbol)
+                    if (ComboBoxTriggerProduct.SelectedItem is QuoteData quote && quote == trigger.Quote)
                     {
-                        break;
+                        if (quote.Symbol == trigger.Symbol)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            _appCtrl.LogError($"Trigger|觸價關聯報價代碼錯誤|quote.Symbol{quote.Symbol} != trigger.Symbol{trigger.Symbol}|{trigger.ToLog()}");
+                            ComboBoxTriggerProduct.SelectedIndex = -1;
+                            break;
+                        }
                     }
+                }
+                if (ComboBoxTriggerProduct.SelectedIndex < 0)
+                {
+                    _appCtrl.LogError($"Trigger|觸價關聯報價代碼錯誤|{trigger.ToLog()}");
                 }
 
                 ComboBoxTriggerColumn.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxTriggerColumn.Items.Count; ++i)
                 {
                     ComboBoxTriggerColumn.SelectedIndex = i;
-                    if (ComboBoxTriggerColumn.SelectedItem is TradeColumnTrigger column && column.Property.Name == trigger.ColumnProperty)
+                    if (ComboBoxTriggerColumn.SelectedItem is TradeColumnTrigger column && column.Property == trigger.Column.Property)
                     {
-                        break;
+                        if (column.Property.Name == trigger.ColumnProperty)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            _appCtrl.LogError($"Trigger|觸價關聯報價欄位錯誤|column.Property.Name{column.Property.Name} != trigger.ColumnProperty{trigger.ColumnProperty}|{trigger.ToLog()}");
+                            ComboBoxTriggerColumn.SelectedIndex = -1;
+                            break;
+                        }
                     }
                 }
-
-                TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00}";
+                if (ComboBoxTriggerColumn.SelectedIndex < 0)
+                {
+                    _appCtrl.LogError($"Trigger|觸價關聯報價欄位錯誤|{trigger.ToLog()}");
+                }
 
                 ComboBoxTriggerCancel.SelectedIndex = trigger.CancelIndex;
+                TextBoxTriggerPrimaryKey.Text = trigger.PrimaryKey;
+                TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00####}";
+                TextBoxTriggerStrategy.Text = trigger.Strategy;
+
+                TextBoxTriggerTimeDuration.Text = string.Empty;
+                if (trigger.StartTime.HasValue)
+                {
+                    TextBoxTriggerTimeDuration.Text = $"{trigger.StartTime.Value:HHmmss}";
+                }
+                if (trigger.EndTime.HasValue)
+                {
+                    TextBoxTriggerTimeDuration.Text = $"{TextBoxTriggerTimeDuration.Text}~{trigger.EndTime.Value:HHmmss}";
+                }
             }
             catch (Exception ex)
             {

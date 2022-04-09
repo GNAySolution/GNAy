@@ -76,37 +76,6 @@ namespace GNAy.Capital.Models
         public const string IsLessThan = "<";
 
         /// <summary>
-        /// 觸價狀態，等待中
-        /// </summary>
-        public static (int, string) TriggerStatusWaiting = (0, "等待中");
-
-        /// <summary>
-        /// 觸價狀態，已取消
-        /// </summary>
-        public static (int, string) TriggerStatusCancelled = (1, "已取消");
-
-        /// <summary>
-        /// 觸價狀態，監控中
-        /// </summary>
-        public static (int, string) TriggerStatusMonitoring = (2, "監控中");
-
-        /// <summary>
-        /// 觸價狀態，已觸發
-        /// </summary>
-        public static (int, string) TriggerStatusExecuted = (3, "已觸發");
-
-        /// <summary>
-        /// https://stackoverflow.com/questions/4680035/read-only-list-in-c-sharp
-        /// </summary>
-        public static ReadOnlyCollection<string> TriggerStatusKinds = new List<string>()
-        {
-            TriggerStatusWaiting.Item2,
-            TriggerStatusCancelled.Item2,
-            TriggerStatusMonitoring.Item2,
-            TriggerStatusExecuted.Item2,
-        }.AsReadOnly();
-
-        /// <summary>
         /// 觸價後取消監控，同代碼同欄位
         /// </summary>
         public static (int, string) TriggerCancel0 = (0, "同代碼同欄位");

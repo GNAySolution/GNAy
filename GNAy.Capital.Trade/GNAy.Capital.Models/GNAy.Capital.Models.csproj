@@ -55,6 +55,7 @@
     <Compile Include="src\AppSettings.cs" />
     <Compile Include="src\StatusCode.cs" />
     <Compile Include="src\TriggerData.cs" />
+    <Compile Include="src\TriggerStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="docs\" />

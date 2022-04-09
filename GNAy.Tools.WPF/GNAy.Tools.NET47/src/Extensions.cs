@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,18 @@ namespace GNAy.Tools.NET47
 {
     public static class Extensions
     {
+        /// <summary>
+        /// https://codertw.com/%E5%89%8D%E7%AB%AF%E9%96%8B%E7%99%BC/220001/
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static string GetDescription(this Enum obj)
+        {
+            FieldInfo field = obj.GetType().GetField(obj.ToString());
+            DescriptionAttribute arr = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute), false) as DescriptionAttribute;
+            return arr.Description;
+        }
+
         /// <summary>
         /// https://stackoverflow.com/questions/18912697/system-componentmodel-descriptionattribute-in-portable-class-library
         /// </summary>

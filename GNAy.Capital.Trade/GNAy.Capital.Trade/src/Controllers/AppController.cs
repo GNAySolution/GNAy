@@ -389,12 +389,9 @@ namespace GNAy.Capital.Trade.Controllers
                     MainForm.ComboBoxTriggerProduct.ItemsSource = MainForm.DataGridQuoteSubscribed.ItemsSource;
                     _triggerColumnCollection = MainForm.ComboBoxTriggerColumn.SetAndGetItemsSource<TradeColumnTrigger>();
 
-                    foreach ((TradeColumnAttribute, PropertyInfo) value in QuoteData.PropertyMap.Values)
+                    foreach (TradeColumnTrigger column in TriggerData.QuoteColumnTriggerMap.Values)
                     {
-                        if (value.Item1.IsTrigger)
-                        {
-                            _triggerColumnCollection.Add(new TradeColumnTrigger(value.Item1, value.Item2));
-                        }
+                        _triggerColumnCollection.Add(column);
                     }
                 }
 

@@ -24,6 +24,7 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly ObservableCollection<string> _triggerCancelKinds;
 
         private readonly ConcurrentQueue<QuoteData> _waitToReset;
+        private readonly ConcurrentQueue<string> _waitToCancel;
         private readonly ConcurrentQueue<TriggerData> _waitToAdd;
 
         private readonly SortedDictionary<string, TriggerData> _triggerMap;
@@ -42,6 +43,7 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex = Definition.TriggerCancel0.Item1;
 
             _waitToReset = new ConcurrentQueue<QuoteData>();
+            _waitToCancel = new ConcurrentQueue<string>();
             _waitToAdd = new ConcurrentQueue<TriggerData>();
 
             _triggerMap = new SortedDictionary<string, TriggerData>();
@@ -96,13 +98,8 @@ namespace GNAy.Capital.Trade.Controllers
             Task.Factory.StartNew(() => SaveData(null));
         }
 
-        private bool UpdateStatus(string key, TriggerData trigger, QuoteData quote)
+        private bool UpdateStatus(TriggerData trigger, QuoteData quote)
         {
-            if (quote == null)
-            {
-                return false;
-            }
-
             bool saveTriggers = false;
 
             lock (trigger.SyncRoot)
@@ -111,30 +108,36 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveTriggers;
                 }
+                else if (quote == null)
+                {
+                    return saveTriggers;
+                }
                 else if (quote.Simulate.IsSimulating())
                 {
                     return saveTriggers;
                 }
-                else if (trigger.StatusIndex == Definition.TriggerStatusCancelled.Item1 || trigger.StatusIndex == Definition.TriggerStatusExecuted.Item1)
+                else if (trigger.StatusEnum == TriggerStatus.Enum.Cancelled || trigger.StatusEnum == TriggerStatus.Enum.Executed)
                 {
                     return saveTriggers;
                 }
-                else if (trigger.StatusIndex != Definition.TriggerStatusExecuted.Item1 && trigger.EndTime.HasValue && trigger.EndTime.Value <= DateTime.Now)
+                else if (trigger.StatusEnum != TriggerStatus.Enum.Executed && trigger.EndTime.HasValue && trigger.EndTime.Value <= DateTime.Now)
                 {
-                    trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
-                    saveTriggers = true;
-                    _appCtrl.LogTrace($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|觸價逾時，監控取消");
+                    trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
+                    trigger.Comment = "觸價逾時，監控取消";
                     trigger.Updater = nameof(UpdateStatus);
                     trigger.UpdateTime = DateTime.Now;
+                    _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}");
+                    saveTriggers = true;
                     return saveTriggers;
                 }
-                else if (trigger.StatusIndex == Definition.TriggerStatusWaiting.Item1 && (!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now))
+                else if (trigger.StatusEnum == TriggerStatus.Enum.Waiting && (!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now))
                 {
-                    trigger.StatusIndex = Definition.TriggerStatusMonitoring.Item1;
+                    string des = trigger.StatusDes;
+                    trigger.StatusEnum = TriggerStatus.Enum.Monitoring;
+                    _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}|{des} -> {trigger.StatusDes}");
                     saveTriggers = true;
-                    _appCtrl.LogTrace($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|{Definition.TriggerStatusWaiting.Item2} -> {trigger.StatusStr}");
                 }
-                else if (trigger.StatusIndex == Definition.TriggerStatusMonitoring.Item1)
+                else if (trigger.StatusEnum == TriggerStatus.Enum.Monitoring)
                 { }
                 else
                 {
@@ -163,11 +166,11 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (trigger.ColumnValue >= trigger.TargetValue)
                     {
-                        trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
+                        trigger.StatusEnum = TriggerStatus.Enum.Executed;
+                        _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}");
                         saveTriggers = true;
-                        _appCtrl.LogTrace($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
 
-                        _executedMap.TryAdd(key, trigger);
+                        _executedMap.TryAdd(trigger.PrimaryKey, trigger);
 
                         //
                     }
@@ -176,11 +179,11 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (trigger.ColumnValue <= trigger.TargetValue)
                     {
-                        trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
+                        trigger.StatusEnum = TriggerStatus.Enum.Executed;
+                        _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}");
                         saveTriggers = true;
-                        _appCtrl.LogTrace($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
 
-                        _executedMap.TryAdd(key, trigger);
+                        _executedMap.TryAdd(trigger.PrimaryKey, trigger);
 
                         //
                     }
@@ -189,20 +192,21 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (trigger.ColumnValue == trigger.TargetValue)
                     {
-                        trigger.StatusIndex = Definition.TriggerStatusExecuted.Item1;
+                        trigger.StatusEnum = TriggerStatus.Enum.Executed;
+                        _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}");
                         saveTriggers = true;
-                        _appCtrl.LogTrace($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}|{trigger.StatusStr}");
 
-                        _executedMap.TryAdd(key, trigger);
+                        _executedMap.TryAdd(trigger.PrimaryKey, trigger);
 
                         //
                     }
                 }
                 else
                 {
-                    trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
+                    trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
+                    trigger.Comment = $"條件({trigger.Rule})錯誤，必須是大於小於等於";
+                    _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}");
                     saveTriggers = true;
-                    _appCtrl.LogError($"Trigger|{key}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|條件({trigger.Rule})錯誤，必須是大於小於等於");
                     return saveTriggers;
                 }
             }
@@ -228,30 +232,79 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
+            while (_waitToCancel.Count > 0)
+            {
+                _waitToCancel.TryDequeue(out string primaryKey);
+
+                if (_triggerMap.TryGetValue(primaryKey, out TriggerData trigger))
+                {
+                    if (trigger.StatusEnum == TriggerStatus.Enum.Cancelled)
+                    {
+                        _appCtrl.LogError($"Trigger|{trigger.ToLog()}");
+                    }
+                    else if (trigger.StatusEnum == TriggerStatus.Enum.Executed)
+                    {
+                        _appCtrl.LogError($"Trigger|{trigger.ToLog()}|已觸發無法取消");
+                    }
+                    else
+                    {
+                        trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
+                        trigger.Comment = $"手動取消";
+                        _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}");
+                    }
+                }
+                else
+                {
+                    _appCtrl.LogError($"Trigger|{primaryKey}|查無此唯一鍵");
+                }
+            }
+
             while (_waitToAdd.Count > 0)
             {
                 _waitToAdd.TryDequeue(out TriggerData trigger);
+
+                TriggerData toRemove = null;
+
+                if (!_triggerMap.TryGetValue(trigger.PrimaryKey, out TriggerData _old))
+                {
+                    if (trigger.StatusEnum != TriggerStatus.Enum.Cancelled)
+                    {
+                        _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}|新增設定");
+                    }
+                }
+                else if (_old.StatusEnum == TriggerStatus.Enum.Executed)
+                {
+                    _appCtrl.LogWarn($"Trigger|{trigger.ToLog()}|舊設定已觸發，將新增設定");
+                    _triggerMap.Remove(trigger.PrimaryKey);
+                }
+                else
+                {
+                    _appCtrl.LogWarn($"Trigger|{trigger.ToLog()}|舊設定未觸發，將進行重置");
+                    _triggerMap.Remove(trigger.PrimaryKey);
+                    toRemove = _old;
+                }
+
+                _triggerMap.Add(trigger.PrimaryKey, trigger);
+
+                List<TriggerData> list = _triggerMap.Values.ToList();
+                int index = list.IndexOf(trigger);
+
+                if (index + 1 < list.Count)
+                {
+                    TriggerData next = list[index + 1];
+                    index = _triggerCollection.IndexOf(next);
+                }
 
                 _appCtrl.MainForm.InvokeRequired(delegate
                 {
                     try
                     {
-                        if (!_triggerMap.TryGetValue(trigger.PrimaryKey, out TriggerData _old))
-                        { }
-                        else if (_old.StatusIndex == Definition.TriggerStatusExecuted.Item1)
-                        {
-                            _appCtrl.LogWarn($"Trigger|{trigger.PrimaryKey}({trigger.ColumnName})，舊設定已觸發，將新增設定");
-                            _triggerMap.Remove(trigger.PrimaryKey);
-                        }
-                        else
-                        {
-                            _appCtrl.LogWarn($"Trigger|{trigger.PrimaryKey}({trigger.ColumnName})，舊設定尚未觸發，將進行重置");
-                            _triggerMap.Remove(trigger.PrimaryKey);
-                            _triggerCollection.Remove(_old);
-                        }
+                        _triggerCollection.Insert(index, trigger);
 
-                        _triggerMap.Add(trigger.PrimaryKey, trigger);
-                        _triggerCollection.Add(trigger);
+                        if (toRemove != null)
+                        {
+                            _triggerCollection.Remove(toRemove);
+                        }
 
                         if (_waitToAdd.Count <= 0)
                         {
@@ -279,7 +332,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 try
                 {
-                    if (UpdateStatus(pair.Key, pair.Value, pair.Value.Quote))
+                    if (UpdateStatus(pair.Value, pair.Value.Quote))
                     {
                         saveTriggers = true;
                     }
@@ -439,6 +492,14 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
+                primaryKey = primaryKey.Replace(" ", string.Empty);
+
+                if (string.IsNullOrWhiteSpace(primaryKey))
+                {
+                    return;
+                }
+
+                _waitToCancel.Enqueue(primaryKey);
             }
             catch (Exception ex)
             {
@@ -553,13 +614,17 @@ namespace GNAy.Capital.Trade.Controllers
                     EndTime = parseResult.Item3,
                 };
 
-                _waitToAdd.Enqueue(trigger);
-
                 if (decimal.TryParse(primaryKey, out decimal _pk))
                 {
-                    ++_pk;
-                    _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{_pk}";
+                    if (_pk < _triggerMap.Count)
+                    {
+                        _pk = _triggerMap.Count;
+                    }
+
+                    _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{_pk + 1}";
                 }
+
+                _waitToAdd.Enqueue(trigger);
 
                 _appCtrl.MainForm.TabControlBB.SelectedIndex = 0;
             }
@@ -601,7 +666,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 List<string> columnNames = new List<string>();
-                decimal counter = 0;
+                decimal nextPK = -1;
 
                 foreach (TriggerData trigger in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
                 {
@@ -619,7 +684,9 @@ namespace GNAy.Capital.Trade.Controllers
                             continue;
                         }
 
+                        trigger.StatusEnum = TriggerStatus.Enum.Waiting;
                         trigger.Quote = quote;
+                        trigger.ColumnValue = 0;
 
                         string startTime = trigger.StartTime.HasValue ? trigger.StartTime.Value.ToString("HHmmss") : string.Empty;
                         string endTime = trigger.EndTime.HasValue ? trigger.EndTime.Value.ToString("HHmmss") : string.Empty;
@@ -633,35 +700,40 @@ namespace GNAy.Capital.Trade.Controllers
                         trigger.StartTime = parseResult.Item2;
                         trigger.EndTime = parseResult.Item3;
 
+                        if ((!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now) && !_appCtrl.Config.StartOnTime)
+                        {
+                            trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
+                            trigger.Comment = "程式沒有在正常時間啟動，不執行此監控";
+                            _appCtrl.LogError($"Trigger|{trigger.ToLog()}");
+                        }
+
                         trigger.Creator = nameof(RecoverSetting);
                         trigger.Updater = nameof(RecoverSetting);
                         trigger.UpdateTime = DateTime.Now;
-                        trigger.StatusIndex = Definition.TriggerStatusWaiting.Item1;
 
-                        if ((!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now) && !_appCtrl.Config.StartOnTime)
+                        if (decimal.TryParse(trigger.PrimaryKey, out decimal _pk) && _pk > nextPK)
                         {
-                            trigger.StatusIndex = Definition.TriggerStatusCancelled.Item1;
-                            _appCtrl.LogTrace($"Trigger|{trigger.PrimaryKey}_{trigger.Symbol}_{trigger.ColumnProperty}({trigger.ColumnName})|程式沒有在正常時間啟動，不執行此監控");
+                            nextPK = _pk + 1;
                         }
 
                         _waitToAdd.Enqueue(trigger);
-
-                        ++counter;
-                        if (decimal.TryParse(trigger.PrimaryKey, out decimal _pk) && _pk > counter)
-                        {
-                            counter = _pk;
-                        }
-
-                        _appCtrl.MainForm.InvokeRequired(delegate
-                        {
-                            _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{counter + 1}";
-                        });
                     }
                     catch (Exception ex)
                     {
                         _appCtrl.LogException(ex, ex.StackTrace);
                     }
                 }
+
+                SpinWait.SpinUntil(() => _waitToAdd.Count <= 0);
+                Thread.Sleep(1 * 1000);
+                if (_triggerCollection.Count >= nextPK)
+                {
+                    nextPK = _triggerCollection.Count + 1;
+                }
+                _appCtrl.MainForm.InvokeRequired(delegate
+                {
+                    _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{nextPK}";
+                });
             }
             catch (Exception ex)
             {

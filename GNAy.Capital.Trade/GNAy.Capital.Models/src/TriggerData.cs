@@ -13,6 +13,7 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class TriggerData : NotifyPropertyChanged
     {
+        public static readonly Dictionary<string, TradeColumnTrigger> QuoteColumnTriggerMap = QuoteData.PropertyMap.Values.Where(x => x.Item1.IsTrigger).ToDictionary(x => x.Item2.Name, x => new TradeColumnTrigger(x.Item1, x.Item2));
         public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(TriggerData).GetColumnAttrMapByProperty<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
         public static readonly SortedDictionary<int, (ColumnAttribute, PropertyInfo)> ColumnGetters = typeof(TriggerData).GetColumnAttrMapByIndex<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
         public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> ColumnSetters = typeof(TriggerData).GetColumnAttrMapByName<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
@@ -79,13 +80,18 @@ namespace GNAy.Capital.Models
             {
                 if (OnPropertyChanged(ref _statusIndex, value))
                 {
-                    OnPropertyChanged(nameof(StatusStr));
+                    OnPropertyChanged(nameof(StatusDes));
                 }
             }
         }
+        public TriggerStatus.Enum StatusEnum
+        {
+            get { return (TriggerStatus.Enum)StatusIndex; }
+            set { StatusIndex = (int)value; }
+        }
 
         [Column("狀態描述", "狀態", 5)]
-        public string StatusStr => Definition.TriggerStatusKinds[StatusIndex];
+        public string StatusDes => TriggerStatus.Description[StatusIndex];
 
         private string _primaryKey;
         [Column("自定義唯一鍵", "唯一鍵", 6)]
@@ -146,13 +152,13 @@ namespace GNAy.Capital.Models
             {
                 if (OnPropertyChanged(ref _cancelIndex, value))
                 {
-                    OnPropertyChanged(nameof(CancelStr));
+                    OnPropertyChanged(nameof(CancelDes));
                 }
             }
         }
 
         [Column("觸價取消描述", "觸價後取消", 14)]
-        public string CancelStr => Definition.TriggerCancelKinds[CancelIndex];
+        public string CancelDes => Definition.TriggerCancelKinds[CancelIndex];
 
         private string _strategy;
         [Column("觸價後執行", 15)]
@@ -193,7 +199,7 @@ namespace GNAy.Capital.Models
             CreatedTime = DateTime.Now;
             Updater = string.Empty;
             UpdateTime = DateTime.MaxValue;
-            StatusIndex = Definition.TriggerStatusWaiting.Item1;
+            StatusEnum = TriggerStatus.Enum.Waiting;
             PrimaryKey = string.Empty;
             Quote = quote;
             Symbol = quote.Symbol;
@@ -210,6 +216,11 @@ namespace GNAy.Capital.Models
 
         private TriggerData() : this(null, null)
         { }
+
+        public string ToLog()
+        {
+            return $"{StatusDes},{PrimaryKey},{ColumnProperty}({ColumnName}),{Comment}";
+        }
 
         public string ToCSVString()
         {
@@ -243,13 +254,12 @@ namespace GNAy.Capital.Models
             }
         }
 
-        public static TriggerData Create(IList<string> columnNames, int propertyIndex, string lineCSV)
+        public static TriggerData Create(IList<string> columnNames, string lineCSV, int propertyIndex)
         {
             string[] cells = lineCSV.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries);
             string propertyName = cells[propertyIndex];
-            (TradeColumnAttribute, PropertyInfo) property = QuoteData.PropertyMap[propertyName];
 
-            TriggerData data = new TriggerData(new QuoteData(), new TradeColumnTrigger(property.Item1, property.Item2));
+            TriggerData data = new TriggerData(new QuoteData(), QuoteColumnTriggerMap[propertyName]);
             data.SetValues(columnNames, cells);
 
             return data;
@@ -268,7 +278,7 @@ namespace GNAy.Capital.Models
                     continue;
                 }
 
-                TriggerData data = Create(columnNames, propertyIndex, line);
+                TriggerData data = Create(columnNames, line, propertyIndex);
 
                 yield return data;
             }

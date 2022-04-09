@@ -629,23 +629,6 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                     }
 
-                    if (lastQuote1 == null)
-                    {
-                        if (files.Length > 0)
-                        {
-                            lastQuote1 = files[files.Length - 1];
-
-                            if (files.Length > 1)
-                            {
-                                lastQuote2 = files[files.Length - 2];
-                            }
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
-
                     ReadLastClosePrice(lastQuote1);
                     ReadLastClosePrice(lastQuote2);
                 }
