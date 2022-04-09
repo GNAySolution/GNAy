@@ -47,6 +47,7 @@
     <Compile Include="src\AppConfig.cs" />
     <Compile Include="src\APIReplyData.cs" />
     <Compile Include="src\Definition.cs" />
+    <Compile Include="src\MarketType.cs" />
     <Compile Include="src\TradeColumnTrigger.cs" />
     <Compile Include="src\TradeColumnAttribute.cs" />
     <Compile Include="src\OrderAccData.cs" />

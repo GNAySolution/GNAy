@@ -139,7 +139,7 @@ namespace GNAy.Tools.NET47
 
             if (!(value is object))
             {
-                return null;
+                return "null";
             }
             else if (string.IsNullOrWhiteSpace(format))
             {
@@ -232,7 +232,7 @@ namespace GNAy.Tools.NET47
             {
                 obj.SetValue(instance, new StringBuilder(value));
             }
-            else if (string.IsNullOrWhiteSpace(value))
+            else if (string.IsNullOrWhiteSpace(value) || value == "null")
             {
                 return;
             }

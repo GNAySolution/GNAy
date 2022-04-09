@@ -1044,14 +1044,18 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (marketType >= 0)
+                if (marketType >= 0 && marketType < MarketType.DescriptionCode.Count)
                 {
                     int m_nCode = m_pSKOrder.UnlockOrder(marketType); //下單解鎖。下單函式上鎖後需經由此函式解鎖才可繼續下單
                     LogAPIMessage(m_nCode);
                     return;
                 }
+                else if (marketType >= MarketType.DescriptionCode.Count)
+                {
+                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= MarketType.DescriptionCode.Count({MarketType.DescriptionCode.Count})");
+                }
 
-                for (int i = 0; i < Definition.MarketTypes.Count; ++i)
+                for (int i = 0; i < MarketType.DescriptionCode.Count; ++i)
                 {
                     int m_nCode = m_pSKOrder.UnlockOrder(i); //下單解鎖。下單函式上鎖後需經由此函式解鎖才可繼續下單
                     LogAPIMessage(m_nCode);
@@ -1078,14 +1082,18 @@ namespace GNAy.Capital.Trade.Controllers
 
                 _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}|maxQty={maxQty}");
 
-                if (marketType >= 0)
+                if (marketType >= 0 && marketType < MarketType.DescriptionCode.Count)
                 {
                     int m_nCode = m_pSKOrder.SetMaxQty(marketType, maxQty); //設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
                     LogAPIMessage(m_nCode);
                     return;
                 }
+                else if (marketType >= MarketType.DescriptionCode.Count)
+                {
+                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= MarketType.DescriptionCode.Count({MarketType.DescriptionCode.Count})");
+                }
 
-                for (int i = 0; i < Definition.MarketTypes.Count; ++i)
+                for (int i = 0; i < MarketType.DescriptionCode.Count; ++i)
                 {
                     int m_nCode = m_pSKOrder.SetMaxQty(i, maxQty); //設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
                     LogAPIMessage(m_nCode);
@@ -1112,14 +1120,18 @@ namespace GNAy.Capital.Trade.Controllers
 
                 _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}|maxCount={maxCount}");
 
-                if (marketType >= 0)
+                if (marketType >= 0 && marketType < MarketType.DescriptionCode.Count)
                 {
                     int m_nCode = m_pSKOrder.SetMaxCount(marketType, maxCount); //設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
                     LogAPIMessage(m_nCode);
                     return;
                 }
+                else if (marketType >= MarketType.DescriptionCode.Count)
+                {
+                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= MarketType.DescriptionCode.Count({MarketType.DescriptionCode.Count})");
+                }
 
-                for (int i = 0; i < Definition.MarketTypes.Count; ++i)
+                for (int i = 0; i < MarketType.DescriptionCode.Count; ++i)
                 {
                     int m_nCode = m_pSKOrder.SetMaxCount(i, maxCount); //設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
                     LogAPIMessage(m_nCode);

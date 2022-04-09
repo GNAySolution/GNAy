@@ -687,6 +687,7 @@ namespace GNAy.Capital.Trade.Controllers
                         trigger.StatusEnum = TriggerStatus.Enum.Waiting;
                         trigger.Quote = quote;
                         trigger.ColumnValue = 0;
+                        trigger.Comment = string.Empty;
 
                         string startTime = trigger.StartTime.HasValue ? trigger.StartTime.Value.ToString("HHmmss") : string.Empty;
                         string endTime = trigger.EndTime.HasValue ? trigger.EndTime.Value.ToString("HHmmss") : string.Empty;

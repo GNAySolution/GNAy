@@ -21,8 +21,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                //市場,分公司,分公司代號,帳號,身份證字號,姓名
                 string[] cells = bstrAccountData.Split(',');
+
+                //市場,分公司,分公司代號,帳號,身份證字號,姓名
                 OrderAccData acc = new OrderAccData()
                 {
                     MarketType = cells[0],
@@ -33,12 +34,12 @@ namespace GNAy.Capital.Trade.Controllers
                     MemberName = cells[5],
                 };
 
-                if (cells[0] == Definition.MarketTypeStock.Item2)
+                if (MarketType.CodeMap.TryGetValue(cells[0], out MarketType.Enum marketType) && marketType == MarketType.Enum.Stock)
                 {
                     _stockAccCollection.Add(acc);
                     _appCtrl.MainForm.ComboBoxStockAccs.SelectedIndex = 0;
                 }
-                else if (cells[0] == Definition.MarketTypeFutures.Item2) //cells[0] == "OF"
+                else if (marketType == MarketType.Enum.Futures) //cells[0] == "OF"
                 {
                     _futuresAccCollection.Add(acc);
                     _appCtrl.MainForm.ComboBoxFuturesAccs.SelectedIndex = 0;
