@@ -1210,6 +1210,13 @@ namespace GNAy.Capital.Trade
 
             try
             {
+                if (TabControlBB.SelectedIndex != 0)
+                {
+                    TabControlBB.SelectedIndex = 0;
+                    _appCtrl.LogWarn("防呆，再次確認，避免看錯");
+                    return;
+                }
+
                 _appCtrl.Trigger.Cancel(TextBoxTriggerPrimaryKey.Text);
             }
             catch (Exception ex)
@@ -1228,6 +1235,13 @@ namespace GNAy.Capital.Trade
 
             try
             {
+                if (TabControlBB.SelectedIndex != 0)
+                {
+                    TabControlBB.SelectedIndex = 0;
+                    _appCtrl.LogWarn("防呆，再次確認，避免看錯");
+                    return;
+                }
+
                 _appCtrl.Trigger.AddRule();
             }
             catch (Exception ex)
@@ -1320,7 +1334,57 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonFuturesOrderTest_Click(object sender, RoutedEventArgs e)
+        private void ButtonCancelStrategy_Click(object sender, RoutedEventArgs e)
+        {
+            _appCtrl.LogTrace("Start");
+
+            try
+            {
+                if (TabControlBB.SelectedIndex != 1)
+                {
+                    TabControlBB.SelectedIndex = 1;
+                    _appCtrl.LogWarn("防呆，再次確認，避免看錯");
+                    return;
+                }
+
+                //
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonSaveStrategyRule_Click(object sender, RoutedEventArgs e)
+        {
+            _appCtrl.LogTrace("Start");
+
+            try
+            {
+                if (TabControlBB.SelectedIndex != 1)
+                {
+                    TabControlBB.SelectedIndex = 1;
+                    _appCtrl.LogWarn("防呆，再次確認，避免看錯");
+                    return;
+                }
+
+                //
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonSendFutureOrder_Click(object sender, RoutedEventArgs e)
         {
             _appCtrl.LogTrace("Start");
 
@@ -1338,7 +1402,25 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonOptionsOrderTest_Click(object sender, RoutedEventArgs e)
+        private void ButtonCancelOrderBySeqNo_Click(object sender, RoutedEventArgs e)
+        {
+            _appCtrl.LogTrace("Start");
+
+            try
+            {
+                //
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.LogTrace("End");
+            }
+        }
+
+        private void ButtonCancelOrderByBookNo_Click(object sender, RoutedEventArgs e)
         {
             _appCtrl.LogTrace("Start");
 

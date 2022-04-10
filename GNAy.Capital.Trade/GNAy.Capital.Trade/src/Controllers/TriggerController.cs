@@ -630,8 +630,6 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 _waitToAdd.Enqueue(trigger);
-
-                _appCtrl.MainForm.TabControlBB.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
