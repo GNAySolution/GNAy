@@ -38,9 +38,9 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl = appCtrl;
 
             //https://www.codeproject.com/Questions/1117817/Basic-WPF-binding-to-collection-in-combobox
-            _triggerCancelKinds = new ObservableCollection<string>(Definition.TriggerCancelKinds);
+            _triggerCancelKinds = new ObservableCollection<string>(TriggerCancel.Description);
             _appCtrl.MainForm.ComboBoxTriggerCancel.ItemsSource = _triggerCancelKinds.GetViewSource();
-            _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex = Definition.TriggerCancel0.Item1;
+            _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex = (int)TriggerCancel.Enum.SameSymbolSameColumn;
 
             _waitToReset = new ConcurrentQueue<QuoteData>();
             _waitToCancel = new ConcurrentQueue<string>();
@@ -252,6 +252,11 @@ namespace GNAy.Capital.Trade.Controllers
                         trigger.Comment = $"手動取消";
                         _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}");
                     }
+
+                    if (_waitToCancel.Count <= 0)
+                    {
+                        SaveDataAsync();
+                    }
                 }
                 else
                 {
@@ -453,7 +458,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                 }
 
-                if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && quote.Market != Definition.MarketFutures && quote.Market != Definition.MarketOptions)
+                if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && quote.MarketGroupEnum != Market.EGroup.Futures && quote.MarketGroupEnum != Market.EGroup.Options)
                 {
                     _appCtrl.LogError($"Trigger|非期貨選擇權，結束時間({times[1]})不可小於開始時間({times[0]})");
                     return (false, null, null);
@@ -464,13 +469,13 @@ namespace GNAy.Capital.Trade.Controllers
                     return (false, null, null);
                 }
 
-                if (startTime.HasValue && startTime.Value < DateTime.Now && startTime.Value.Hour < 5 && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions))
+                if (startTime.HasValue && startTime.Value < DateTime.Now && startTime.Value.Hour < 5 && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options))
                 {
                     startTime = startTime.Value.AddDays(1);
                     _appCtrl.LogTrace($"Trigger|期貨選擇權，開始時間跨日，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}");
                 }
 
-                if (endTime.HasValue && endTime.Value < DateTime.Now && endTime.Value.Hour < 5 && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions))
+                if (endTime.HasValue && endTime.Value < DateTime.Now && endTime.Value.Hour < 5 && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options))
                 {
                     endTime = endTime.Value.AddDays(1);
                     _appCtrl.LogTrace($"Trigger|期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}");

@@ -139,7 +139,7 @@ namespace GNAy.Tools.NET47
 
             if (!(value is object))
             {
-                return "null";
+                return null;
             }
             else if (string.IsNullOrWhiteSpace(format))
             {
@@ -232,7 +232,7 @@ namespace GNAy.Tools.NET47
             {
                 obj.SetValue(instance, new StringBuilder(value));
             }
-            else if (string.IsNullOrWhiteSpace(value) || value == "null")
+            else if (string.IsNullOrWhiteSpace(value))
             {
                 return;
             }
@@ -342,6 +342,22 @@ namespace GNAy.Tools.NET47
             return new DateTime(obj.Year.ToROCYear(), obj.Month, obj.Day, obj.Hour, obj.Minute, obj.Second, obj.Millisecond);
         }
 
+        public static string[] SplitToCSV(this string obj)
+        {
+            string[] cells = obj.Split(Separator.CSV, StringSplitOptions.None);
+
+            if (cells.Length > 0)
+            {
+                cells[0] = cells[0].Substring(1);
+
+                string last = cells[cells.Length - 1];
+                last = last.Substring(0, last.Length - 1);
+                cells[cells.Length - 1] = last;
+            }
+
+            return cells;
+        }
+
         /// <summary>
         /// https://www.twse.com.tw/zh/holidaySchedule/holidaySchedule
         /// </summary>
@@ -356,7 +372,7 @@ namespace GNAy.Tools.NET47
 
             foreach (string line in lines)
             {
-                string[] cells = line.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries);
+                string[] cells = line.SplitToCSV();
 
                 if (cells.Length < 4)
                 {

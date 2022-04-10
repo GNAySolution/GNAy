@@ -447,13 +447,7 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding Market}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right"/>
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding MarketGroupEnum}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding DecimalPos}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
@@ -531,27 +525,9 @@
                 <TextBox x:Name="TextBoxTriggerStrategy" Text="觸價後執行策略" ToolTip="觸價後執行策略" HorizontalAlignment="Left" Margin="716,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="監控時間區間" HorizontalAlignment="Left" Margin="841,8,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxTriggerTimeDuration" Text="監控時間區間" ToolTip="監控時間區間" HorizontalAlignment="Left" Margin="841,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <Label Content="股票權證下單帳號" HorizontalAlignment="Left" Margin="91,59,0,0" VerticalAlignment="Top"/>
-                <!--https://stackoverflow.com/questions/11259479/how-to-get-tooltip-binding-to-work-with-a-combobox-->
-                <!--https://stackoverflow.com/questions/16197928/wpf-combobox-binding-to-observablecollection-->
-                <ComboBox x:Name="ComboBoxStockAccs" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="91,84,0,0" VerticalAlignment="Top" Width="120">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                <Label Content="國內期權下單帳號" HorizontalAlignment="Left" Margin="216,59,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxFuturesAccs" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="216,84,0,0" VerticalAlignment="Top" Width="120">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="91,110,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
-                <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="216,110,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
-                <TabControl x:Name="TabControlBB" Margin="0,150,0,30" SelectedIndex="0">
+                <Label Content="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStrategyPrimaryKey" Text="自定義策略唯一鍵" ToolTip="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
                             <DataGrid x:Name="DataGridTriggerRule" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
@@ -671,7 +647,37 @@
         </Border>
         <Border Grid.Row="2" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5">
-                <TabControl x:Name="TabControlCB" Margin="0,0,0,30" SelectedIndex="0">
+                <Label Content="股票權證下單帳號" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <!--https://stackoverflow.com/questions/11259479/how-to-get-tooltip-binding-to-work-with-a-combobox-->
+                <!--https://stackoverflow.com/questions/16197928/wpf-combobox-binding-to-observablecollection-->
+                <ComboBox x:Name="ComboBoxStockAccs" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="120">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Label Content="國內期權下單帳號" HorizontalAlignment="Left" Margin="135,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxFuturesAccs" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="135,35,0,0" VerticalAlignment="Top" Width="120">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Label Content="下單商品代碼" HorizontalAlignment="Left" Margin="260,8,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxOrderSymbol" Text="下單商品代碼" ToolTip="下單商品代碼" HorizontalAlignment="Left" Margin="260,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="Buy/Sell" HorizontalAlignment="Left" Margin="385,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderBuySell" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="385,35,0,0" VerticalAlignment="Top" Width="120"/>
+                <Label Content="掛單類型" HorizontalAlignment="Left" Margin="510,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderType" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,35,0,0" VerticalAlignment="Top" Width="120"/>
+                <Label Content="是否當沖" HorizontalAlignment="Left" Margin="635,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderDayTrade" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="635,35,0,0" VerticalAlignment="Top" Width="120"/>
+                <Label Content="平倉新倉自動" HorizontalAlignment="Left" Margin="760,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderPositionKind" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="760,35,0,0" VerticalAlignment="Top" Width="120"/>
+                <Button x:Name="ButtonFuturesOrderTest" Content="期貨委託測試" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top" Click="ButtonFuturesOrderTest_Click"/>
+                <Button x:Name="ButtonOptionsOrderTest" Content="選擇權委測試" HorizontalAlignment="Left" Margin="135,61,0,0" VerticalAlignment="Top" Click="ButtonOptionsOrderTest_Click"/>
+                <TabControl x:Name="TabControlCB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="委託回報">
                         <Grid Background="#FFE5E5E5">
                         </Grid>

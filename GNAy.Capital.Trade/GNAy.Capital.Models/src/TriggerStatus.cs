@@ -12,7 +12,7 @@ namespace GNAy.Capital.Models
     /// <summary>
     /// 觸價狀態
     /// </summary>
-    public static class TriggerStatus
+    public class TriggerStatus
     {
         public enum Enum
         {

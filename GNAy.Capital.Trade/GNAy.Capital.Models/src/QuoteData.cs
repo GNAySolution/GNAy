@@ -336,12 +336,18 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _page, value); }
         }
 
-        private short _market;
+        private short _marketGroup;
         [TradeColumn("市場", "市", 34)]
-        public short Market
+        public short MarketGroup
         {
-            get { return _market; }
-            set { OnPropertyChanged(ref _market, value); }
+            get { return _marketGroup; }
+            set { OnPropertyChanged(ref _marketGroup, value); }
+        }
+        [TradeColumn("市場", -1)]
+        public Market.EGroup MarketGroupEnum
+        {
+            get { return (Market.EGroup)MarketGroup; }
+            set { MarketGroup = (short)value; }
         }
 
         private short _decimalPos;
@@ -410,7 +416,7 @@ namespace GNAy.Capital.Models
             Count = 0;
             Index = -1;
             Page = -1;
-            Market = -1;
+            MarketGroupEnum = Market.EGroup.Emerging;
             DecimalPos = 0;
             TotalQtyBefore = 0;
             Recovered = false;
@@ -451,7 +457,7 @@ namespace GNAy.Capital.Models
         public static QuoteData Create(IList<string> columnNames, string lineCSV)
         {
             QuoteData data = new QuoteData();
-            data.SetValues(columnNames, lineCSV.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries));
+            data.SetValues(columnNames, lineCSV.SplitToCSV());
             return data;
         }
 
@@ -461,7 +467,7 @@ namespace GNAy.Capital.Models
             {
                 if (columnNames.Count <= 0)
                 {
-                    columnNames.AddRange(line.Split(Separator.CSV));
+                    columnNames.AddRange(line.Split(','));
                     continue;
                 }
 

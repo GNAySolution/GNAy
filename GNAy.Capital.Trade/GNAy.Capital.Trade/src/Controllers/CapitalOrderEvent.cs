@@ -34,12 +34,12 @@ namespace GNAy.Capital.Trade.Controllers
                     MemberName = cells[5],
                 };
 
-                if (MarketType.CodeMap.TryGetValue(cells[0], out MarketType.Enum marketType) && marketType == MarketType.Enum.Stock)
+                if (Market.CodeMap.TryGetValue(cells[0], out Market.EType marketType) && marketType == Market.EType.Stock)
                 {
                     _stockAccCollection.Add(acc);
                     _appCtrl.MainForm.ComboBoxStockAccs.SelectedIndex = 0;
                 }
-                else if (marketType == MarketType.Enum.Futures) //cells[0] == "OF"
+                else if (marketType == Market.EType.Futures) //cells[0] == "OF"
                 {
                     _futuresAccCollection.Add(acc);
                     _appCtrl.MainForm.ComboBoxFuturesAccs.SelectedIndex = 0;

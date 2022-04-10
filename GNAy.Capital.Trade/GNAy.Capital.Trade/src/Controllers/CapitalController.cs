@@ -452,7 +452,7 @@ namespace GNAy.Capital.Trade.Controllers
                 HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal),
                 LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal),
                 Index = raw.nStockIdx,
-                Market = short.Parse(raw.bstrMarketNo),
+                MarketGroup = short.Parse(raw.bstrMarketNo),
                 DecimalPos = raw.sDecimal,
                 TotalQtyBefore = raw.nYQty,
             };
@@ -477,9 +477,9 @@ namespace GNAy.Capital.Trade.Controllers
             //    _appCtrl.LogError($"SKAPI|quote.Name != raw.bstrStockName|Name={quote.Name}|bstrStockName={raw.bstrStockName}");
             //    return false;
             //}
-            //else if ($"{quote.Market}" != raw.bstrMarketNo)
+            //else if ($"{quote.MarketGroup}" != raw.bstrMarketNo)
             //{
-            //    _appCtrl.LogError($"SKAPI|quote.Market != raw.bstrMarketNo|Market={quote.Market}|bstrMarketNo={raw.bstrMarketNo}");
+            //    _appCtrl.LogError($"SKAPI|quote.MarketGroup != raw.bstrMarketNo|MarketGroup={quote.MarketGroup}|bstrMarketNo={raw.bstrMarketNo}");
             //    return false;
             //}
 
@@ -495,7 +495,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestSellQty = raw.nAc;
             if (quote.DealQty > 0)
             {
-                if (IsAMMarket && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+                if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
                 {
                     if (raw.nSimulate.IsRealTrading() && quote.OpenPrice == 0) //開盤第一筆成交
                     {
@@ -517,7 +517,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal);
             quote.LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal);
             //quote.Index = raw.nStockIdx;
-            //quote.Market = short.TryParse(raw.bstrMarketNo, out short x) ? x : (short)-1;
+            //quote.MarketGroup = short.TryParse(raw.bstrMarketNo, out short x) ? x : (short)-1;
             quote.DecimalPos = raw.sDecimal;
             quote.TotalQtyBefore = raw.nYQty;
 
@@ -534,7 +534,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.Updater = nameof(UpdateQuote);
             quote.UpdateTime = DateTime.Now;
 
-            if (IsAMMarket && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
             {
                 if (quote.OpenPrice != 0)
                 {
@@ -553,7 +553,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (firstTick)
             {
-                _appCtrl.LogTrace($"SKAPI|開盤|{quote.Market}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}");
+                _appCtrl.LogTrace($"SKAPI|開盤|{quote.MarketGroupEnum}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}");
             }
 
             return true;
@@ -577,7 +577,7 @@ namespace GNAy.Capital.Trade.Controllers
                     QuoteData quoteSub = _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
                     if (quoteSub != null && quoteSub.LastClosePrice == 0)
                     {
-                        if (quoteLast.Market == Definition.MarketFutures || quoteLast.Market == Definition.MarketOptions)
+                        if (quoteLast.MarketGroupEnum == Market.EGroup.Futures || quoteLast.MarketGroupEnum == Market.EGroup.Options)
                         {
                             quoteSub.LastClosePrice = quoteLast.DealPrice;
                         }
@@ -728,7 +728,7 @@ namespace GNAy.Capital.Trade.Controllers
                 foreach (QuoteData quoteLast in QuoteData.ForeachQuoteFromCSVFile(quoteFile.FullName, columnNames))
                 {
                     QuoteData quoteSub = _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
-                    if (quoteSub != null && (quoteLast.Market == Definition.MarketFutures || quoteLast.Market == Definition.MarketOptions))
+                    if (quoteSub != null && (quoteLast.MarketGroupEnum == Market.EGroup.Futures || quoteLast.MarketGroupEnum == Market.EGroup.Options))
                     {
                         quoteSub.DealPrice = quoteLast.DealPrice;
                         quoteSub.DealQty = quoteLast.DealQty;
@@ -736,7 +736,7 @@ namespace GNAy.Capital.Trade.Controllers
                         quoteSub.HighPrice = quoteLast.HighPrice;
                         quoteSub.LowPrice = quoteLast.LowPrice;
                         quoteSub.Recovered = true;
-                        _appCtrl.LogTrace($"SKAPI|檔案回補開盤|{quoteSub.Market}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.OpenPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}");
+                        _appCtrl.LogTrace($"SKAPI|檔案回補開盤|{quoteSub.MarketGroupEnum}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.OpenPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}");
                     }
                 }
             }
@@ -774,7 +774,7 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
-                        else if (!_appCtrl.Config.IsAMMarket(now) && quote.Market != Definition.MarketFutures && quote.Market != Definition.MarketOptions) //期貨選擇權夜盤，上市櫃已經收盤
+                        else if (!_appCtrl.Config.IsAMMarket(now) && quote.MarketGroupEnum != Market.EGroup.Futures && quote.MarketGroupEnum != Market.EGroup.Options) //期貨選擇權夜盤，上市櫃已經收盤
                         {
                             continue;
                         }
@@ -829,7 +829,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 try
                 {
-                    foreach (string product in products.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries))
+                    foreach (string product in products.SplitToCSV())
                     {
                         short pageA = -1;
                         int nCode = m_SKQuoteLib.SKQuoteLib_RequestTicks(ref pageA, product.Trim()); //訂閱要求傳送成交明細以及五檔
@@ -1044,18 +1044,18 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (marketType >= 0 && marketType < MarketType.DescriptionCode.Count)
+                if (marketType >= 0 && marketType < Market.CodeDescription.Count)
                 {
                     int m_nCode = m_pSKOrder.UnlockOrder(marketType); //下單解鎖。下單函式上鎖後需經由此函式解鎖才可繼續下單
                     LogAPIMessage(m_nCode);
                     return;
                 }
-                else if (marketType >= MarketType.DescriptionCode.Count)
+                else if (marketType >= Market.CodeDescription.Count)
                 {
-                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= MarketType.DescriptionCode.Count({MarketType.DescriptionCode.Count})");
+                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
                 }
 
-                for (int i = 0; i < MarketType.DescriptionCode.Count; ++i)
+                for (int i = 0; i < Market.CodeDescription.Count; ++i)
                 {
                     int m_nCode = m_pSKOrder.UnlockOrder(i); //下單解鎖。下單函式上鎖後需經由此函式解鎖才可繼續下單
                     LogAPIMessage(m_nCode);
@@ -1082,18 +1082,18 @@ namespace GNAy.Capital.Trade.Controllers
 
                 _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}|maxQty={maxQty}");
 
-                if (marketType >= 0 && marketType < MarketType.DescriptionCode.Count)
+                if (marketType >= 0 && marketType < Market.CodeDescription.Count)
                 {
                     int m_nCode = m_pSKOrder.SetMaxQty(marketType, maxQty); //設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
                     LogAPIMessage(m_nCode);
                     return;
                 }
-                else if (marketType >= MarketType.DescriptionCode.Count)
+                else if (marketType >= Market.CodeDescription.Count)
                 {
-                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= MarketType.DescriptionCode.Count({MarketType.DescriptionCode.Count})");
+                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
                 }
 
-                for (int i = 0; i < MarketType.DescriptionCode.Count; ++i)
+                for (int i = 0; i < Market.CodeDescription.Count; ++i)
                 {
                     int m_nCode = m_pSKOrder.SetMaxQty(i, maxQty); //設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
                     LogAPIMessage(m_nCode);
@@ -1120,18 +1120,18 @@ namespace GNAy.Capital.Trade.Controllers
 
                 _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}|maxCount={maxCount}");
 
-                if (marketType >= 0 && marketType < MarketType.DescriptionCode.Count)
+                if (marketType >= 0 && marketType < Market.CodeDescription.Count)
                 {
                     int m_nCode = m_pSKOrder.SetMaxCount(marketType, maxCount); //設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
                     LogAPIMessage(m_nCode);
                     return;
                 }
-                else if (marketType >= MarketType.DescriptionCode.Count)
+                else if (marketType >= Market.CodeDescription.Count)
                 {
-                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= MarketType.DescriptionCode.Count({MarketType.DescriptionCode.Count})");
+                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
                 }
 
-                for (int i = 0; i < MarketType.DescriptionCode.Count; ++i)
+                for (int i = 0; i < Market.CodeDescription.Count; ++i)
                 {
                     int m_nCode = m_pSKOrder.SetMaxCount(i, maxCount); //設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
                     LogAPIMessage(m_nCode);

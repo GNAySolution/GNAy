@@ -47,7 +47,7 @@
     <Compile Include="src\AppConfig.cs" />
     <Compile Include="src\APIReplyData.cs" />
     <Compile Include="src\Definition.cs" />
-    <Compile Include="src\MarketType.cs" />
+    <Compile Include="src\Market.cs" />
     <Compile Include="src\TradeColumnTrigger.cs" />
     <Compile Include="src\TradeColumnAttribute.cs" />
     <Compile Include="src\OrderAccData.cs" />
@@ -55,6 +55,7 @@
     <Compile Include="src\AppLogInDataGrid.cs" />
     <Compile Include="src\AppSettings.cs" />
     <Compile Include="src\StatusCode.cs" />
+    <Compile Include="src\TriggerCancel.cs" />
     <Compile Include="src\TriggerData.cs" />
     <Compile Include="src\TriggerStatus.cs" />
   </ItemGroup>

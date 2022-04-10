@@ -156,9 +156,14 @@ namespace GNAy.Capital.Models
                 }
             }
         }
+        public TriggerCancel.Enum CancelEnum
+        {
+            get { return (TriggerCancel.Enum)CancelIndex; }
+            set { CancelIndex = (int)value; }
+        }
 
         [Column("觸價取消描述", "觸價後取消", 14)]
-        public string CancelDes => Definition.TriggerCancelKinds[CancelIndex];
+        public string CancelDes => TriggerCancel.Description[CancelIndex];
 
         private string _strategy;
         [Column("觸價後執行", 15)]
@@ -207,7 +212,7 @@ namespace GNAy.Capital.Models
             ColumnValue = 0;
             Rule = string.Empty;
             TargetValue = 0;
-            CancelIndex = Definition.TriggerCancel0.Item1;
+            CancelEnum = TriggerCancel.Enum.SameSymbolSameColumn;
             Strategy = string.Empty;
             StartTime = null;
             EndTime = null;
@@ -256,7 +261,7 @@ namespace GNAy.Capital.Models
 
         public static TriggerData Create(IList<string> columnNames, string lineCSV, int propertyIndex)
         {
-            string[] cells = lineCSV.Split(Separator.CSV, StringSplitOptions.RemoveEmptyEntries);
+            string[] cells = lineCSV.SplitToCSV();
             string propertyName = cells[propertyIndex];
 
             TriggerData data = new TriggerData(new QuoteData(), QuoteColumnTriggerMap[propertyName]);
@@ -273,7 +278,7 @@ namespace GNAy.Capital.Models
             {
                 if (columnNames.Count <= 0)
                 {
-                    columnNames.AddRange(line.Split(Separator.CSV));
+                    columnNames.AddRange(line.Split(','));
                     propertyIndex = columnNames.FindIndex(x => x == PropertyMap[nameof(ColumnProperty)].Item1.Name);
                     continue;
                 }

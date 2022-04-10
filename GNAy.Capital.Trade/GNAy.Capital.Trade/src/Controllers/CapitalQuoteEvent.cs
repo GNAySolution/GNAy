@@ -104,7 +104,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     quote = new QuoteData()
                     {
-                        Market = sMarketNo,
+                        MarketGroup = sMarketNo,
                         Index = nStockIdx,
                     };
                 }
@@ -190,11 +190,11 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.LogError($"SKAPI|!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote)|nStockIdx={nStockIdx}");
                     return;
                 }
-                //else if (quote.Market != sMarketNo)
-                //{
-                //    _appCtrl.LogError($"SKAPI|quote.Market != raw.bstrMarketNo|Market={quote.Market}|sMarketNo={sMarketNo}");
-                //    return;
-                //}
+                else if (quote.MarketGroup != sMarketNo)
+                {
+                    _appCtrl.LogError($"SKAPI|quote.MarketGroup != raw.bstrMarketNo|MarketGroup={quote.MarketGroup}|sMarketNo={sMarketNo}");
+                    return;
+                }
 
                 bool firstTick = false;
 
@@ -211,7 +211,7 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.DealQty = nQty;
                 if (quote.DealQty > 0)
                 {
-                    if (IsAMMarket && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+                    if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
                     {
                         if (nSimulate.IsRealTrading() && quote.OpenPrice == 0) //開盤第一筆成交
                         {
@@ -225,7 +225,7 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.Updater = nameof(OnNotifyTicks);
                 quote.UpdateTime = DateTime.Now;
 
-                if (IsAMMarket && (quote.Market == Definition.MarketFutures || quote.Market == Definition.MarketOptions) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+                if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
                 {
                     if (quote.OpenPrice != 0)
                     {
@@ -244,7 +244,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (firstTick)
                 {
-                    _appCtrl.LogTrace($"SKAPI|開盤|{quote.Market}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}");
+                    _appCtrl.LogTrace($"SKAPI|開盤|{quote.MarketGroupEnum}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}");
                 }
             }
             catch (Exception ex)
