@@ -165,16 +165,24 @@ namespace GNAy.Capital.Models
         [Column("觸價取消描述", "觸價後取消", 14)]
         public string CancelDes => TriggerCancel.Description[CancelIndex];
 
-        private string _strategy;
-        [Column("觸價後執行", 15)]
-        public string Strategy
+        private string _strategyOR;
+        [Column("滿足單一條件即執行策略", "執行OR", 15)]
+        public string StrategyOR
         {
-            get { return _strategy; }
-            set { OnPropertyChanged(ref _strategy, value); }
+            get { return _strategyOR; }
+            set { OnPropertyChanged(ref _strategyOR, value); }
+        }
+
+        private string _strategyAND;
+        [Column("滿足全部條件再執行策略", "執行AND", 16)]
+        public string StrategyAND
+        {
+            get { return _strategyAND; }
+            set { OnPropertyChanged(ref _strategyAND, value); }
         }
 
         private DateTime? _startTime;
-        [Column("監控開始", 16, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        [Column("監控開始", 17, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
         public DateTime? StartTime
         {
             get { return _startTime; }
@@ -182,7 +190,7 @@ namespace GNAy.Capital.Models
         }
 
         private DateTime? _endTime;
-        [Column("監控結束", 17, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        [Column("監控結束", 18, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
         public DateTime? EndTime
         {
             get { return _endTime; }
@@ -190,7 +198,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _comment;
-        [Column("註解", 18)]
+        [Column("註解", 19)]
         public string Comment
         {
             get { return _comment; }
@@ -213,7 +221,8 @@ namespace GNAy.Capital.Models
             Rule = string.Empty;
             TargetValue = 0;
             CancelEnum = TriggerCancel.Enum.SameSymbolSameColumn;
-            Strategy = string.Empty;
+            StrategyOR = string.Empty;
+            StrategyAND = string.Empty;
             StartTime = null;
             EndTime = null;
             Comment = string.Empty;

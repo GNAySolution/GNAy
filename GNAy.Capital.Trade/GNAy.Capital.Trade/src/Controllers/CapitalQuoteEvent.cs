@@ -124,12 +124,9 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealQty = nQty;
-                if (quote.DealQty > 0)
+                if (quote.OpenPrice == 0 && nSimulate.IsRealTrading() && quote.DealQty > 0) //開盤第一筆成交
                 {
-                    if (nSimulate.IsRealTrading() && quote.OpenPrice == 0) //開盤第一筆成交
-                    {
-                        quote.OpenPrice = quote.DealPrice;
-                    }
+                    quote.OpenPrice = quote.DealPrice;
                 }
                 quote.Simulate = nSimulate;
 
@@ -209,15 +206,12 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
                 quote.DealQty = nQty;
-                if (quote.DealQty > 0)
+                if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && _appCtrl.Config.StartOnTime)
                 {
-                    if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+                    if (quote.OpenPrice == 0 && nSimulate.IsRealTrading() && quote.DealQty > 0) //開盤第一筆成交
                     {
-                        if (nSimulate.IsRealTrading() && quote.OpenPrice == 0) //開盤第一筆成交
-                        {
-                            quote.OpenPrice = quote.DealPrice;
-                            firstTick = true;
-                        }
+                        quote.OpenPrice = quote.DealPrice;
+                        firstTick = true;
                     }
                 }
                 quote.Simulate = nSimulate;

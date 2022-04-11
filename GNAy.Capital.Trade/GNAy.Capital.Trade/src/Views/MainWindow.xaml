@@ -522,21 +522,25 @@
                 <Label Content="觸價後取消監控" HorizontalAlignment="Left" Margin="591,8,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxTriggerCancel" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="591,33,0,0" VerticalAlignment="Top" Width="120"/>
                 <Label Content="觸價後執行策略" HorizontalAlignment="Left" Margin="716,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerStrategy" Text="觸價後執行策略" ToolTip="觸價後執行策略" HorizontalAlignment="Left" Margin="716,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxTriggerStrategy" Text="OR:,,|AND:,," ToolTip="OR:,,|AND:,," HorizontalAlignment="Left" Margin="716,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="監控時間區間" HorizontalAlignment="Left" Margin="841,8,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxTriggerTimeDuration" Text="監控時間區間" ToolTip="監控時間區間" HorizontalAlignment="Left" Margin="841,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Button x:Name="ButtonCancelStrategy" Content="取消策略監控" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top" Click="ButtonCancelStrategy_Click"/>
                 <Button x:Name="ButtonSaveStrategyRule" Content="儲存策略條件" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top" Click="ButtonSaveStrategyRule_Click"/>
                 <Label Content="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyPrimaryKey" Text="自定義策略唯一鍵" ToolTip="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <Label Content="啟動條件(AND/OR)" HorizontalAlignment="Left" Margin="216,57,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxStrategyStartPrinciple" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="216,82,0,0" VerticalAlignment="Top" Width="120"/>
-                <Label Content="停損價差(%)" HorizontalAlignment="Left" Margin="341,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyStopLoss" Text="停損價差(%)" ToolTip="停損價差(%)" HorizontalAlignment="Left" Margin="341,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <Label Content="停利價差(%)" HorizontalAlignment="Left" Margin="466,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyStopWin" Text="停利價差(%)" ToolTip="停利價差(%)" HorizontalAlignment="Left" Margin="466,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <Label Content="移動停利價差(%)" HorizontalAlignment="Left" Margin="591,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyMoveStopWin" Text="移動停利價差(%)" ToolTip="移動停利價差(%)" HorizontalAlignment="Left" Margin="591,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="停損價差(%)" HorizontalAlignment="Left" Margin="216,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStrategyStopLoss" Text="停損價差(%)" ToolTip="停損價差(%)" HorizontalAlignment="Left" Margin="216,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="停利價差(%)" HorizontalAlignment="Left" Margin="341,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStrategyStopWin" Text="停利價差(%)" ToolTip="停利價差(%)" HorizontalAlignment="Left" Margin="341,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="移動停利價差(%)" HorizontalAlignment="Left" Margin="466,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStrategyMoveStopWin" Text="移動停利價差(%)" ToolTip="移動停利價差(%)" HorizontalAlignment="Left" Margin="466,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="停損後執行" HorizontalAlignment="Left" Margin="591,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStrategyAfterStopLoss" Text="停損後執行" ToolTip="停損後接續執行指定觸價或策略" HorizontalAlignment="Left" Margin="591,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="停利後執行" HorizontalAlignment="Left" Margin="716,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStrategyAfterStopWin" Text="停利後執行" ToolTip="停利後接續執行指定觸價或策略" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="收盤前減倉" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStrategyStopBeforeClose" Text="收盤前減倉" ToolTip="收盤前對有獲益或損失的持倉做減倉" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
@@ -612,7 +616,8 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding CancelDes}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding Strategy}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding StrategyOR}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding StrategyAND}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding StartTime, StringFormat='{}{0:MM/dd HH:mm:ss}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
@@ -680,10 +685,10 @@
                 <Label Content="Buy/Sell" HorizontalAlignment="Left" Margin="385,10,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxOrderBuySell" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="385,35,0,0" VerticalAlignment="Top" Width="120"/>
                 <Label Content="掛單類型" HorizontalAlignment="Left" Margin="510,10,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderType" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,35,0,0" VerticalAlignment="Top" Width="120"/>
+                <ComboBox x:Name="ComboBoxOrderTradeType" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,35,0,0" VerticalAlignment="Top" Width="120"/>
                 <Label Content="是否當沖" HorizontalAlignment="Left" Margin="635,10,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxOrderDayTrade" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="635,35,0,0" VerticalAlignment="Top" Width="120"/>
-                <Label Content="平倉新倉自動" HorizontalAlignment="Left" Margin="760,10,0,0" VerticalAlignment="Top"/>
+                <Label Content="新倉平倉自動" HorizontalAlignment="Left" Margin="760,10,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxOrderPositionKind" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="760,35,0,0" VerticalAlignment="Top" Width="120"/>
                 <Button x:Name="ButtonSendFutureOrder" Content="期貨委託送出" HorizontalAlignment="Left" Margin="179,82,0,0" VerticalAlignment="Top" Click="ButtonSendFutureOrder_Click"/>
                 <Label Content="委託價格" HorizontalAlignment="Left" Margin="260,57,0,0" VerticalAlignment="Top"/>

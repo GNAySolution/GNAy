@@ -127,9 +127,16 @@ namespace GNAy.Tools.WPF
 
         public static ObservableCollection<T> SetAndGetItemsSource<T>(this ItemsControl obj)
         {
-            ObservableCollection<T> collection = new ObservableCollection<T>();
-            obj.ItemsSource = collection.GetViewSource();
-            return collection;
+            ObservableCollection<T> oc = new ObservableCollection<T>();
+            obj.ItemsSource = oc.GetViewSource();
+            return oc;
+        }
+
+        public static ObservableCollection<T> SetAndGetItemsSource<T>(this ItemsControl obj, IEnumerable<T> collection)
+        {
+            ObservableCollection<T> oc = new ObservableCollection<T>(collection);
+            obj.ItemsSource = oc.GetViewSource();
+            return oc;
         }
 
         public static ScrollViewer GetScrollViewer(this DependencyObject obj)

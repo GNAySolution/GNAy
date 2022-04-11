@@ -341,7 +341,13 @@ namespace GNAy.Capital.Models
         public short MarketGroup
         {
             get { return _marketGroup; }
-            set { OnPropertyChanged(ref _marketGroup, value); }
+            set
+            {
+                if (OnPropertyChanged(ref _marketGroup, value))
+                {
+                    OnPropertyChanged(nameof(MarketGroupEnum));
+                }
+            }
         }
         [TradeColumn("市場", -1)]
         public Market.EGroup MarketGroupEnum

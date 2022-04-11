@@ -38,8 +38,7 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl = appCtrl;
 
             //https://www.codeproject.com/Questions/1117817/Basic-WPF-binding-to-collection-in-combobox
-            _triggerCancelKinds = new ObservableCollection<string>(TriggerCancel.Description);
-            _appCtrl.MainForm.ComboBoxTriggerCancel.ItemsSource = _triggerCancelKinds.GetViewSource();
+            _triggerCancelKinds = _appCtrl.MainForm.ComboBoxTriggerCancel.SetAndGetItemsSource(TriggerCancel.Description);
             _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex = (int)TriggerCancel.Enum.SameSymbolSameColumn;
 
             _waitToReset = new ConcurrentQueue<QuoteData>();
@@ -614,7 +613,8 @@ namespace GNAy.Capital.Trade.Controllers
                     Rule = rule,
                     TargetValue = value,
                     CancelIndex = _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex,
-                    Strategy = _appCtrl.MainForm.TextBoxTriggerStrategy.Text.Trim(),
+                    StrategyOR = _appCtrl.MainForm.TextBoxTriggerStrategy.Text.Trim(),
+                    StrategyAND = _appCtrl.MainForm.TextBoxTriggerStrategy.Text.Trim(),
                     StartTime = parseResult.Item2,
                     EndTime = parseResult.Item3,
                 };

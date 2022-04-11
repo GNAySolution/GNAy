@@ -609,6 +609,22 @@ namespace GNAy.Capital.Trade
                 {
                     cb = ComboBoxFuturesAccs;
                 }
+                else if (ComboBoxOrderBuySell.IsMouseOver && !ComboBoxOrderBuySell.IsFocused)
+                {
+                    cb = ComboBoxOrderBuySell;
+                }
+                else if (ComboBoxOrderTradeType.IsMouseOver && !ComboBoxOrderTradeType.IsFocused)
+                {
+                    cb = ComboBoxOrderTradeType;
+                }
+                else if (ComboBoxOrderDayTrade.IsMouseOver && !ComboBoxOrderDayTrade.IsFocused)
+                {
+                    cb = ComboBoxOrderDayTrade;
+                }
+                else if (ComboBoxOrderPositionKind.IsMouseOver && !ComboBoxOrderPositionKind.IsFocused)
+                {
+                    cb = ComboBoxOrderPositionKind;
+                }
 
                 if (cb == null)
                 {
@@ -1312,7 +1328,7 @@ namespace GNAy.Capital.Trade
                 ComboBoxTriggerCancel.SelectedIndex = trigger.CancelIndex;
                 TextBoxTriggerPrimaryKey.Text = trigger.PrimaryKey;
                 TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00####}";
-                TextBoxTriggerStrategy.Text = trigger.Strategy;
+                TextBoxTriggerStrategy.Text = $"OR:{trigger.StrategyOR}|AND:{trigger.StrategyAND}";
 
                 TextBoxTriggerTimeDuration.Text = string.Empty;
                 if (trigger.StartTime.HasValue)

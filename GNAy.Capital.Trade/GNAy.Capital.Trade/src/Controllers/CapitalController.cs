@@ -66,6 +66,11 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly ObservableCollection<OrderAccData> _stockAccCollection;
         private readonly ObservableCollection<OrderAccData> _futuresAccCollection;
 
+        private readonly ObservableCollection<string> _buySell;
+        private readonly ObservableCollection<string> _tradeTypes;
+        private readonly ObservableCollection<string> _dayTrade;
+        private readonly ObservableCollection<string> _positionKinds;
+
         public CapitalController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
@@ -96,6 +101,18 @@ namespace GNAy.Capital.Trade.Controllers
 
             _stockAccCollection = _appCtrl.MainForm.ComboBoxStockAccs.SetAndGetItemsSource<OrderAccData>();
             _futuresAccCollection = _appCtrl.MainForm.ComboBoxFuturesAccs.SetAndGetItemsSource<OrderAccData>();
+
+            _buySell = _appCtrl.MainForm.ComboBoxOrderBuySell.SetAndGetItemsSource(BS.Description);
+            _appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex = (int)BS.Enum.Buy;
+
+            _tradeTypes = _appCtrl.MainForm.ComboBoxOrderTradeType.SetAndGetItemsSource(TradeType.Description);
+            _appCtrl.MainForm.ComboBoxOrderTradeType.SelectedIndex = (int)TradeType.Enum.ROD;
+
+            _dayTrade = _appCtrl.MainForm.ComboBoxOrderDayTrade.SetAndGetItemsSource(DayTrade.Description);
+            _appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex = (int)DayTrade.Enum.No;
+
+            _positionKinds = _appCtrl.MainForm.ComboBoxOrderPositionKind.SetAndGetItemsSource(PositionKind.Description);
+            _appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex = (int)PositionKind.Enum.Close;
         }
 
         private CapitalController() : this(null)
@@ -487,29 +504,34 @@ namespace GNAy.Capital.Trade.Controllers
 
             //quote.Symbol = raw.bstrStockNo;
             //quote.Name = raw.bstrStockName;
-            //quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
-            //quote.DealQty = raw.nTickQty;
+            if (quote.Page < 0 || quote.DealQty == 0) //沒有訂閱SKQuoteLib_RequestLiveTick
+            {
+                quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
+                quote.DealQty = raw.nTickQty;
+                if (raw.nTradingDay > quote.TradeDateRaw)
+                {
+                    quote.TradeDateRaw = raw.nTradingDay;
+                }
+            }
             quote.BestBuyPrice = raw.nBid / (decimal)Math.Pow(10, raw.sDecimal);
             quote.BestBuyQty = raw.nBc;
             quote.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
             quote.BestSellQty = raw.nAc;
-            if (quote.DealQty > 0)
+            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
             {
-                if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+                if (quote.OpenPrice == 0 && raw.nSimulate.IsRealTrading() && raw.nTickQty > 0) //開盤第一筆成交
                 {
-                    if (raw.nSimulate.IsRealTrading() && quote.OpenPrice == 0) //開盤第一筆成交
-                    {
-                        quote.OpenPrice = quote.DealPrice;
-                        firstTick = true;
-                    }
+                    quote.OpenPrice = quote.DealPrice;
+                    firstTick = true;
                 }
             }
-            if (raw.nSimulate.IsRealTrading() && !quote.Recovered)
+            else
             {
                 quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
                 quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
                 quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
             }
+
             quote.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
             quote.Simulate = raw.nSimulate;
             quote.TotalQty = raw.nTQty;
@@ -520,16 +542,6 @@ namespace GNAy.Capital.Trade.Controllers
             //quote.MarketGroup = short.TryParse(raw.bstrMarketNo, out short x) ? x : (short)-1;
             quote.DecimalPos = raw.sDecimal;
             quote.TotalQtyBefore = raw.nYQty;
-
-            if (quote.Page < 0 || quote.DealQty == 0) //沒有訂閱SKQuoteLib_RequestLiveTick
-            {
-                quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
-                quote.DealQty = raw.nTickQty;
-                if (raw.nTradingDay > quote.TradeDateRaw)
-                {
-                    quote.TradeDateRaw = raw.nTradingDay;
-                }
-            }
 
             quote.Updater = nameof(UpdateQuote);
             quote.UpdateTime = DateTime.Now;
@@ -626,6 +638,23 @@ namespace GNAy.Capital.Trade.Controllers
                             }
 
                             break;
+                        }
+                    }
+
+                    if (lastQuote1 == null)
+                    {
+                        if (files.Length > 0 && !files[files.Length - 1].Name.Contains(QuoteFileNameBase))
+                        {
+                            lastQuote1 = files[files.Length - 1];
+
+                            if (files.Length > 1)
+                            {
+                                lastQuote2 = files[files.Length - 2];
+                            }
+                        }
+                        else
+                        {
+                            return;
                         }
                     }
 
