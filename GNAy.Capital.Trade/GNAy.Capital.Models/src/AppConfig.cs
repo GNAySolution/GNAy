@@ -87,12 +87,12 @@ namespace GNAy.Capital.Models
             bool startDelayed = false; //因為一些異常情況，程式沒有在正常時間啟動
             if (IsAMMarket(CreatedTime))
             {
-                if (CreatedTime > settings.TimeToStart[0])
+                if (CreatedTime > settings.TimeToStart[(int)Market.EDayNight.AM])
                 {
                     startDelayed = true;
                 }
             }
-            else if (CreatedTime > settings.TimeToStart[1] || IsHoliday(CreatedTime) || CreatedTime.Hour < 8)
+            else if (CreatedTime > settings.TimeToStart[(int)Market.EDayNight.PM] || IsHoliday(CreatedTime) || CreatedTime.Hour < 8)
             {
                 startDelayed = true;
             }

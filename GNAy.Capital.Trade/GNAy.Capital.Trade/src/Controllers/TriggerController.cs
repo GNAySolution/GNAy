@@ -613,8 +613,8 @@ namespace GNAy.Capital.Trade.Controllers
                     Rule = rule,
                     TargetValue = value,
                     CancelIndex = _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex,
-                    StrategyOR = _appCtrl.MainForm.TextBoxTriggerStrategy.Text.Trim(),
-                    StrategyAND = _appCtrl.MainForm.TextBoxTriggerStrategy.Text.Trim(),
+                    StrategyOR = _appCtrl.MainForm.TextBoxTriggerStrategyOR.Text.Trim(),
+                    StrategyAND = _appCtrl.MainForm.TextBoxTriggerStrategyAND.Text.Trim(),
                     StartTime = parseResult.Item2,
                     EndTime = parseResult.Item3,
                 };

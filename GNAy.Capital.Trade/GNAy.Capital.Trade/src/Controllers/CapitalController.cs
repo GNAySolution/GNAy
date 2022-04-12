@@ -112,7 +112,7 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex = (int)DayTrade.Enum.No;
 
             _positionKinds = _appCtrl.MainForm.ComboBoxOrderPositionKind.SetAndGetItemsSource(PositionKind.Description);
-            _appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex = (int)PositionKind.Enum.Close;
+            _appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex = (int)PositionKind.Enum.Open;
         }
 
         private CapitalController() : this(null)
@@ -708,16 +708,16 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (now.Hour >= 14 && tradeDate <= int.Parse(now.ToString("yyyyMMdd")) && !IsAMMarket)
                     {
-                        QuoteFileNameBase = $"{tradeDate}_1";
+                        QuoteFileNameBase = $"{tradeDate}_{(int)Market.EDayNight.AM}";
                         _appCtrl.LogTrace($"SKAPI|未訂閱或尚未收到夜盤商品基本資料|QuoteFileNameBase={QuoteFileNameBase}");
                     }
                     else if (IsAMMarket)
                     {
-                        QuoteFileNameBase = $"{tradeDate}_1";
+                        QuoteFileNameBase = $"{tradeDate}_{(int)Market.EDayNight.AM}";
                     }
                     else
                     {
-                        QuoteFileNameBase = $"{tradeDate}_0";
+                        QuoteFileNameBase = $"{tradeDate}_{(int)Market.EDayNight.PM}";
                     }
                 }
 
@@ -1067,6 +1067,16 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
+        public int GetStockAccCount()
+        {
+            return _stockAccCollection.Count;
+        }
+
+        public int GetFuturesAccCount()
+        {
+            return _futuresAccCollection.Count;
+        }
+
         public void UnlockOrder(int marketType = -1)
         {
             _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}");
@@ -1086,8 +1096,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 for (int i = 0; i < Market.CodeDescription.Count; ++i)
                 {
-                    int m_nCode = m_pSKOrder.UnlockOrder(i); //下單解鎖。下單函式上鎖後需經由此函式解鎖才可繼續下單
-                    LogAPIMessage(m_nCode);
+                    UnlockOrder(i);
                 }
             }
             catch (Exception ex)
@@ -1124,8 +1133,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 for (int i = 0; i < Market.CodeDescription.Count; ++i)
                 {
-                    int m_nCode = m_pSKOrder.SetMaxQty(i, maxQty); //設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
-                    LogAPIMessage(m_nCode);
+                    SetOrderMaxQty(i, maxQty);
                 }
             }
             catch (Exception ex)
@@ -1162,8 +1170,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 for (int i = 0; i < Market.CodeDescription.Count; ++i)
                 {
-                    int m_nCode = m_pSKOrder.SetMaxCount(i, maxCount); //設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
-                    LogAPIMessage(m_nCode);
+                    SetOrderMaxCount(i, maxCount);
                 }
             }
             catch (Exception ex)
@@ -1176,23 +1183,39 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void GetOpenInterest(string orderAcc, int format = 1)
+        public void GetOpenInterestAsync(string orderAcc = "", int format = 1)
         {
-            _appCtrl.LogTrace($"SKAPI|Start|orderAcc={orderAcc}|format={format}");
+            Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    _appCtrl.LogTrace($"SKAPI|Start|orderAcc={orderAcc}|format={format}");
 
-            try
-            {
-                int m_nCode = m_pSKOrder.GetOpenInterestWithFormat(Account, orderAcc, format); //查詢期貨未平倉－可指定回傳格式
-                LogAPIMessage(m_nCode);
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.LogTrace("SKAPI|End");
-            }
+                    if (string.IsNullOrWhiteSpace(orderAcc))
+                    {
+                        foreach (OrderAccData acc in _futuresAccCollection)
+                        {
+                            //nCode=1019|SK_ERROR_QUERY_IN_PROCESSING|GetOpenInterest_Format::1
+                            Thread.Sleep(1 * 1000);
+                            GetOpenInterestAsync(acc.FullAccount, format);
+                            Thread.Sleep(7 * 1000);
+                        }
+                    }
+                    else
+                    {
+                        int m_nCode = m_pSKOrder.GetOpenInterestWithFormat(Account, orderAcc, format); //查詢期貨未平倉－可指定回傳格式
+                        LogAPIMessage(m_nCode);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.LogTrace("SKAPI|End");
+                }
+            });
         }
     }
 }

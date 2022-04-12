@@ -1,4 +1,5 @@
 ﻿using GNAy.Capital.Models;
+using GNAy.Tools.WPF;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,16 +35,26 @@ namespace GNAy.Capital.Trade.Controllers
                     MemberName = cells[5],
                 };
 
-                if (Market.CodeMap.TryGetValue(cells[0], out Market.EType marketType) && marketType == Market.EType.Stock)
+                _appCtrl.MainForm.InvokeRequired(delegate
                 {
-                    _stockAccCollection.Add(acc);
-                    _appCtrl.MainForm.ComboBoxStockAccs.SelectedIndex = 0;
-                }
-                else if (marketType == Market.EType.Futures) //cells[0] == "OF"
-                {
-                    _futuresAccCollection.Add(acc);
-                    _appCtrl.MainForm.ComboBoxFuturesAccs.SelectedIndex = 0;
-                }
+                    try
+                    {
+                        if (Market.CodeMap.TryGetValue(cells[0], out Market.EType marketType) && marketType == Market.EType.Stock)
+                        {
+                            _stockAccCollection.Add(acc);
+                            _appCtrl.MainForm.ComboBoxStockAccs.SelectedIndex = 0;
+                        }
+                        else if (marketType == Market.EType.Futures) //cells[0] == "OF"
+                        {
+                            _futuresAccCollection.Add(acc);
+                            _appCtrl.MainForm.ComboBoxFuturesAccs.SelectedIndex = 0;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(ex, ex.StackTrace);
+                    }
+                });
             }
             catch (Exception ex)
             {

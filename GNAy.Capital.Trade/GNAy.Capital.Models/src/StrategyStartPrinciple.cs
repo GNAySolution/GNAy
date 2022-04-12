@@ -13,9 +13,15 @@ namespace GNAy.Capital.Models
     {
         public enum Enum
         {
+            /// <summary>
+            /// 滿足單一條件即執行策略
+            /// </summary>
             [Description("OR")]
             OR, //0
 
+            /// <summary>
+            /// 滿足全部條件再執行策略
+            /// </summary>
             [Description("AND")]
             AND, //1
         }

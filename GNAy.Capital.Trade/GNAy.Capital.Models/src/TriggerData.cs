@@ -166,7 +166,7 @@ namespace GNAy.Capital.Models
         public string CancelDes => TriggerCancel.Description[CancelIndex];
 
         private string _strategyOR;
-        [Column("滿足單一條件即執行策略", "執行OR", 15)]
+        [Column("滿足單一條件即執行策略", "執行策略OR", 15)]
         public string StrategyOR
         {
             get { return _strategyOR; }
@@ -174,7 +174,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyAND;
-        [Column("滿足全部條件再執行策略", "執行AND", 16)]
+        [Column("滿足全部條件再執行策略", "執行策略AND", 16)]
         public string StrategyAND
         {
             get { return _strategyAND; }

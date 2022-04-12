@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.407.3",
+  "Version": "0.22.412.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -15,12 +15,17 @@
   "DataGridAppLogRowsMax": 500,
   "TimerIntervalBackground": 900,
   "TimerIntervalTrigger": 30,
+  "TimerIntervalStrategy": 30,
   "TimerIntervalUI1": 200,
   "TimerIntervalUI2": 35000,
   "AutoRun": true,
   "TimeToStart": [
-    "08:43:00",
-    "14:58:00"
+    "14:58:00",
+    "08:43:00"
+  ],
+  "TimeToClose": [
+    "04:59:30",
+    "13:44:30"
   ],
   "TimeToExit": [
     "05:03:00",
@@ -49,6 +54,5 @@
   "OrderMaxCount": 10,
   "TriggerFolderPath": "TriggerData",
   "TriggerFileFormat": "MMdd_HHmm",
-  "SendOrder": false,
-  "OrderAndDeal": false
+  "SendRealOrder": true
 }

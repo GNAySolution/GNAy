@@ -81,7 +81,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.MainForm.StatusBarItemAA4.Text = nameof(Window_Activated);
+                StatusBarItemAA4.Text = nameof(Window_Activated);
             }
             catch (Exception ex)
             {
@@ -113,7 +113,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.MainForm.StatusBarItemAA4.Text = nameof(Window_Deactivated);
+                StatusBarItemAA4.Text = nameof(Window_Deactivated);
             }
             catch (Exception ex)
             {
@@ -861,7 +861,8 @@ namespace GNAy.Capital.Trade
                         ButtonGetOrderAccs_Click(null, null);
                     });
 
-                    Thread.Sleep(3 * 1000);
+                    SpinWait.SpinUntil(() => _appCtrl.Capital.GetFuturesAccCount() > 0, 8 * 1000);
+                    _appCtrl.Capital.GetOpenInterestAsync();
                     _appCtrl.Capital.UnlockOrder();
                     _appCtrl.Capital.SetOrderMaxQty();
                     _appCtrl.Capital.SetOrderMaxCount();
@@ -1154,7 +1155,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 OrderAccData acc = (OrderAccData)ComboBoxFuturesAccs.SelectedItem;
-                _appCtrl.Capital.GetOpenInterest(acc.FullAccount);
+                _appCtrl.Capital.GetOpenInterestAsync(acc.FullAccount);
             }
             catch (Exception ex)
             {
@@ -1328,7 +1329,8 @@ namespace GNAy.Capital.Trade
                 ComboBoxTriggerCancel.SelectedIndex = trigger.CancelIndex;
                 TextBoxTriggerPrimaryKey.Text = trigger.PrimaryKey;
                 TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00####}";
-                TextBoxTriggerStrategy.Text = $"OR:{trigger.StrategyOR}|AND:{trigger.StrategyAND}";
+                TextBoxTriggerStrategyOR.Text = trigger.StrategyOR;
+                TextBoxTriggerStrategyAND.Text = trigger.StrategyAND;
 
                 TextBoxTriggerTimeDuration.Text = string.Empty;
                 if (trigger.StartTime.HasValue)

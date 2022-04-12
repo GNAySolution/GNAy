@@ -82,5 +82,20 @@ namespace GNAy.Capital.Models
             EGroup.Options.GetDescription(),
             EGroup.Emerging.GetDescription(),
         }.AsReadOnly();
+
+        public enum EDayNight
+        {
+            [Description("夜盤")]
+            PM, //0
+
+            [Description("日盤")]
+            AM, //1
+        }
+
+        public static ReadOnlyCollection<string> DayNightDescription = new List<string>()
+        {
+            EDayNight.PM.GetDescription(),
+            EDayNight.AM.GetDescription(),
+        }.AsReadOnly();
     }
 }

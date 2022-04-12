@@ -29,9 +29,13 @@ namespace GNAy.Capital.Models
         /// </summary>
         public int TimerIntervalBackground { get; set; }
         /// <summary>
-        /// 檢查Trigger，對效能要求較高，另開Timer獨立執行
+        /// 檢查觸價，對效能要求較高，另開Timer獨立執行
         /// </summary>
         public int TimerIntervalTrigger { get; set; }
+        /// <summary>
+        /// 檢查策略，對效能要求較高，另開Timer獨立執行
+        /// </summary>
+        public int TimerIntervalStrategy { get; set; }
         /// <summary>
         /// 監控UI
         /// </summary>
@@ -49,6 +53,10 @@ namespace GNAy.Capital.Models
         /// 在台指期日盤夜盤開盤前啟動程式
         /// </summary>
         public List<DateTime> TimeToStart { get; set; }
+        /// <summary>
+        /// 台指期日盤夜盤收盤
+        /// </summary>
+        public List<DateTime> TimeToClose { get; set; }
         /// <summary>
         /// 在台指期日盤夜盤收盤後關閉程式
         /// </summary>
@@ -105,15 +113,11 @@ namespace GNAy.Capital.Models
         /// <summary>
         /// false=測試或跑回測時，不實際下單
         /// </summary>
-        public bool SendOrder { get; set; }
-        /// <summary>
-        /// false=下單測試委託回報，不成交
-        /// </summary>
-        public bool OrderAndDeal { get; set; }
+        public bool SendRealOrder { get; set; }
 
         public AppSettings()
         {
-            Version = "0.22.407.3";
+            Version = "0.22.412.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -128,6 +132,7 @@ namespace GNAy.Capital.Models
 
             TimerIntervalBackground = 900;
             TimerIntervalTrigger = 30;
+            TimerIntervalStrategy = 30;
             TimerIntervalUI1 = 200;
             TimerIntervalUI2 = 35 * 1000;
 
@@ -135,8 +140,14 @@ namespace GNAy.Capital.Models
             TimeToStart = new List<DateTime>();
             //TimeToStart = new List<DateTime>() //
             //{
-            //    DateTime.ParseExact("08:43", "HH:mm", CultureInfo.InvariantCulture),
             //    DateTime.ParseExact("14:58", "HH:mm", CultureInfo.InvariantCulture),
+            //    DateTime.ParseExact("08:43", "HH:mm", CultureInfo.InvariantCulture),
+            //};
+            TimeToClose = new List<DateTime>();
+            //TimeToClose = new List<DateTime>() //
+            //{
+            //    DateTime.ParseExact("04:59:30", "HH:mm:ss", CultureInfo.InvariantCulture),
+            //    DateTime.ParseExact("13:44:30", "HH:mm:ss", CultureInfo.InvariantCulture),
             //};
             TimeToExit = new List<DateTime>();
             //TimeToExit = new List<DateTime>() //
@@ -146,7 +157,7 @@ namespace GNAy.Capital.Models
             //};
 
             QuoteMarkets = new List<int>();
-            //QuoteMarkets = new List<int>() { Definition.MarketTSE, Definition.MarketOTC, Definition.MarketFutures, Definition.MarketEmerging };
+            //QuoteMarkets = new List<int>() { (int)Market.EGroup.TSE, (int)Market.EGroup.OTC, (int)Market.EGroup.Futures, (int)Market.EGroup.Emerging };
             QuoteRequest = new List<string>();
             //QuoteRequest = new List<string>() { "TSEA", "0050", "00632R", "TX06", "MTX06" }; //
             QuoteLive = new List<string>();
@@ -163,8 +174,7 @@ namespace GNAy.Capital.Models
             TriggerFolderPath = "TriggerData";
             TriggerFileFormat = "MMdd_HHmm";
 
-            SendOrder = false;
-            OrderAndDeal = false;
+            SendRealOrder = true;
         }
     }
 }
