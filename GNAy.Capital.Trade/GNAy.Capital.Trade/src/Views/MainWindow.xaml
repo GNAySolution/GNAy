@@ -29,10 +29,10 @@
                     <TabItem Header="初始化">
                         <Grid Background="#FFE5E5E5">
                             <Label Content="會員帳號" HorizontalAlignment="Left" Margin="33,6,0,0" VerticalAlignment="Top"/>
-                            <TextBox x:Name="TextBoxAccount" Text="" ToolTip="會員帳號" HorizontalAlignment="Left" Margin="91,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                            <TextBox x:Name="TextBoxUserID" Text="" ToolTip="會員帳號" HorizontalAlignment="Left" Margin="91,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                             <Label Content="會員密碼" HorizontalAlignment="Left" Margin="33,28,0,0" VerticalAlignment="Top"/>
                             <PasswordBox x:Name="DWPBox" ToolTip="會員密碼" HorizontalAlignment="Left" Margin="91,32,0,0" VerticalAlignment="Top" Width="120"/>
-                            <Button x:Name="ButtonLoginAccount" Content="登入會員帳號" HorizontalAlignment="Left" Margin="54,54,0,0" VerticalAlignment="Top" Click="ButtonLoginAccount_Click"/>
+                            <Button x:Name="ButtonLoginUser" Content="登入會員帳號" HorizontalAlignment="Left" Margin="54,54,0,0" VerticalAlignment="Top" Click="ButtonLoginUser_Click"/>
                             <Button x:Name="ButtonLoginQuote" Content="登入報價元件" HorizontalAlignment="Left" Margin="135,54,0,0" VerticalAlignment="Top" Click="ButtonLoginQuote_Click"/>
                             <Button x:Name="ButtonIsConnected" Content="IsConnected" HorizontalAlignment="Left" Margin="55,78,0,0" VerticalAlignment="Top" Click="ButtonIsConnected_Click"/>
                             <Button x:Name="ButtonDisconnect" Content="Disconnect" HorizontalAlignment="Left" Margin="144,78,0,0" VerticalAlignment="Top" Click="ButtonDisconnect_Click"/>
@@ -107,7 +107,7 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding Account}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding UserID}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Message}" IsReadOnly="True" CanUserSort="False"/>
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -168,15 +168,6 @@
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                    </DataGridTextColumn>
-                                    <!--https://stackoverflow.com/questions/4563081/how-to-format-timespan-in-xaml-->
-                                    <DataGridTextColumn Binding="{Binding Elapsed, StringFormat=\{0:ss\\.ffffff\}}" IsReadOnly="True" CanUserSort="False">
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="FontWeight" Value="DemiBold"/>
-                                                <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
@@ -703,7 +694,8 @@
                 <ComboBox x:Name="ComboBoxOrderDayTrade" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="635,35,0,0" VerticalAlignment="Top" Width="120"/>
                 <Label Content="新倉平倉自動" HorizontalAlignment="Left" Margin="760,10,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxOrderPositionKind" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="760,35,0,0" VerticalAlignment="Top" Width="120"/>
-                <Button x:Name="ButtonSendFutureOrder" Content="期貨委託送出" HorizontalAlignment="Left" Margin="179,82,0,0" VerticalAlignment="Top" Click="ButtonSendFutureOrder_Click"/>
+                <Button x:Name="ButtonSendFutureOrder" Content="期貨委託送出" HorizontalAlignment="Left" Margin="179,61,0,0" VerticalAlignment="Top" Click="ButtonSendFutureOrder_Click"/>
+                <Button x:Name="ButtonStartFutureStartegyNow" Content="立刻啟動策略" HorizontalAlignment="Left" Margin="179,82,0,0" VerticalAlignment="Top" Click="ButtonStartFutureStartegyNow_Click"/>
                 <Label Content="委託價格" HorizontalAlignment="Left" Margin="260,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxOrderPrice" Text="M市價，P範圍市價" ToolTip="M市價，P範圍市價" HorizontalAlignment="Left" Margin="260,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="委託口數" HorizontalAlignment="Left" Margin="385,57,0,0" VerticalAlignment="Top"/>

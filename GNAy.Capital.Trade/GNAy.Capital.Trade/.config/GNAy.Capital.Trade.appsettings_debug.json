@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.412.1",
+  "Version": "0.22.413.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -54,5 +54,9 @@
   "OrderMaxCount": 10,
   "TriggerFolderPath": "TriggerData",
   "TriggerFileFormat": "MMdd_HHmm",
+  "StrategyFolderPath": "StrategyData",
+  "StrategyFileFormat": "MMdd_HHmm",
+  "SentOrderFolderPath": "SentOrder",
+  "SentOrderFileFormat": "yyMMdd_HHmmss_ffffff",
   "SendRealOrder": true
 }

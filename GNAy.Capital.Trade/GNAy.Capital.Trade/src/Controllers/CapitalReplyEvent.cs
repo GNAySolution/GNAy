@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +28,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nTime"></param>
         private void SKCenter_OnTimer(int nTime)
         {
-            AccountTimer = (DateTime.Now, $"nTime={nTime}");
+            UserIDTimer = (DateTime.Now, $"nTime={nTime}");
         }
 
         /// <summary>
@@ -44,9 +45,9 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            string msg = LogAPIMessage(QuoteStatus);
-            _appCtrl.LogWarn($"strUserID={strUserID}|{msg}", UniqueName);
-            AppendReply(strUserID, msg);
+            (LogLevel, string) apiReturn = LogAPIMessage(QuoteStatus);
+            _appCtrl.Log(apiReturn.Item1, $"strUserID={strUserID}|{apiReturn.Item2}", UniqueName);
+            AppendReply(strUserID, apiReturn.Item2);
         }
 
         /// <summary>
@@ -63,9 +64,9 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            string msg = LogAPIMessage(QuoteStatus);
-            _appCtrl.LogWarn($"strUserID={strUserID}|{msg}", UniqueName);
-            AppendReply(strUserID, msg);
+            (LogLevel, string) apiReturn = LogAPIMessage(QuoteStatus);
+            _appCtrl.Log(apiReturn.Item1, $"strUserID={strUserID}|{apiReturn.Item2}", UniqueName);
+            AppendReply(strUserID, apiReturn.Item2);
         }
 
         /// <summary>
@@ -82,9 +83,9 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            string msg = LogAPIMessage(QuoteStatus);
-            _appCtrl.LogWarn($"strUserID={strUserID}|{msg}", UniqueName);
-            AppendReply(strUserID, msg);
+            (LogLevel, string) apiReturn = LogAPIMessage(QuoteStatus);
+            _appCtrl.Log(apiReturn.Item1, $"strUserID={strUserID}|{apiReturn.Item2}", UniqueName);
+            AppendReply(strUserID, apiReturn.Item2);
         }
 
         /// <summary>
@@ -101,9 +102,9 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            string msg = LogAPIMessage(QuoteStatus);
-            _appCtrl.LogWarn($"strUserID={strUserID}|{msg}", UniqueName);
-            AppendReply(strUserID, msg);
+            (LogLevel, string) apiReturn = LogAPIMessage(QuoteStatus);
+            _appCtrl.Log(apiReturn.Item1, $"strUserID={strUserID}|{apiReturn.Item2}", UniqueName);
+            AppendReply(strUserID, apiReturn.Item2);
         }
 
         /// <summary>

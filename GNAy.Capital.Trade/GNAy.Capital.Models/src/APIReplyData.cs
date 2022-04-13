@@ -40,11 +40,11 @@ namespace GNAy.Capital.Models
         [Column("原始碼行號", "行", -1)]
         public int CallerLineNumber { get; set; }
 
-        [Column("呼叫端的方法或屬性名稱", "方法", -1)]
+        [Column("呼叫端方法或屬性名稱", -1)]
         public string CallerMemberName { get; set; }
 
         [Column("會員帳號", -1)]
-        public string Account { get; set; }
+        public string UserID { get; set; }
 
         [Column("訊息", -1)]
         public string Message { get; set; }
@@ -56,7 +56,7 @@ namespace GNAy.Capital.Models
             ThreadID = 0;
             CallerLineNumber = 0;
             CallerMemberName = string.Empty;
-            Account = string.Empty;
+            UserID = string.Empty;
             Message = string.Empty;
         }
     }

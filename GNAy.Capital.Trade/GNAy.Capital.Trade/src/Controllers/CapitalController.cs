@@ -1,6 +1,7 @@
 ﻿using GNAy.Capital.Models;
 using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
+using NLog;
 using SKCOMLib;
 using System;
 using System.Collections.Generic;
@@ -30,8 +31,8 @@ namespace GNAy.Capital.Trade.Controllers
         private SKQuoteLib m_pSKQuote2 { get; set; }
         private SKOrderLib m_pSKOrder2 { get; set; }
 
-        public int LoginAccountResult { get; private set; }
-        public string Account { get; private set; }
+        public int LoginUserResult { get; private set; }
+        public string UserID { get; private set; }
         public string DWP { get; private set; }
 
         public string QuoteStatusStr { get; private set; }
@@ -49,7 +50,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public (DateTime, string) AccountTimer { get; private set; }
+        public (DateTime, string) UserIDTimer { get; private set; }
         public string QuoteTimer { get; private set; }
 
         public readonly bool IsAMMarket;
@@ -72,19 +73,21 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly ObservableCollection<string> _dayTrade;
         private readonly ObservableCollection<string> _positionKinds;
 
+        private readonly object _syncOrderLock;
+
         public CapitalController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
             UniqueName = GetType().Name.Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
-            LoginAccountResult = -1;
-            Account = string.Empty;
+            LoginUserResult = -1;
+            UserID = string.Empty;
             DWP = string.Empty;
 
             QuoteStatus = -1;
 
-            AccountTimer = (DateTime.MinValue, string.Empty);
+            UserIDTimer = (DateTime.MinValue, string.Empty);
             QuoteTimer = string.Empty;
 
             IsAMMarket = _appCtrl.Config.IsAMMarket(CreatedTime);
@@ -115,6 +118,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             _positionKinds = _appCtrl.MainForm.ComboBoxOrderPositionKind.SetAndGetItemsSource(PositionKind.Description);
             _appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex = (int)PositionKind.Enum.Open;
+
+            _syncOrderLock = new object();
         }
 
         private CapitalController() : this(null)
@@ -133,14 +138,14 @@ namespace GNAy.Capital.Trade.Controllers
             return $"nCode={nCode}|{codeMessage}|{lastLog}";
         }
 
-        public string LogAPIMessage(int nCode, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public (LogLevel, string) LogAPIMessage(int nCode, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             string msg = GetAPIMessage(nCode);
 
             if (nCode < 0)
             {
                 _appCtrl.LogError(msg, UniqueName, null, lineNumber, memberName);
-                return msg;
+                return (LogLevel.Error, msg);
             }
 
             int _code = nCode % StatusCode.BaseTraceValue;
@@ -148,6 +153,7 @@ namespace GNAy.Capital.Trade.Controllers
             if (_code == 0)
             {
                 _appCtrl.LogTrace(msg, UniqueName, null, lineNumber, memberName);
+                return (LogLevel.Trace, msg);
             }
             //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
             //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
@@ -155,25 +161,26 @@ namespace GNAy.Capital.Trade.Controllers
             else if (_code < 2000 || _code == 3021 || _code == 3022 || _code == 3033)
             {
                 _appCtrl.LogError(msg, UniqueName, null, lineNumber, memberName);
+                return (LogLevel.Error, msg);
             }
             else if (_code < 3000)
             {
                 _appCtrl.LogWarn(msg, UniqueName, null, lineNumber, memberName);
+                return (LogLevel.Warn, msg);
             }
             else
             {
                 _appCtrl.LogTrace(msg, UniqueName, null, lineNumber, memberName);
+                return (LogLevel.Trace, msg);
             }
-
-            return msg;
         }
 
-        public void AppendReply(string account, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void AppendReply(string userID, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             APIReplyData replay = new APIReplyData()
             {
                 ThreadID = Thread.CurrentThread.ManagedThreadId,
-                Account = account,
+                UserID = userID,
                 Message = msg,
                 CallerLineNumber = lineNumber,
                 CallerMemberName = memberName,
@@ -202,18 +209,18 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
-        public int LoginAccount(string account, string dwp)
+        public int LoginUser(string userID, string dwp)
         {
-            account = account.Trim().ToUpper();
+            userID = userID.Trim().ToUpper();
             dwp = dwp.Trim();
 
-            DateTime start = _appCtrl.StartTrace(UniqueName, $"account={account}|dwp=********");
+            DateTime start = _appCtrl.StartTrace(UniqueName, $"userID={userID}|dwp=********");
 
             try
             {
                 if (m_pSKCenter != null)
                 {
-                    return LoginAccountResult;
+                    return LoginUserResult;
                 }
 
                 m_pSKReply = new SKReplyLib();
@@ -232,37 +239,37 @@ namespace GNAy.Capital.Trade.Controllers
                 m_pSKCenter.SKCenterLib_SetAuthority(0); //SGX 專線屬性：關閉／開啟：0／1
                 m_pSKCenter.OnTimer += SKCenter_OnTimer;
 
-                LoginAccountResult = m_pSKCenter.SKCenterLib_Login(account, dwp); //元件初始登入。在使用此 Library 前必須先通過使用者的雙因子(憑證綁定)身份認證，方可使用
+                LoginUserResult = m_pSKCenter.SKCenterLib_Login(userID, dwp); //元件初始登入。在使用此 Library 前必須先通過使用者的雙因子(憑證綁定)身份認證，方可使用
 
-                if (LoginAccountResult == 0)
+                if (LoginUserResult == 0)
                 {
-                    _appCtrl.LogTrace($"LoginAccountResult={LoginAccountResult}|雙因子登入成功", UniqueName);
-                    Account = account;
+                    _appCtrl.LogTrace($"LoginUserResult={LoginUserResult}|雙因子登入成功", UniqueName);
+                    UserID = userID;
                     DWP = "********";
                 }
-                else if (LoginAccountResult >= 600 && LoginAccountResult <= 699)
+                else if (LoginUserResult >= 600 && LoginUserResult <= 699)
                 {
-                    _appCtrl.LogTrace($"LoginAccountResult={LoginAccountResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效", UniqueName);
-                    Account = account;
+                    _appCtrl.LogTrace($"LoginUserResult={LoginUserResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效", UniqueName);
+                    UserID = userID;
                     DWP = "********";
                 }
                 else
                 {
-                    LogAPIMessage(LoginAccountResult);
+                    LogAPIMessage(LoginUserResult);
                     m_pSKCenter = null;
-                    return LoginAccountResult;
+                    return LoginUserResult;
                 }
 
-                //if (LoginAccountResult == 0 || (LoginAccountResult >= 600 && LoginAccountResult <= 699))
+                //if (LoginUserResult == 0 || (LoginUserResult >= 600 && LoginUserResult <= 699))
                 //{
-                //    int nCode = m_pSKReply.SKReplyLib_ConnectByID(account); //指定回報連線的使用者登入帳號
+                //    int nCode = m_pSKReply.SKReplyLib_ConnectByID(userID); //指定回報連線的使用者登入帳號
                 //    if (nCode != 0)
                 //    {
                 //        LogAPIMessage(nCode);
                 //    }
                 //}
 
-                string version = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(account); //取得目前註冊SKAPI 版本及位元
+                string version = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(userID); //取得目前註冊SKAPI 版本及位元
                 _appCtrl.LogTrace($"SKAPIVersionAndBit={version}", UniqueName);
                 _appCtrl.MainForm.StatusBarItemBA2.Text = $"SKAPIVersionAndBit={version}";
             }
@@ -275,7 +282,7 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.EndTrace(start, UniqueName);
             }
 
-            return LoginAccountResult;
+            return LoginUserResult;
         }
 
         public void LoginQuoteAsync(string dwp)
@@ -284,7 +291,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 dwp = dwp.Trim();
 
-                DateTime start = _appCtrl.StartTrace(UniqueName, $"account={Account}|dwp=********");
+                DateTime start = _appCtrl.StartTrace(UniqueName, $"userID={UserID}|dwp=********");
 
                 try
                 {
@@ -295,18 +302,11 @@ namespace GNAy.Capital.Trade.Controllers
                         return;
                     }
 
-                    QuoteStatus = m_pSKCenter.SKCenterLib_LoginSetQuote(Account, dwp, "Y"); //Y:啟用報價 N:停用報價
+                    QuoteStatus = m_pSKCenter.SKCenterLib_LoginSetQuote(UserID, dwp, "Y"); //Y:啟用報價 N:停用報價
 
                     if (QuoteStatus == 0 || (QuoteStatus >= 600 && QuoteStatus <= 699))
                     {
                         _appCtrl.LogTrace($"QuoteStatus={QuoteStatus}|登入成功", UniqueName);
-                        //skOrder1.LoginID = txtAccount.Text.Trim().ToUpper();
-                        //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
-
-                        //skReply1.LoginID = txtAccount.Text.Trim().ToUpper();
-
-                        //skQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
-                        //skosQuote1.LoginID = txtAccount.Text.Trim().ToUpper();
                     }
                     else
                     {
@@ -397,10 +397,10 @@ namespace GNAy.Capital.Trade.Controllers
                         result = $"isConnected={isConnected}|下載中";
                         break;
                     default:
-                        return LogAPIMessage(isConnected);
+                        return LogAPIMessage(isConnected).Item2;
                 }
 
-                int nCode = m_pSKReply.SKReplyLib_IsConnectedByID(Account);
+                int nCode = m_pSKReply.SKReplyLib_IsConnectedByID(UserID);
 
                 if (nCode != 0 && nCode != 1 && nCode != 2)
                 {
@@ -1035,7 +1035,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 //讀取憑證資訊。委託下單必須透過憑證，因此當元件初始化成功後即需要做讀取憑證的動作，如果使用群組的帳號做初始，則必須自行將所有的帳號依序做讀取憑證的動作。
                 //如果送出委託前未經讀取憑證，送委託會得到 SK_ERROR_ORDER_SIGN_INVALID 的錯誤
-                ReadCertResult = m_pSKOrder.ReadCertByID(Account);
+                ReadCertResult = m_pSKOrder.ReadCertByID(UserID);
                 LogAPIMessage(ReadCertResult);
                 if (ReadCertResult != 0)
                 {
@@ -1213,7 +1213,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else
                     {
-                        int m_nCode = m_pSKOrder.GetOpenInterestWithFormat(Account, orderAcc, format); //查詢期貨未平倉－可指定回傳格式
+                        int m_nCode = m_pSKOrder.GetOpenInterestWithFormat(UserID, orderAcc, format); //查詢期貨未平倉－可指定回傳格式
                         LogAPIMessage(m_nCode);
                     }
                 }
@@ -1226,6 +1226,51 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.EndTrace(start, UniqueName);
                 }
             });
+        }
+
+        public void SendFutureOrder()
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                FUTUREORDER pFutureOrder = new FUTUREORDER();
+
+                pFutureOrder.bstrFullAccount = ((OrderAccData)_appCtrl.MainForm.ComboBoxFuturesAccs.SelectedItem).FullAccount;
+                pFutureOrder.bstrPrice = _appCtrl.MainForm.TextBoxOrderPrice.Text;
+                pFutureOrder.bstrStockNo = _appCtrl.MainForm.TextBoxOrderSymbol.Text;
+                pFutureOrder.nQty = int.Parse(_appCtrl.MainForm.TextBoxOrderQuantity.Text);
+                pFutureOrder.sBuySell = (short)_appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex;
+                pFutureOrder.sDayTrade = (short)_appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex;
+                pFutureOrder.sTradeType = (short)_appCtrl.MainForm.ComboBoxOrderTradeType.SelectedIndex;
+                pFutureOrder.sNewClose = (short)_appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex;
+
+                string strMessage = nameof(_appCtrl.Settings.SendRealOrder); //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
+                int m_nCode = 0;
+                (LogLevel, string) apiReturn = (LogLevel.Trace, _appCtrl.Settings.SendRealOrder.ToString());
+
+                if (_appCtrl.Settings.SendRealOrder)
+                {
+                    lock (_syncOrderLock)
+                    {
+                        m_nCode = m_pSKOrder.SendFutureOrder(UserID, false, pFutureOrder, out strMessage); //送出期貨委託，無需倉位，預設為盤中，不可更改
+                        apiReturn = LogAPIMessage(m_nCode);
+
+                        Thread.Sleep(100);
+                    }
+                }
+
+                _appCtrl.Log(apiReturn.Item1, $"m_nCode={m_nCode}|strMessage={strMessage}", UniqueName);
+                _appCtrl.Log(apiReturn.Item1, apiReturn.Item2, UniqueName);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
         }
     }
 }

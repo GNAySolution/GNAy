@@ -770,7 +770,7 @@ namespace GNAy.Capital.Trade
 
                 if (_appCtrl.Capital != null)
                 {
-                    StatusBarItemBA3.Text = $"{_appCtrl.Capital.AccountTimer.Item1:mm:ss}|{_appCtrl.Capital.AccountTimer.Item2}";
+                    StatusBarItemBA3.Text = $"{_appCtrl.Capital.UserIDTimer.Item1:mm:ss}|{_appCtrl.Capital.UserIDTimer.Item2}";
                     StatusBarItemBA4.Text = _appCtrl.Capital.QuoteTimer;
                     StatusBarItemAB5.Text = _appCtrl.Capital.QuoteStatusStr;
                     StatusBarItemAB3.Text = $"{_appCtrl.Capital.QuoteLastUpdated.UpdateTime:mm:ss.fff}|{_appCtrl.Capital.QuoteLastUpdated.Updater}";
@@ -856,7 +856,7 @@ namespace GNAy.Capital.Trade
                     Thread.Sleep(3 * 1000);
                     this.InvokeRequired(delegate
                     {
-                        ButtonLoginAccount_Click(null, null);
+                        ButtonLoginUser_Click(null, null);
                         ButtonLoginQuote_Click(null, null);
                         ButtonReadCertification_Click(null, null);
                     });
@@ -898,13 +898,13 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonLoginAccount_Click(object sender, RoutedEventArgs e)
+        private void ButtonLoginUser_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                if (string.IsNullOrWhiteSpace(TextBoxAccount.Text) && string.IsNullOrWhiteSpace(DWPBox.Password))
+                if (string.IsNullOrWhiteSpace(TextBoxUserID.Text) && string.IsNullOrWhiteSpace(DWPBox.Password))
                 {
                     FileInfo dwpFile = new FileInfo($"{_appCtrl.ProcessName}.dwp.config");
 
@@ -912,9 +912,9 @@ namespace GNAy.Capital.Trade
                     {
                         foreach (string line in File.ReadAllLines(dwpFile.FullName, TextEncoding.UTF8WithoutBOM))
                         {
-                            if (line.StartsWith("account=", StringComparison.OrdinalIgnoreCase))
+                            if (line.StartsWith("userid=", StringComparison.OrdinalIgnoreCase))
                             {
-                                TextBoxAccount.Text = line.Substring("account=".Length).Trim().ToUpper();
+                                TextBoxUserID.Text = line.Substring("userid=".Length).Trim().ToUpper();
                             }
                             else if (line.StartsWith("dwp=", StringComparison.OrdinalIgnoreCase))
                             {
@@ -925,7 +925,7 @@ namespace GNAy.Capital.Trade
                 }
 
                 _appCtrl.InitialCapital();
-                _appCtrl.Capital.LoginAccount(TextBoxAccount.Text, DWPBox.Password);
+                _appCtrl.Capital.LoginUser(TextBoxUserID.Text, DWPBox.Password);
             }
             catch (Exception ex)
             {
@@ -1422,6 +1422,24 @@ namespace GNAy.Capital.Trade
         }
 
         private void ButtonSendFutureOrder_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                _appCtrl.Capital.SendFutureOrder();
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void ButtonStartFutureStartegyNow_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 
