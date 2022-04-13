@@ -31,6 +31,7 @@ namespace GNAy.Capital.Trade
     public partial class MainWindow : Window
     {
         public readonly DateTime StartTime;
+        public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
         private readonly DispatcherTimer _timer1;
@@ -41,6 +42,7 @@ namespace GNAy.Capital.Trade
             InitializeComponent();
 
             StartTime = DateTime.Now;
+            UniqueName = GetType().Name.Replace("Controller", "Ctrl");
             _appCtrl = new AppController(this);
 
             //https://www.796t.com/post/MWV3bG0=.html
@@ -72,12 +74,12 @@ namespace GNAy.Capital.Trade
             TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
             StatusBarItemAB2.Text = $"Subscribed={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}";
 
-            _appCtrl.LogTrace(Title);
+            _appCtrl.LogTrace(Title, UniqueName);
         }
 
         private void Window_Activated(object sender, EventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -85,11 +87,11 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -100,16 +102,14 @@ namespace GNAy.Capital.Trade
         /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
             _timer1.Stop();
             _timer2.Stop();
             _appCtrl.Exit();
-            _appCtrl.LogTrace("End");
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -117,17 +117,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_FocusableChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -135,17 +135,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_GotFocus(object sender, RoutedEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -157,13 +157,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -175,13 +175,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_GotMouseCapture(object sender, MouseEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -193,13 +193,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -207,17 +207,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -229,13 +229,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -247,13 +247,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             Task.Factory.StartNew(() =>
             {
@@ -261,25 +261,29 @@ namespace GNAy.Capital.Trade
                 {
                     if (!_appCtrl.Config.StartOnTime)
                     {
-                        _appCtrl.LogWarn($"程式沒有在正常時間啟動");
+                        _appCtrl.LogWarn($"程式沒有在正常時間啟動", UniqueName);
                     }
 
-                    _appCtrl.LogTrace($"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-3))}");
-                    _appCtrl.LogTrace($"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-2))}");
-                    _appCtrl.LogTrace($"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-1))}");
-                    _appCtrl.LogTrace($"{StartTime.AddDays(0):MM/dd HH:mm}|{StartTime.AddDays(+0).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(0))}|Today");
-                    _appCtrl.LogTrace($"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(1))}");
-                    _appCtrl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(2))}");
-                    _appCtrl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(3))}");
+                    _appCtrl.LogTrace($"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-3))}", UniqueName);
+                    _appCtrl.LogTrace($"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-2))}", UniqueName);
+                    _appCtrl.LogTrace($"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-1))}", UniqueName);
+                    _appCtrl.LogTrace($"{StartTime.AddDays(0):MM/dd HH:mm}|{StartTime.AddDays(+0).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(0))}|Today", UniqueName);
+                    _appCtrl.LogTrace($"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(1))}", UniqueName);
+                    _appCtrl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(2))}", UniqueName);
+                    _appCtrl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(3))}", UniqueName);
 
-                    _appCtrl.LogTrace($"{_appCtrl.Config.Archive.FullName}");
-                    _appCtrl.LogTrace($"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}");
+                    _appCtrl.LogTrace($"{_appCtrl.Config.Archive.FullName}", UniqueName);
+                    _appCtrl.LogTrace($"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}", UniqueName);
 
-                    _appCtrl.LogTrace($"AutoRun={_appCtrl.Settings.AutoRun}");
+                    _appCtrl.LogTrace($"AutoRun={_appCtrl.Settings.AutoRun}", UniqueName);
                 }
                 catch (Exception ex)
                 {
-                    _appCtrl.LogException(ex, ex.StackTrace);
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
                 }
             });
 
@@ -315,17 +319,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_LocationChanged(object sender, EventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -337,13 +341,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_LostFocus(object sender, RoutedEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -355,13 +359,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -373,13 +377,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_LostMouseCapture(object sender, MouseEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -391,13 +395,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -409,13 +413,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -427,13 +431,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -445,13 +449,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -463,13 +467,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -481,13 +485,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -499,13 +503,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -517,13 +521,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -531,17 +535,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -549,17 +553,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -571,13 +575,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -644,13 +648,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //_appCtrl.LogTrace("Start");
+            //DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -662,13 +666,13 @@ namespace GNAy.Capital.Trade
             }
             finally
             {
-                //_appCtrl.LogTrace("End");
+                //_appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -676,17 +680,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_ToolTipClosing(object sender, ToolTipEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -694,17 +698,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Window_ToolTipOpening(object sender, ToolTipEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -712,22 +716,22 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
+            DateTime start = _appCtrl.StartTrace();
+
             try
             {
-                DateTime now = DateTime.Now;
                 //https://stackoverflow.com/questions/9565740/display-duration-in-milliseconds
-                string elapsed = (now - StartTime).ToString("hh':'mm':'ss");
-
+                string elapsed = (start - StartTime).ToString("hh':'mm':'ss");
                 StatusBarItemAA2.Text = $"{elapsed}";
 
                 //if (Application.Current.MainWindow.IsMouseOver)
@@ -737,6 +741,21 @@ namespace GNAy.Capital.Trade
                     //Point pt = Mouse.GetPosition(Application.Current.MainWindow);
                     Point pt = Mouse.GetPosition(this);
                     StatusBarItemAA3.Text = $"({Width},{Height},{pt.X},{pt.Y})";
+
+                    if (StatusBarItemAA1.IsMouseOver || StatusBarItemBA1.IsMouseOver || StatusBarItemCA1.IsMouseOver) //GridAA.IsMouseOver || GridBA.IsMouseOver || GridCA.IsMouseOver
+                    {
+                        if (ColumnDef.Width.Value < Width - 400)
+                        {
+                            ColumnDef.Width = new GridLength(ColumnDef.Width.Value + 100, ColumnDef.Width.GridUnitType);
+                        }
+                    }
+                    else if (StatusBarItemAA2.IsMouseOver || StatusBarItemBA2.IsMouseOver || StatusBarItemCA2.IsMouseOver) //GridAB.IsMouseOver || GridBB.IsMouseOver || GridCB.IsMouseOver
+                    {
+                        if (ColumnDef.Width.Value > 400)
+                        {
+                            ColumnDef.Width = new GridLength(ColumnDef.Width.Value - 100, ColumnDef.Width.GridUnitType);
+                        }
+                    }
                 }
 
                 if (TabControlBA.SelectedIndex == 0 && DataGridAPIReply.ItemsSource != null)
@@ -756,7 +775,7 @@ namespace GNAy.Capital.Trade
                     StatusBarItemAB5.Text = _appCtrl.Capital.QuoteStatusStr;
                     StatusBarItemAB3.Text = $"{_appCtrl.Capital.QuoteLastUpdated.UpdateTime:mm:ss.fff}|{_appCtrl.Capital.QuoteLastUpdated.Updater}";
 
-                    elapsed = (now - _appCtrl.Capital.QuoteLastUpdated.UpdateTime).ToString("mm':'ss'.'fff");
+                    elapsed = (start - _appCtrl.Capital.QuoteLastUpdated.UpdateTime).ToString("mm':'ss'.'fff");
                     StatusBarItemAA2.Text = $"{StatusBarItemAA2.Text}|{elapsed}";
                 }
 
@@ -772,7 +791,7 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
         }
 
@@ -780,12 +799,12 @@ namespace GNAy.Capital.Trade
         {
             _timer2.Stop();
 
-            DateTime now = DateTime.Now;
+            DateTime start = _appCtrl.StartTrace();
             int reConnect = 0;
 
             try
             {
-                string msg = $"{now:MM/dd HH:mm.ss}|IsHoliday={_appCtrl.Config.IsHoliday(now)}";
+                string msg = $"{start:MM/dd HH:mm.ss}|IsHoliday={_appCtrl.Config.IsHoliday(start)}";
                 //_appCtrl.LogTrace(msg);
                 StatusBarItemCA2.Text = msg;
 
@@ -793,7 +812,7 @@ namespace GNAy.Capital.Trade
 
                 foreach (DateTime timeToExit in _appCtrl.Settings.TimeToExit)
                 {
-                    if (now.Hour == timeToExit.Hour && now.Minute >= timeToExit.Minute && now.Minute <= (timeToExit.Minute + 2))
+                    if (start.Hour == timeToExit.Hour && start.Minute >= timeToExit.Minute && start.Minute <= (timeToExit.Minute + 2))
                     {
                         _timer1.Stop();
                         Thread.Sleep(3 * 1000);
@@ -825,7 +844,7 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                _appCtrl.Log(reConnect, $"Retry to connect quote service.|reConnect={reConnect}");
+                _appCtrl.Log(reConnect, $"Retry to connect quote service.|reConnect={reConnect}", UniqueName);
                 Task.Factory.StartNew(() =>
                 {
                     if (_appCtrl.Capital != null)
@@ -874,14 +893,14 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
                 _timer2.Start();
             }
         }
 
         private void ButtonLoginAccount_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -910,17 +929,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonLoginQuote_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -928,17 +947,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonIsConnected_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -946,17 +965,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonDisconnect_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -964,17 +983,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonPrintProductList_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -982,17 +1001,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonGetProductInfo_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1001,17 +1020,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonSubQuotes_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1020,17 +1039,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonRecoverQuotes_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1038,17 +1057,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonRequestKLine_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1056,11 +1075,11 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -1075,7 +1094,7 @@ namespace GNAy.Capital.Trade
                 return;
             }
 
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1086,17 +1105,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonReadCertification_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1104,17 +1123,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonGetOrderAccs_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1122,17 +1141,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonUnlockOrder_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1140,17 +1159,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonGetOpenInterest_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1159,17 +1178,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonSetOrderMaxQty_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1177,17 +1196,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonSetOrderMaxCount_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1195,17 +1214,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonRecoverTriggerSetting_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1213,24 +1232,24 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonCancelTrigger_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
                 if (TabControlBB.SelectedIndex != 0)
                 {
                     TabControlBB.SelectedIndex = 0;
-                    _appCtrl.LogWarn("防呆，再次確認，避免看錯");
+                    _appCtrl.LogWarn("防呆，再次確認，避免看錯", UniqueName);
                     return;
                 }
 
@@ -1238,24 +1257,24 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonSaveTriggerRule_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
                 if (TabControlBB.SelectedIndex != 0)
                 {
                     TabControlBB.SelectedIndex = 0;
-                    _appCtrl.LogWarn("防呆，再次確認，避免看錯");
+                    _appCtrl.LogWarn("防呆，再次確認，避免看錯", UniqueName);
                     return;
                 }
 
@@ -1263,22 +1282,22 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void DataGridTriggerRuleCell_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
                 TriggerData trigger = (sender as DataGridCell).GetItem<TriggerData>();
-                _appCtrl.LogTrace(trigger.ToLog());
+                _appCtrl.LogTrace(trigger.ToLog(), UniqueName);
 
                 ComboBoxTriggerProduct.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxTriggerProduct.Items.Count; ++i)
@@ -1292,7 +1311,7 @@ namespace GNAy.Capital.Trade
                         }
                         else
                         {
-                            _appCtrl.LogError($"Trigger|觸價關聯報價代碼錯誤|quote.Symbol{quote.Symbol} != trigger.Symbol{trigger.Symbol}|{trigger.ToLog()}");
+                            _appCtrl.LogError($"Trigger|觸價關聯報價代碼錯誤|quote.Symbol{quote.Symbol} != trigger.Symbol{trigger.Symbol}|{trigger.ToLog()}", UniqueName);
                             ComboBoxTriggerProduct.SelectedIndex = -1;
                             break;
                         }
@@ -1300,7 +1319,7 @@ namespace GNAy.Capital.Trade
                 }
                 if (ComboBoxTriggerProduct.SelectedIndex < 0)
                 {
-                    _appCtrl.LogError($"Trigger|觸價關聯報價代碼錯誤|{trigger.ToLog()}");
+                    _appCtrl.LogError($"Trigger|觸價關聯報價代碼錯誤|{trigger.ToLog()}", UniqueName);
                 }
 
                 ComboBoxTriggerColumn.SelectedIndex = -1;
@@ -1315,7 +1334,7 @@ namespace GNAy.Capital.Trade
                         }
                         else
                         {
-                            _appCtrl.LogError($"Trigger|觸價關聯報價欄位錯誤|column.Property.Name{column.Property.Name} != trigger.ColumnProperty{trigger.ColumnProperty}|{trigger.ToLog()}");
+                            _appCtrl.LogError($"Trigger|觸價關聯報價欄位錯誤|column.Property.Name{column.Property.Name} != trigger.ColumnProperty{trigger.ColumnProperty}|{trigger.ToLog()}", UniqueName);
                             ComboBoxTriggerColumn.SelectedIndex = -1;
                             break;
                         }
@@ -1323,7 +1342,7 @@ namespace GNAy.Capital.Trade
                 }
                 if (ComboBoxTriggerColumn.SelectedIndex < 0)
                 {
-                    _appCtrl.LogError($"Trigger|觸價關聯報價欄位錯誤|{trigger.ToLog()}");
+                    _appCtrl.LogError($"Trigger|觸價關聯報價欄位錯誤|{trigger.ToLog()}", UniqueName);
                 }
 
                 ComboBoxTriggerCancel.SelectedIndex = trigger.CancelIndex;
@@ -1344,24 +1363,24 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonCancelStrategy_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
                 if (TabControlBB.SelectedIndex != 1)
                 {
                     TabControlBB.SelectedIndex = 1;
-                    _appCtrl.LogWarn("防呆，再次確認，避免看錯");
+                    _appCtrl.LogWarn("防呆，再次確認，避免看錯", UniqueName);
                     return;
                 }
 
@@ -1369,24 +1388,24 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonSaveStrategyRule_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
                 if (TabControlBB.SelectedIndex != 1)
                 {
                     TabControlBB.SelectedIndex = 1;
-                    _appCtrl.LogWarn("防呆，再次確認，避免看錯");
+                    _appCtrl.LogWarn("防呆，再次確認，避免看錯", UniqueName);
                     return;
                 }
 
@@ -1394,17 +1413,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonSendFutureOrder_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1412,17 +1431,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonCancelOrderBySeqNo_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1430,17 +1449,17 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         private void ButtonCancelOrderByBookNo_Click(object sender, RoutedEventArgs e)
         {
-            _appCtrl.LogTrace("Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1448,11 +1467,11 @@ namespace GNAy.Capital.Trade
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
     }

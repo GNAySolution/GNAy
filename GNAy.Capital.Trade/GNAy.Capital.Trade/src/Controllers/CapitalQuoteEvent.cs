@@ -18,7 +18,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nCode"></param>
         private void m_SKQuoteLib_OnConnection(int nKind, int nCode)
         {
-            _appCtrl.LogTrace($"SKAPI|nKind={nKind}|nCode={nCode}");
+            _appCtrl.LogTrace($"nKind={nKind}|nCode={nCode}", UniqueName);
 
             //3001 SK_SUBJECT_CONNECTION_CONNECTED 連線
             //3002 SK_SUBJECT_CONNECTION_DISCONNECT 斷線
@@ -61,7 +61,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nStockIdx"></param>
         private void m_SKQuoteLib_OnNotifyQuote(short sMarketNo, int nStockIdx)
         {
-            //_appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}");
+            //_appCtrl.LogTrace($"sMarketNo={sMarketNo}|nStockIdx={nStockIdx}");
 
             try
             {
@@ -96,7 +96,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nSimulate"></param>
         private void OnNotifyHistoryTicks(short sMarketNo, int nStockIdx, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
         {
-            //_appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nPtr={nPtr}|nDate={nDate}|lTimehms={lTimehms}|lTimemillismicros={lTimemillismicros}|nBid={nBid}|nAsk={nAsk}|nClose={nClose}|nQty={nQty}|nSimulate={nSimulate}");
+            //_appCtrl.LogTrace($"sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nPtr={nPtr}|nDate={nDate}|lTimehms={lTimehms}|lTimemillismicros={lTimemillismicros}|nBid={nBid}|nAsk={nAsk}|nClose={nClose}|nQty={nQty}|nSimulate={nSimulate}");
 
             try
             {
@@ -178,18 +178,18 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nSimulate"></param>
         private void OnNotifyTicks(short sMarketNo, int nStockIdx, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
         {
-            //_appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nPtr={nPtr}|nDate={nDate}|lTimehms={lTimehms}|lTimemillismicros={lTimemillismicros}|nBid={nBid}|nAsk={nAsk}|nClose={nClose}|nQty={nQty}|nSimulate={nSimulate}");
+            //_appCtrl.LogTrace($"sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nPtr={nPtr}|nDate={nDate}|lTimehms={lTimehms}|lTimemillismicros={lTimemillismicros}|nBid={nBid}|nAsk={nAsk}|nClose={nClose}|nQty={nQty}|nSimulate={nSimulate}");
 
             try
             {
                 if (!_quoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote))
                 {
-                    _appCtrl.LogError($"SKAPI|!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote)|nStockIdx={nStockIdx}");
+                    _appCtrl.LogError($"!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote)|nStockIdx={nStockIdx}", UniqueName);
                     return;
                 }
                 else if (quote.MarketGroup != sMarketNo)
                 {
-                    _appCtrl.LogError($"SKAPI|quote.MarketGroup != raw.bstrMarketNo|MarketGroup={quote.MarketGroup}|sMarketNo={sMarketNo}");
+                    _appCtrl.LogError($"quote.MarketGroup != raw.bstrMarketNo|MarketGroup={quote.MarketGroup}|sMarketNo={sMarketNo}", UniqueName);
                     return;
                 }
 
@@ -238,7 +238,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (firstTick)
                 {
-                    _appCtrl.LogTrace($"SKAPI|開盤|{quote.MarketGroupEnum}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}");
+                    _appCtrl.LogTrace($"開盤|{quote.MarketGroupEnum}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}", UniqueName);
                 }
             }
             catch (Exception ex)
@@ -279,7 +279,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nSimulate"></param>
         private void m_SKQuoteLib_OnNotifyBest5(short sMarketNo, int nStockIdx, int nBestBid1, int nBestBidQty1, int nBestBid2, int nBestBidQty2, int nBestBid3, int nBestBidQty3, int nBestBid4, int nBestBidQty4, int nBestBid5, int nBestBidQty5, int nExtendBid, int nExtendBidQty, int nBestAsk1, int nBestAskQty1, int nBestAsk2, int nBestAskQty2, int nBestAsk3, int nBestAskQty3, int nBestAsk4, int nBestAskQty4, int nBestAsk5, int nBestAskQty5, int nExtendAsk, int nExtendAskQty, int nSimulate)
         {
-            //_appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nBestBid1={nBestBid1}|nBestBidQty1={nBestBidQty1}|nBestBid2={nBestBid2}|nBestBidQty2={nBestBidQty2}|nBestBid3={nBestBid3}|nBestBidQty3={nBestBidQty3}|nBestBid4={nBestBid4}|nBestBidQty4={nBestBidQty4}|nBestBid5={nBestBid5}|nBestBidQty5={nBestBidQty5}|nExtendBid={nExtendBid}|nExtendBidQty={nExtendBidQty}|nBestAsk1={nBestAsk1}|nBestAskQty1={nBestAskQty1}|nBestAsk2={nBestAsk2}|nBestAskQty2={nBestAskQty2}|nBestAsk3={nBestAsk3}|nBestAskQty3={nBestAskQty3}|nBestAsk4={nBestAsk4}|nBestAskQty4={nBestAskQty4}|nBestAsk5={nBestAsk5}|nBestAskQty5={nBestAskQty5}|nExtendAsk={nExtendAsk}|nExtendAskQty={nExtendAskQty}|nSimulate={nSimulate}");
+            //_appCtrl.LogTrace($"sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nBestBid1={nBestBid1}|nBestBidQty1={nBestBidQty1}|nBestBid2={nBestBid2}|nBestBidQty2={nBestBidQty2}|nBestBid3={nBestBid3}|nBestBidQty3={nBestBidQty3}|nBestBid4={nBestBid4}|nBestBidQty4={nBestBidQty4}|nBestBid5={nBestBid5}|nBestBidQty5={nBestBidQty5}|nExtendBid={nExtendBid}|nExtendBidQty={nExtendBidQty}|nBestAsk1={nBestAsk1}|nBestAskQty1={nBestAskQty1}|nBestAsk2={nBestAsk2}|nBestAskQty2={nBestAskQty2}|nBestAsk3={nBestAsk3}|nBestAskQty3={nBestAskQty3}|nBestAsk4={nBestAsk4}|nBestAskQty4={nBestAskQty4}|nBestAsk5={nBestAsk5}|nBestAskQty5={nBestAskQty5}|nExtendAsk={nExtendAsk}|nExtendAskQty={nExtendAskQty}|nSimulate={nSimulate}");
         }
 
         /// <summary>
@@ -289,7 +289,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_SKQuoteLib_OnNotifyKLineData(string bstrStockNo, string bstrData)
         {
-            _appCtrl.LogTrace($"SKAPI|bstrStockNo={bstrStockNo}|bstrData={bstrData}");
+            _appCtrl.LogTrace($"bstrStockNo={bstrStockNo}|bstrData={bstrData}", UniqueName);
 
             //listKLine.Items.Add("[OnNotifyKLineData]" + bstrData);
         }
@@ -314,6 +314,7 @@ namespace GNAy.Capital.Trade.Controllers
                     //要求報價主機傳送目前時間。
                     //注意：為避免收盤後無報價資料傳送，導致連線被防火牆切斷，目前solace固定每五秒會自動更新時間，請固定每十五秒呼叫此函式，確保連線正常
                     int m_nCode = m_SKQuoteLib.SKQuoteLib_RequestServerTime();
+
                     if (m_nCode != 0)
                     {
                         LogAPIMessage(m_nCode);
@@ -337,7 +338,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nTotc"></param>
         private void m_SKQuoteLib_OnNotifyMarketTot(short sMarketNo, short sPtr, int nTime, int nTotv, int nTots, int nTotc)
         {
-            _appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|sPtr={sPtr}|nTime={nTime}|nTotv={nTotv}|nTots={nTots}|nTotc={nTotc}");
+            _appCtrl.LogTrace($"sMarketNo={sMarketNo}|sPtr={sPtr}|nTime={nTime}|nTotv={nTotv}|nTots={nTots}|nTotc={nTotc}", UniqueName);
 
             double dTotv = nTotv / 100.0;
 
@@ -367,7 +368,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nSs"></param>
         private void m_SKQuoteLib_OnNotifyMarketBuySell(short sMarketNo, short sPtr, int nTime, int nBc, int nSc, int nBs, int nSs)
         {
-            _appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|sPtr={sPtr}|nTime={nTime}|nBc={nBc}|nSc={nSc}|nBs={nBs}|nSs={nSs}");
+            _appCtrl.LogTrace($"sMarketNo={sMarketNo}|sPtr={sPtr}|nTime={nTime}|nBc={nBc}|nSc={nSc}|nBs={nBs}|nSs={nSs}", UniqueName);
 
             //if (sMarketNo == 0)
             //{
@@ -395,7 +396,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrOSC"></param>
         private void m_SKQuoteLib_OnNotifyMACD(short sMarketNo, int nStockIdx, string bstrMACD, string bstrDIF, string bstrOSC)
         {
-            _appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|bstrMACD={bstrMACD}|bstrDIF={bstrDIF}|bstrOSC={bstrOSC}");
+            _appCtrl.LogTrace($"sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|bstrMACD={bstrMACD}|bstrDIF={bstrDIF}|bstrOSC={bstrOSC}", UniqueName);
 
             //lblMACD.Text = bstrMACD;
 
@@ -413,7 +414,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrLBT"></param>
         private void m_SKQuoteLib_OnNotifyBoolTunel(short sMarketNo, int nStockIdx, string bstrAVG, string bstrUBT, string bstrLBT)
         {
-            _appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|bstrAVG={bstrAVG}|bstrUBT={bstrUBT}|bstrLBT={bstrLBT}");
+            _appCtrl.LogTrace($"sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|bstrAVG={bstrAVG}|bstrUBT={bstrUBT}|bstrLBT={bstrLBT}", UniqueName);
 
             //lblAVG.Text = bstrAVG;
             //lblUBT.Text = bstrUBT;
@@ -434,7 +435,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nSellDealTotalCount"></param>
         private void m_SKQuoteLib_OnNotifyFutureTradeInfo(string bstrStockNo, short sMarketNo, int nStockIdx, int nBuyTotalCount, int nSellTotalCount, int nBuyTotalQty, int nSellTotalQty, int nBuyDealTotalCount, int nSellDealTotalCount)
         {
-            _appCtrl.LogTrace($"SKAPI|bstrStockNo={bstrStockNo}|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nBuyTotalCount={nBuyTotalCount}|nSellTotalCount={nSellTotalCount}|nBuyTotalQty={nBuyTotalQty}|nSellTotalQty={nSellTotalQty}|nBuyDealTotalCount={nBuyDealTotalCount}|nSellDealTotalCount={nSellDealTotalCount}");
+            _appCtrl.LogTrace($"bstrStockNo={bstrStockNo}|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}|nBuyTotalCount={nBuyTotalCount}|nSellTotalCount={nSellTotalCount}|nBuyTotalQty={nBuyTotalQty}|nSellTotalQty={nSellTotalQty}|nBuyDealTotalCount={nBuyDealTotalCount}|nSellDealTotalCount={nSellDealTotalCount}", UniqueName);
 
             //lblMarketNo.Text = "MarketNo";
             //lblStockIdx.Text = "StockIndex";
@@ -461,7 +462,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrOptionData"></param>
         private void m_SKQuoteLib_OnNotifyStrikePrices(string bstrOptionData)
         {
-            _appCtrl.LogTrace($"SKAPI|bstrOptionData={bstrOptionData}");
+            _appCtrl.LogTrace($"bstrOptionData={bstrOptionData}", UniqueName);
 
             //[-0119-]
             string strData = "";
@@ -493,7 +494,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="sNoChangeNoW"></param>
         private void m_SKQuoteLib_OnNotifyMarketHighLowNoWarrant(short sMarketNo, int sPtr, int nTime, int sUp, int sDown, int sHigh, int sLow, int sNoChange, int sUpNoW, int sDownNoW, int sHighNoW, int sLowNoW, int sNoChangeNoW)
         {
-            _appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|sPtr={sPtr}|nTime={nTime}|sUp={sUp}|sDown={sDown}|sHigh={sHigh}|sLow={sLow}|sNoChange={sNoChange}|sUpNoW={sUpNoW}|sDownNoW={sDownNoW}|sHighNoW={sHighNoW}|sLowNoW={sLowNoW}|sNoChangeNoW={sNoChangeNoW}");
+            _appCtrl.LogTrace($"sMarketNo={sMarketNo}|sPtr={sPtr}|nTime={nTime}|sUp={sUp}|sDown={sDown}|sHigh={sHigh}|sLow={sLow}|sNoChange={sNoChange}|sUpNoW={sUpNoW}|sDownNoW={sDownNoW}|sHighNoW={sHighNoW}|sLowNoW={sLowNoW}|sNoChangeNoW={sNoChangeNoW}", UniqueName);
 
             //if (sMarketNo == 0)
             //{
@@ -531,7 +532,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrStockListData"></param>
         private void m_SKQuoteLib_OnNotifyCommodityListWithTypeNo(short sMarketNo, string bstrStockListData)
         {
-            _appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|bstrStockListData={bstrStockListData}");
+            _appCtrl.LogTrace($"sMarketNo={sMarketNo}|bstrStockListData={bstrStockListData}", UniqueName);
 
             //string strData = "";
             //strData = "[OnNotifyCommodityList]" + bstrStockListData;
@@ -557,7 +558,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="sDigit"></param>
         private void m_SKQuoteLib_OnNotifyOddLotSpreadDeal(short sMarketNo, string bstrStockNo, int nDealPrice, short sDigit)
         {
-            _appCtrl.LogTrace($"SKAPI|sMarketNo={sMarketNo}|bstrStockNo={bstrStockNo}|nDealPrice={nDealPrice}|sDigit={sDigit}");
+            _appCtrl.LogTrace($"sMarketNo={sMarketNo}|bstrStockNo={bstrStockNo}|nDealPrice={nDealPrice}|sDigit={sDigit}", UniqueName);
 
             if (sMarketNo == 5 || sMarketNo == 6)
             {

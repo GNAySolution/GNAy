@@ -37,22 +37,13 @@ namespace GNAy.Capital.Models
         [Column("執行緒", "緒", -1)]
         public int ThreadID { get; set; }
 
-        /// <summary>
-        /// 原始程式檔中的行號
-        /// </summary>
-        [Column("行號", "行", -1)]
+        [Column("原始碼行號", "行", -1)]
         public int CallerLineNumber { get; set; }
 
-        /// <summary>
-        /// 呼叫端的方法或屬性名稱
-        /// </summary>
-        [Column("方法", -1)]
+        [Column("呼叫端的方法或屬性名稱", "方法", -1)]
         public string CallerMemberName { get; set; }
 
-        /// <summary>
-        /// 呼叫端的方法或屬性名稱
-        /// </summary>
-        [Column("帳號", -1)]
+        [Column("會員帳號", -1)]
         public string Account { get; set; }
 
         [Column("訊息", -1)]

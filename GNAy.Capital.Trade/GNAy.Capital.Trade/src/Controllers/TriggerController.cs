@@ -19,6 +19,7 @@ namespace GNAy.Capital.Trade.Controllers
         private static readonly string[] _timeFormats = new string[] { "HHmmss", "HHmm", "HH" };
 
         public readonly DateTime CreatedTime;
+        public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
         private readonly ObservableCollection<string> _triggerCancelKinds;
@@ -35,6 +36,7 @@ namespace GNAy.Capital.Trade.Controllers
         public TriggerController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
+            UniqueName = GetType().Name.Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
             //https://www.codeproject.com/Questions/1117817/Basic-WPF-binding-to-collection-in-combobox
@@ -59,6 +61,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void SaveData(ICollection<TriggerData> triggers)
         {
+            DateTime start = _appCtrl.StartTrace();
+
             try
             {
                 if (triggers == null)
@@ -67,7 +71,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, string.Format("{0}.csv", DateTime.Now.ToString(_appCtrl.Settings.TriggerFileFormat)));
-                _appCtrl.LogTrace($"Trigger|{path}");
+                _appCtrl.LogTrace(path, UniqueName);
 
                 using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
                 {
@@ -81,14 +85,18 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                         catch (Exception ex)
                         {
-                            _appCtrl.LogException(ex, ex.StackTrace);
+                            _appCtrl.LogException(start, ex, ex.StackTrace);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -125,7 +133,7 @@ namespace GNAy.Capital.Trade.Controllers
                     trigger.Comment = "觸價逾時，監控取消";
                     trigger.Updater = nameof(UpdateStatus);
                     trigger.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}");
+                    _appCtrl.LogTrace(trigger.ToLog(), UniqueName);
                     saveTriggers = true;
                     return saveTriggers;
                 }
@@ -133,7 +141,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     string des = trigger.StatusDes;
                     trigger.StatusEnum = TriggerStatus.Enum.Monitoring;
-                    _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}|{des} -> {trigger.StatusDes}");
+                    _appCtrl.LogTrace($"{trigger.ToLog()}|{des} -> {trigger.StatusDes}", UniqueName);
                     saveTriggers = true;
                 }
                 else if (trigger.StatusEnum == TriggerStatus.Enum.Monitoring)
@@ -166,7 +174,7 @@ namespace GNAy.Capital.Trade.Controllers
                     if (trigger.ColumnValue >= trigger.TargetValue)
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
-                        _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}");
+                        _appCtrl.LogTrace($"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
                         saveTriggers = true;
 
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
@@ -179,7 +187,7 @@ namespace GNAy.Capital.Trade.Controllers
                     if (trigger.ColumnValue <= trigger.TargetValue)
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
-                        _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}");
+                        _appCtrl.LogTrace($"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
                         saveTriggers = true;
 
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
@@ -192,7 +200,7 @@ namespace GNAy.Capital.Trade.Controllers
                     if (trigger.ColumnValue == trigger.TargetValue)
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
-                        _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}");
+                        _appCtrl.LogTrace($"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
                         saveTriggers = true;
 
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
@@ -204,7 +212,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                     trigger.Comment = $"條件({trigger.Rule})錯誤，必須是大於小於等於";
-                    _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}");
+                    _appCtrl.LogTrace(trigger.ToLog(), UniqueName);
                     saveTriggers = true;
                     return saveTriggers;
                 }
@@ -218,6 +226,8 @@ namespace GNAy.Capital.Trade.Controllers
         /// </summary>
         public void UpdateStatus()
         {
+            DateTime start = _appCtrl.StartTrace();
+
             while (_waitToReset.Count > 0)
             {
                 _waitToReset.TryDequeue(out QuoteData quote);
@@ -239,17 +249,17 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (trigger.StatusEnum == TriggerStatus.Enum.Cancelled)
                     {
-                        _appCtrl.LogError($"Trigger|{trigger.ToLog()}");
+                        _appCtrl.LogError(trigger.ToLog(), UniqueName);
                     }
                     else if (trigger.StatusEnum == TriggerStatus.Enum.Executed)
                     {
-                        _appCtrl.LogError($"Trigger|{trigger.ToLog()}|已觸發無法取消");
+                        _appCtrl.LogError($"{trigger.ToLog()}|已觸發無法取消", UniqueName);
                     }
                     else
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                         trigger.Comment = $"手動取消";
-                        _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}");
+                        _appCtrl.LogTrace(trigger.ToLog(), UniqueName);
                     }
 
                     if (_waitToCancel.Count <= 0)
@@ -259,7 +269,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError($"Trigger|{primaryKey}|查無此唯一鍵");
+                    _appCtrl.LogError($"{primaryKey}|查無此唯一鍵", UniqueName);
                 }
             }
 
@@ -273,17 +283,17 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (trigger.StatusEnum != TriggerStatus.Enum.Cancelled)
                     {
-                        _appCtrl.LogTrace($"Trigger|{trigger.ToLog()}|新增設定");
+                        _appCtrl.LogTrace($"{trigger.ToLog()}|新增設定", UniqueName);
                     }
                 }
                 else if (_old.StatusEnum == TriggerStatus.Enum.Executed)
                 {
-                    _appCtrl.LogWarn($"Trigger|{trigger.ToLog()}|舊設定已觸發，將新增設定");
+                    _appCtrl.LogWarn($"{trigger.ToLog()}|舊設定已觸發，將新增設定", UniqueName);
                     _triggerMap.Remove(trigger.PrimaryKey);
                 }
                 else
                 {
-                    _appCtrl.LogWarn($"Trigger|{trigger.ToLog()}|舊設定未觸發，將進行重置");
+                    _appCtrl.LogWarn($"{trigger.ToLog()}|舊設定未觸發，將進行重置", UniqueName);
                     _triggerMap.Remove(trigger.PrimaryKey);
                     toRemove = _old;
                 }
@@ -317,7 +327,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _appCtrl.LogException(ex, ex.StackTrace);
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
                     }
                 });
 
@@ -343,7 +353,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _appCtrl.LogException(ex, ex.StackTrace);
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
                 }
             }
 
@@ -360,7 +370,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void ClearQuotes()
         {
-            _appCtrl.LogTrace("Trigger|Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -374,11 +384,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("Trigger|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -386,7 +396,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                //_appCtrl.LogTrace($"Trigger|Start|Symbol={quote.Symbol}|Page={quote.Page}");
+                //_appCtrl.LogTrace($"Symbol={quote.Symbol}|Page={quote.Page}");
 
                 _waitToReset.Enqueue(quote);
             }
@@ -437,7 +447,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else
                     {
-                        _appCtrl.LogError($"Trigger|開始時間錯誤，無法解析({times[0]})");
+                        _appCtrl.LogError($"開始時間錯誤，無法解析({times[0]})", UniqueName);
                         return (false, null, null);
                     }
                 }
@@ -452,32 +462,32 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else
                     {
-                        _appCtrl.LogError($"Trigger|結束時間錯誤，無法解析({times[1]})");
+                        _appCtrl.LogError($"結束時間錯誤，無法解析({times[1]})", UniqueName);
                         return (false, null, null);
                     }
                 }
 
                 if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && quote.MarketGroupEnum != Market.EGroup.Futures && quote.MarketGroupEnum != Market.EGroup.Options)
                 {
-                    _appCtrl.LogError($"Trigger|非期貨選擇權，結束時間({times[1]})不可小於開始時間({times[0]})");
+                    _appCtrl.LogError($"非期貨選擇權，結束時間({times[1]})不可小於開始時間({times[0]})", UniqueName);
                     return (false, null, null);
                 }
                 else if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && endTime.Value.Hour >= 5)
                 {
-                    _appCtrl.LogError($"Trigger|結束時間({times[1]})不可大於等於凌晨5點");
+                    _appCtrl.LogError($"結束時間({times[1]})不可大於等於凌晨5點", UniqueName);
                     return (false, null, null);
                 }
 
                 if (startTime.HasValue && startTime.Value < DateTime.Now && startTime.Value.Hour < 5 && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options))
                 {
                     startTime = startTime.Value.AddDays(1);
-                    _appCtrl.LogTrace($"Trigger|期貨選擇權，開始時間跨日，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}");
+                    _appCtrl.LogTrace($"期貨選擇權，開始時間跨日，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}", UniqueName);
                 }
 
                 if (endTime.HasValue && endTime.Value < DateTime.Now && endTime.Value.Hour < 5 && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options))
                 {
                     endTime = endTime.Value.AddDays(1);
-                    _appCtrl.LogTrace($"Trigger|期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}");
+                    _appCtrl.LogTrace($"期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}", UniqueName);
                 }
 
                 return (true, startTime, endTime);
@@ -492,7 +502,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void Cancel(string primaryKey)
         {
-            _appCtrl.LogTrace($"Trigger|Start|primaryKey={primaryKey}");
+            DateTime start = _appCtrl.StartTrace(UniqueName, $"primaryKey={primaryKey}");
 
             try
             {
@@ -507,23 +517,23 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("Trigger|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         public void AddRule()
         {
-            _appCtrl.LogTrace("Trigger|Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
                 if (_appCtrl.Config.TriggerFolder == null)
                 {
-                    _appCtrl.LogError($"Trigger|未設定觸價資料夾(Settings.TriggerFolderPath)，無法建立觸價資料");
+                    _appCtrl.LogError("未設定觸價資料夾(Settings.TriggerFolderPath)，無法建立觸價資料", UniqueName);
                     return;
                 }
                 else if (_appCtrl.MainForm.ComboBoxTriggerProduct.SelectedIndex < 0)
@@ -582,7 +592,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError($"Trigger|條件({rule})錯誤，開頭必須是大於小於等於");
+                    _appCtrl.LogError($"條件({rule})錯誤，開頭必須是大於小於等於", UniqueName);
                     return;
                 }
 
@@ -592,7 +602,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError($"Trigger|條件錯誤，無法解析({bodyValue})");
+                    _appCtrl.LogError($"條件錯誤，無法解析({bodyValue})", UniqueName);
                     return;
                 }
 
@@ -633,17 +643,17 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("Trigger|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         public void RecoverSetting(FileInfo file = null)
         {
-            _appCtrl.LogTrace("Trigger|Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -708,7 +718,7 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                             trigger.Comment = "程式沒有在正常時間啟動，不執行此監控";
-                            _appCtrl.LogError($"Trigger|{trigger.ToLog()}");
+                            _appCtrl.LogError(trigger.ToLog(), UniqueName);
                         }
 
                         trigger.Creator = nameof(RecoverSetting);
@@ -724,7 +734,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _appCtrl.LogException(ex, ex.StackTrace);
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
                     }
                 }
 
@@ -734,6 +744,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     nextPK = _triggerCollection.Count + 1;
                 }
+
                 _appCtrl.MainForm.InvokeRequired(delegate
                 {
                     _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{nextPK}";
@@ -741,11 +752,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("Trigger|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
     }

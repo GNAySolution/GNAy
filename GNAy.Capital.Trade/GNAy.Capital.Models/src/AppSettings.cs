@@ -111,13 +111,25 @@ namespace GNAy.Capital.Models
         public string TriggerFileFormat { get; set; }
 
         /// <summary>
-        /// false=測試或跑回測時，不實際下單
+        /// 策略資料夾
+        /// </summary>
+        public string StrategyFolderPath { get; set; }
+        public string StrategyFileFormat { get; set; }
+
+        /// <summary>
+        /// 送出的委託單，不論是否有收到委回成回
+        /// </summary>
+        public string SentOrderFolderPath { get; set; }
+        public string SentOrderFileFormat { get; set; }
+
+        /// <summary>
+        /// false=測試或跑回測，不實際下單
         /// </summary>
         public bool SendRealOrder { get; set; }
 
         public AppSettings()
         {
-            Version = "0.22.412.1";
+            Version = "0.22.413.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -173,6 +185,12 @@ namespace GNAy.Capital.Models
 
             TriggerFolderPath = "TriggerData";
             TriggerFileFormat = "MMdd_HHmm";
+
+            StrategyFolderPath = "StrategyData";
+            StrategyFileFormat = "MMdd_HHmm";
+
+            SentOrderFolderPath = "SentOrder";
+            SentOrderFileFormat = "yyMMdd_HHmmss_ffffff";
 
             SendRealOrder = true;
         }

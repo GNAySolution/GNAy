@@ -23,19 +23,17 @@ namespace GNAy.Capital.Trade.Controllers
 
             _timerBG.Stop();
 
-            DateTime now = DateTime.Now;
-
             try
             {
-                if (Settings.QuoteSaveInterval > 0 && (now - _lastTimeToSaveQuote).TotalSeconds >= Settings.QuoteSaveInterval && Capital != null && !string.IsNullOrWhiteSpace(Settings.QuoteFileClosePrefix))
+                if (Settings.QuoteSaveInterval > 0 && (e.SignalTime - _lastTimeToSaveQuote).TotalSeconds >= Settings.QuoteSaveInterval && Capital != null && !string.IsNullOrWhiteSpace(Settings.QuoteFileClosePrefix))
                 {
-                    _lastTimeToSaveQuote = now;
+                    _lastTimeToSaveQuote = e.SignalTime;
                     Capital.SaveQuotes(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
                 }
             }
             catch (Exception ex)
             {
-                LogException(ex, ex.StackTrace);
+                LogException(e.SignalTime, ex, ex.StackTrace);
             }
 
             _timerBG.Start();
@@ -51,7 +49,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                LogException(ex, ex.StackTrace);
+                LogException(e.SignalTime, ex, ex.StackTrace);
             }
             finally
             {

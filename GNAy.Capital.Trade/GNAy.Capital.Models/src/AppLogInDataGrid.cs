@@ -17,22 +17,20 @@ namespace GNAy.Capital.Models
         [Column("執行緒", "緒", -1)]
         public int ThreadID { get; set; }
 
-        /// <summary>
-        /// 原始程式檔中的行號
-        /// </summary>
-        [Column("行號", "行", -1)]
+        [Column("原始碼行號", "行", -1)]
         public int CallerLineNumber { get; set; }
 
-        /// <summary>
-        /// 呼叫端的方法或屬性名稱
-        /// </summary>
-        [Column("方法", -1)]
+        [Column("呼叫方法花費時間", "耗時", -1)]
+        public TimeSpan? Elapsed { get; set; }
+
+        [Column("呼叫端的方法或屬性名稱", "方法", -1)]
         public string CallerMemberName { get; set; }
 
         public AppLogInDataGrid()
         {
             ThreadID = 0;
             CallerLineNumber = 0;
+            Elapsed = null;
             CallerMemberName = string.Empty;
         }
     }

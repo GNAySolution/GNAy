@@ -17,6 +17,7 @@ namespace GNAy.Capital.Trade.Controllers
     public partial class CapitalController
     {
         public readonly DateTime CreatedTime;
+        public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
         private SKCenterLib m_pSKCenter { get; set; }
@@ -74,6 +75,7 @@ namespace GNAy.Capital.Trade.Controllers
         public CapitalController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
+            UniqueName = GetType().Name.Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
             LoginAccountResult = -1;
@@ -137,7 +139,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (nCode < 0)
             {
-                _appCtrl.LogError($"SKAPI|{msg}", lineNumber, memberName);
+                _appCtrl.LogError(msg, UniqueName, null, lineNumber, memberName);
                 return msg;
             }
 
@@ -145,22 +147,22 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (_code == 0)
             {
-                _appCtrl.LogTrace($"SKAPI|{msg}", lineNumber, memberName);
+                _appCtrl.LogTrace(msg, UniqueName, null, lineNumber, memberName);
             }
             //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
             //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
             //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
             else if (_code < 2000 || _code == 3021 || _code == 3022 || _code == 3033)
             {
-                _appCtrl.LogError($"SKAPI|{msg}", lineNumber, memberName);
+                _appCtrl.LogError(msg, UniqueName, null, lineNumber, memberName);
             }
             else if (_code < 3000)
             {
-                _appCtrl.LogWarn($"SKAPI|{msg}", lineNumber, memberName);
+                _appCtrl.LogWarn(msg, UniqueName, null, lineNumber, memberName);
             }
             else
             {
-                _appCtrl.LogTrace($"SKAPI|{msg}", lineNumber, memberName);
+                _appCtrl.LogTrace(msg, UniqueName, null, lineNumber, memberName);
             }
 
             return msg;
@@ -202,7 +204,10 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int LoginAccount(string account, string dwp)
         {
-            _appCtrl.LogTrace($"SKAPI|account={account}|dwp=********");
+            account = account.Trim().ToUpper();
+            dwp = dwp.Trim();
+
+            DateTime start = _appCtrl.StartTrace(UniqueName, $"account={account}|dwp=********");
 
             try
             {
@@ -210,10 +215,6 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return LoginAccountResult;
                 }
-
-                account = account.Trim().ToUpper();
-                dwp = dwp.Trim();
-                _appCtrl.LogTrace($"SKAPI|account={account}|dwp=********");
 
                 m_pSKReply = new SKReplyLib();
                 m_pSKReply.OnReplyMessage += SKReply_OnAnnouncement;
@@ -235,13 +236,13 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (LoginAccountResult == 0)
                 {
-                    _appCtrl.LogTrace($"SKAPI|LoginAccountResult={LoginAccountResult}|雙因子登入成功");
+                    _appCtrl.LogTrace($"LoginAccountResult={LoginAccountResult}|雙因子登入成功", UniqueName);
                     Account = account;
                     DWP = "********";
                 }
                 else if (LoginAccountResult >= 600 && LoginAccountResult <= 699)
                 {
-                    _appCtrl.LogTrace($"SKAPI|LoginAccountResult={LoginAccountResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效");
+                    _appCtrl.LogTrace($"LoginAccountResult={LoginAccountResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效", UniqueName);
                     Account = account;
                     DWP = "********";
                 }
@@ -261,17 +262,17 @@ namespace GNAy.Capital.Trade.Controllers
                 //    }
                 //}
 
-                string strSKAPIVersion = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(account); //取得目前註冊SKAPI 版本及位元
-                _appCtrl.LogTrace($"SKAPI|Version={strSKAPIVersion}");
-                _appCtrl.MainForm.StatusBarItemBA2.Text = $"SKAPIVersionAndBit={strSKAPIVersion}";
+                string version = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(account); //取得目前註冊SKAPI 版本及位元
+                _appCtrl.LogTrace($"SKAPIVersionAndBit={version}", UniqueName);
+                _appCtrl.MainForm.StatusBarItemBA2.Text = $"SKAPIVersionAndBit={version}";
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
 
             return LoginAccountResult;
@@ -281,10 +282,12 @@ namespace GNAy.Capital.Trade.Controllers
         {
             Task.Factory.StartNew(() =>
             {
+                dwp = dwp.Trim();
+
+                DateTime start = _appCtrl.StartTrace(UniqueName, $"account={Account}|dwp=********");
+
                 try
                 {
-                    _appCtrl.LogTrace($"SKAPI|account={Account}|dwp=********");
-
                     if (m_SKQuoteLib != null)
                     {
                         QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
@@ -292,13 +295,11 @@ namespace GNAy.Capital.Trade.Controllers
                         return;
                     }
 
-                    dwp = dwp.Trim();
-                    _appCtrl.LogTrace($"SKAPI|account={Account}|dwp=********");
-
                     QuoteStatus = m_pSKCenter.SKCenterLib_LoginSetQuote(Account, dwp, "Y"); //Y:啟用報價 N:停用報價
+
                     if (QuoteStatus == 0 || (QuoteStatus >= 600 && QuoteStatus <= 699))
                     {
-                        _appCtrl.LogTrace($"SKAPI|QuoteStatus={QuoteStatus}|登入成功");
+                        _appCtrl.LogTrace($"QuoteStatus={QuoteStatus}|登入成功", UniqueName);
                         //skOrder1.LoginID = txtAccount.Text.Trim().ToUpper();
                         //skOrder1.LoginID2 = txtAccount2.Text.Trim().ToUpper();
 
@@ -339,18 +340,18 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _appCtrl.LogException(ex, ex.StackTrace);
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
                 }
                 finally
                 {
-                    _appCtrl.LogTrace("SKAPI|End");
+                    _appCtrl.EndTrace(start, UniqueName);
                 }
             });
         }
 
         public int Disconnect()
         {
-            _appCtrl.LogTrace($"SKAPI|Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -365,11 +366,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
 
             return -1;
@@ -377,12 +378,13 @@ namespace GNAy.Capital.Trade.Controllers
 
         public string IsConnected()
         {
-            _appCtrl.LogTrace($"SKAPI|Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
                 int isConnected = m_SKQuoteLib.SKQuoteLib_IsConnected(); //檢查目前報價的連線狀態 //0表示斷線。1表示連線中。2表示下載中
                 string result = string.Empty;
+
                 switch (isConnected)
                 {
                     case 0:
@@ -399,21 +401,22 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 int nCode = m_pSKReply.SKReplyLib_IsConnectedByID(Account);
+
                 if (nCode != 0 && nCode != 1 && nCode != 2)
                 {
                     LogAPIMessage(nCode);
                 }
 
-                _appCtrl.LogTrace($"SKAPI|{result}");
+                _appCtrl.LogTrace(result, UniqueName);
                 return result;
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
 
             return string.Empty;
@@ -421,7 +424,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void PrintProductList()
         {
-            _appCtrl.LogTrace($"SKAPI|Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -435,11 +438,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -481,24 +484,24 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (!_quoteIndexMap.TryGetValue(raw.nStockIdx, out QuoteData quote))
             {
-                _appCtrl.LogError($"SKAPI|!_quoteIndexMap.TryGetValue(raw.nStockIdx, out QuoteData quote)|nStockIdx={raw.nStockIdx}");
+                _appCtrl.LogError($"!_quoteIndexMap.TryGetValue(raw.nStockIdx, out QuoteData quote)|nStockIdx={raw.nStockIdx}", UniqueName);
                 return false;
             }
             else if (quote.Symbol != raw.bstrStockNo)
             {
-                _appCtrl.LogError($"SKAPI|quote.Symbol != raw.bstrStockNo|Symbol={quote.Symbol}|bstrStockNo={raw.bstrStockNo}");
+                _appCtrl.LogError($"quote.Symbol != raw.bstrStockNo|Symbol={quote.Symbol}|bstrStockNo={raw.bstrStockNo}", UniqueName);
                 return false;
             }
-            //else if (quote.Name != raw.bstrStockName)
-            //{
-            //    _appCtrl.LogError($"SKAPI|quote.Name != raw.bstrStockName|Name={quote.Name}|bstrStockName={raw.bstrStockName}");
-            //    return false;
-            //}
-            //else if ($"{quote.MarketGroup}" != raw.bstrMarketNo)
-            //{
-            //    _appCtrl.LogError($"SKAPI|quote.MarketGroup != raw.bstrMarketNo|MarketGroup={quote.MarketGroup}|bstrMarketNo={raw.bstrMarketNo}");
-            //    return false;
-            //}
+            else if (quote.Name != raw.bstrStockName)
+            {
+                _appCtrl.LogError($"quote.Name != raw.bstrStockName|Name={quote.Name}|bstrStockName={raw.bstrStockName}", UniqueName);
+                return false;
+            }
+            else if ($"{quote.MarketGroup}" != raw.bstrMarketNo)
+            {
+                _appCtrl.LogError($"quote.MarketGroup != raw.bstrMarketNo|MarketGroup={quote.MarketGroup}|bstrMarketNo={raw.bstrMarketNo}", UniqueName);
+                return false;
+            }
 
             bool firstTick = false;
 
@@ -565,7 +568,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (firstTick)
             {
-                _appCtrl.LogTrace($"SKAPI|開盤|{quote.MarketGroupEnum}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}");
+                _appCtrl.LogTrace($"開盤|{quote.MarketGroupEnum}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}", UniqueName);
             }
 
             return true;
@@ -578,10 +581,10 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
+            DateTime start = _appCtrl.StartTrace(UniqueName, quoteFile.FullName);
+
             try
             {
-                _appCtrl.LogTrace($"SKAPI|Start|{quoteFile.FullName}");
-
                 List<string> columnNames = new List<string>();
 
                 foreach (QuoteData quoteLast in QuoteData.ForeachQuoteFromCSVFile(quoteFile.FullName, columnNames))
@@ -602,11 +605,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -670,17 +673,17 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void GetProductInfo()
         {
-            _appCtrl.LogTrace($"SKAPI|Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
                 if (QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
                 {
-                    throw new ArgumentException($"SKAPI|QuoteStatus != {StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY}|QuoteStatusStr={QuoteStatusStr}");
+                    throw new ArgumentException($"QuoteStatus != {StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY}|QuoteStatusStr={QuoteStatusStr}");
                 }
                 else if (_quoteIndexMap.Count > 0)
                 {
-                    throw new ArgumentException($"SKAPI|_quoteCollection.Count > 0|Count={_quoteIndexMap.Count}|Quotes are subscribed.");
+                    throw new ArgumentException($"_quoteCollection.Count > 0|Count={_quoteIndexMap.Count}|Quotes are subscribed.");
                 }
 
                 QuoteFileNameBase = string.Empty;
@@ -703,13 +706,12 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (_quoteIndexMap.Count > 0)
                 {
-                    DateTime now = DateTime.Now;
                     int tradeDate = _quoteIndexMap.Values.Max(x => x.TradeDateRaw);
 
-                    if (now.Hour >= 14 && tradeDate <= int.Parse(now.ToString("yyyyMMdd")) && !IsAMMarket)
+                    if (start.Hour >= 14 && tradeDate <= int.Parse(start.ToString("yyyyMMdd")) && !IsAMMarket)
                     {
                         QuoteFileNameBase = $"{tradeDate}_{(int)Market.EDayNight.AM}";
-                        _appCtrl.LogTrace($"SKAPI|未訂閱或尚未收到夜盤商品基本資料|QuoteFileNameBase={QuoteFileNameBase}");
+                        _appCtrl.LogTrace($"未訂閱或尚未收到夜盤商品基本資料|QuoteFileNameBase={QuoteFileNameBase}", UniqueName);
                     }
                     else if (IsAMMarket)
                     {
@@ -725,11 +727,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -739,6 +741,8 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 return;
             }
+
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -750,7 +754,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return;
                 }
-                _appCtrl.LogTrace($"SKAPI|{quoteFile.FullName}");
+                start = _appCtrl.StartTrace(UniqueName, quoteFile.FullName);
 
                 List<string> columnNames = new List<string>();
 
@@ -765,13 +769,17 @@ namespace GNAy.Capital.Trade.Controllers
                         quoteSub.HighPrice = quoteLast.HighPrice;
                         quoteSub.LowPrice = quoteLast.LowPrice;
                         quoteSub.Recovered = true;
-                        _appCtrl.LogTrace($"SKAPI|檔案回補開盤|{quoteSub.MarketGroupEnum}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.OpenPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}");
+                        _appCtrl.LogTrace($"檔案回補開盤|{quoteSub.MarketGroupEnum}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.OpenPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}", UniqueName);
                     }
                 }
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -782,16 +790,15 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            _appCtrl.LogTrace($"SKAPI|Start");
-
             RecoverOpenQuotesFromFile();
 
             Task.Factory.StartNew(() =>
             {
+                DateTime start = _appCtrl.StartTrace();
+
                 try
                 {
-                    DateTime now = DateTime.Now;
-                    bool isHoliday = _appCtrl.Config.IsHoliday(now);
+                    bool isHoliday = _appCtrl.Config.IsHoliday(start);
 
                     foreach (QuoteData quote in _quoteIndexMap.Values)
                     {
@@ -803,7 +810,7 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
-                        else if (!_appCtrl.Config.IsAMMarket(now) && quote.MarketGroupEnum != Market.EGroup.Futures && quote.MarketGroupEnum != Market.EGroup.Options) //期貨選擇權夜盤，上市櫃已經收盤
+                        else if (!_appCtrl.Config.IsAMMarket(start) && quote.MarketGroupEnum != Market.EGroup.Futures && quote.MarketGroupEnum != Market.EGroup.Options) //期貨選擇權夜盤，上市櫃已經收盤
                         {
                             continue;
                         }
@@ -817,7 +824,7 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                         if (pageA < 0)
                         {
-                            _appCtrl.LogError($"SKAPI|Sub quote failed.|Symbol={quote.Symbol}|pageA={pageA}");
+                            _appCtrl.LogError($"Sub quote failed.|Symbol={quote.Symbol}|pageA={pageA}", UniqueName);
                         }
 
                         quote.Page = pageA;
@@ -834,18 +841,22 @@ namespace GNAy.Capital.Trade.Controllers
                             LogAPIMessage(nCode);
 
                             //nCode=3030|SK_SUBJECT_NO_QUOTE_SUBSCRIBE|即時行情連線數已達上限，行情訂閱功能受限
-                            _appCtrl.LogWarn($"SKAPI|QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}");
+                            _appCtrl.LogWarn($"QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}", UniqueName);
                             QuoteStatus = nCode + StatusCode.BaseWarnValue;
                         }
                         if (pageB < 0)
                         {
-                            _appCtrl.LogError($"SKAPI|Sub quote failed.|requests={requests}|pageB={pageB}");
+                            _appCtrl.LogError($"Sub quote failed.|requests={requests}|pageB={pageB}", UniqueName);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    _appCtrl.LogException(ex, ex.StackTrace);
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
                 }
             });
         }
@@ -854,7 +865,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             Task.Factory.StartNew(() =>
             {
-                _appCtrl.LogTrace($"SKAPI|Start|products={products}");
+                DateTime start = _appCtrl.StartTrace(UniqueName, $"products={products}");
 
                 try
                 {
@@ -869,17 +880,17 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                         if (pageA < 0)
                         {
-                            _appCtrl.LogError($"SKAPI|Recover quote failed.|Symbol={product}|pageA={pageA}");
+                            _appCtrl.LogError($"Recover quote failed.|Symbol={product}|pageA={pageA}", UniqueName);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    _appCtrl.LogException(ex, ex.StackTrace);
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
                 }
                 finally
                 {
-                    _appCtrl.LogTrace("SKAPI|End");
+                    _appCtrl.EndTrace(start, UniqueName);
                 }
             });
         }
@@ -891,7 +902,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void RequestKLine(string product = "")
         {
-            _appCtrl.LogTrace($"SKAPI|Start|product={product}");
+            DateTime start = _appCtrl.StartTrace(UniqueName, $"product={product}");
 
             try
             {
@@ -904,18 +915,17 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     foreach (QuoteData quote in _quoteIndexMap.Values)
                     {
-                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestKLineAM(quote.Symbol, 0, 1, 0);
-                        LogAPIMessage(nCode);
+                        RequestKLine(quote.Symbol);
                     }
                 }
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -926,10 +936,10 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
+            DateTime start = _appCtrl.StartTrace(UniqueName, $"folder={folder?.Name}|append={append}|prefix={prefix}|suffix={suffix}");
+
             try
             {
-                _appCtrl.LogTrace($"SKAPI|Start|folder={folder?.Name}|append={append}|prefix={prefix}|suffix={suffix}");
-
                 QuoteData[] quotes = _quoteIndexMap.Values.ToArray();
                 string path = Path.Combine(folder.FullName, $"{prefix}{QuoteFileNameBase}{suffix}.csv");
                 bool exists = File.Exists(path);
@@ -951,7 +961,7 @@ namespace GNAy.Capital.Trade.Controllers
                             }
                             catch (Exception ex)
                             {
-                                _appCtrl.LogException(ex, ex.StackTrace);
+                                _appCtrl.LogException(start, ex, ex.StackTrace);
                             }
                         }
                     }
@@ -963,18 +973,18 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                         catch (Exception ex)
                         {
-                            _appCtrl.LogException(ex, ex.StackTrace);
+                            _appCtrl.LogException(start, ex, ex.StackTrace);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -990,7 +1000,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int ReadCertification()
         {
-            _appCtrl.LogTrace("SKAPI|Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1035,11 +1045,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
 
             return ReadCertResult;
@@ -1047,7 +1057,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void GetGetOrderAccs()
         {
-            _appCtrl.LogTrace("SKAPI|Start");
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1059,11 +1069,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -1079,7 +1089,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void UnlockOrder(int marketType = -1)
         {
-            _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}");
+            DateTime start = _appCtrl.StartTrace(UniqueName, $"marketType={marketType}");
 
             try
             {
@@ -1091,7 +1101,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (marketType >= Market.CodeDescription.Count)
                 {
-                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
+                    throw new ArgumentException($"marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
                 }
 
                 for (int i = 0; i < Market.CodeDescription.Count; ++i)
@@ -1101,25 +1111,25 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         public void SetOrderMaxQty(int marketType = -1, int maxQty = -1)
         {
+            if (maxQty <= 0)
+            {
+                maxQty = _appCtrl.Settings.OrderMaxQty;
+            }
+
+            DateTime start = _appCtrl.StartTrace(UniqueName, $"marketType={marketType}|maxQty={maxQty}");
+
             try
             {
-                if (maxQty <= 0)
-                {
-                    maxQty = _appCtrl.Settings.OrderMaxQty;
-                }
-
-                _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}|maxQty={maxQty}");
-
                 if (marketType >= 0 && marketType < Market.CodeDescription.Count)
                 {
                     int m_nCode = m_pSKOrder.SetMaxQty(marketType, maxQty); //設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
@@ -1128,7 +1138,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (marketType >= Market.CodeDescription.Count)
                 {
-                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
+                    throw new ArgumentException($"marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
                 }
 
                 for (int i = 0; i < Market.CodeDescription.Count; ++i)
@@ -1138,25 +1148,25 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
         public void SetOrderMaxCount(int marketType = -1, int maxCount = -1)
         {
+            if (maxCount <= 0)
+            {
+                maxCount = _appCtrl.Settings.OrderMaxCount;
+            }
+
+            DateTime start = _appCtrl.StartTrace(UniqueName, $"marketType={marketType}|maxCount={maxCount}");
+
             try
             {
-                if (maxCount <= 0)
-                {
-                    maxCount = _appCtrl.Settings.OrderMaxCount;
-                }
-
-                _appCtrl.LogTrace($"SKAPI|Start|marketType={marketType}|maxCount={maxCount}");
-
                 if (marketType >= 0 && marketType < Market.CodeDescription.Count)
                 {
                     int m_nCode = m_pSKOrder.SetMaxCount(marketType, maxCount); //設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
@@ -1165,7 +1175,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (marketType >= Market.CodeDescription.Count)
                 {
-                    throw new ArgumentException($"SKAPI|Start|marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
+                    throw new ArgumentException($"marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
                 }
 
                 for (int i = 0; i < Market.CodeDescription.Count; ++i)
@@ -1175,11 +1185,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                _appCtrl.LogTrace("SKAPI|End");
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -1187,10 +1197,10 @@ namespace GNAy.Capital.Trade.Controllers
         {
             Task.Factory.StartNew(() =>
             {
+                DateTime start = _appCtrl.StartTrace(UniqueName, $"orderAcc={orderAcc}|format={format}");
+
                 try
                 {
-                    _appCtrl.LogTrace($"SKAPI|Start|orderAcc={orderAcc}|format={format}");
-
                     if (string.IsNullOrWhiteSpace(orderAcc))
                     {
                         foreach (OrderAccData acc in _futuresAccCollection)
@@ -1209,11 +1219,11 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _appCtrl.LogException(ex, ex.StackTrace);
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
                 }
                 finally
                 {
-                    _appCtrl.LogTrace("SKAPI|End");
+                    _appCtrl.EndTrace(start, UniqueName);
                 }
             });
         }

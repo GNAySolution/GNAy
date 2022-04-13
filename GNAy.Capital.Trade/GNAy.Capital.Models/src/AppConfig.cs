@@ -23,6 +23,8 @@ namespace GNAy.Capital.Models
         public readonly DirectoryInfo QuoteFolder;
 
         public readonly DirectoryInfo TriggerFolder;
+        public readonly DirectoryInfo StrategyFolder;
+        public readonly DirectoryInfo SentOrderFolder;
 
         /// <summary>
         /// 程式在正常時間啟動
@@ -82,6 +84,22 @@ namespace GNAy.Capital.Models
                 TriggerFolder = new DirectoryInfo(settings.TriggerFolderPath);
                 TriggerFolder.Create();
                 TriggerFolder.Refresh();
+            }
+
+            StrategyFolder = null;
+            if (!string.IsNullOrWhiteSpace(settings.StrategyFolderPath))
+            {
+                StrategyFolder = new DirectoryInfo(settings.StrategyFolderPath);
+                StrategyFolder.Create();
+                StrategyFolder.Refresh();
+            }
+
+            SentOrderFolder = null;
+            if (!string.IsNullOrWhiteSpace(settings.SentOrderFolderPath))
+            {
+                SentOrderFolder = new DirectoryInfo(settings.SentOrderFolderPath);
+                SentOrderFolder.Create();
+                SentOrderFolder.Refresh();
             }
 
             bool startDelayed = false; //因為一些異常情況，程式沒有在正常時間啟動

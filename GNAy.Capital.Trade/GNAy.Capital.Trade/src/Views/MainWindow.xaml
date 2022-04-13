@@ -24,7 +24,7 @@
         <GridSplitter Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
         <GridSplitter Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
         <Border Grid.Row="0" Grid.Column="0" Margin="2">
-            <Grid Background="#FFE5E5E5">
+            <Grid Background="#FFE5E5E5" x:Name="GridAA">
                 <TabControl x:Name="TabControlAA" Margin="0,0,0,30" SelectedIndex="0">
                     <TabItem Header="初始化">
                         <Grid Background="#FFE5E5E5">
@@ -78,7 +78,7 @@
             </Grid>
         </Border>
         <Border Grid.Row="1" Grid.Column="0" Margin="2">
-            <Grid Background="#FFE5E5E5">
+            <Grid Background="#FFE5E5E5" x:Name="GridBA">
                 <TabControl x:Name="TabControlBA" Margin="0,0,0,30" SelectedIndex="0">
                     <TabItem Header="API回覆">
                         <Grid Background="#FFE5E5E5">
@@ -134,7 +134,7 @@
             </Grid>
         </Border>
         <Border Grid.Row="2" Grid.Column="0" Margin="2">
-            <Grid Background="#FFE5E5E5">
+            <Grid Background="#FFE5E5E5" x:Name="GridCA">
                 <TabControl x:Name="TabControlCA" Margin="0,0,0,30" SelectedIndex="0">
                     <TabItem Header="AppLog">
                         <Grid Background="#FFE5E5E5">
@@ -168,6 +168,15 @@
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <!--https://stackoverflow.com/questions/4563081/how-to-format-timespan-in-xaml-->
+                                    <DataGridTextColumn Binding="{Binding Elapsed, StringFormat=\{0:ss\\.ffffff\}}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
@@ -205,7 +214,7 @@
             </Grid>
         </Border>
         <Border Grid.Row="0" Grid.Column="1" Margin="2">
-            <Grid Background="#FFE5E5E5">
+            <Grid Background="#FFE5E5E5" x:Name="GridAB">
                 <TabControl x:Name="TabControlAB" Margin="0,0,0,30" SelectedIndex="0">
                     <TabItem Header="一般報價">
                         <Grid Background="#FFE5E5E5">
@@ -496,7 +505,7 @@
             </Grid>
         </Border>
         <Border Grid.Row="1" Grid.Column="1" Margin="2">
-            <Grid Background="#FFE5E5E5">
+            <Grid Background="#FFE5E5E5" x:Name="GridBB">
                 <Button x:Name="ButtonCancelTrigger" Content="取消觸價監控" HorizontalAlignment="Left" Margin="10,11,0,0" VerticalAlignment="Top" Click="ButtonCancelTrigger_Click"/>
                 <Button x:Name="ButtonSaveTriggerRule" Content="儲存觸價條件" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Click="ButtonSaveTriggerRule_Click"/>
                 <Label Content="自定義觸價唯一鍵" HorizontalAlignment="Left" Margin="91,8,0,0" VerticalAlignment="Top"/>
@@ -665,7 +674,7 @@
             </Grid>
         </Border>
         <Border Grid.Row="2" Grid.Column="1" Margin="2">
-            <Grid Background="#FFE5E5E5">
+            <Grid Background="#FFE5E5E5" x:Name="GridCB">
                 <Label Content="股票權證下單帳號" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
                 <!--https://stackoverflow.com/questions/11259479/how-to-get-tooltip-binding-to-work-with-a-combobox-->
                 <!--https://stackoverflow.com/questions/16197928/wpf-combobox-binding-to-observablecollection-->

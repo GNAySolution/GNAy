@@ -10,7 +10,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -23,6 +22,7 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         public readonly DateTime CreatedTime;
+        public readonly string UniqueName;
         public readonly MainWindow MainForm;
 
         public readonly string ProcessName;
@@ -44,6 +44,7 @@ namespace GNAy.Capital.Trade.Controllers
         public AppController(MainWindow mainForm)
         {
             CreatedTime = DateTime.Now;
+            UniqueName = GetType().Name.Replace("Controller", "Ctrl");
             MainForm = mainForm;
 
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
@@ -62,7 +63,7 @@ namespace GNAy.Capital.Trade.Controllers
             Version newVer = new Version(newSetting.Version);
             if (Config.Version < newVer)
             {
-                LogError($"AppCrtl|設定檔({Config.Archive.Name})版本過舊({Config.Version} < {newVer})");
+                LogError($"設定檔({Config.Archive.Name})版本過舊({Config.Version} < {newVer})", UniqueName);
                 //TODO: Migrate old config to new version.
             }
             if (Config.TriggerFolder != null && string.IsNullOrWhiteSpace(Settings.TriggerFileFormat))
@@ -98,13 +99,14 @@ namespace GNAy.Capital.Trade.Controllers
         protected AppController() : this(null)
         { }
 
-        private void AppendLog(LogLevel level, string msg, int lineNumber, string memberName)
+        private void AppendLog(LogLevel level, string msg, TimeSpan? elapsed, int lineNumber, string memberName)
         {
             AppLogInDataGrid log = new AppLogInDataGrid()
             {
                 Project = ProcessName,
                 Level = level.Name.ToUpper(),
                 ThreadID = Thread.CurrentThread.ManagedThreadId,
+                Elapsed = elapsed,
                 Message = msg,
                 CallerLineNumber = lineNumber,
                 CallerMemberName = memberName,
@@ -136,96 +138,123 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
-        public void LogTrace(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogTrace(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
+            memberName = $"{uniqueName}.{memberName}";
             _logger.Trace(string.Join("|", msg, lineNumber, memberName));
-            AppendLog(LogLevel.Trace, msg, lineNumber, memberName);
+            AppendLog(LogLevel.Trace, msg, elapsed, lineNumber, memberName);
         }
 
-        public void LogDebug(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public DateTime StartTrace()
         {
+            return DateTime.Now;
+        }
+
+        public DateTime StartTrace(string uniqueName, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            DateTime now = DateTime.Now;
+            LogTrace(msg, uniqueName, null, lineNumber, memberName);
+            return now;
+        }
+
+        public void EndTrace(DateTime startTime, string uniqueName, string msg = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            LogTrace(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
+        }
+
+        public void LogDebug(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            memberName = $"{uniqueName}.{memberName}";
             _logger.Debug(string.Join("|", msg, lineNumber, memberName));
-            AppendLog(LogLevel.Debug, msg, lineNumber, memberName);
+            AppendLog(LogLevel.Debug, msg, elapsed, lineNumber, memberName);
         }
 
-        public void LogInfo(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogInfo(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
+            memberName = $"{uniqueName}.{memberName}";
             _logger.Info(string.Join("|", msg, lineNumber, memberName));
-            AppendLog(LogLevel.Info, msg, lineNumber, memberName);
+            AppendLog(LogLevel.Info, msg, elapsed, lineNumber, memberName);
         }
 
-        public void LogWarn(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogWarn(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
+            memberName = $"{uniqueName}.{memberName}";
             _logger.Warn(string.Join("|", msg, lineNumber, memberName));
-            AppendLog(LogLevel.Warn, msg, lineNumber, memberName);
+            AppendLog(LogLevel.Warn, msg, elapsed, lineNumber, memberName);
         }
 
-        public void LogError(string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogError(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
+            memberName = $"{uniqueName}.{memberName}";
             _logger.Error(string.Join("|", msg, lineNumber, memberName));
-            AppendLog(LogLevel.Error, msg, lineNumber, memberName);
+            AppendLog(LogLevel.Error, msg, elapsed, lineNumber, memberName);
         }
 
-        public void LogException(Exception ex, string stackTrace, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogException(Exception ex, string stackTrace, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            string _msg = string.Join("|", ex.Message, ex.GetType().Name, $"{Environment.NewLine}{stackTrace}");
-            _logger.Error(_msg);
-            AppendLog(LogLevel.Error, _msg, lineNumber, memberName);
+            string msg = string.Join("|", ex.Message, ex.GetType().Name, $"{Environment.NewLine}{stackTrace}");
+            _logger.Error(msg);
+            AppendLog(LogLevel.Error, msg, elapsed, lineNumber, memberName);
         }
 
-        public void Log(int statusCode, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogException(DateTime startTime, Exception ex, string stackTrace, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            LogException(ex, stackTrace, (DateTime.Now - startTime), lineNumber, memberName);
+        }
+
+        public void Log(int statusCode, string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             if (statusCode <= StatusCode.BaseTraceValue)
             {
-                LogError(msg, lineNumber, memberName);
+                LogError(msg, uniqueName, elapsed, lineNumber, memberName);
             }
             else if (statusCode % StatusCode.BaseTraceValue == 0)
             {
-                LogError(msg, lineNumber, memberName);
+                LogError(msg, uniqueName, elapsed, lineNumber, memberName);
             }
             else if (statusCode < StatusCode.BaseDebugValue)
             {
-                LogTrace(msg, lineNumber, memberName);
+                LogTrace(msg, uniqueName, elapsed, lineNumber, memberName);
             }
             else if (statusCode < StatusCode.BaseInfoValue)
             {
-                LogDebug(msg, lineNumber, memberName);
+                LogDebug(msg, uniqueName, elapsed, lineNumber, memberName);
             }
             else if (statusCode < StatusCode.BaseWarnValue)
             {
-                LogInfo(msg, lineNumber, memberName);
+                LogInfo(msg, uniqueName, elapsed, lineNumber, memberName);
             }
             else if (statusCode < StatusCode.BaseErrorValue)
             {
-                LogWarn(msg, lineNumber, memberName);
+                LogWarn(msg, uniqueName, elapsed, lineNumber, memberName);
             }
             else
             {
-                LogError(msg, lineNumber, memberName);
+                LogError(msg, uniqueName, elapsed, lineNumber, memberName);
             }
         }
 
-        private void Log(LogLevel level, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        private void Log(LogLevel level, string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             if (level == null || level == LogLevel.Trace)
             {
-                LogTrace(msg, lineNumber, memberName);
+                LogTrace(msg, uniqueName, elapsed, lineNumber, memberName);
             }
             else if (level == LogLevel.Debug)
             {
-                LogDebug(msg, lineNumber, memberName);
+                LogDebug(msg, uniqueName, elapsed, lineNumber, memberName);
             }
             else if (level == LogLevel.Info)
             {
-                LogInfo(msg, lineNumber, memberName);
+                LogInfo(msg, uniqueName, elapsed, lineNumber, memberName);
             }
             else if (level == LogLevel.Warn)
             {
-                LogWarn(msg, lineNumber, memberName);
+                LogWarn(msg, uniqueName, elapsed, lineNumber, memberName);
             }
             else
             {
-                LogError(msg, lineNumber, memberName);
+                LogError(msg, uniqueName, elapsed, lineNumber, memberName);
             }
         }
 
@@ -297,8 +326,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void Exit(string msg = "", LogLevel level = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            LogTrace("AppCrtl|Start");
-
+            DateTime start = StartTrace();
             int exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseErrorValue;
 
             try
@@ -323,7 +351,7 @@ namespace GNAy.Capital.Trade.Controllers
                     exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseWarnValue;
                 }
 
-                Log(level, string.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"exitCode={exitCode}|{msg}", lineNumber, memberName);
+                Log(level, string.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"exitCode={exitCode}|{msg}", UniqueName, null, lineNumber, memberName);
 
                 if (Capital != null)
                 {
@@ -336,25 +364,23 @@ namespace GNAy.Capital.Trade.Controllers
 
                 //TODO: Send info mail.
 
+                EndTrace(start, UniqueName);
+
                 Thread.Sleep(3 * 1000);
                 Environment.Exit(exitCode);
             }
             catch (Exception ex)
             {
-                LogException(ex, ex.StackTrace);
+                LogException(start, ex, ex.StackTrace);
 
                 Thread.Sleep(3 * 1000);
                 Environment.Exit(exitCode);
-            }
-            finally
-            {
-                LogTrace("AppCrtl|End");
             }
         }
 
         public bool InitialCapital()
         {
-            LogTrace("AppCrtl|Start");
+            DateTime start = StartTrace();
 
             try
             {
@@ -368,11 +394,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                LogException(ex, ex.StackTrace);
+                LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                LogTrace("AppCrtl|End");
+                EndTrace(start, UniqueName);
             }
 
             return false;
@@ -380,7 +406,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public bool SetTriggerRule()
         {
-            LogTrace("AppCrtl|Start");
+            DateTime start = StartTrace();
 
             try
             {
@@ -399,11 +425,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
             catch (Exception ex)
             {
-                LogException(ex, ex.StackTrace);
+                LogException(start, ex, ex.StackTrace);
             }
             finally
             {
-                LogTrace("AppCrtl|End");
+                EndTrace(start, UniqueName);
             }
 
             return false;
