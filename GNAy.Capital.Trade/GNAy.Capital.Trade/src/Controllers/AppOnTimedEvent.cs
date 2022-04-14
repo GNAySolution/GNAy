@@ -45,7 +45,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                Trigger.UpdateStatus();
+                Trigger.UpdateStatus(e.SignalTime);
             }
             catch (Exception ex)
             {

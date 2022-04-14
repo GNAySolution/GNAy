@@ -233,7 +233,7 @@ namespace GNAy.Capital.Models
 
         public string ToLog()
         {
-            return $"{StatusDes},{PrimaryKey},{ColumnProperty}({ColumnName}),{Comment}";
+            return $"{StatusDes},{PrimaryKey},{ColumnProperty}({ColumnName}),{CancelDes},{Comment}";
         }
 
         public string ToCSVString()

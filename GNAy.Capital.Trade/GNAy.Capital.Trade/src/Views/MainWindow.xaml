@@ -538,9 +538,11 @@
                 <Label Content="移動停利價差(%)" HorizontalAlignment="Left" Margin="466,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyMoveStopWin" Text="移動停利價差(%)" ToolTip="移動停利價差(%)" HorizontalAlignment="Left" Margin="466,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="停損後執行" HorizontalAlignment="Left" Margin="591,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyAfterStopLoss" Text="停損後執行" ToolTip="停損後接續執行指定觸價或策略" HorizontalAlignment="Left" Margin="591,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxStrategyAfterStopLoss" Text="停損後執行觸價" ToolTip="停損後接續執行觸價" HorizontalAlignment="Left" Margin="591,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxTriggerAfterStopLoss" Text="停損後執行策略" ToolTip="停損後接續執行策略" HorizontalAlignment="Left" Margin="591,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="停利後執行" HorizontalAlignment="Left" Margin="716,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyAfterStopWin" Text="停利後執行" ToolTip="停利後接續執行指定觸價或策略" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxStrategyAfterStopWin" Text="停利後執行觸價" ToolTip="停利後接續執行觸價" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxTriggerAfterStopWin" Text="停利後執行策略" ToolTip="停利後接續執行策略" HorizontalAlignment="Left" Margin="716,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="收盤獲利減倉或CD單" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyOffsetWin" Text="CD:seconds" ToolTip="收盤對獲利部位做減倉，或CD單" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="收盤損失減倉" HorizontalAlignment="Left" Margin="966,57,0,0" VerticalAlignment="Top"/>
