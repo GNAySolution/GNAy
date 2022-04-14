@@ -226,8 +226,6 @@ namespace GNAy.Capital.Trade.Controllers
         /// </summary>
         public void UpdateStatus()
         {
-            DateTime start = _appCtrl.StartTrace();
-
             while (_waitToReset.Count > 0)
             {
                 _waitToReset.TryDequeue(out QuoteData quote);
@@ -327,7 +325,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                        _appCtrl.LogException(ex, ex.StackTrace);
                     }
                 });
 
@@ -353,7 +351,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                    _appCtrl.LogException(ex, ex.StackTrace);
                 }
             }
 

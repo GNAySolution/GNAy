@@ -38,22 +38,15 @@ namespace GNAy.Capital.Trade.Controllers
 
                 _appCtrl.MainForm.InvokeRequired(delegate
                 {
-                    try
+                    if (Market.CodeMap.TryGetValue(cells[0], out Market.EType marketType) && marketType == Market.EType.Stock)
                     {
-                        if (Market.CodeMap.TryGetValue(cells[0], out Market.EType marketType) && marketType == Market.EType.Stock)
-                        {
-                            _stockAccCollection.Add(acc);
-                            _appCtrl.MainForm.ComboBoxStockAccs.SelectedIndex = 0;
-                        }
-                        else if (marketType == Market.EType.Futures) //cells[0] == "OF"
-                        {
-                            _futuresAccCollection.Add(acc);
-                            _appCtrl.MainForm.ComboBoxFuturesAccs.SelectedIndex = 0;
-                        }
+                        _stockAccCollection.Add(acc);
+                        _appCtrl.MainForm.ComboBoxStockAccs.SelectedIndex = 0;
                     }
-                    catch (Exception ex)
+                    else if (marketType == Market.EType.Futures) //cells[0] == "OF"
                     {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                        _futuresAccCollection.Add(acc);
+                        _appCtrl.MainForm.ComboBoxFuturesAccs.SelectedIndex = 0;
                     }
                 });
             }

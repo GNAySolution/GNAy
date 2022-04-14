@@ -11,7 +11,7 @@ namespace GNAy.Capital.Models
 {
     public class DayTrade
     {
-        public enum Enum
+        public enum Enum : short
         {
             [Description("否")]
             No, //0

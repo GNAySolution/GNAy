@@ -11,7 +11,7 @@ namespace GNAy.Capital.Models
 {
     public class PriceKind
     {
-        public enum Enum
+        public enum Enum : short
         {
             [Description("限價")]
             L, //0

@@ -38,18 +38,11 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _appCtrl.MainForm.InvokeRequired(delegate
                 {
-                    try
-                    {
-                        _appCtrl.Trigger?.ClearQuotes();
+                    _appCtrl.Trigger?.ClearQuotes();
 
-                        _quoteIndexMap.Clear();
-                        _quoteCollection.Clear();
-                        QuoteFileNameBase = string.Empty;
-                    }
-                    catch (Exception ex)
-                    {
-                        _appCtrl.LogException(ex, ex.StackTrace);
-                    }
+                    _quoteIndexMap.Clear();
+                    _quoteCollection.Clear();
+                    QuoteFileNameBase = string.Empty;
                 });
             }
         }
@@ -113,48 +106,7 @@ namespace GNAy.Capital.Trade.Controllers
                 //    quote = quote.DeepClone();
                 //}
 
-                quote.Count = nPtr;
-                if (nDate > quote.TradeDateRaw)
-                {
-                    quote.TradeDateRaw = nDate;
-                }
-                quote.MatchedTimeHHmmss = lTimehms;
-                quote.MatchedTimefff = lTimemillismicros;
-                quote.BestBuyPrice = nBid / (decimal)Math.Pow(10, quote.DecimalPos);
-                quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
-                quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
-                quote.DealQty = nQty;
-                if (quote.OpenPrice == 0 && nSimulate.IsRealTrading() && quote.DealQty > 0) //開盤第一筆成交
-                {
-                    quote.OpenPrice = quote.DealPrice;
-                }
-                quote.Simulate = nSimulate;
-
-                quote.Updater = nameof(OnNotifyHistoryTicks);
-                quote.UpdateTime = DateTime.Now;
-
-                if (quote.Simulate.IsRealTrading())
-                {
-                    if (quote.OpenPrice != 0)
-                    {
-                        if (quote.HighPrice < quote.DealPrice)
-                        {
-                            quote.HighPrice = quote.DealPrice;
-                        }
-                        if (quote.LowPrice > quote.DealPrice || quote.LowPrice == 0)
-                        {
-                            quote.LowPrice = quote.DealPrice;
-                        }
-                    }
-                }
-
-                QuoteLastUpdated = quote;
-
-                if (!string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileRecoverPrefix))
-                {
-                    string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{sMarketNo}_{nStockIdx}" : quote.Symbol;
-                    SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_", string.Empty, quote);
-                }
+                OnNotifyHistoryTicks(quote, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
             }
             catch (Exception ex)
             {
@@ -187,59 +139,13 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.LogError($"!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote)|nStockIdx={nStockIdx}", UniqueName);
                     return;
                 }
-                else if (quote.MarketGroup != sMarketNo)
-                {
-                    _appCtrl.LogError($"quote.MarketGroup != raw.bstrMarketNo|MarketGroup={quote.MarketGroup}|sMarketNo={sMarketNo}", UniqueName);
-                    return;
-                }
+                //else if (quote.MarketGroup != sMarketNo)
+                //{
+                //    _appCtrl.LogError($"quote.MarketGroup != raw.bstrMarketNo|MarketGroup={quote.MarketGroup}|sMarketNo={sMarketNo}", UniqueName);
+                //    return;
+                //}
 
-                bool firstTick = false;
-
-                quote.Count = nPtr;
-                if (nDate > quote.TradeDateRaw)
-                {
-                    quote.TradeDateRaw = nDate;
-                }
-                quote.MatchedTimeHHmmss = lTimehms;
-                quote.MatchedTimefff = lTimemillismicros;
-                quote.BestBuyPrice = nBid / (decimal)Math.Pow(10, quote.DecimalPos);
-                quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
-                quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
-                quote.DealQty = nQty;
-                if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && _appCtrl.Config.StartOnTime)
-                {
-                    if (quote.OpenPrice == 0 && nSimulate.IsRealTrading() && quote.DealQty > 0) //開盤第一筆成交
-                    {
-                        quote.OpenPrice = quote.DealPrice;
-                        firstTick = true;
-                    }
-                }
-                quote.Simulate = nSimulate;
-
-                quote.Updater = nameof(OnNotifyTicks);
-                quote.UpdateTime = DateTime.Now;
-
-                if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
-                {
-                    if (quote.OpenPrice != 0)
-                    {
-                        if (quote.HighPrice < quote.DealPrice)
-                        {
-                            quote.HighPrice = quote.DealPrice;
-                        }
-                        if (quote.LowPrice > quote.DealPrice || quote.LowPrice == 0)
-                        {
-                            quote.LowPrice = quote.DealPrice;
-                        }
-                    }
-                }
-
-                QuoteLastUpdated = quote;
-
-                if (firstTick)
-                {
-                    _appCtrl.LogTrace($"開盤|{quote.MarketGroupEnum}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}", UniqueName);
-                }
+                OnNotifyTicks(quote, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
             }
             catch (Exception ex)
             {

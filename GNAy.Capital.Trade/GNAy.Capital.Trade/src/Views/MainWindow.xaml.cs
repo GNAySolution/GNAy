@@ -613,6 +613,10 @@ namespace GNAy.Capital.Trade
                 {
                     cb = ComboBoxFuturesAccs;
                 }
+                else if (ComboBoxOrderProduct.IsMouseOver && !ComboBoxOrderProduct.IsFocused)
+                {
+                    cb = ComboBoxOrderProduct;
+                }
                 else if (ComboBoxOrderBuySell.IsMouseOver && !ComboBoxOrderBuySell.IsFocused)
                 {
                     cb = ComboBoxOrderBuySell;
@@ -880,7 +884,7 @@ namespace GNAy.Capital.Trade
                         ButtonGetOrderAccs_Click(null, null);
                     });
 
-                    SpinWait.SpinUntil(() => _appCtrl.Capital.GetFuturesAccCount() > 0, 8 * 1000);
+                    SpinWait.SpinUntil(() => _appCtrl.Capital.FuturesAccCount > 0, 8 * 1000);
                     _appCtrl.Capital.GetOpenInterestAsync();
                     _appCtrl.Capital.UnlockOrder();
                     _appCtrl.Capital.SetOrderMaxQty();

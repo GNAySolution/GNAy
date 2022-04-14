@@ -47,6 +47,8 @@
     <Compile Include="src\AppConfig.cs" />
     <Compile Include="src\APIReplyData.cs" />
     <Compile Include="src\BS.cs" />
+    <Compile Include="src\StrategyStatus.cs" />
+    <Compile Include="src\StrategyData.cs" />
     <Compile Include="src\WL.cs" />
     <Compile Include="src\StrategyStartPrinciple.cs" />
     <Compile Include="src\DayTrade.cs" />
