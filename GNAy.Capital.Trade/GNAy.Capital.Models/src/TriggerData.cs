@@ -37,13 +37,7 @@ namespace GNAy.Capital.Models
         public DateTime CreatedTime
         {
             get { return _createdTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _createdTime, value))
-                {
-                    OnPropertyChanged(nameof(CreatedDate));
-                }
-            }
+            set { OnPropertiesChanged(ref _createdTime, value, nameof(CreatedTime), nameof(CreatedDate)); }
         }
 
         private string _updater;
@@ -62,13 +56,7 @@ namespace GNAy.Capital.Models
         public DateTime UpdateTime
         {
             get { return _updateTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _updateTime, value))
-                {
-                    OnPropertyChanged(nameof(UpdateDate));
-                }
-            }
+            set { OnPropertiesChanged(ref _updateTime, value, nameof(UpdateTime), nameof(UpdateDate)); }
         }
 
         private int _status;
@@ -76,13 +64,7 @@ namespace GNAy.Capital.Models
         public int Status
         {
             get { return _status; }
-            set
-            {
-                if (OnPropertyChanged(ref _status, value))
-                {
-                    OnPropertyChanged(nameof(StatusDes));
-                }
-            }
+            set { OnPropertiesChanged(ref _status, value, nameof(Status), nameof(StatusDes)); }
         }
         public TriggerStatus.Enum StatusEnum
         {
@@ -148,13 +130,7 @@ namespace GNAy.Capital.Models
         public int Cancel
         {
             get { return _cancel; }
-            set
-            {
-                if (OnPropertyChanged(ref _cancel, value))
-                {
-                    OnPropertyChanged(nameof(CancelDes));
-                }
-            }
+            set { OnPropertiesChanged(ref _cancel, value, nameof(Cancel), nameof(CancelDes)); }
         }
         public TriggerCancel.Enum CancelEnum
         {

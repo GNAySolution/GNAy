@@ -20,13 +20,7 @@ namespace GNAy.Tools.NET47.Models
         public DateTime CreatedTime
         {
             get { return _createdTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _createdTime, value))
-                {
-                    OnPropertyChanged(nameof(CreatedDate));
-                }
-            }
+            set { OnPropertiesChanged(ref _createdTime, value, nameof(CreatedTime), nameof(CreatedDate)); }
         }
 
         [Column("專案", -1)]

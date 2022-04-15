@@ -132,7 +132,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (firstTick)
             {
-                _appCtrl.LogTrace($"開盤|{quote.MarketGroupEnum}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}", UniqueName);
+                _appCtrl.LogTrace($"開盤|{quote.ToCSVString()}", UniqueName);
             }
 
             return true;
@@ -231,7 +231,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (firstTick)
             {
-                _appCtrl.LogTrace($"開盤|{quote.MarketGroupEnum}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}", UniqueName);
+                _appCtrl.LogTrace($"開盤|{quote.ToCSVString()}", UniqueName);
             }
         }
 

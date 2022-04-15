@@ -258,8 +258,11 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    LogAPIMessage(LoginUserResult);
+                    //1097 SK_ERROR_TELNET_LOGINSERVER_FAIL Telnet登入主機失敗，請確認您的環境(Firewall及hosts…等)
+                    //1098 SK_ERROR_TELNET_AGREEMENTSERVER_FAIL Telnet同意書查詢主機失敗，請確認您的環境(Firewall及hosts…等)
+                    (LogLevel, string) apiReturn = LogAPIMessage(LoginUserResult);
                     m_pSKCenter = null;
+                    _appCtrl.Exit(apiReturn.Item2, apiReturn.Item1);
                     return LoginUserResult;
                 }
 

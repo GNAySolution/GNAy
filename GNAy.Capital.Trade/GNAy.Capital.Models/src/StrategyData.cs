@@ -36,13 +36,7 @@ namespace GNAy.Capital.Models
         public DateTime CreatedTime
         {
             get { return _createdTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _createdTime, value))
-                {
-                    OnPropertyChanged(nameof(CreatedDate));
-                }
-            }
+            set { OnPropertiesChanged(ref _createdTime, value, nameof(CreatedTime), nameof(CreatedDate)); }
         }
 
         private string _updater;
@@ -61,13 +55,7 @@ namespace GNAy.Capital.Models
         public DateTime UpdateTime
         {
             get { return _updateTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _updateTime, value))
-                {
-                    OnPropertyChanged(nameof(UpdateDate));
-                }
-            }
+            set { OnPropertiesChanged(ref _updateTime, value, nameof(UpdateTime), nameof(UpdateDate)); }
         }
 
         private int _status;
@@ -75,13 +63,7 @@ namespace GNAy.Capital.Models
         public int Status
         {
             get { return _status; }
-            set
-            {
-                if (OnPropertyChanged(ref _status, value))
-                {
-                    OnPropertyChanged(nameof(StatusDes));
-                }
-            }
+            set { OnPropertiesChanged(ref _status, value, nameof(Status), nameof(StatusDes)); }
         }
         public StrategyStatus.Enum StatusEnum
         {
@@ -107,26 +89,14 @@ namespace GNAy.Capital.Models
         public string Branch
         {
             get { return _branch; }
-            set
-            {
-                if (OnPropertyChanged(ref _branch, value))
-                {
-                    OnPropertyChanged(nameof(FullAccount));
-                }
-            }
+            set { OnPropertiesChanged(ref _branch, value, nameof(Branch), nameof(FullAccount)); }
         }
         private string _account;
         [Column("下單帳號", 8)]
         public string Account
         {
             get { return _account; }
-            set
-            {
-                if (OnPropertyChanged(ref _account, value))
-                {
-                    OnPropertyChanged(nameof(FullAccount));
-                }
-            }
+            set { OnPropertiesChanged(ref _account, value, nameof(Account), nameof(FullAccount)); }
         }
         [Column("下單帳號", -1)]
         public string FullAccount => $"{Branch}{Account}";
@@ -146,13 +116,7 @@ namespace GNAy.Capital.Models
         public short BS
         {
             get { return _bs; }
-            set
-            {
-                if (OnPropertyChanged(ref _bs, value))
-                {
-                    OnPropertyChanged(nameof(BSDes));
-                }
-            }
+            set { OnPropertiesChanged(ref _bs, value, nameof(BS), nameof(BSDes)); }
         }
         public OrderBS.Enum BSEnum
         {
@@ -168,13 +132,7 @@ namespace GNAy.Capital.Models
         public short TradeType
         {
             get { return _tradeType; }
-            set
-            {
-                if (OnPropertyChanged(ref _tradeType, value))
-                {
-                    OnPropertyChanged(nameof(TradeTypeDes));
-                }
-            }
+            set { OnPropertiesChanged(ref _tradeType, value, nameof(TradeType), nameof(TradeTypeDes)); }
         }
         public OrderTradeType.Enum TradeTypeEnum
         {
@@ -190,13 +148,7 @@ namespace GNAy.Capital.Models
         public short DayTrade
         {
             get { return _dayTrade; }
-            set
-            {
-                if (OnPropertyChanged(ref _dayTrade, value))
-                {
-                    OnPropertyChanged(nameof(DayTradeDes));
-                }
-            }
+            set { OnPropertiesChanged(ref _dayTrade, value, nameof(DayTrade), nameof(DayTradeDes)); }
         }
         public OrderDayTrade.Enum DayTradeEnum
         {
@@ -212,13 +164,7 @@ namespace GNAy.Capital.Models
         public short Position
         {
             get { return _position; }
-            set
-            {
-                if (OnPropertyChanged(ref _position, value))
-                {
-                    OnPropertyChanged(nameof(PositionDes));
-                }
-            }
+            set { OnPropertiesChanged(ref _position, value, nameof(Position), nameof(PositionDes)); }
         }
         public OrderPosition.Enum PositionEnum
         {
@@ -244,6 +190,40 @@ namespace GNAy.Capital.Models
             get { return _quantity; }
             set { OnPropertyChanged(ref _quantity, value); }
         }
+
+        private string _stopLossPrice;
+        [Column("停損價格設定", 20)]
+        public string StopLossPrice
+        {
+            get { return _stopLossPrice; }
+            set { OnPropertiesChanged(ref _stopLossPrice, value, nameof(StopLossPrice), nameof(StopLoss)); }
+        }
+        private decimal _stopLossPct;
+        [Column("停損價%設定", 21)]
+        public decimal StopLossPct
+        {
+            get { return _stopLossPct; }
+            set { OnPropertiesChanged(ref _stopLossPct, value, nameof(StopLossPct), nameof(StopLoss)); }
+        }
+        [Column("停損設定", -1)]
+        public string StopLoss => $"{StopLossPrice} ({StopLossPct:0.00}%)";
+
+        private string _afterStopLossPrice;
+        [Column("停損價格觸發", 22)]
+        public string AfterStopLossPrice
+        {
+            get { return _afterStopLossPrice; }
+            set { OnPropertiesChanged(ref _afterStopLossPrice, value, nameof(AfterStopLossPrice), nameof(AfterStopLoss)); }
+        }
+        private decimal _afterStopLossPct;
+        [Column("停損價%觸發", 23)]
+        public decimal AfterStopLossPct
+        {
+            get { return _afterStopLossPct; }
+            set { OnPropertiesChanged(ref _afterStopLossPct, value, nameof(AfterStopLossPct), nameof(AfterStopLoss)); }
+        }
+        [Column("停損觸發", -1)]
+        public string AfterStopLoss => $"{AfterStopLossPrice} ({AfterStopLossPct:0.00}%)";
 
         //
 
@@ -275,6 +255,10 @@ namespace GNAy.Capital.Models
             PositionEnum = OrderPosition.Enum.Open;
             Price = OrderPrice.P;
             Quantity = 1;
+            StopLossPrice = string.Empty;
+            StopLossPct = 0;
+            AfterStopLossPrice = string.Empty;
+            AfterStopLossPct = 0;
             //
             Comment = string.Empty;
         }

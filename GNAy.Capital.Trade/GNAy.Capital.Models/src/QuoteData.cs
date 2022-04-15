@@ -35,13 +35,7 @@ namespace GNAy.Capital.Models
         public DateTime CreatedTime
         {
             get { return _createdTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _createdTime, value))
-                {
-                    OnPropertyChanged(nameof(CreatedDate));
-                }
-            }
+            set { OnPropertiesChanged(ref _createdTime, value, nameof(CreatedTime), nameof(CreatedDate)); }
         }
 
         private string _updater;
@@ -60,13 +54,7 @@ namespace GNAy.Capital.Models
         public DateTime UpdateTime
         {
             get { return _updateTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _updateTime, value))
-                {
-                    OnPropertyChanged(nameof(UpdateDate));
-                }
-            }
+            set { OnPropertiesChanged(ref _updateTime, value, nameof(UpdateTime), nameof(UpdateDate)); }
         }
 
         private string _symbol;
@@ -111,17 +99,7 @@ namespace GNAy.Capital.Models
         public decimal DealPrice
         {
             get { return _dealPrice; }
-            set
-            {
-                if (OnPropertyChanged(ref _dealPrice, value))
-                {
-                    OnPropertyChanged(nameof(UpDown));
-                    OnPropertyChanged(nameof(UpDownPct));
-                    OnPropertyChanged(nameof(DealHigh));
-                    OnPropertyChanged(nameof(DealLow));
-                    OnPropertyChanged(nameof(RowBackground));
-                }
-            }
+            set { OnPropertiesChanged(ref _dealPrice, value, nameof(DealPrice), nameof(UpDown), nameof(UpDownPct), nameof(DealHigh), nameof(DealLow), nameof(RowBackground)); }
         }
 
         private int _dealQty;
@@ -175,14 +153,7 @@ namespace GNAy.Capital.Models
         public decimal OpenPrice
         {
             get { return _openPrice; }
-            set
-            {
-                if (OnPropertyChanged(ref _openPrice, value))
-                {
-                    OnPropertyChanged(nameof(OpenUpDown));
-                    OnPropertyChanged(nameof(OpenLastCloseUpDown));
-                }
-            }
+            set { OnPropertiesChanged(ref _openPrice, value, nameof(OpenPrice), nameof(OpenUpDown), nameof(OpenLastCloseUpDown)); }
         }
 
         [TradeColumn("開盤漲跌", "開盤漲", 18, StringFormat = "0.00", IsTrigger = true)]
@@ -193,12 +164,7 @@ namespace GNAy.Capital.Models
         public decimal HighPrice
         {
             get { return _highPrice; }
-            set
-            {
-                OnPropertyChanged(ref _highPrice, value);
-                OnPropertyChanged(nameof(DealHigh));
-                OnPropertyChanged(nameof(HighLow));
-            }
+            set { OnPropertiesChanged(ref _highPrice, value, nameof(HighPrice), nameof(DealHigh), nameof(HighLow)); }
         }
 
         [TradeColumn("成交最高價差", "成高差", 20, StringFormat = "0.00", IsTrigger = true)]
@@ -209,12 +175,7 @@ namespace GNAy.Capital.Models
         public decimal LowPrice
         {
             get { return _lowPrice; }
-            set
-            {
-                OnPropertyChanged(ref _lowPrice, value);
-                OnPropertyChanged(nameof(DealLow));
-                OnPropertyChanged(nameof(HighLow));
-            }
+            set { OnPropertiesChanged(ref _lowPrice, value, nameof(LowPrice), nameof(DealLow), nameof(HighLow)); }
         }
 
         [TradeColumn("成交最低價差", "成低差", 22, StringFormat = "0.00", IsTrigger = true)]
@@ -228,16 +189,7 @@ namespace GNAy.Capital.Models
         public decimal Reference
         {
             get { return _reference; }
-            set
-            {
-                if (OnPropertyChanged(ref _reference, value))
-                {
-                    OnPropertyChanged(nameof(UpDown));
-                    OnPropertyChanged(nameof(UpDownPct));
-                    OnPropertyChanged(nameof(RowBackground));
-                    OnPropertyChanged(nameof(OpenUpDown));
-                }
-            }
+            set { OnPropertiesChanged(ref _reference, value, nameof(Reference), nameof(UpDown), nameof(UpDownPct), nameof(RowBackground), nameof(OpenUpDown)); }
         }
 
         private decimal _lastClosePrice;
@@ -245,13 +197,7 @@ namespace GNAy.Capital.Models
         public decimal LastClosePrice
         {
             get { return _lastClosePrice; }
-            set
-            {
-                if (OnPropertyChanged(ref _lastClosePrice, value))
-                {
-                    OnPropertyChanged(nameof(OpenLastCloseUpDown));
-                }
-            }
+            set { OnPropertiesChanged(ref _lastClosePrice, value, nameof(LastClosePrice), nameof(OpenLastCloseUpDown)); }
         }
 
         [TradeColumn("開盤與前盤收盤價差", "開前價差", 26, StringFormat = "0.00", IsTrigger = true)]
@@ -262,13 +208,7 @@ namespace GNAy.Capital.Models
         public int Simulate
         {
             get { return _simulate; }
-            set
-            {
-                if (OnPropertyChanged(ref _simulate, value))
-                {
-                    OnPropertyChanged(nameof(RowBackground));
-                }
-            }
+            set { OnPropertiesChanged(ref _simulate, value, nameof(Simulate), nameof(RowBackground)); }
         }
 
         private int _totalQty;
@@ -284,13 +224,7 @@ namespace GNAy.Capital.Models
         public int TradeDateRaw
         {
             get { return _tradeDateRaw; }
-            set
-            {
-                if (OnPropertyChanged(ref _tradeDateRaw, value))
-                {
-                    OnPropertyChanged(nameof(TradeDate));
-                }
-            }
+            set { OnPropertiesChanged(ref _tradeDateRaw, value, nameof(TradeDateRaw), nameof(TradeDate)); }
         }
 
         [TradeColumn("交易日", -1)]
@@ -341,13 +275,7 @@ namespace GNAy.Capital.Models
         public short MarketGroup
         {
             get { return _marketGroup; }
-            set
-            {
-                if (OnPropertyChanged(ref _marketGroup, value))
-                {
-                    OnPropertyChanged(nameof(MarketGroupEnum));
-                }
-            }
+            set { OnPropertiesChanged(ref _marketGroup, value, nameof(MarketGroup), nameof(MarketGroupEnum)); }
         }
         [TradeColumn("市場", -1)]
         public Market.EGroup MarketGroupEnum

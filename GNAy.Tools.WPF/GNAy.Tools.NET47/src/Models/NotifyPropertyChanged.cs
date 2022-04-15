@@ -41,5 +41,20 @@ namespace GNAy.Tools.NET47.Models
             OnPropertyChanged(propertyName);
             return true;
         }
+
+        protected virtual bool OnPropertiesChanged<T>(ref T field, T value, params string[] propertyNames)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value))
+            {
+                return false;
+            }
+
+            field = value;
+            foreach (string name in propertyNames)
+            {
+                OnPropertyChanged(name);
+            }
+            return true;
+        }
     }
 }

@@ -25,13 +25,7 @@ namespace GNAy.Capital.Models
         public DateTime CreatedTime
         {
             get { return _createdTime; }
-            set
-            {
-                if (OnPropertyChanged(ref _createdTime, value))
-                {
-                    OnPropertyChanged(nameof(CreatedDate));
-                }
-            }
+            set { OnPropertiesChanged(ref _createdTime, value, nameof(CreatedTime), nameof(CreatedDate)); }
         }
 
         [Column("執行緒", "緒", -1)]
