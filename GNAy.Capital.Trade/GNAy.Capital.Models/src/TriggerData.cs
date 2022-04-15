@@ -71,14 +71,14 @@ namespace GNAy.Capital.Models
             }
         }
 
-        private int _statusIndex;
+        private int _status;
         [Column("狀態索引", 4)]
-        public int StatusIndex
+        public int Status
         {
-            get { return _statusIndex; }
+            get { return _status; }
             set
             {
-                if (OnPropertyChanged(ref _statusIndex, value))
+                if (OnPropertyChanged(ref _status, value))
                 {
                     OnPropertyChanged(nameof(StatusDes));
                 }
@@ -86,12 +86,12 @@ namespace GNAy.Capital.Models
         }
         public TriggerStatus.Enum StatusEnum
         {
-            get { return (TriggerStatus.Enum)StatusIndex; }
-            set { StatusIndex = (int)value; }
+            get { return (TriggerStatus.Enum)Status; }
+            set { Status = (int)value; }
         }
 
         [Column("狀態描述", "狀態", 5)]
-        public string StatusDes => TriggerStatus.Description[StatusIndex];
+        public string StatusDes => TriggerStatus.Description[Status];
 
         private string _primaryKey;
         [Column("自定義唯一鍵", "唯一鍵", 6)]
@@ -143,14 +143,14 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _targetValue, value); }
         }
 
-        private int _cancelIndex;
+        private int _cancel;
         [Column("觸價取消索引", 13)]
-        public int CancelIndex
+        public int Cancel
         {
-            get { return _cancelIndex; }
+            get { return _cancel; }
             set
             {
-                if (OnPropertyChanged(ref _cancelIndex, value))
+                if (OnPropertyChanged(ref _cancel, value))
                 {
                     OnPropertyChanged(nameof(CancelDes));
                 }
@@ -158,12 +158,12 @@ namespace GNAy.Capital.Models
         }
         public TriggerCancel.Enum CancelEnum
         {
-            get { return (TriggerCancel.Enum)CancelIndex; }
-            set { CancelIndex = (int)value; }
+            get { return (TriggerCancel.Enum)Cancel; }
+            set { Cancel = (int)value; }
         }
 
         [Column("觸價取消描述", "觸價後取消", 14)]
-        public string CancelDes => TriggerCancel.Description[CancelIndex];
+        public string CancelDes => TriggerCancel.Description[Cancel];
 
         private string _strategyOR;
         [Column("滿足單一條件即執行策略", "執行策略OR", 15)]
@@ -293,7 +293,6 @@ namespace GNAy.Capital.Models
                 }
 
                 TriggerData data = Create(columnNames, line, propertyIndex);
-
                 yield return data;
             }
         }

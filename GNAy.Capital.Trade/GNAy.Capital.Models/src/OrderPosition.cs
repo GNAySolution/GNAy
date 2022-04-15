@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GNAy.Capital.Models
 {
-    public class PositionKind
+    public class OrderPosition
     {
         public enum Enum
         {

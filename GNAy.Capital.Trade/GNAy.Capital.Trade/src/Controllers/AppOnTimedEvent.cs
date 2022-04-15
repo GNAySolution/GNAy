@@ -56,5 +56,23 @@ namespace GNAy.Capital.Trade.Controllers
                 _timerTrigger.Start();
             }
         }
+
+        private void OnTimedStrategy(Object source, ElapsedEventArgs e)
+        {
+            _timerStrategy.Stop();
+
+            try
+            {
+                Strategy.UpdateStatus(e.SignalTime);
+            }
+            catch (Exception ex)
+            {
+                LogException(e.SignalTime, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _timerStrategy.Start();
+            }
+        }
     }
 }

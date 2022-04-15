@@ -110,17 +110,17 @@ namespace GNAy.Capital.Trade.Controllers
             _stockAccCollection = _appCtrl.MainForm.ComboBoxStockAccs.SetAndGetItemsSource<OrderAccData>();
             _futuresAccCollection = _appCtrl.MainForm.ComboBoxFuturesAccs.SetAndGetItemsSource<OrderAccData>();
 
-            _buySell = _appCtrl.MainForm.ComboBoxOrderBuySell.SetAndGetItemsSource(BS.Description);
-            _appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex = (int)BS.Enum.Buy;
+            _buySell = _appCtrl.MainForm.ComboBoxOrderBuySell.SetAndGetItemsSource(OrderBS.Description);
+            _appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex = (int)OrderBS.Enum.Buy;
 
-            _tradeTypes = _appCtrl.MainForm.ComboBoxOrderTradeType.SetAndGetItemsSource(TradeType.Description);
-            _appCtrl.MainForm.ComboBoxOrderTradeType.SelectedIndex = (int)TradeType.Enum.ROD;
+            _tradeTypes = _appCtrl.MainForm.ComboBoxOrderTradeType.SetAndGetItemsSource(OrderTradeType.Description);
+            _appCtrl.MainForm.ComboBoxOrderTradeType.SelectedIndex = (int)OrderTradeType.Enum.ROD;
 
-            _dayTrade = _appCtrl.MainForm.ComboBoxOrderDayTrade.SetAndGetItemsSource(DayTrade.Description);
-            _appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex = (int)DayTrade.Enum.No;
+            _dayTrade = _appCtrl.MainForm.ComboBoxOrderDayTrade.SetAndGetItemsSource(OrderDayTrade.Description);
+            _appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex = (int)OrderDayTrade.Enum.No;
 
-            _positionKinds = _appCtrl.MainForm.ComboBoxOrderPositionKind.SetAndGetItemsSource(PositionKind.Description);
-            _appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex = (int)PositionKind.Enum.Open;
+            _positionKinds = _appCtrl.MainForm.ComboBoxOrderPositionKind.SetAndGetItemsSource(OrderPosition.Description);
+            _appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex = (int)OrderPosition.Enum.Open;
 
             _syncOrderLock = new object();
         }

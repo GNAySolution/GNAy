@@ -557,13 +557,12 @@
                                     </Style>
                                 </DataGrid.Resources>
                                 <DataGrid.RowStyle>
-                                    <!--https://stackoverflow.com/questions/18053281/how-to-set-datagrids-row-background-based-on-a-property-value-using-data-bindi-->
                                     <Style TargetType="DataGridRow">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding StatusIndex}" Value="3">
+                                            <DataTrigger Binding="{Binding Status}" Value="3">
                                                 <Setter Property="Background" Value="Pink"></Setter>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding StatusIndex}" Value="1">
+                                            <DataTrigger Binding="{Binding Status}" Value="1">
                                                 <Setter Property="Background" Value="LightGray"></Setter>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -640,6 +639,72 @@
                     </TabItem>
                     <TabItem Header="策略執行">
                         <Grid Background="#FFE5E5E5">
+                            <DataGrid x:Name="DataGridStrategyRule" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
+                                <DataGrid.Resources>
+                                    <Style TargetType="{x:Type DataGridCell}">
+                                        <EventSetter Event="MouseDoubleClick" Handler="DataGridStrategyRuleCell_MouseDoubleClick"/>
+                                    </Style>
+                                </DataGrid.Resources>
+                                <!--<DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Status}" Value="3">
+                                                <Setter Property="Background" Value="Pink"></Setter>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="1">
+                                                <Setter Property="Background" Value="LightGray"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>-->
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding UpdateTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding StatusDes}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding PrimaryKey}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding FullAccount}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding Symbol}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding BSDes}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding TradeTypeDes}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding DayTradeDes}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding PositionDes}" IsReadOnly="True" CanUserSort="False"/>
+                                    <DataGridTextColumn Binding="{Binding Price}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding Quantity}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    
+                                    <DataGridTextColumn Binding="{Binding Comment}" IsReadOnly="True" CanUserSort="False"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </Grid>
                     </TabItem>
                 </TabControl>

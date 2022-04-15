@@ -792,6 +792,10 @@ namespace GNAy.Capital.Trade
                 {
                     StatusBarItemBB1.Text = $"({DataGridTriggerRule.Columns.Count},{DataGridTriggerRule.Items.Count})";
                 }
+                else if (TabControlBB.SelectedIndex == 1 && DataGridStrategyRule.ItemsSource != null)
+                {
+                    StatusBarItemBB1.Text = $"({DataGridStrategyRule.Columns.Count},{DataGridStrategyRule.Items.Count})";
+                }
             }
             catch (Exception ex)
             {
@@ -1349,7 +1353,7 @@ namespace GNAy.Capital.Trade
                     _appCtrl.LogError($"Trigger|觸價關聯報價欄位錯誤|{trigger.ToLog()}", UniqueName);
                 }
 
-                ComboBoxTriggerCancel.SelectedIndex = trigger.CancelIndex;
+                ComboBoxTriggerCancel.SelectedIndex = trigger.Cancel;
                 TextBoxTriggerPrimaryKey.Text = trigger.PrimaryKey;
                 TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00####}";
                 TextBoxTriggerStrategyOR.Text = trigger.StrategyOR;
@@ -1364,6 +1368,24 @@ namespace GNAy.Capital.Trade
                 {
                     TextBoxTriggerTimeDuration.Text = $"{TextBoxTriggerTimeDuration.Text}~{trigger.EndTime.Value:HHmmss}";
                 }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void DataGridStrategyRuleCell_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                //
             }
             catch (Exception ex)
             {

@@ -234,5 +234,22 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.LogTrace($"開盤|{quote.MarketGroupEnum}|{quote.Symbol}|{quote.Name}|DealPrice={quote.DealPrice}|DealQty={quote.DealQty}|OpenPrice={quote.OpenPrice}|Simulate={quote.Simulate}", UniqueName);
             }
         }
+
+        private FUTUREORDER CreateCaptialFutureOrder(StrategyData strategy)
+        {
+            FUTUREORDER pFutureOrder = new FUTUREORDER()
+            {
+                bstrFullAccount = strategy.FullAccount,
+                bstrStockNo = strategy.Symbol,
+                sBuySell = strategy.BS,
+                sTradeType = strategy.TradeType,
+                sDayTrade = strategy.DayTrade,
+                sNewClose = strategy.Position,
+                bstrPrice = strategy.Price,
+                nQty = strategy.Quantity,
+            };
+
+            return pFutureOrder;
+        }
     }
 }

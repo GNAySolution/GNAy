@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GNAy.Capital.Models
 {
-    public class PriceKind
+    public class OrderPrice
     {
         public enum Enum : short
         {

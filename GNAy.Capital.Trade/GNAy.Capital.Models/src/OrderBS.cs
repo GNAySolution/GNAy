@@ -9,21 +9,24 @@ using System.Threading.Tasks;
 
 namespace GNAy.Capital.Models
 {
-    public class WL
+    /// <summary>
+    /// 買賣別
+    /// </summary>
+    public class OrderBS
     {
-        public enum Enum
+        public enum Enum : short
         {
-            [Description("Win")]
-            Win, //0
+            [Description("Buy")]
+            Buy, //0
 
-            [Description("Loss")]
-            Loss, //1
+            [Description("Sell")]
+            Sell, //1
         }
 
         public static ReadOnlyCollection<string> Description = new List<string>()
         {
-            Enum.Win.GetDescription(),
-            Enum.Loss.GetDescription(),
+            Enum.Buy.GetDescription(),
+            Enum.Sell.GetDescription(),
         }.AsReadOnly();
     }
 }

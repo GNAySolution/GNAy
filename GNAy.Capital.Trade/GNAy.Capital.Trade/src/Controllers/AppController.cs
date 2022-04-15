@@ -35,11 +35,13 @@ namespace GNAy.Capital.Trade.Controllers
 
         public CapitalController Capital { get; private set; }
         public TriggerController Trigger { get; private set; }
+        public StrategyController Strategy { get; private set; }
 
         private ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
 
         private readonly System.Timers.Timer _timerBG;
         private readonly System.Timers.Timer _timerTrigger;
+        private readonly System.Timers.Timer _timerStrategy;
 
         public AppController(MainWindow mainForm)
         {
@@ -76,6 +78,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             Capital = null;
             Trigger = null;
+            Strategy = null;
 
             _triggerColumnCollection = null;
 
@@ -93,6 +96,15 @@ namespace GNAy.Capital.Trade.Controllers
                 _timerTrigger.Elapsed += OnTimedTrigger;
                 _timerTrigger.AutoReset = true;
                 _timerTrigger.Enabled = true;
+            });
+
+            _timerStrategy = new System.Timers.Timer(Settings.TimerIntervalStrategy);
+            Task.Factory.StartNew(() =>
+            {
+                SpinWait.SpinUntil(() => Strategy != null);
+                _timerStrategy.Elapsed += OnTimedStrategy;
+                _timerStrategy.AutoReset = true;
+                _timerStrategy.Enabled = true;
             });
         }
 
@@ -411,6 +423,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     Capital = new CapitalController(this);
                     Trigger = new TriggerController(this);
+                    Strategy = new StrategyController(this);
                 }
 
                 return true;
