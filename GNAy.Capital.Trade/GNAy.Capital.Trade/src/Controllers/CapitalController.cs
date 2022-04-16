@@ -1138,7 +1138,9 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     lock (_syncOrderLock)
                     {
-                        m_nCode = m_pSKOrder.SendFutureOrder(UserID, false, pFutureOrder, out strMessage); //送出期貨委託，無需倉位，預設為盤中，不可更改
+                        //送出期貨委託，無需倉位，預設為盤中，不可更改
+                        //SKReplyLib.OnNewData，當有回報將主動呼叫函式，並通知委託的狀態。(新格式 包含預約單回報)
+                        m_nCode = m_pSKOrder.SendFutureOrder(UserID, false, pFutureOrder, out strMessage);
                         apiReturn = LogAPIMessage(m_nCode);
 
                         Thread.Sleep(100);

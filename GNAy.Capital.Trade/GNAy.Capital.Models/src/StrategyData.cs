@@ -82,8 +82,6 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _primaryKey, value); }
         }
 
-        public OrderAccData OrderAcc;
-
         private string _branch;
         [Column("分公司", 7)]
         public string Branch
@@ -100,8 +98,6 @@ namespace GNAy.Capital.Models
         }
         [Column("下單帳號", -1)]
         public string FullAccount => $"{Branch}{Account}";
-
-        public QuoteData Quote;
 
         private string _symbol;
         [Column("代碼", 9)]
@@ -206,24 +202,73 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _stopLossPct, value, nameof(StopLossPct), nameof(StopLoss)); }
         }
         [Column("停損設定", -1)]
-        public string StopLoss => $"{StopLossPrice} ({StopLossPct:0.00}%)";
+        public string StopLoss => $"{StopLossPrice} ({StopLossPct:0.00%})";
 
-        private string _afterStopLossPrice;
-        [Column("停損價格觸發", 22)]
-        public string AfterStopLossPrice
+        private string _stopWinPrice;
+        [Column("停利價格設定", 22)]
+        public string StopWinPrice
         {
-            get { return _afterStopLossPrice; }
-            set { OnPropertiesChanged(ref _afterStopLossPrice, value, nameof(AfterStopLossPrice), nameof(AfterStopLoss)); }
+            get { return _stopWinPrice; }
+            set { OnPropertiesChanged(ref _stopWinPrice, value, nameof(StopWinPrice), nameof(StopWin)); }
         }
-        private decimal _afterStopLossPct;
-        [Column("停損價%觸發", 23)]
-        public decimal AfterStopLossPct
+        private decimal _stopWinPct;
+        [Column("停利價%設定", 23)]
+        public decimal StopWinPct
         {
-            get { return _afterStopLossPct; }
-            set { OnPropertiesChanged(ref _afterStopLossPct, value, nameof(AfterStopLossPct), nameof(AfterStopLoss)); }
+            get { return _stopWinPct; }
+            set { OnPropertiesChanged(ref _stopWinPct, value, nameof(StopWinPct), nameof(StopWin)); }
         }
-        [Column("停損觸發", -1)]
-        public string AfterStopLoss => $"{AfterStopLossPrice} ({AfterStopLossPct:0.00}%)";
+        [Column("停利設定", -1)]
+        public string StopWin => $"{StopWinPrice} ({StopWinPct:0.00%})";
+
+        private string _moveStopWinPrice;
+        [Column("移動停利價格設定", 24)]
+        public string MoveStopWinPrice
+        {
+            get { return _moveStopWinPrice; }
+            set { OnPropertiesChanged(ref _moveStopWinPrice, value, nameof(MoveStopWinPrice), nameof(MoveStopWin)); }
+        }
+        private decimal _moveStopWinPct;
+        [Column("移動停利價%設定", 25)]
+        public decimal MoveStopWinPct
+        {
+            get { return _moveStopWinPct; }
+            set { OnPropertiesChanged(ref _moveStopWinPct, value, nameof(MoveStopWinPct), nameof(MoveStopWin)); }
+        }
+        [Column("移動停利設定", -1)]
+        public string MoveStopWin => $"{MoveStopWinPrice} ({MoveStopWinPct:0.00%})";
+
+        private string _sentOrderResult;
+        [Column("13碼委託序號或錯誤訊息", "委託回報", 26)]
+        public string SentOrderResult
+        {
+            get { return _sentOrderResult; }
+            set { OnPropertyChanged(ref _sentOrderResult, value); }
+        }
+
+        private decimal _returnedPriceResult;
+        [Column("成交價格", 27)]
+        public decimal ReturnedPriceResult
+        {
+            get { return _returnedPriceResult; }
+            set { OnPropertyChanged(ref _returnedPriceResult, value); }
+        }
+
+        private decimal _returnedPriPctResult;
+        [Column("成交價%", 28)]
+        public decimal ReturnedPriPctResult
+        {
+            get { return _returnedPriPctResult; }
+            set { OnPropertyChanged(ref _returnedPriPctResult, value); }
+        }
+
+        private string _returnedDealResult;
+        [Column("成交序號或錯誤訊息", "成交序號", 29)]
+        public string ReturnedDealResult
+        {
+            get { return _returnedDealResult; }
+            set { OnPropertyChanged(ref _returnedDealResult, value); }
+        }
 
         //
 
@@ -244,10 +289,8 @@ namespace GNAy.Capital.Models
             UpdateTime = DateTime.MaxValue;
             StatusEnum = StrategyStatus.Enum.Waiting;
             PrimaryKey = string.Empty;
-            OrderAcc = null;
             Branch = string.Empty;
             Account = string.Empty;
-            Quote = null;
             Symbol = string.Empty;
             BSEnum = OrderBS.Enum.Buy;
             TradeTypeEnum = OrderTradeType.Enum.ROD;
@@ -257,8 +300,14 @@ namespace GNAy.Capital.Models
             Quantity = 1;
             StopLossPrice = string.Empty;
             StopLossPct = 0;
-            AfterStopLossPrice = string.Empty;
-            AfterStopLossPct = 0;
+            StopWinPrice = string.Empty;
+            StopWinPct = 0;
+            MoveStopWinPrice = string.Empty;
+            MoveStopWinPct = 0;
+            SentOrderResult = string.Empty;
+            ReturnedPriceResult = 0;
+            ReturnedPriPctResult = 0;
+            ReturnedDealResult = string.Empty;
             //
             Comment = string.Empty;
         }

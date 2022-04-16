@@ -21,14 +21,14 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
-        private readonly ConcurrentQueue<QuoteData> _waitToReset;
         private readonly ConcurrentQueue<string> _waitToCancel;
         private readonly ConcurrentQueue<StrategyData> _waitToAdd;
 
         private readonly SortedDictionary<string, StrategyData> _strategyMap;
         private readonly ObservableCollection<StrategyData> _strategyCollection;
 
-        private readonly ConcurrentDictionary<string, StrategyData> _executedMap;
+        private readonly SortedDictionary<string, StrategyData> _orderDetailMap;
+        private readonly ObservableCollection<StrategyData> _orderDetailCollection;
 
         public StrategyController(AppController appCtrl)
         {
@@ -36,7 +36,6 @@ namespace GNAy.Capital.Trade.Controllers
             UniqueName = GetType().Name.Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
-            _waitToReset = new ConcurrentQueue<QuoteData>();
             _waitToCancel = new ConcurrentQueue<string>();
             _waitToAdd = new ConcurrentQueue<StrategyData>();
 
@@ -44,7 +43,9 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.MainForm.DataGridStrategyRule.SetHeadersByBindings(StrategyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _strategyCollection = _appCtrl.MainForm.DataGridStrategyRule.SetAndGetItemsSource<StrategyData>();
 
-            _executedMap = new ConcurrentDictionary<string, StrategyData>();
+            _orderDetailMap = new SortedDictionary<string, StrategyData>();
+            _appCtrl.MainForm.DataGridOrderDetail.SetHeadersByBindings(StrategyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
+            _orderDetailCollection = _appCtrl.MainForm.DataGridOrderDetail.SetAndGetItemsSource<StrategyData>();
 
             _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{_strategyMap.Count + 1}";
         }
@@ -98,7 +99,7 @@ namespace GNAy.Capital.Trade.Controllers
             Task.Factory.StartNew(() => SaveData(null));
         }
 
-        private bool UpdateStatus(StrategyData strategy, QuoteData quote, DateTime start)
+        private bool UpdateStatus(StrategyData strategy, DateTime start)
         {
             bool saveStrategies = false;
 
@@ -108,14 +109,14 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveStrategies;
                 }
-                else if (quote == null)
-                {
-                    return saveStrategies;
-                }
-                else if (quote.Simulate.IsSimulating())
-                {
-                    return saveStrategies;
-                }
+                //else if (quote == null)
+                //{
+                //    return saveStrategies;
+                //}
+                //else if (quote.Simulate.IsSimulating())
+                //{
+                //    return saveStrategies;
+                //}
                 
                 //
             }
@@ -129,19 +130,6 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="start"></param>
         public void UpdateStatus(DateTime start)
         {
-            while (_waitToReset.Count > 0)
-            {
-                _waitToReset.TryDequeue(out QuoteData quote);
-
-                foreach (StrategyData strategy in _strategyMap.Values)
-                {
-                    if (strategy.Symbol == quote.Symbol)
-                    {
-                        strategy.Quote = quote;
-                    }
-                }
-            }
-
             while (_waitToCancel.Count > 0)
             {
                 _waitToCancel.TryDequeue(out string primaryKey);
@@ -240,29 +228,15 @@ namespace GNAy.Capital.Trade.Controllers
 
             bool saveStrategies = false;
 
-            _executedMap.Clear();
-
             foreach (KeyValuePair<string, StrategyData> pair in _strategyMap)
             //Parallel.ForEach(_strategyMap, pair =>
             {
                 try
                 {
-                    if (UpdateStatus(pair.Value, pair.Value.Quote, start))
+                    if (UpdateStatus(pair.Value, start))
                     {
                         saveStrategies = true;
                     }
-                }
-                catch (Exception ex)
-                {
-                    _appCtrl.LogException(start, ex, ex.StackTrace);
-                }
-            }
-
-            foreach (StrategyData executed in _executedMap.Values)
-            {
-                try
-                {
-                    //
                 }
                 catch (Exception ex)
                 {
@@ -282,13 +256,13 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                Parallel.ForEach(_strategyMap.Values, strategy =>
-                {
-                    lock (strategy.SyncRoot)
-                    {
-                        strategy.Quote = null;
-                    }
-                });
+                //Parallel.ForEach(_strategyMap.Values, strategy =>
+                //{
+                //    lock (strategy.SyncRoot)
+                //    {
+                //        strategy.Quote = null;
+                //    }
+                //});
             }
             catch (Exception ex)
             {
@@ -297,24 +271,6 @@ namespace GNAy.Capital.Trade.Controllers
             finally
             {
                 _appCtrl.EndTrace(start, UniqueName);
-            }
-        }
-
-        public void Reset(QuoteData quote)
-        {
-            try
-            {
-                //_appCtrl.LogTrace($"Symbol={quote.Symbol}|Page={quote.Page}");
-
-                _waitToReset.Enqueue(quote);
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(ex, ex.StackTrace);
-            }
-            finally
-            {
-                //_appCtrl.LogTrace("Strategy|End");
             }
         }
 

@@ -1397,6 +1397,24 @@ namespace GNAy.Capital.Trade
             }
         }
 
+        private void DataGridOrderDetailCell_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                //
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
         private void ButtonCancelStrategy_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();

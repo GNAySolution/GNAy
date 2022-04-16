@@ -102,7 +102,7 @@ namespace GNAy.Tools.WPF
                         column.Header = attr.ShortName;
 
                         Style s = new Style(typeof(DataGridColumnHeader));
-                        s.Setters.Add(new Setter(ToolTipService.ToolTipProperty, attr.Name));
+                        s.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{attr.Name},{bind.Path.Path}"));
 
                         column.HeaderStyle = s;
                     }
