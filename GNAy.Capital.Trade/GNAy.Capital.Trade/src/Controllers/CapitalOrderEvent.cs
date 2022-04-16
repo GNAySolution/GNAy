@@ -28,7 +28,6 @@ namespace GNAy.Capital.Trade.Controllers
                 //市場,分公司,分公司代號,帳號,身份證字號,姓名
                 OrderAccData acc = new OrderAccData()
                 {
-                    MarketType = cells[0],
                     Branch = cells[1],
                     BranchCode = cells[2],
                     Account = cells[3],
@@ -40,11 +39,13 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (Market.CodeMap.TryGetValue(cells[0], out Market.EType marketType) && marketType == Market.EType.Stock)
                     {
+                        acc.MarketType = marketType;
                         _stockAccCollection.Add(acc);
                         _appCtrl.MainForm.ComboBoxStockAccs.SelectedIndex = 0;
                     }
                     else if (marketType == Market.EType.Futures) //cells[0] == "OF"
                     {
+                        acc.MarketType = marketType;
                         _futuresAccCollection.Add(acc);
                         _appCtrl.MainForm.ComboBoxFuturesAccs.SelectedIndex = 0;
                     }

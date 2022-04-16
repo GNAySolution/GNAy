@@ -26,7 +26,7 @@ namespace GNAy.Capital.Models
         }
 
         [Column("市場", -1)]
-        public string MarketType { get; set; }
+        public Market.EType MarketType { get; set; }
 
         [Column("分公司", -1)]
         public string Branch { get; set; }
@@ -51,7 +51,7 @@ namespace GNAy.Capital.Models
         {
             Creator = string.Empty;
             CreatedTime = DateTime.Now;
-            MarketType = string.Empty;
+            MarketType = Market.EType.Options;
             Branch = string.Empty;
             BranchCode = string.Empty;
             Account = string.Empty;
