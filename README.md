@@ -2,7 +2,7 @@
 * Yang的專案開發紀錄
 
 ## GNAy.Capital.Trade.csproj
-![開發中UI](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041613.jpg)
+![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg)
 * 策略交易框架與範例，交易輔助APP，基於群益API(SKCOM.dll)，開發中
 * https://www.capital.com.tw/Service2/download/api.asp
 * 需要先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
@@ -11,18 +11,21 @@
 * 使用群益API的前置條件，要先安裝憑證(CAP-*.pfx)，以及微軟Visual C++ 2010 Service Pack 1 MFC可轉散發套件安全性更新(vcredist_x64.exe)
 * https://docs.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
-###### GNAy.Capital.Trade.dwp.config
+###### GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg
+* APP操作介面示意圖
+
+###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/GNAy.Capital.Trade.dwp.config
 * 讀取帳號密碼的基本範例，專案不對帳密做儲存或特別處理，有需要請自行修改程式碼
 
-###### holidaySchedule_{yyy}.csv
+###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/holidaySchedule_{yyy}.csv
 * 臺灣證券交易所市場開休市日期
 * https://www.twse.com.tw/zh/holidaySchedule/holidaySchedule
 
-###### Futures_MTX_1DayK.csv
+###### GNAy.Capital.Trade/GNAy.Capital.Trade/docs/Futures_MTX_1DayK.csv
 * 範例參考期交所的小台日K資訊，整理使其更易於發想交易策略，以及回測驗證多年績效
 * https://www.taifex.com.tw/cht/3/dlFutDailyMarketView
 
-###### 0404_1830.csv
+###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/TriggerData/0404_1830.csv
 * 觸價條件範例與測試
 
 ## GNAy.Capital.Models.csproj

@@ -256,6 +256,7 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding UpdateTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding DealPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
@@ -396,7 +397,6 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding UpdateTime, StringFormat='{}{0:HH:mm:ss.fff}'}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Updater}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Count}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
@@ -676,6 +676,7 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding MarketName}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding FullAccount}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Symbol}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
@@ -689,14 +690,23 @@
                                     <DataGridTextColumn Binding="{Binding TradeTypeDes}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding DayTradeDes}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding PositionDes}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding Price}" IsReadOnly="True" CanUserSort="False">
+                                    <DataGridTextColumn Binding="{Binding MarketPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding OrderPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding Quantity}" IsReadOnly="True" CanUserSort="False">
+                                    <DataGridTextColumn Binding="{Binding OrderQuantity}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -772,58 +782,50 @@
         </Border>
         <Border Grid.Row="2" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridCB">
-                <Label Content="股票權證下單帳號" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <Label Content="個別市場下單帳號" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
                 <!--https://stackoverflow.com/questions/11259479/how-to-get-tooltip-binding-to-work-with-a-combobox-->
                 <!--https://stackoverflow.com/questions/16197928/wpf-combobox-binding-to-observablecollection-->
-                <ComboBox x:Name="ComboBoxStockAccs" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="120">
+                <ComboBox x:Name="ComboBoxOrderAccs" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="120">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Label Content="國內期貨下單帳號" HorizontalAlignment="Left" Margin="135,10,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxFuturesAccs" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="135,35,0,0" VerticalAlignment="Top" Width="120">
+                <Label Content="下單商品代碼" HorizontalAlignment="Left" Margin="135,8,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderProduct" HorizontalAlignment="Left" Margin="135,35,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"/>
+                <Label Content="Buy/Sell" HorizontalAlignment="Left" Margin="260,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderBuySell" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="260,35,0,0" VerticalAlignment="Top" Width="120"/>
+                <Label Content="掛單類型" HorizontalAlignment="Left" Margin="385,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderTradeType" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="385,35,0,0" VerticalAlignment="Top" Width="120"/>
+                <Label Content="是否當沖" HorizontalAlignment="Left" Margin="510,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderDayTrade" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,35,0,0" VerticalAlignment="Top" Width="120"/>
+                <Label Content="新倉平倉自動" HorizontalAlignment="Left" Margin="635,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderPositionKind" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="635,35,0,0" VerticalAlignment="Top" Width="120"/>
+                <Button x:Name="ButtonSendFutureOrder" Content="期貨委託送出" HorizontalAlignment="Left" Margin="54,61,0,0" VerticalAlignment="Top" Click="ButtonSendFutureOrder_Click"/>
+                <Button x:Name="ButtonStartFutureStartegyNow" Content="立刻啟動策略" HorizontalAlignment="Left" Margin="54,82,0,0" VerticalAlignment="Top" Click="ButtonStartFutureStartegyNow_Click"/>
+                <Label Content="委託價格" HorizontalAlignment="Left" Margin="135,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxOrderPrice" Text="M市價，P範圍市價" ToolTip="M市價，P範圍市價" HorizontalAlignment="Left" Margin="135,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="委託口數" HorizontalAlignment="Left" Margin="260,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxOrderQuantity" Text="委託口數" ToolTip="委託口數" HorizontalAlignment="Left" Margin="260,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="委託序號" HorizontalAlignment="Left" Margin="452,59,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderSeqNo" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,61,0,0" VerticalAlignment="Top" Width="120">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Label Content="下單商品代碼" HorizontalAlignment="Left" Margin="260,8,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderProduct" HorizontalAlignment="Left" Margin="260,35,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"/>
-                <Label Content="Buy/Sell" HorizontalAlignment="Left" Margin="385,10,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderBuySell" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="385,35,0,0" VerticalAlignment="Top" Width="120"/>
-                <Label Content="掛單類型" HorizontalAlignment="Left" Margin="510,10,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderTradeType" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,35,0,0" VerticalAlignment="Top" Width="120"/>
-                <Label Content="是否當沖" HorizontalAlignment="Left" Margin="635,10,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderDayTrade" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="635,35,0,0" VerticalAlignment="Top" Width="120"/>
-                <Label Content="新倉平倉自動" HorizontalAlignment="Left" Margin="760,10,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderPositionKind" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="760,35,0,0" VerticalAlignment="Top" Width="120"/>
-                <Button x:Name="ButtonSendFutureOrder" Content="期貨委託送出" HorizontalAlignment="Left" Margin="179,61,0,0" VerticalAlignment="Top" Click="ButtonSendFutureOrder_Click"/>
-                <Button x:Name="ButtonStartFutureStartegyNow" Content="立刻啟動策略" HorizontalAlignment="Left" Margin="179,82,0,0" VerticalAlignment="Top" Click="ButtonStartFutureStartegyNow_Click"/>
-                <Label Content="委託價格" HorizontalAlignment="Left" Margin="260,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxOrderPrice" Text="M市價，P範圍市價" ToolTip="M市價，P範圍市價" HorizontalAlignment="Left" Margin="260,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <Label Content="委託口數" HorizontalAlignment="Left" Margin="385,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxOrderQuantity" Text="委託口數" ToolTip="委託口數" HorizontalAlignment="Left" Margin="385,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <Label Content="委託序號" HorizontalAlignment="Left" Margin="577,59,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderSeqNo" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="635,61,0,0" VerticalAlignment="Top" Width="120">
+                <Button x:Name="ButtonCancelOrderBySeqNo" Content="刪單by序號" HorizontalAlignment="Left" Margin="635,61,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderBySeqNo_Click"/>
+                <Label Content="委託書號" HorizontalAlignment="Left" Margin="452,80,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderBookNo" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,82,0,0" VerticalAlignment="Top" Width="120">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <Button x:Name="ButtonCancelOrderBySeqNo" Content="刪單by序號" HorizontalAlignment="Left" Margin="760,61,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderBySeqNo_Click"/>
-                <Label Content="委託書號" HorizontalAlignment="Left" Margin="577,80,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderBookNo" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="635,82,0,0" VerticalAlignment="Top" Width="120">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                <Button x:Name="ButtonCancelOrderByBookNo" Content="刪單by書號" HorizontalAlignment="Left" Margin="760,82,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderByBookNo_Click"/>
+                <Button x:Name="ButtonCancelOrderByBookNo" Content="刪單by書號" HorizontalAlignment="Left" Margin="635,82,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderByBookNo_Click"/>
                 <TabControl x:Name="TabControlCB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="委託成交回報">
                         <Grid Background="#FFE5E5E5">
@@ -863,6 +865,7 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding MarketName}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding FullAccount}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding Symbol}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
@@ -876,14 +879,23 @@
                                     <DataGridTextColumn Binding="{Binding TradeTypeDes}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding DayTradeDes}" IsReadOnly="True" CanUserSort="False"/>
                                     <DataGridTextColumn Binding="{Binding PositionDes}" IsReadOnly="True" CanUserSort="False"/>
-                                    <DataGridTextColumn Binding="{Binding Price}" IsReadOnly="True" CanUserSort="False">
+                                    <DataGridTextColumn Binding="{Binding MarketPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding OrderPrice, StringFormat='{}{0:0.00}'}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding Quantity}" IsReadOnly="True" CanUserSort="False">
+                                    <DataGridTextColumn Binding="{Binding OrderQuantity}" IsReadOnly="True" CanUserSort="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -933,7 +945,7 @@
                             </DataGrid>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="證券庫存/期貨未平倉">
+                    <TabItem Header="庫存未平倉">
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>

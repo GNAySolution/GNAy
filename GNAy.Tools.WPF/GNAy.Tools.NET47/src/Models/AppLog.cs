@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,9 +33,9 @@ namespace GNAy.Tools.NET47.Models
         [Column("訊息", -1)]
         public string Message { get; set; }
 
-        public AppLog()
+        public AppLog([CallerMemberName] string memberName = "")
         {
-            Creator = string.Empty;
+            Creator = memberName;
             CreatedTime = DateTime.Now;
             Project = string.Empty;
             Level = string.Empty;

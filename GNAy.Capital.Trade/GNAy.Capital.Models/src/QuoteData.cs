@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -321,9 +322,9 @@ namespace GNAy.Capital.Models
             }
         }
 
-        public QuoteData()
+        public QuoteData([CallerMemberName] string memberName = "")
         {
-            Creator = string.Empty;
+            Creator = memberName;
             CreatedTime = DateTime.Now;
             Updater = string.Empty;
             UpdateTime = DateTime.MaxValue;

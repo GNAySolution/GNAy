@@ -390,7 +390,6 @@ namespace GNAy.Capital.Trade.Controllers
 
                 //StrategyData strategy = new StrategyData(selectedQuote, _appCtrl.MainForm.ComboBoxStrategyColumn.SelectedItem as TradeColumnStrategy)
                 //{
-                //    Creator = nameof(AddRule),
                 //    Updater = nameof(AddRule),
                 //    UpdateTime = DateTime.Now,
                 //    PrimaryKey = primaryKey,
@@ -495,7 +494,6 @@ namespace GNAy.Capital.Trade.Controllers
                         //    _appCtrl.LogError(strategy.ToLog(), UniqueName, DateTime.Now - start);
                         //}
 
-                        strategy.Creator = nameof(RecoverSetting);
                         strategy.Updater = nameof(RecoverSetting);
                         strategy.UpdateTime = DateTime.Now;
 
@@ -513,7 +511,8 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 SpinWait.SpinUntil(() => _waitToAdd.Count <= 0);
-                Thread.Sleep(1 * 1000);
+                Thread.Sleep(_appCtrl.Settings.TimerIntervalStrategy * 2);
+
                 if (_strategyCollection.Count >= nextPK)
                 {
                     nextPK = _strategyCollection.Count + 1;
@@ -532,6 +531,33 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _appCtrl.EndTrace(start, UniqueName);
             }
+        }
+
+        public void AddOrder(StrategyData strategy)
+        {
+            if (!string.IsNullOrWhiteSpace(strategy.PrimaryKey))
+            {
+                return;
+            }
+
+            DateTime start = _appCtrl.StartTrace();
+
+            _appCtrl.MainForm.InvokeRequired(delegate
+            {
+                try
+                {
+                    _orderDetailMap.Add($"{strategy.CreatedTime:HH:mm:ss.fff}", strategy);
+                    _orderDetailCollection.Add(strategy);
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
+                }
+            });
         }
     }
 }

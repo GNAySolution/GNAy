@@ -21,7 +21,7 @@ namespace GNAy.Tools.NET47
         public static string GetDescription(this Enum obj)
         {
             FieldInfo field = obj.GetType().GetField(obj.ToString());
-            DescriptionAttribute arr = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute), false) as DescriptionAttribute;
+            DescriptionAttribute arr = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute), false);
             return arr.Description;
         }
 

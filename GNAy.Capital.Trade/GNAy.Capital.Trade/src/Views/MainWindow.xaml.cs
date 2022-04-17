@@ -605,13 +605,9 @@ namespace GNAy.Capital.Trade
                 {
                     cb = ComboBoxTriggerCancel;
                 }
-                else if (ComboBoxStockAccs.IsMouseOver && !ComboBoxStockAccs.IsFocused)
+                else if (ComboBoxOrderAccs.IsMouseOver && !ComboBoxOrderAccs.IsFocused)
                 {
-                    cb = ComboBoxStockAccs;
-                }
-                else if (ComboBoxFuturesAccs.IsMouseOver && !ComboBoxFuturesAccs.IsFocused)
-                {
-                    cb = ComboBoxFuturesAccs;
+                    cb = ComboBoxOrderAccs;
                 }
                 else if (ComboBoxOrderProduct.IsMouseOver && !ComboBoxOrderProduct.IsFocused)
                 {
@@ -777,7 +773,7 @@ namespace GNAy.Capital.Trade
                     StatusBarItemBA3.Text = $"{_appCtrl.Capital.UserIDTimer.Item1:mm:ss}|{_appCtrl.Capital.UserIDTimer.Item2}";
                     StatusBarItemBA4.Text = _appCtrl.Capital.QuoteTimer;
                     StatusBarItemAB5.Text = _appCtrl.Capital.QuoteStatusStr;
-                    StatusBarItemAB3.Text = $"{_appCtrl.Capital.QuoteLastUpdated.UpdateTime:mm:ss.fff}|{_appCtrl.Capital.QuoteLastUpdated.Updater}";
+                    StatusBarItemAB3.Text = $"{_appCtrl.Capital.QuoteLastUpdated.Name}|{_appCtrl.Capital.QuoteLastUpdated.UpdateTime:mm:ss.fff}|{_appCtrl.Capital.QuoteLastUpdated.Updater}";
 
                     elapsed = (start - _appCtrl.Capital.QuoteLastUpdated.UpdateTime).ToString("mm':'ss'.'fff");
                     StatusBarItemAA2.Text = $"{StatusBarItemAA2.Text}|{elapsed}";
@@ -888,7 +884,7 @@ namespace GNAy.Capital.Trade
                         ButtonGetOrderAccs_Click(null, null);
                     });
 
-                    SpinWait.SpinUntil(() => _appCtrl.Capital.FuturesAccCount > 0, 8 * 1000);
+                    SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 8 * 1000);
                     _appCtrl.Capital.GetOpenInterestAsync();
                     _appCtrl.Capital.UnlockOrder();
                     _appCtrl.Capital.SetOrderMaxQty();
@@ -1181,7 +1177,13 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                OrderAccData acc = (OrderAccData)ComboBoxFuturesAccs.SelectedItem;
+                OrderAccData acc = (OrderAccData)ComboBoxOrderAccs.SelectedItem;
+
+                if (acc.MarketType != Market.EType.Futures)
+                {
+                    return;
+                }
+
                 _appCtrl.Capital.GetOpenInterestAsync(acc.FullAccount);
             }
             catch (Exception ex)
@@ -1304,7 +1306,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                TriggerData trigger = (sender as DataGridCell).GetItem<TriggerData>();
+                TriggerData trigger = ((DataGridCell)sender).GetItem<TriggerData>();
                 _appCtrl.LogTrace(trigger.ToLog(), UniqueName);
 
                 ComboBoxTriggerProduct.SelectedIndex = -1;
@@ -1471,7 +1473,26 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.SendFutureOrder();
+                OrderAccData acc = (OrderAccData)_appCtrl.MainForm.ComboBoxOrderAccs.SelectedItem;
+
+                StrategyData strategy = new StrategyData()
+                {
+                    MarketType = acc.MarketType,
+                    Branch = acc.Branch,
+                    Account = acc.Account,
+                    Symbol = _appCtrl.MainForm.ComboBoxOrderProduct.Text,
+                    BS = (short)_appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex,
+                    TradeType = (short)_appCtrl.MainForm.ComboBoxOrderTradeType.SelectedIndex,
+                    DayTrade = (short)_appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex,
+                    Position = (short)_appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex,
+                    OrderPrice = _appCtrl.MainForm.TextBoxOrderPrice.Text,
+                    OrderQuantity = int.Parse(_appCtrl.MainForm.TextBoxOrderQuantity.Text),
+                    //
+                    Updater = nameof(ButtonSendFutureOrder_Click),
+                    UpdateTime = DateTime.Now,
+                };
+
+                _appCtrl.Capital.SendFutureOrderAsync(strategy);
             }
             catch (Exception ex)
             {
@@ -1489,6 +1510,13 @@ namespace GNAy.Capital.Trade
 
             try
             {
+                if (TabControlBB.SelectedIndex != 1)
+                {
+                    TabControlBB.SelectedIndex = 1;
+                    _appCtrl.LogWarn("防呆，再次確認，避免看錯", UniqueName);
+                    return;
+                }
+
                 //
             }
             catch (Exception ex)

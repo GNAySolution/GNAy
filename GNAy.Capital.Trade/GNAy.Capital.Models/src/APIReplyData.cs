@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -43,9 +44,9 @@ namespace GNAy.Capital.Models
         [Column("訊息", -1)]
         public string Message { get; set; }
 
-        public APIReplyData()
+        public APIReplyData([CallerMemberName] string memberName = "")
         {
-            Creator = string.Empty;
+            Creator = memberName;
             CreatedTime = DateTime.Now;
             ThreadID = 0;
             CallerLineNumber = 0;

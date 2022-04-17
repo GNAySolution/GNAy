@@ -3,6 +3,7 @@ using GNAy.Tools.NET47.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,6 +28,7 @@ namespace GNAy.Capital.Models
 
         [Column("市場", -1)]
         public Market.EType MarketType { get; set; }
+        public string MarketName => Market.NameDescription[(int)MarketType];
 
         [Column("分公司", -1)]
         public string Branch { get; set; }
@@ -43,13 +45,14 @@ namespace GNAy.Capital.Models
         [Column("姓名", -1)]
         public string MemberName { get; set; }
 
+        public string Key => $"{MarketType},{Account}";
         public string FullAccount => $"{Branch}{Account}";
-        public string DisplayName => $"{Account},{Identity}";
+        public string DisplayName => $"{Account},{MarketName},{Identity}";
         public string ToolTip => ToString();
 
-        public OrderAccData()
+        public OrderAccData([CallerMemberName] string memberName = "")
         {
-            Creator = string.Empty;
+            Creator = memberName;
             CreatedTime = DateTime.Now;
             MarketType = Market.EType.Options;
             Branch = string.Empty;

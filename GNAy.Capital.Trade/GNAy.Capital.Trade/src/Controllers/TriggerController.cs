@@ -660,7 +660,7 @@ namespace GNAy.Capital.Trade.Controllers
                     primaryKey = $"{_triggerMap.Count + 1}";
                 }
 
-                QuoteData selectedQuote = _appCtrl.MainForm.ComboBoxTriggerProduct.SelectedItem as QuoteData;
+                QuoteData selectedQuote = (QuoteData)_appCtrl.MainForm.ComboBoxTriggerProduct.SelectedItem;
 
                 string rule = _appCtrl.MainForm.TextBoxTriggerRuleValue.Text.Replace(" ", string.Empty);
                 string bodyValue = string.Empty;
@@ -714,9 +714,8 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
-                TriggerData trigger = new TriggerData(selectedQuote, _appCtrl.MainForm.ComboBoxTriggerColumn.SelectedItem as TradeColumnTrigger)
+                TriggerData trigger = new TriggerData(selectedQuote, (TradeColumnTrigger)_appCtrl.MainForm.ComboBoxTriggerColumn.SelectedItem)
                 {
-                    Creator = nameof(AddRule),
                     Updater = nameof(AddRule),
                     UpdateTime = DateTime.Now,
                     PrimaryKey = primaryKey,
@@ -821,7 +820,6 @@ namespace GNAy.Capital.Trade.Controllers
                             _appCtrl.LogError(trigger.ToLog(), UniqueName, DateTime.Now - start);
                         }
 
-                        trigger.Creator = nameof(RecoverSetting);
                         trigger.Updater = nameof(RecoverSetting);
                         trigger.UpdateTime = DateTime.Now;
 
@@ -839,7 +837,8 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 SpinWait.SpinUntil(() => _waitToAdd.Count <= 0);
-                Thread.Sleep(1 * 1000);
+                Thread.Sleep(_appCtrl.Settings.TimerIntervalTrigger * 2);
+
                 if (_triggerCollection.Count >= nextPK)
                 {
                     nextPK = _triggerCollection.Count + 1;

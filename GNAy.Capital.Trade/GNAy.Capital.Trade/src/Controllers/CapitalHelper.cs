@@ -14,8 +14,6 @@ namespace GNAy.Capital.Trade.Controllers
         {
             QuoteData quote = new QuoteData()
             {
-                Creator = nameof(CreateQuote),
-                CreatedTime = DateTime.Now,
                 Updater = nameof(CreateQuote),
                 UpdateTime = DateTime.Now,
                 Symbol = raw.bstrStockNo,
@@ -245,8 +243,8 @@ namespace GNAy.Capital.Trade.Controllers
                 sTradeType = strategy.TradeType,
                 sDayTrade = strategy.DayTrade,
                 sNewClose = strategy.Position,
-                bstrPrice = strategy.Price,
-                nQty = strategy.Quantity,
+                bstrPrice = strategy.OrderPrice,
+                nQty = strategy.OrderQuantity,
             };
 
             return pFutureOrder;

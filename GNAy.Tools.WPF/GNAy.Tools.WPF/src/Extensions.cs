@@ -102,7 +102,7 @@ namespace GNAy.Tools.WPF
                         column.Header = attr.ShortName;
 
                         Style s = new Style(typeof(DataGridColumnHeader));
-                        s.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{attr.Name},{bind.Path.Path}"));
+                        s.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{attr.Name},{bind.Path.Path},{bind.StringFormat}"));
 
                         column.HeaderStyle = s;
                     }
@@ -195,7 +195,7 @@ namespace GNAy.Tools.WPF
         {
             DependencyObject parent = VisualTreeHelper.GetParent(obj);
 
-            while (parent != null && parent.GetType() != typeof(DataGridRow))
+            while (parent != null && !(parent is DataGridRow))
             {
                 parent = VisualTreeHelper.GetParent(parent);
             }

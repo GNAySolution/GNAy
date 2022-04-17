@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -81,6 +82,16 @@ namespace GNAy.Capital.Models
             get { return _primaryKey; }
             set { OnPropertyChanged(ref _primaryKey, value); }
         }
+
+        private Market.EType _marketType;
+        [Column("市場", -1)]
+        public Market.EType MarketType
+        {
+            get { return _marketType; }
+            set { OnPropertiesChanged(ref _marketType, value, nameof(MarketType), nameof(MarketName)); }
+        }
+        [Column("市場", -1)]
+        public string MarketName => Market.NameDescription[(int)MarketType];
 
         private string _branch;
         [Column("分公司", 7)]
@@ -171,75 +182,83 @@ namespace GNAy.Capital.Models
         [Column("新倉平倉描述", "新平", 17)]
         public string PositionDes => OrderPosition.Description[Position];
 
-        private string _price;
-        [Column("委託價格", "委價", 18)]
-        public string Price
+        private decimal _marketPrice;
+        [Column("市場最近成交價", "市場價格", 18)]
+        public decimal MarketPrice
         {
-            get { return _price; }
-            set { OnPropertyChanged(ref _price, value); }
+            get { return _marketPrice; }
+            set { OnPropertyChanged(ref _marketPrice, value); }
         }
 
-        private int _quantity;
-        [Column("委託口數", "委量", 19)]
-        public int Quantity
+        private string _orderPrice;
+        [Column("委託價格", 19)]
+        public string OrderPrice
         {
-            get { return _quantity; }
-            set { OnPropertyChanged(ref _quantity, value); }
+            get { return _orderPrice; }
+            set { OnPropertyChanged(ref _orderPrice, value); }
+        }
+
+        private int _orderQuantity;
+        [Column("委託口數", "委量", 20)]
+        public int OrderQuantity
+        {
+            get { return _orderQuantity; }
+            set { OnPropertyChanged(ref _orderQuantity, value); }
         }
 
         private string _stopLossPrice;
-        [Column("停損價格設定", 20)]
+        [Column("停損價格設定", 21)]
         public string StopLossPrice
         {
             get { return _stopLossPrice; }
             set { OnPropertiesChanged(ref _stopLossPrice, value, nameof(StopLossPrice), nameof(StopLoss)); }
         }
         private decimal _stopLossPct;
-        [Column("停損價%設定", 21)]
+        [Column("停損價%設定", 22)]
         public decimal StopLossPct
         {
             get { return _stopLossPct; }
             set { OnPropertiesChanged(ref _stopLossPct, value, nameof(StopLossPct), nameof(StopLoss)); }
         }
         [Column("停損設定", -1)]
-        public string StopLoss => $"{StopLossPrice} ({StopLossPct:0.00%})";
+        public string StopLoss => string.IsNullOrWhiteSpace(StopLossPrice) ? string.Empty : $"{StopLossPrice} ({StopLossPct:0.00%})";
 
         private string _stopWinPrice;
-        [Column("停利價格設定", 22)]
+        [Column("停利價格設定", 23)]
         public string StopWinPrice
         {
             get { return _stopWinPrice; }
             set { OnPropertiesChanged(ref _stopWinPrice, value, nameof(StopWinPrice), nameof(StopWin)); }
         }
         private decimal _stopWinPct;
-        [Column("停利價%設定", 23)]
+        [Column("停利價%設定", 24)]
         public decimal StopWinPct
         {
             get { return _stopWinPct; }
             set { OnPropertiesChanged(ref _stopWinPct, value, nameof(StopWinPct), nameof(StopWin)); }
         }
         [Column("停利設定", -1)]
-        public string StopWin => $"{StopWinPrice} ({StopWinPct:0.00%})";
+        public string StopWin => string.IsNullOrWhiteSpace(StopWinPrice) ? string.Empty : $"{StopWinPrice} ({StopWinPct:0.00%})";
 
         private string _moveStopWinPrice;
-        [Column("移動停利價格設定", 24)]
+        [Column("移動停利價格設定", 25)]
         public string MoveStopWinPrice
         {
             get { return _moveStopWinPrice; }
             set { OnPropertiesChanged(ref _moveStopWinPrice, value, nameof(MoveStopWinPrice), nameof(MoveStopWin)); }
         }
         private decimal _moveStopWinPct;
-        [Column("移動停利價%設定", 25)]
+        [Column("移動停利價%設定", 26)]
         public decimal MoveStopWinPct
         {
             get { return _moveStopWinPct; }
             set { OnPropertiesChanged(ref _moveStopWinPct, value, nameof(MoveStopWinPct), nameof(MoveStopWin)); }
         }
         [Column("移動停利設定", -1)]
-        public string MoveStopWin => $"{MoveStopWinPrice} ({MoveStopWinPct:0.00%})";
+        public string MoveStopWin => string.IsNullOrWhiteSpace(MoveStopWinPrice) ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinPct:0.00%})";
 
         private string _sentOrderResult;
-        [Column("13碼委託序號或錯誤訊息", "委託回報", 26)]
+        [Column("13碼委託序號或錯誤訊息", "委託回報", 27)]
         public string SentOrderResult
         {
             get { return _sentOrderResult; }
@@ -247,7 +266,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _returnedPriceResult;
-        [Column("成交價格", 27)]
+        [Column("成交價格", 28)]
         public decimal ReturnedPriceResult
         {
             get { return _returnedPriceResult; }
@@ -255,7 +274,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _returnedPriPctResult;
-        [Column("成交價%", 28)]
+        [Column("成交價%", 29)]
         public decimal ReturnedPriPctResult
         {
             get { return _returnedPriPctResult; }
@@ -263,7 +282,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _returnedDealResult;
-        [Column("成交序號或錯誤訊息", "成交序號", 29)]
+        [Column("成交序號或錯誤訊息", "成交序號", 30)]
         public string ReturnedDealResult
         {
             get { return _returnedDealResult; }
@@ -280,15 +299,16 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _comment, value); }
         }
 
-        public StrategyData()
+        public StrategyData([CallerMemberName] string memberName = "")
         {
             SyncRoot = new object();
-            Creator = string.Empty;
+            Creator = memberName;
             CreatedTime = DateTime.Now;
             Updater = string.Empty;
             UpdateTime = DateTime.MaxValue;
             StatusEnum = StrategyStatus.Enum.Waiting;
             PrimaryKey = string.Empty;
+            MarketType = Market.EType.OverseaStock;
             Branch = string.Empty;
             Account = string.Empty;
             Symbol = string.Empty;
@@ -296,8 +316,9 @@ namespace GNAy.Capital.Models
             TradeTypeEnum = OrderTradeType.Enum.ROD;
             DayTradeEnum = OrderDayTrade.Enum.No;
             PositionEnum = OrderPosition.Enum.Open;
-            Price = OrderPrice.P;
-            Quantity = 1;
+            MarketPrice = 0;
+            OrderPrice = Models.OrderPrice.P;
+            OrderQuantity = -1;
             StopLossPrice = string.Empty;
             StopLossPct = 0;
             StopWinPrice = string.Empty;

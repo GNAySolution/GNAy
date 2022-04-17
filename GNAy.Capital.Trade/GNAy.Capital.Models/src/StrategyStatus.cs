@@ -25,26 +25,26 @@ namespace GNAy.Capital.Models
             [Description("委託送出")]
             SentOrder, //2
 
-            [Description("委託錯誤")]
-            SentOrderError, //3
+            [Description("委託回報")]
+            ReturnedOrder, //3
 
-            [Description("已停損")]
-            StoppedLoss, //4,
+            [Description("停損送出")]
+            SentStopLoss, //4,
 
-            [Description("停損錯誤")]
-            StoppedLossError, //5,
+            [Description("停損回報")]
+            ReturnedStopLoss, //5,
 
-            [Description("已停利")]
-            StoppedWin, //6,
+            [Description("停利送出")]
+            SentStopWin, //6,
 
-            [Description("停利錯誤")]
-            StoppedWinError, //7,
+            [Description("停利回報")]
+            ReturnedStopWin, //7,
 
-            [Description("已移動停利")]
-            MoveStoppedWin, //8,
+            [Description("移動停利送出")]
+            SentMoveStopWin, //8,
 
-            [Description("移動停利錯誤")]
-            MoveStoppedWinError, //9,
+            [Description("移動停利回報")]
+            ReturnedMoveStopWin, //9,
         }
 
         public static ReadOnlyCollection<string> Description = new List<string>()
@@ -52,13 +52,13 @@ namespace GNAy.Capital.Models
             Enum.Waiting.GetDescription(),
             Enum.Cancelled.GetDescription(),
             Enum.SentOrder.GetDescription(),
-            Enum.SentOrderError.GetDescription(),
-            Enum.StoppedLoss.GetDescription(),
-            Enum.StoppedLossError.GetDescription(),
-            Enum.StoppedWin.GetDescription(),
-            Enum.StoppedWinError.GetDescription(),
-            Enum.MoveStoppedWin.GetDescription(),
-            Enum.MoveStoppedWinError.GetDescription(),
+            Enum.ReturnedOrder.GetDescription(),
+            Enum.SentStopLoss.GetDescription(),
+            Enum.ReturnedStopLoss.GetDescription(),
+            Enum.SentStopWin.GetDescription(),
+            Enum.ReturnedStopWin.GetDescription(),
+            Enum.SentMoveStopWin.GetDescription(),
+            Enum.ReturnedMoveStopWin.GetDescription(),
         }.AsReadOnly();
     }
 }

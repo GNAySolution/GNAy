@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -181,10 +182,10 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _comment, value); }
         }
 
-        public TriggerData(QuoteData quote, TradeColumnTrigger column)
+        public TriggerData(QuoteData quote, TradeColumnTrigger column, [CallerMemberName] string memberName = "")
         {
             SyncRoot = new object();
-            Creator = string.Empty;
+            Creator = memberName;
             CreatedTime = DateTime.Now;
             Updater = string.Empty;
             UpdateTime = DateTime.MaxValue;

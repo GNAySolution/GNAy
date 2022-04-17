@@ -65,11 +65,9 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int ReadCertResult { get; private set; }
 
-        private readonly ObservableCollection<OrderAccData> _stockAccCollection;
-        public int StockAccCount => _stockAccCollection.Count;
-
-        private readonly ObservableCollection<OrderAccData> _futuresAccCollection;
-        public int FuturesAccCount => _futuresAccCollection.Count;
+        private readonly SortedDictionary<string, OrderAccData> _orderAccMap;
+        private readonly ObservableCollection<OrderAccData> _orderAccCollection;
+        public int OrderAccCount => _orderAccCollection.Count;
 
         private readonly ObservableCollection<string> _buySell;
         private readonly ObservableCollection<string> _tradeTypes;
@@ -107,8 +105,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             ReadCertResult = -1;
 
-            _stockAccCollection = _appCtrl.MainForm.ComboBoxStockAccs.SetAndGetItemsSource<OrderAccData>();
-            _futuresAccCollection = _appCtrl.MainForm.ComboBoxFuturesAccs.SetAndGetItemsSource<OrderAccData>();
+            _orderAccMap = new SortedDictionary<string, OrderAccData>();
+            _orderAccCollection = _appCtrl.MainForm.ComboBoxOrderAccs.SetAndGetItemsSource<OrderAccData>();
 
             _buySell = _appCtrl.MainForm.ComboBoxOrderBuySell.SetAndGetItemsSource(OrderBS.Description);
             _appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex = (int)OrderBS.Enum.Buy;
@@ -143,7 +141,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public (LogLevel, string) LogAPIMessage(int nCode, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            string msg = GetAPIMessage(nCode);
+            string msg = GetAPIMessage(nCode); //TODO
 
             if (nCode < 0)
             {
@@ -956,8 +954,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                _stockAccCollection.Clear();
-                _futuresAccCollection.Clear();
+                _orderAccMap.Clear();
+                _orderAccCollection.Clear();
 
                 int m_nCode = m_pSKOrder.GetUserAccount(); //取回目前可交易的所有帳號。資料由OnAccount事件回傳
                 LogAPIMessage(m_nCode);
@@ -1088,8 +1086,13 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (string.IsNullOrWhiteSpace(orderAcc))
                     {
-                        foreach (OrderAccData acc in _futuresAccCollection)
+                        foreach (OrderAccData acc in _orderAccCollection)
                         {
+                            if (acc.MarketType != Market.EType.Futures)
+                            {
+                                continue;
+                            }
+
                             //nCode=1019|SK_ERROR_QUERY_IN_PROCESSING|GetOpenInterest_Format::1
                             Thread.Sleep(1 * 1000);
                             GetOpenInterestAsync(acc.FullAccount, format);
@@ -1113,22 +1116,31 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
-        public void SendFutureOrder()
+        public void SendFutureOrder(StrategyData strategy)
         {
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                FUTUREORDER pFutureOrder = new FUTUREORDER();
+                _appCtrl.Strategy.AddOrder(strategy);
 
-                pFutureOrder.bstrFullAccount = ((OrderAccData)_appCtrl.MainForm.ComboBoxFuturesAccs.SelectedItem).FullAccount;
-                pFutureOrder.bstrPrice = _appCtrl.MainForm.TextBoxOrderPrice.Text;
-                pFutureOrder.bstrStockNo = _appCtrl.MainForm.ComboBoxOrderProduct.Text;
-                pFutureOrder.nQty = int.Parse(_appCtrl.MainForm.TextBoxOrderQuantity.Text);
-                pFutureOrder.sBuySell = (short)_appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex;
-                pFutureOrder.sDayTrade = (short)_appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex;
-                pFutureOrder.sTradeType = (short)_appCtrl.MainForm.ComboBoxOrderTradeType.SelectedIndex;
-                pFutureOrder.sNewClose = (short)_appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex;
+                QuoteData quote = GetQuote(strategy.Symbol);
+
+                if (quote != null)
+                { //TODO: account market check.
+                    strategy.MarketPrice = quote.DealPrice;
+
+                    if (quote.Simulate.IsSimulating())
+                    {
+                        throw new ArgumentException($"quote.Simulate.IsSimulating()|{quote.ToCSVString()}");
+                    }
+                }
+
+                //
+
+                strategy.StatusEnum = StrategyStatus.Enum.SentOrder;
+
+                FUTUREORDER pFutureOrder = CreateCaptialFutureOrder(strategy);
 
                 string strMessage = nameof(_appCtrl.Settings.SendRealOrder); //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
                 int m_nCode = 0;
@@ -1147,17 +1159,32 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                 }
 
+                strategy.StatusEnum = StrategyStatus.Enum.ReturnedOrder;
+                strategy.SentOrderResult= strMessage;
+                strategy.Updater = nameof(SendFutureOrder);
+                strategy.UpdateTime = DateTime.Now;
+
                 _appCtrl.Log(apiReturn.Item1, $"m_nCode={m_nCode}|strMessage={strMessage}", UniqueName);
                 _appCtrl.Log(apiReturn.Item1, apiReturn.Item2, UniqueName);
             }
             catch (Exception ex)
             {
                 _appCtrl.LogException(start, ex, ex.StackTrace);
+
+                strategy.StatusEnum = StrategyStatus.Enum.ReturnedOrder;
+                strategy.SentOrderResult = ex.Message;
+                strategy.Updater = nameof(SendFutureOrder);
+                strategy.UpdateTime = DateTime.Now;
             }
             finally
             {
                 _appCtrl.EndTrace(start, UniqueName);
             }
+        }
+
+        public void SendFutureOrderAsync(StrategyData strategy)
+        {
+            Task.Factory.StartNew(() => SendFutureOrder(strategy));
         }
     }
 }
