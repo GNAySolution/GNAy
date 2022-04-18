@@ -13,6 +13,10 @@
 
 ###### GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg
 * APP操作介面示意圖
+- [x] 全自動策略交易，開發中
+- [x] 自定義台灣期貨、單隻腳選擇權，觸價條件與交易策略，開發中
+- [ ] 台股上市、上櫃股票，待實作
+- [ ] 國外期貨、選擇權，待實作
 
 ###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/GNAy.Capital.Trade.dwp.config
 * 讀取帳號密碼的基本範例，專案不對帳密做儲存或特別處理，有需要請自行修改程式碼
