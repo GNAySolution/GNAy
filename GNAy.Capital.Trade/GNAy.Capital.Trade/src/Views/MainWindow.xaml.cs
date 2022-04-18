@@ -779,6 +779,8 @@ namespace GNAy.Capital.Trade
                     StatusBarItemAA2.Text = $"{StatusBarItemAA2.Text}|{elapsed}";
                 }
 
+                StatusBarItemCA3.Text = $"BG={_appCtrl.SignalTimeBG:ss.fff}|Trigger={_appCtrl.SignalTimeTrigger:ss.fff}|Strategy={_appCtrl.SignalTimeStrategy:ss.fff}";
+
                 if (TabControlAB.SelectedIndex == 0 && DataGridQuoteSubscribed.ItemsSource != null)
                 {
                     StatusBarItemAB1.Text = $"({DataGridQuoteSubscribed.Columns.Count},{DataGridQuoteSubscribed.Items.Count})";

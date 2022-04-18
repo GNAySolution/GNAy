@@ -9,6 +9,10 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public partial class AppController
     {
+        public DateTime SignalTimeBG { get; private set; }
+        public DateTime SignalTimeTrigger { get; private set; }
+        public DateTime SignalTimeStrategy { get; private set; }
+
         private DateTime _lastTimeToSaveQuote;
 
         /// <summary>
@@ -18,10 +22,8 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="e"></param>
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            //Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
-            //                  e.SignalTime);
-
             _timerBG.Stop();
+            SignalTimeBG = e.SignalTime;
 
             try
             {
@@ -42,6 +44,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void OnTimedTrigger(Object source, ElapsedEventArgs e)
         {
             _timerTrigger.Stop();
+            SignalTimeTrigger = e.SignalTime;
 
             try
             {
@@ -60,6 +63,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void OnTimedStrategy(Object source, ElapsedEventArgs e)
         {
             _timerStrategy.Stop();
+            SignalTimeStrategy = e.SignalTime;
 
             try
             {

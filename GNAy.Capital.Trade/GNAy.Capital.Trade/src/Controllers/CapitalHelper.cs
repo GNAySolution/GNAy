@@ -42,6 +42,26 @@ namespace GNAy.Capital.Trade.Controllers
             return quote;
         }
 
+        private QuoteData CreateQuote(SKSTOCKLONG raw, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
+        {
+            QuoteData quote = CreateQuote(raw);
+
+            quote.Count = nPtr;
+            quote.TradeDateRaw = nDate;
+            quote.MatchedTimeHHmmss = lTimehms;
+            quote.MatchedTimefff = lTimemillismicros;
+            quote.BestBuyPrice = nBid / (decimal)Math.Pow(10, quote.DecimalPos);
+            quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
+            quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
+            quote.DealQty = nQty;
+            quote.Simulate = nSimulate;
+
+            quote.Updater = nameof(CreateQuote);
+            quote.UpdateTime = DateTime.Now;
+
+            return quote;
+        }
+
         private bool UpdateQuote(SKSTOCKLONG raw)
         {
             if (!_quoteIndexMap.TryGetValue(raw.nStockIdx, out QuoteData quote))
@@ -96,7 +116,6 @@ namespace GNAy.Capital.Trade.Controllers
                 quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
                 quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
             }
-
             quote.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
             quote.Simulate = raw.nSimulate;
             quote.TotalQty = raw.nTQty;
@@ -128,10 +147,43 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteLastUpdated = quote;
 
-            if (firstTick && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
+            if ((raw.nSimulate.IsSimulating() || firstTick) && (DateTime.Now.Hour == 8 || DateTime.Now.Hour == 9 || DateTime.Now.Hour == 14 || DateTime.Now.Hour == 15) &&
+                _appCtrl.Config.StartOnTime && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
+
+                if (_capitalProductRawMap.TryGetValue(quote.Index, out SKSTOCKLONG productInfo))
+                {
+                    QuoteData qRaw = CreateQuote(productInfo);
+
+                    qRaw.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
+                    qRaw.DealQty = raw.nTickQty;
+                    qRaw.TradeDateRaw = raw.nTradingDay;
+                    qRaw.BestBuyPrice = raw.nBid / (decimal)Math.Pow(10, raw.sDecimal);
+                    qRaw.BestBuyQty = raw.nBc;
+                    qRaw.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
+                    qRaw.BestSellQty = raw.nAc;
+                    qRaw.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
+                    qRaw.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
+                    qRaw.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
+                    qRaw.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
+                    qRaw.Simulate = raw.nSimulate;
+                    qRaw.TotalQty = raw.nTQty;
+                    //qRaw.TradeDateRaw = raw.nTradingDay;
+                    qRaw.HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal);
+                    qRaw.LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal);
+                    //qRaw.Index = raw.nStockIdx;
+                    //qRaw.MarketGroup = short.TryParse(raw.bstrMarketNo, out short x) ? x : (short)-1;
+                    qRaw.DecimalPos = raw.sDecimal;
+                    qRaw.TotalQtyBefore = raw.nYQty;
+
+                    qRaw.Updater = nameof(UpdateQuote);
+                    qRaw.UpdateTime = DateTime.Now;
+
+                    symbol = string.IsNullOrWhiteSpace(qRaw.Symbol) ? $"{qRaw.MarketGroup}_{qRaw.Index}" : qRaw.Symbol;
+                    SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_RAW_", string.Empty, qRaw);
+                }
             }
 
             return true;
@@ -183,23 +235,10 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (_capitalProductRawMap.TryGetValue(quote.Index, out SKSTOCKLONG productInfo))
                 {
-                    QuoteData q = CreateQuote(productInfo);
+                    QuoteData qRaw = CreateQuote(productInfo, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
 
-                    q.Count = nPtr;
-                    q.TradeDateRaw = nDate;
-                    q.MatchedTimeHHmmss = lTimehms;
-                    q.MatchedTimefff = lTimemillismicros;
-                    q.BestBuyPrice = nBid / (decimal)Math.Pow(10, q.DecimalPos);
-                    q.BestSellPrice = nAsk / (decimal)Math.Pow(10, q.DecimalPos);
-                    q.DealPrice = nClose / (decimal)Math.Pow(10, q.DecimalPos);
-                    q.DealQty = nQty;
-                    q.Simulate = nSimulate;
-
-                    q.Updater = nameof(OnNotifyHistoryTicks);
-                    q.UpdateTime = DateTime.Now;
-
-                    symbol = string.IsNullOrWhiteSpace(q.Symbol) ? $"{q.MarketGroup}_{q.Index}" : q.Symbol;
-                    SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_RAW_", string.Empty, q);
+                    symbol = string.IsNullOrWhiteSpace(qRaw.Symbol) ? $"{qRaw.MarketGroup}_{qRaw.Index}" : qRaw.Symbol;
+                    SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_RAW_", string.Empty, qRaw);
                 }
             }
         }
@@ -249,10 +288,19 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteLastUpdated = quote;
 
-            if (firstTick && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
+            if ((nSimulate.IsSimulating() || firstTick) && (DateTime.Now.Hour == 8 || DateTime.Now.Hour == 9 || DateTime.Now.Hour == 14 || DateTime.Now.Hour == 15) &&
+                _appCtrl.Config.StartOnTime && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
+
+                if (_capitalProductRawMap.TryGetValue(quote.Index, out SKSTOCKLONG productInfo))
+                {
+                    QuoteData qRaw = CreateQuote(productInfo, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
+
+                    symbol = string.IsNullOrWhiteSpace(qRaw.Symbol) ? $"{qRaw.MarketGroup}_{qRaw.Index}" : qRaw.Symbol;
+                    SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_RAW_", string.Empty, qRaw);
+                }
             }
         }
 

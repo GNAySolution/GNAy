@@ -82,6 +82,10 @@ namespace GNAy.Capital.Trade.Controllers
 
             _triggerColumnCollection = null;
 
+            SignalTimeBG = DateTime.MinValue;
+            SignalTimeTrigger = DateTime.MinValue;
+            SignalTimeStrategy = DateTime.MinValue;
+
             _lastTimeToSaveQuote = DateTime.Now;
 
             _timerBG = new System.Timers.Timer(Settings.TimerIntervalBackground);
