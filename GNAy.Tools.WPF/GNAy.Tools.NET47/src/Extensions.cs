@@ -65,27 +65,29 @@ namespace GNAy.Tools.NET47
         {
             SortedDictionary<int, (T, PropertyInfo)> result = new SortedDictionary<int, (T, PropertyInfo)>();
             PropertyInfo[] piArr = obj.GetProperties(flags);
+            int count = -1;
 
             foreach (PropertyInfo pi in piArr)
             {
                 Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
+                ++count;
 
-                if (attr is T column && column.Index >= 0)
+                if (attr is T column && column.CSVIndex >= 0)
                 {
                     try
                     {
                         if (flags.HasFlag(BindingFlags.GetProperty) && pi.CanRead)
                         {
-                            result.Add(column.Index, (column, pi));
+                            result.Add(column.CSVIndex == 0 ? count : column.CSVIndex, (column, pi));
                         }
                         else if (flags.HasFlag(BindingFlags.SetProperty) && pi.CanWrite)
                         {
-                            result.Add(column.Index, (column, pi));
+                            result.Add(column.CSVIndex == 0 ? count : column.CSVIndex, (column, pi));
                         }
                     }
                     catch (ArgumentException ex)
                     {
-                        throw new ArgumentException($"{column.Name}|{column.Index}|{ex.Message}");
+                        throw new ArgumentException($"{column.CSVName}|{column.CSVIndex}|{ex.Message}");
                     }
                     catch
                     {
@@ -106,22 +108,22 @@ namespace GNAy.Tools.NET47
             {
                 Attribute attr = Attribute.GetCustomAttribute(pi, typeof(T), false);
 
-                if (attr is T column && column.Index >= 0)
+                if (attr is T column && column.CSVIndex >= 0)
                 {
                     try
                     {
                         if (flags.HasFlag(BindingFlags.GetProperty) && pi.CanRead)
                         {
-                            result.Add(column.Name, (column, pi));
+                            result.Add(column.CSVName, (column, pi));
                         }
                         else if (flags.HasFlag(BindingFlags.SetProperty) && pi.CanWrite)
                         {
-                            result.Add(column.Name, (column, pi));
+                            result.Add(column.CSVName, (column, pi));
                         }
                     }
                     catch (ArgumentException ex)
                     {
-                        throw new ArgumentException($"{column.Name}|{column.Index}|{ex.Message}");
+                        throw new ArgumentException($"{column.CSVName}|{column.CSVIndex}|{ex.Message}");
                     }
                     catch
                     {
@@ -346,13 +348,12 @@ namespace GNAy.Tools.NET47
         {
             string[] cells = obj.Split(Separator.CSV, StringSplitOptions.None);
 
-            if (cells.Length > 0)
+            if (cells.Length > 0 && cells[0].StartsWith("\""))
             {
                 cells[0] = cells[0].Substring(1);
 
                 string last = cells[cells.Length - 1];
-                last = last.Substring(0, last.Length - 1);
-                cells[cells.Length - 1] = last;
+                cells[cells.Length - 1] = last.Substring(0, last.Length - 1);
             }
 
             return cells;

@@ -17,23 +17,23 @@ namespace GNAy.Capital.Models
         public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(StrategyData).GetColumnAttrMapByProperty<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
         public static readonly SortedDictionary<int, (ColumnAttribute, PropertyInfo)> ColumnGetters = typeof(StrategyData).GetColumnAttrMapByIndex<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
         public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> ColumnSetters = typeof(StrategyData).GetColumnAttrMapByName<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
-        public static readonly string CSVColumnNames = string.Join(",", ColumnGetters.Values.Select(x => x.Item1.Name));
+        public static readonly string CSVColumnNames = string.Join(",", ColumnGetters.Values.Select(x => x.Item1.CSVName));
 
         public readonly object SyncRoot;
 
         private string _creator;
-        [Column("建立者", 0)]
+        [Column("建立者")]
         public string Creator
         {
             get { return _creator; }
             set { OnPropertyChanged(ref _creator, value); }
         }
 
-        [Column("日期", -1)]
+        [Column("日期", CSVIndex = -1)]
         public DateTime CreatedDate => CreatedTime.Date;
 
         private DateTime _createdTime;
-        [Column("時間", 1, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        [Column("時間", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
         public DateTime CreatedTime
         {
             get { return _createdTime; }
@@ -41,18 +41,18 @@ namespace GNAy.Capital.Models
         }
 
         private string _updater;
-        [Column("更新者", 2)]
+        [Column("更新者", WPFDisplayIndex = 0)]
         public string Updater
         {
             get { return _updater; }
             set { OnPropertyChanged(ref _updater, value); }
         }
 
-        [Column("更新日", -1)]
+        [Column("更新日", CSVIndex = -1)]
         public DateTime UpdateDate => UpdateTime.Date;
 
         private DateTime _updateTime;
-        [Column("更新時", 3, StringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        [Column("更新時", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 1, WPFStringFormat = "{0:HH:mm:ss.fff}")]
         public DateTime UpdateTime
         {
             get { return _updateTime; }
@@ -60,7 +60,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _status;
-        [Column("狀態索引", 4)]
+        [Column("狀態索引")]
         public int Status
         {
             get { return _status; }
@@ -72,11 +72,11 @@ namespace GNAy.Capital.Models
             set { Status = (int)value; }
         }
 
-        [Column("狀態描述", "狀態", 5)]
+        [Column("狀態描述", "狀態", WPFDisplayIndex = 2)]
         public string StatusDes => StrategyStatus.Description[Status];
 
         private string _primaryKey;
-        [Column("自定義唯一鍵", "唯一鍵", 6)]
+        [Column("自定義唯一鍵", "唯一鍵", WPFDisplayIndex = 3)]
         public string PrimaryKey
         {
             get { return _primaryKey; }
@@ -84,34 +84,34 @@ namespace GNAy.Capital.Models
         }
 
         private Market.EType _marketType;
-        [Column("市場", -1)]
+        [Column("市場", CSVIndex = -1)]
         public Market.EType MarketType
         {
             get { return _marketType; }
             set { OnPropertiesChanged(ref _marketType, value, nameof(MarketType), nameof(MarketName)); }
         }
-        [Column("市場", -1)]
+        [Column("市場", CSVIndex = -1, WPFDisplayIndex = 4)]
         public string MarketName => Market.NameDescription[(int)MarketType];
 
         private string _branch;
-        [Column("分公司", 7)]
+        [Column("分公司")]
         public string Branch
         {
             get { return _branch; }
             set { OnPropertiesChanged(ref _branch, value, nameof(Branch), nameof(FullAccount)); }
         }
         private string _account;
-        [Column("下單帳號", 8)]
+        [Column("下單帳號")]
         public string Account
         {
             get { return _account; }
             set { OnPropertiesChanged(ref _account, value, nameof(Account), nameof(FullAccount)); }
         }
-        [Column("下單帳號", -1)]
+        [Column("下單帳號", CSVIndex = -1, WPFDisplayIndex = 5)]
         public string FullAccount => $"{Branch}{Account}";
 
         private string _symbol;
-        [Column("代碼", 9)]
+        [Column("代碼", WPFDisplayIndex = 6)]
         public string Symbol
         {
             get { return _symbol; }
@@ -119,7 +119,7 @@ namespace GNAy.Capital.Models
         }
 
         private short _bs;
-        [Column("買賣索引", 10)]
+        [Column("買賣索引")]
         public short BS
         {
             get { return _bs; }
@@ -131,11 +131,11 @@ namespace GNAy.Capital.Models
             set { BS = (short)value; }
         }
 
-        [Column("買賣描述", "買賣", 11)]
+        [Column("買賣描述", "買賣", WPFDisplayIndex = 7)]
         public string BSDes => OrderBS.Description[BS];
 
         private short _tradeType;
-        [Column("掛單索引", 12)]
+        [Column("掛單索引")]
         public short TradeType
         {
             get { return _tradeType; }
@@ -147,11 +147,11 @@ namespace GNAy.Capital.Models
             set { TradeType = (short)value; }
         }
 
-        [Column("掛單描述", "掛單", 13)]
+        [Column("掛單描述", "掛單", WPFDisplayIndex = 8)]
         public string TradeTypeDes => OrderTradeType.Description[TradeType];
 
         private short _dayTrade;
-        [Column("當沖索引", 14)]
+        [Column("當沖索引")]
         public short DayTrade
         {
             get { return _dayTrade; }
@@ -163,11 +163,11 @@ namespace GNAy.Capital.Models
             set { DayTrade = (short)value; }
         }
 
-        [Column("當沖描述", "沖", 15)]
+        [Column("當沖描述", "沖", WPFDisplayIndex = 9)]
         public string DayTradeDes => OrderDayTrade.Description[DayTrade];
 
         private short _position;
-        [Column("新倉平倉索引", 16)]
+        [Column("新倉平倉索引")]
         public short Position
         {
             get { return _position; }
@@ -179,11 +179,11 @@ namespace GNAy.Capital.Models
             set { Position = (short)value; }
         }
 
-        [Column("新倉平倉描述", "新平", 17)]
+        [Column("新倉平倉描述", "新平", WPFDisplayIndex = 10)]
         public string PositionDes => OrderPosition.Description[Position];
 
         private decimal _marketPrice;
-        [Column("市場最近成交價", "市場價格", 18)]
+        [Column("委託送出前的市場成交價", "市場價格", CSVStringFormat = "0.00", WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}")]
         public decimal MarketPrice
         {
             get { return _marketPrice; }
@@ -191,7 +191,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _orderPrice;
-        [Column("委託價格", 19)]
+        [Column("委託價格", WPFDisplayIndex = 12)]
         public string OrderPrice
         {
             get { return _orderPrice; }
@@ -199,7 +199,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _orderQuantity;
-        [Column("委託口數", "委量", 20)]
+        [Column("委託口數", "委量", WPFDisplayIndex = 13)]
         public int OrderQuantity
         {
             get { return _orderQuantity; }
@@ -207,58 +207,58 @@ namespace GNAy.Capital.Models
         }
 
         private string _stopLossPrice;
-        [Column("停損價格設定", 21)]
+        [Column("停損價格設定")]
         public string StopLossPrice
         {
             get { return _stopLossPrice; }
             set { OnPropertiesChanged(ref _stopLossPrice, value, nameof(StopLossPrice), nameof(StopLoss)); }
         }
         private decimal _stopLossPct;
-        [Column("停損價%設定", 22)]
+        [Column("停損價%設定", CSVStringFormat = "0.00")]
         public decimal StopLossPct
         {
             get { return _stopLossPct; }
             set { OnPropertiesChanged(ref _stopLossPct, value, nameof(StopLossPct), nameof(StopLoss)); }
         }
-        [Column("停損設定", -1)]
+        [Column("停損設定", CSVIndex = -1, WPFDisplayIndex = 14)]
         public string StopLoss => string.IsNullOrWhiteSpace(StopLossPrice) ? string.Empty : $"{StopLossPrice} ({StopLossPct:0.00%})";
 
         private string _stopWinPrice;
-        [Column("停利價格設定", 23)]
+        [Column("停利價格設定")]
         public string StopWinPrice
         {
             get { return _stopWinPrice; }
             set { OnPropertiesChanged(ref _stopWinPrice, value, nameof(StopWinPrice), nameof(StopWin)); }
         }
         private decimal _stopWinPct;
-        [Column("停利價%設定", 24)]
+        [Column("停利價%設定", CSVStringFormat = "0.00")]
         public decimal StopWinPct
         {
             get { return _stopWinPct; }
             set { OnPropertiesChanged(ref _stopWinPct, value, nameof(StopWinPct), nameof(StopWin)); }
         }
-        [Column("停利設定", -1)]
+        [Column("停利設定", CSVIndex = -1, WPFDisplayIndex = 15)]
         public string StopWin => string.IsNullOrWhiteSpace(StopWinPrice) ? string.Empty : $"{StopWinPrice} ({StopWinPct:0.00%})";
 
         private string _moveStopWinPrice;
-        [Column("移動停利價格設定", 25)]
+        [Column("移動停利價格設定")]
         public string MoveStopWinPrice
         {
             get { return _moveStopWinPrice; }
             set { OnPropertiesChanged(ref _moveStopWinPrice, value, nameof(MoveStopWinPrice), nameof(MoveStopWin)); }
         }
         private decimal _moveStopWinPct;
-        [Column("移動停利價%設定", 26)]
+        [Column("移動停利價%設定", CSVStringFormat = "0.00")]
         public decimal MoveStopWinPct
         {
             get { return _moveStopWinPct; }
             set { OnPropertiesChanged(ref _moveStopWinPct, value, nameof(MoveStopWinPct), nameof(MoveStopWin)); }
         }
-        [Column("移動停利設定", -1)]
+        [Column("移動停利設定", CSVIndex = -1, WPFDisplayIndex = 16)]
         public string MoveStopWin => string.IsNullOrWhiteSpace(MoveStopWinPrice) ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinPct:0.00%})";
 
         private string _sentOrderResult;
-        [Column("13碼委託序號或錯誤訊息", "委託回報", 27)]
+        [Column("13碼委託序號或錯誤訊息", "委託回報", WPFDisplayIndex = 17)]
         public string SentOrderResult
         {
             get { return _sentOrderResult; }
@@ -266,7 +266,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _returnedPriceResult;
-        [Column("成交價格", 28)]
+        [Column("成交價格", CSVStringFormat = "0.00", WPFDisplayIndex = 18, WPFStringFormat = "{0:0.00}")]
         public decimal ReturnedPriceResult
         {
             get { return _returnedPriceResult; }
@@ -274,7 +274,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _returnedPriPctResult;
-        [Column("成交價%", 29)]
+        [Column("成交價%", CSVStringFormat = "0.00", WPFDisplayIndex = 19, WPFStringFormat = "{0:0.00}%")]
         public decimal ReturnedPriPctResult
         {
             get { return _returnedPriPctResult; }
@@ -282,7 +282,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _returnedDealResult;
-        [Column("成交序號或錯誤訊息", "成交序號", 30)]
+        [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 20)]
         public string ReturnedDealResult
         {
             get { return _returnedDealResult; }
@@ -292,7 +292,7 @@ namespace GNAy.Capital.Models
         //
 
         private string _comment;
-        [Column("註解", 99)]
+        [Column("註解", WPFDisplayIndex = 21)]
         public string Comment
         {
             get { return _comment; }
@@ -340,7 +340,7 @@ namespace GNAy.Capital.Models
 
         public string ToCSVString()
         {
-            string result = string.Join("\",\"", ColumnGetters.Values.Select(x => x.Item2.ValueToString(this, x.Item1.StringFormat)));
+            string result = string.Join("\",\"", ColumnGetters.Values.Select(x => x.Item2.ValueToString(this, x.Item1.CSVStringFormat)));
             return $"\"{result}\"";
         }
 
@@ -365,7 +365,7 @@ namespace GNAy.Capital.Models
             {
                 if (ColumnSetters.TryGetValue(columnNames[i], out (ColumnAttribute, PropertyInfo) value))
                 {
-                    value.Item2.SetValueFromString(this, cells[i], value.Item1.StringFormat);
+                    value.Item2.SetValueFromString(this, cells[i], value.Item1.CSVStringFormat);
                 }
             }
         }

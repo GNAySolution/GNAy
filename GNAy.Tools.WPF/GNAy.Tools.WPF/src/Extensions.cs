@@ -99,10 +99,16 @@ namespace GNAy.Tools.WPF
                 {
                     if (propertyNameMap.TryGetValue(bind.Path.Path, out T attr))
                     {
-                        column.Header = attr.ShortName;
+                        column.Header = attr.WPFName;
+                        column.DisplayIndex = attr.WPFDisplayIndex;
+                        bind.StringFormat = attr.WPFStringFormat;
+                        column.IsReadOnly = attr.WPFIsReadOnly;
+                        column.Visibility = (Visibility)attr.WPFVisibility;
+                        column.CanUserReorder = attr.WPFCanUserReorder;
+                        column.CanUserSort = attr.WPFCanUserSort;
 
                         Style s = new Style(typeof(DataGridColumnHeader));
-                        s.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{attr.Name},{bind.Path.Path},{bind.StringFormat}"));
+                        s.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{attr.CSVName},{bind.Path.Path},{bind.StringFormat}"));
 
                         column.HeaderStyle = s;
                     }

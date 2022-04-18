@@ -12,37 +12,37 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class OrderAccData : NotifyPropertyChanged
     {
-        [Column("建立者", -1)]
+        [Column("建立者")]
         public string Creator { get; set; }
 
-        [Column("日期", -1)]
+        [Column("日期")]
         public DateTime CreatedDate => CreatedTime.Date;
 
         private DateTime _createdTime;
-        [Column("時間", -1)]
+        [Column("時間")]
         public DateTime CreatedTime
         {
             get { return _createdTime; }
             set { OnPropertiesChanged(ref _createdTime, value, nameof(CreatedTime), nameof(CreatedDate)); }
         }
 
-        [Column("市場", -1)]
+        [Column("市場")]
         public Market.EType MarketType { get; set; }
         public string MarketName => Market.NameDescription[(int)MarketType];
 
-        [Column("分公司", -1)]
+        [Column("分公司")]
         public string Branch { get; set; }
 
-        [Column("分公司代號", -1)]
+        [Column("分公司代號")]
         public string BranchCode { get; set; }
 
-        [Column("帳號", -1)]
+        [Column("帳號")]
         public string Account { get; set; }
 
-        [Column("身份證字號", -1)]
+        [Column("身份證字號")]
         public string Identity { get; set; }
 
-        [Column("姓名", -1)]
+        [Column("姓名")]
         public string MemberName { get; set; }
 
         public string Key => $"{MarketType},{Account}";

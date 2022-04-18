@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.413.1",
+  "Version": "0.22.418.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -36,17 +36,18 @@
     "TSEA",
     "0050",
     "00632R",
+    "UN2206",
     "TX06",
     "MTX06"
   ],
   "QuoteLive": [
     "2330",
     "UD06",
-    "UN2206",
     "TX05",
     "MTX05"
   ],
   "QuoteFolderPath": "QuoteData",
+  "QuoteFileOpenPrefix": "Open_",
   "QuoteFileClosePrefix": "Last_",
   "QuoteFileRecoverPrefix": "Recover_",
   "QuoteSaveInterval": 45,

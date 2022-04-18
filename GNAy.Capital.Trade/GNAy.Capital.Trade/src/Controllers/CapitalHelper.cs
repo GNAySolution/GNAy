@@ -128,9 +128,10 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteLastUpdated = quote;
 
-            if (firstTick)
+            if (firstTick && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
-                _appCtrl.LogTrace($"開盤|{quote.ToCSVString()}", UniqueName);
+                string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
+                SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
             }
 
             return true;
@@ -179,6 +180,27 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_", string.Empty, quote);
+
+                if (_capitalProductRawMap.TryGetValue(quote.Index, out SKSTOCKLONG productInfo))
+                {
+                    QuoteData q = CreateQuote(productInfo);
+
+                    q.Count = nPtr;
+                    q.TradeDateRaw = nDate;
+                    q.MatchedTimeHHmmss = lTimehms;
+                    q.MatchedTimefff = lTimemillismicros;
+                    q.BestBuyPrice = nBid / (decimal)Math.Pow(10, q.DecimalPos);
+                    q.BestSellPrice = nAsk / (decimal)Math.Pow(10, q.DecimalPos);
+                    q.DealPrice = nClose / (decimal)Math.Pow(10, q.DecimalPos);
+                    q.DealQty = nQty;
+                    q.Simulate = nSimulate;
+
+                    q.Updater = nameof(OnNotifyHistoryTicks);
+                    q.UpdateTime = DateTime.Now;
+
+                    symbol = string.IsNullOrWhiteSpace(q.Symbol) ? $"{q.MarketGroup}_{q.Index}" : q.Symbol;
+                    SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_RAW_", string.Empty, q);
+                }
             }
         }
 
@@ -227,9 +249,10 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteLastUpdated = quote;
 
-            if (firstTick)
+            if (firstTick && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
-                _appCtrl.LogTrace($"開盤|{quote.ToCSVString()}", UniqueName);
+                string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
+                SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
             }
         }
 

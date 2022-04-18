@@ -17,20 +17,20 @@ namespace GNAy.Capital.Models
         /// <summary>
         /// 欄位值(通常是DateTime)轉換為數值時的格式設定
         /// </summary>
-        public string ValueFormat { get; set; }
+        public string TriggerFormat { get; set; }
 
-        public TradeColumnAttribute(string name, string shortName, int index) : base(name, shortName, index)
+        public TradeColumnAttribute(string csvName, string wpfName) : base(csvName, wpfName)
         {
             IsTrigger = false;
-            ValueFormat = string.Empty;
+            TriggerFormat = string.Empty;
         }
 
-        public TradeColumnAttribute(string name, int index) : this(name, name, index)
+        public TradeColumnAttribute(string csvName) : this(csvName, csvName)
         {
             //
         }
 
-        public TradeColumnAttribute() : this(string.Empty, string.Empty, -1)
+        public TradeColumnAttribute() : this(string.Empty, string.Empty)
         {
             //
         }

@@ -59,6 +59,8 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly Dictionary<int, APIReplyData> _apiReplyMap;
         private readonly ObservableCollection<APIReplyData> _apiReplyCollection;
 
+        private readonly Dictionary<int, SKSTOCKLONG> _capitalProductRawMap;
+
         public QuoteData QuoteLastUpdated { get; private set; }
         private readonly Dictionary<int, QuoteData> _quoteIndexMap;
         private readonly ObservableCollection<QuoteData> _quoteCollection;
@@ -97,6 +99,8 @@ namespace GNAy.Capital.Trade.Controllers
             _apiReplyMap = new Dictionary<int, APIReplyData>();
             _appCtrl.MainForm.DataGridAPIReply.SetHeadersByBindings(APIReplyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _apiReplyCollection = _appCtrl.MainForm.DataGridAPIReply.SetAndGetItemsSource<APIReplyData>();
+
+            _capitalProductRawMap = new Dictionary<int, SKSTOCKLONG>();
 
             QuoteLastUpdated = new QuoteData();
             _quoteIndexMap = new Dictionary<int, QuoteData>();
@@ -576,6 +580,8 @@ namespace GNAy.Capital.Trade.Controllers
                         LogAPIMessage(nCode);
                         continue;
                     }
+
+                    _capitalProductRawMap.Add(pSKStockLONG.nStockIdx, pSKStockLONG);
 
                     QuoteData quote = CreateQuote(pSKStockLONG);
                     _appCtrl.Trigger.Reset(quote);

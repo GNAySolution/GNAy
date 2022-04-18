@@ -155,7 +155,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (trigger.Column.Property.PropertyType == typeof(DateTime))
                 {
-                    trigger.ColumnValue = decimal.Parse(((DateTime)valueObj).ToString(trigger.Column.Attribute.ValueFormat));
+                    trigger.ColumnValue = decimal.Parse(((DateTime)valueObj).ToString(trigger.Column.Attribute.TriggerFormat));
                 }
                 else if (trigger.Column.Property.PropertyType == typeof(string))
                 {
@@ -714,11 +714,13 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
-                TriggerData trigger = new TriggerData(selectedQuote, (TradeColumnTrigger)_appCtrl.MainForm.ComboBoxTriggerColumn.SelectedItem)
+                TriggerData trigger = new TriggerData((TradeColumnTrigger)_appCtrl.MainForm.ComboBoxTriggerColumn.SelectedItem)
                 {
                     Updater = nameof(AddRule),
                     UpdateTime = DateTime.Now,
                     PrimaryKey = primaryKey,
+                    Quote = selectedQuote,
+                    Symbol = selectedQuote.Symbol,
                     Rule = rule,
                     TargetValue = value,
                     Cancel = _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex,

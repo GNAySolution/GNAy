@@ -40,6 +40,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     _appCtrl.Trigger?.ClearQuotes();
 
+                    _capitalProductRawMap.Clear();
                     _quoteIndexMap.Clear();
                     _quoteCollection.Clear();
                     QuoteFileNameBase = string.Empty;

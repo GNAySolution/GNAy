@@ -9,25 +9,39 @@ namespace GNAy.Tools.NET47
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class ColumnAttribute : Attribute
     {
-        public string Name { get; private set; }
-        public string ShortName { get; private set; }
-        public int Index { get; private set; }
-        public string StringFormat { get; set; }
+        public string CSVName { get; set; }
+        public int CSVIndex { get; set; }
+        public string CSVStringFormat { get; set; }
 
-        public ColumnAttribute(string name, string shortName, int index)
+        public string WPFName { get; set; }
+        public int WPFDisplayIndex { get; set; }
+        public string WPFStringFormat { get; set; }
+        public bool WPFIsReadOnly { get; set; }
+        public int WPFVisibility { get; set; }
+        public bool WPFCanUserReorder { get; set; }
+        public bool WPFCanUserSort { get; set; }
+
+        public ColumnAttribute(string csvName, string wpfName)
         {
-            Name = name;
-            ShortName = shortName;
-            Index = index;
-            StringFormat = string.Empty;
+            CSVName = csvName;
+            CSVIndex = 0;
+            CSVStringFormat = string.Empty;
+
+            WPFName = wpfName;
+            WPFDisplayIndex = -1;
+            WPFStringFormat = string.Empty;
+            WPFIsReadOnly = true;
+            WPFVisibility = 0;
+            WPFCanUserReorder = true;
+            WPFCanUserSort = false;
         }
 
-        public ColumnAttribute(string name, int index) : this(name, name, index)
+        public ColumnAttribute(string csvName) : this(csvName, csvName)
         {
             //
         }
 
-        public ColumnAttribute() : this(string.Empty, string.Empty, -1)
+        public ColumnAttribute() : this(string.Empty, string.Empty)
         {
             //
         }

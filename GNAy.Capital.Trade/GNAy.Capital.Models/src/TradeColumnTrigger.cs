@@ -14,7 +14,7 @@ namespace GNAy.Capital.Models
         public TradeColumnAttribute Attribute { get; private set; }
         public PropertyInfo Property { get; private set; }
 
-        public string DisplayName => string.Join(",", Attribute.Name, Property.PropertyType.Name, Attribute.ValueFormat);
+        public string DisplayName => string.Join(",", Attribute.CSVName, Property.PropertyType.Name, Attribute.TriggerFormat);
         public string ToolTip => ToString();
 
         public TradeColumnTrigger(TradeColumnAttribute attr, PropertyInfo property)
@@ -28,7 +28,7 @@ namespace GNAy.Capital.Models
 
         public override string ToString()
         {
-            return string.Join(",", Property.Name, Property.PropertyType.Name, Attribute.Name, Attribute.ShortName, Attribute.ValueFormat);
+            return string.Join(",", Property.Name, Property.PropertyType.Name, Attribute.CSVName, Attribute.WPFName, Attribute.TriggerFormat);
         }
     }
 }

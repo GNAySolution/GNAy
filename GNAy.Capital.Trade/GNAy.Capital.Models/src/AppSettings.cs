@@ -83,6 +83,10 @@ namespace GNAy.Capital.Models
         /// </summary>
         public string QuoteFolderPath { get; set; }
         /// <summary>
+        /// 開盤報價檔名前綴
+        /// </summary>
+        public string QuoteFileOpenPrefix { get; set; }
+        /// <summary>
         /// 收盤報價檔名前綴
         /// </summary>
         public string QuoteFileClosePrefix { get; set; }
@@ -129,7 +133,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.413.1";
+            Version = "0.22.418.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -169,13 +173,14 @@ namespace GNAy.Capital.Models
             //};
 
             QuoteMarkets = new List<int>();
-            //QuoteMarkets = new List<int>() { (int)Market.EGroup.TSE, (int)Market.EGroup.OTC, (int)Market.EGroup.Futures, (int)Market.EGroup.Emerging };
+            //QuoteMarkets = new List<int>() { (int)Market.EGroup.TSE, (int)Market.EGroup.OTC, (int)Market.EGroup.Futures, (int)Market.EGroup.Emerging }; //
             QuoteRequest = new List<string>();
-            //QuoteRequest = new List<string>() { "TSEA", "0050", "00632R", "TX06", "MTX06" }; //
+            //QuoteRequest = new List<string>() { "TSEA", "0050", "00632R", "UN2206", "TX06", "MTX06" }; //
             QuoteLive = new List<string>();
-            //QuoteLive = new List<string>() { "2330", "UD06", "UN2206", "TX05", "MTX05" }; //
+            //QuoteLive = new List<string>() { "2330", "UD06", "TX05", "MTX05" }; //
 
             QuoteFolderPath = "QuoteData";
+            QuoteFileOpenPrefix = "Open_";
             QuoteFileClosePrefix = "Last_";
             QuoteFileRecoverPrefix = "Recover_";
             QuoteSaveInterval = 45;
