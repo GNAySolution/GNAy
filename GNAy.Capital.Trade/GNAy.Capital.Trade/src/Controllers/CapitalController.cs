@@ -143,13 +143,13 @@ namespace GNAy.Capital.Trade.Controllers
             return $"nCode={nCode}|{codeMessage}|{lastLog}";
         }
 
-        public (LogLevel, string) LogAPIMessage(int nCode, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public (LogLevel, string) LogAPIMessage(int nCode, string msg = "", TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            string msg = GetAPIMessage(nCode); //TODO
+            msg = string.Format("{0}{1}{2}", msg, string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", GetAPIMessage(nCode));
 
             if (nCode < 0)
             {
-                _appCtrl.LogError(msg, UniqueName, null, lineNumber, memberName);
+                _appCtrl.LogError(msg, UniqueName, elapsed, lineNumber, memberName);
                 return (LogLevel.Error, msg);
             }
 
@@ -157,7 +157,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (_code == 0)
             {
-                _appCtrl.LogTrace(msg, UniqueName, null, lineNumber, memberName);
+                _appCtrl.LogTrace(msg, UniqueName, elapsed, lineNumber, memberName);
                 return (LogLevel.Trace, msg);
             }
             //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
@@ -165,19 +165,24 @@ namespace GNAy.Capital.Trade.Controllers
             //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
             else if (_code < 2000 || _code == 3021 || _code == 3022 || _code == 3033)
             {
-                _appCtrl.LogError(msg, UniqueName, null, lineNumber, memberName);
+                _appCtrl.LogError(msg, UniqueName, elapsed, lineNumber, memberName);
                 return (LogLevel.Error, msg);
             }
             else if (_code < 3000)
             {
-                _appCtrl.LogWarn(msg, UniqueName, null, lineNumber, memberName);
+                _appCtrl.LogWarn(msg, UniqueName, elapsed, lineNumber, memberName);
                 return (LogLevel.Warn, msg);
             }
             else
             {
-                _appCtrl.LogTrace(msg, UniqueName, null, lineNumber, memberName);
+                _appCtrl.LogTrace(msg, UniqueName, elapsed, lineNumber, memberName);
                 return (LogLevel.Trace, msg);
             }
+        }
+
+        public (LogLevel, string) LogAPIMessage(DateTime start, int nCode, string msg = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            return LogAPIMessage(nCode, msg, DateTime.Now - start, lineNumber, memberName);
         }
 
         public void AppendReply(string userID, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
@@ -262,18 +267,19 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     //1097 SK_ERROR_TELNET_LOGINSERVER_FAIL Telnet登入主機失敗，請確認您的環境(Firewall及hosts…等)
                     //1098 SK_ERROR_TELNET_AGREEMENTSERVER_FAIL Telnet同意書查詢主機失敗，請確認您的環境(Firewall及hosts…等)
-                    (LogLevel, string) apiReturn = LogAPIMessage(LoginUserResult);
+                    (LogLevel, string) apiMsg = LogAPIMessage(start, LoginUserResult);
                     m_pSKCenter = null;
-                    _appCtrl.Exit(apiReturn.Item2, apiReturn.Item1);
+                    _appCtrl.Exit(apiMsg.Item2, apiMsg.Item1);
                     return LoginUserResult;
                 }
 
                 //if (LoginUserResult == 0 || (LoginUserResult >= 600 && LoginUserResult <= 699))
                 //{
                 //    int nCode = m_pSKReply.SKReplyLib_ConnectByID(userID); //指定回報連線的使用者登入帳號
+                //
                 //    if (nCode != 0)
                 //    {
-                //        LogAPIMessage(nCode);
+                //        LogAPIMessage(start, nCode);
                 //    }
                 //}
 
@@ -306,7 +312,7 @@ namespace GNAy.Capital.Trade.Controllers
                     if (m_SKQuoteLib != null)
                     {
                         QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
-                        LogAPIMessage(QuoteStatus);
+                        LogAPIMessage(start, QuoteStatus);
                         return;
                     }
 
@@ -318,7 +324,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else
                     {
-                        LogAPIMessage(QuoteStatus);
+                        LogAPIMessage(start, QuoteStatus);
                     }
 
                     m_SKQuoteLib = new SKQuoteLib();
@@ -344,7 +350,7 @@ namespace GNAy.Capital.Trade.Controllers
                     m_SKQuoteLib.OnNotifyOddLotSpreadDeal += m_SKQuoteLib_OnNotifyOddLotSpreadDeal;
 
                     QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
-                    LogAPIMessage(QuoteStatus);
+                    LogAPIMessage(start, QuoteStatus);
                 }
                 catch (Exception ex)
                 {
@@ -369,7 +375,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 int result = m_SKQuoteLib.SKQuoteLib_LeaveMonitor(); //中斷所有Solace伺服器連線
-                LogAPIMessage(result);
+                LogAPIMessage(start, result);
 
                 return result;
             }
@@ -385,7 +391,7 @@ namespace GNAy.Capital.Trade.Controllers
             return -1;
         }
 
-        public string IsConnected()
+        public (LogLevel, string) IsConnected()
         {
             DateTime start = _appCtrl.StartTrace();
 
@@ -406,29 +412,30 @@ namespace GNAy.Capital.Trade.Controllers
                         result = $"isConnected={isConnected}|下載中";
                         break;
                     default:
-                        return LogAPIMessage(isConnected).Item2;
+                        return LogAPIMessage(start, isConnected);
                 }
 
-                int nCode = m_pSKReply.SKReplyLib_IsConnectedByID(UserID);
+                int nCode = m_pSKReply.SKReplyLib_IsConnectedByID(UserID); //檢查輸入的帳號目前連線狀態 //正式環境： 0表示斷線。1表示連線中。2表示下載中
 
                 if (nCode != 0 && nCode != 1 && nCode != 2)
                 {
-                    LogAPIMessage(nCode);
+                    LogAPIMessage(start, nCode);
                 }
 
                 _appCtrl.LogTrace(result, UniqueName);
-                return result;
+
+                return (LogLevel.Trace, result);
             }
             catch (Exception ex)
             {
                 _appCtrl.LogException(start, ex, ex.StackTrace);
+
+                return (LogLevel.Error, ex.Message);
             }
             finally
             {
                 _appCtrl.EndTrace(start, UniqueName);
             }
-
-            return string.Empty;
         }
 
         public void PrintProductList()
@@ -442,7 +449,11 @@ namespace GNAy.Capital.Trade.Controllers
                     //根據市場別編號，取得國內各市場代碼所包含的商品基本資料相關資訊
                     //結果會透過OnNotifyCommodityListWithTypeNo收到
                     int m_nCode = m_SKQuoteLib.SKQuoteLib_RequestStockList((short)market);
-                    LogAPIMessage(m_nCode);
+
+                    if (m_nCode != 0)
+                    {
+                        LogAPIMessage(start, m_nCode);
+                    }
                 }
             }
             catch (Exception ex)
@@ -553,6 +564,19 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
+        public (int, SKSTOCKLONG) GetProductInfo(string symbol, DateTime start)
+        {
+            SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
+            int nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(symbol, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
+
+            if (nCode != 0)
+            {
+                LogAPIMessage(start, nCode);
+            }
+
+            return (nCode, pSKStockLONG);
+        }
+
         public void GetProductInfo()
         {
             DateTime start = _appCtrl.StartTrace();
@@ -570,20 +594,18 @@ namespace GNAy.Capital.Trade.Controllers
 
                 QuoteFileNameBase = string.Empty;
 
-                foreach (string product in _appCtrl.Config.QuoteSubscribed)
+                foreach (string symbol in _appCtrl.Config.QuoteSubscribed)
                 {
-                    SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
-                    int nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(product, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
+                    (int, SKSTOCKLONG) product = GetProductInfo(symbol, start);
 
-                    if (nCode != 0)
+                    if (product.Item1 != 0)
                     {
-                        LogAPIMessage(nCode);
                         continue;
                     }
 
-                    _capitalProductRawMap.Add(pSKStockLONG.nStockIdx, pSKStockLONG);
+                    _capitalProductRawMap.Add(product.Item2.nStockIdx, product.Item2);
 
-                    QuoteData quote = CreateQuote(pSKStockLONG);
+                    QuoteData quote = CreateQuote(product.Item2);
                     _appCtrl.Trigger.Reset(quote);
                     _quoteIndexMap.Add(quote.Index, quote);
                     _quoteCollection.Add(quote);
@@ -701,41 +723,41 @@ namespace GNAy.Capital.Trade.Controllers
                             continue;
                         }
 
-                        short pageA = -1;
-                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref pageA, quote.Symbol); //訂閱與要求傳送即時成交明細。(本功能不會訂閱最佳五檔，亦不包含歷史Ticks)
+                        short qPage = -1;
+                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestLiveTick(ref qPage, quote.Symbol); //訂閱與要求傳送即時成交明細。(本功能不會訂閱最佳五檔，亦不包含歷史Ticks)
 
                         if (nCode != 0)
                         {
-                            LogAPIMessage(nCode);
+                            LogAPIMessage(start, nCode);
                             continue;
                         }
 
-                        if (pageA < 0)
+                        if (qPage < 0)
                         {
-                            _appCtrl.LogError($"Sub quote failed.|Symbol={quote.Symbol}|pageA={pageA}", UniqueName);
+                            _appCtrl.LogError($"Sub quote failed.|Symbol={quote.Symbol}|qPage={qPage}", UniqueName);
                         }
 
-                        quote.Page = pageA;
+                        quote.Page = qPage;
                     }
 
                     if (_appCtrl.Config.QuoteSubscribed.Count > 0)
                     {
                         string requests = string.Join(",", _appCtrl.Config.QuoteSubscribed);
-                        short pageB = 1;
-                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref pageB, requests); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
+                        short qPage = 1;
+                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref qPage, requests); //訂閱指定商品即時報價，要求伺服器針對 bstrStockNos 內的商品代號訂閱商品報價通知動作
 
                         if (nCode != 0)
                         {
-                            LogAPIMessage(nCode);
+                            LogAPIMessage(start, nCode);
 
                             //nCode=3030|SK_SUBJECT_NO_QUOTE_SUBSCRIBE|即時行情連線數已達上限，行情訂閱功能受限
                             _appCtrl.LogWarn($"QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}", UniqueName);
                             QuoteStatus = nCode + StatusCode.BaseWarnValue;
                         }
 
-                        if (pageB < 0)
+                        if (qPage < 0)
                         {
-                            _appCtrl.LogError($"Sub quote failed.|requests={requests}|pageB={pageB}", UniqueName);
+                            _appCtrl.LogError($"Sub quote failed.|requests={requests}|qPage={qPage}", UniqueName);
                         }
                     }
 
@@ -764,20 +786,20 @@ namespace GNAy.Capital.Trade.Controllers
 
                 try
                 {
-                    foreach (string product in products.SplitToCSV())
+                    foreach (string product in products.Split(','))
                     {
-                        short pageA = -1;
-                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestTicks(ref pageA, product.Trim()); //訂閱要求傳送成交明細以及五檔
+                        short qPage = -1;
+                        int nCode = m_SKQuoteLib.SKQuoteLib_RequestTicks(ref qPage, product.Trim()); //訂閱要求傳送成交明細以及五檔
 
                         if (nCode != 0)
                         {
-                            LogAPIMessage(nCode);
+                            LogAPIMessage(start, nCode);
                             continue;
                         }
 
-                        if (pageA < 0)
+                        if (qPage < 0)
                         {
-                            _appCtrl.LogError($"Recover quote failed.|Symbol={product}|pageA={pageA}", UniqueName);
+                            _appCtrl.LogError($"Recover quote failed.|Symbol={product}|qPage={qPage}", UniqueName);
                         }
                     }
                 }
@@ -806,7 +828,11 @@ namespace GNAy.Capital.Trade.Controllers
                 if (string.IsNullOrWhiteSpace(product))
                 {
                     int nCode = m_SKQuoteLib.SKQuoteLib_RequestKLineAM(product, 0, 1, 0); //（僅提供歷史資料）向報價伺服器提出，取得單一商品技術分析資訊需求，可選AM盤或全盤
-                    LogAPIMessage(nCode);
+
+                    if (nCode != 0)
+                    {
+                        LogAPIMessage(start, nCode);
+                    }
                 }
                 else
                 {
@@ -923,7 +949,7 @@ namespace GNAy.Capital.Trade.Controllers
                 m_pSKOrder.OnTelnetTest += m_pSKOrder_OnTelnetTest;
 
                 ReadCertResult = m_pSKOrder.SKOrderLib_Initialize(); //下單物件初始化。産生下單物件後需先執行初始動作
-                LogAPIMessage(ReadCertResult);
+                LogAPIMessage(start, ReadCertResult);
 
                 if (ReadCertResult != 0)
                 {
@@ -934,7 +960,7 @@ namespace GNAy.Capital.Trade.Controllers
                 //讀取憑證資訊。委託下單必須透過憑證，因此當元件初始化成功後即需要做讀取憑證的動作，如果使用群組的帳號做初始，則必須自行將所有的帳號依序做讀取憑證的動作。
                 //如果送出委託前未經讀取憑證，送委託會得到 SK_ERROR_ORDER_SIGN_INVALID 的錯誤
                 ReadCertResult = m_pSKOrder.ReadCertByID(UserID);
-                LogAPIMessage(ReadCertResult);
+                LogAPIMessage(start, ReadCertResult);
 
                 if (ReadCertResult != 0)
                 {
@@ -964,7 +990,11 @@ namespace GNAy.Capital.Trade.Controllers
                 _orderAccCollection.Clear();
 
                 int m_nCode = m_pSKOrder.GetUserAccount(); //取回目前可交易的所有帳號。資料由OnAccount事件回傳
-                LogAPIMessage(m_nCode);
+
+                if (m_nCode != 0)
+                {
+                    LogAPIMessage(start, m_nCode);
+                }
             }
             catch (Exception ex)
             {
@@ -985,7 +1015,12 @@ namespace GNAy.Capital.Trade.Controllers
                 if (marketType >= 0 && marketType < Market.CodeDescription.Count)
                 {
                     int m_nCode = m_pSKOrder.UnlockOrder(marketType); //下單解鎖。下單函式上鎖後需經由此函式解鎖才可繼續下單
-                    LogAPIMessage(m_nCode);
+
+                    if (m_nCode != 0)
+                    {
+                        LogAPIMessage(start, m_nCode);
+                    }
+
                     return;
                 }
                 else if (marketType >= Market.CodeDescription.Count)
@@ -1022,7 +1057,12 @@ namespace GNAy.Capital.Trade.Controllers
                 if (marketType >= 0 && marketType < Market.CodeDescription.Count)
                 {
                     int m_nCode = m_pSKOrder.SetMaxQty(marketType, maxQty); //設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
-                    LogAPIMessage(m_nCode);
+
+                    if (m_nCode != 0)
+                    {
+                        LogAPIMessage(start, m_nCode);
+                    }
+
                     return;
                 }
                 else if (marketType >= Market.CodeDescription.Count)
@@ -1059,7 +1099,12 @@ namespace GNAy.Capital.Trade.Controllers
                 if (marketType >= 0 && marketType < Market.CodeDescription.Count)
                 {
                     int m_nCode = m_pSKOrder.SetMaxCount(marketType, maxCount); //設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
-                    LogAPIMessage(m_nCode);
+
+                    if (m_nCode != 0)
+                    {
+                        LogAPIMessage(start, m_nCode);
+                    }
+
                     return;
                 }
                 else if (marketType >= Market.CodeDescription.Count)
@@ -1108,7 +1153,11 @@ namespace GNAy.Capital.Trade.Controllers
                     else
                     {
                         int m_nCode = m_pSKOrder.GetOpenInterestWithFormat(UserID, orderAcc, format); //查詢期貨未平倉－可指定回傳格式
-                        LogAPIMessage(m_nCode);
+
+                        if (m_nCode != 0)
+                        {
+                            LogAPIMessage(start, m_nCode);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -1129,18 +1178,7 @@ namespace GNAy.Capital.Trade.Controllers
             try
             {
                 _appCtrl.Strategy.AddOrder(strategy);
-
-                QuoteData quote = GetQuote(strategy.Symbol);
-
-                if (quote != null)
-                { //TODO: account market check.
-                    strategy.MarketPrice = quote.DealPrice;
-
-                    if (quote.Simulate.IsSimulating())
-                    {
-                        throw new ArgumentException($"quote.Simulate.IsSimulating()|{quote.ToCSVString()}");
-                    }
-                }
+                _appCtrl.Strategy.DataCheck(strategy, true, start);
 
                 //
 
@@ -1148,9 +1186,9 @@ namespace GNAy.Capital.Trade.Controllers
 
                 FUTUREORDER pFutureOrder = CreateCaptialFutureOrder(strategy);
 
-                string strMessage = nameof(_appCtrl.Settings.SendRealOrder); //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
+                string orderMsg = $"_appCtrl.Settings.SendRealOrder={_appCtrl.Settings.SendRealOrder}"; //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
                 int m_nCode = 0;
-                (LogLevel, string) apiReturn = (LogLevel.Trace, _appCtrl.Settings.SendRealOrder.ToString());
+                (LogLevel, string) apiMsg = (LogLevel.Trace, orderMsg);
 
                 if (_appCtrl.Settings.SendRealOrder)
                 {
@@ -1158,20 +1196,21 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         //送出期貨委託，無需倉位，預設為盤中，不可更改
                         //SKReplyLib.OnNewData，當有回報將主動呼叫函式，並通知委託的狀態。(新格式 包含預約單回報)
-                        m_nCode = m_pSKOrder.SendFutureOrder(UserID, false, pFutureOrder, out strMessage);
-                        apiReturn = LogAPIMessage(m_nCode);
+                        m_nCode = m_pSKOrder.SendFutureOrder(UserID, false, pFutureOrder, out orderMsg);
+                        apiMsg = LogAPIMessage(start, m_nCode, orderMsg);
 
                         Thread.Sleep(100);
                     }
                 }
+                else
+                {
+                    _appCtrl.Log(apiMsg.Item1, $"m_nCode={m_nCode}|{orderMsg}", UniqueName);
+                }
 
                 strategy.StatusEnum = StrategyStatus.Enum.ReturnedOrder;
-                strategy.SentOrderResult= strMessage;
+                strategy.SentOrderResult= orderMsg;
                 strategy.Updater = nameof(SendFutureOrder);
                 strategy.UpdateTime = DateTime.Now;
-
-                _appCtrl.Log(apiReturn.Item1, $"m_nCode={m_nCode}|strMessage={strMessage}", UniqueName);
-                _appCtrl.Log(apiReturn.Item1, apiReturn.Item2, UniqueName);
             }
             catch (Exception ex)
             {

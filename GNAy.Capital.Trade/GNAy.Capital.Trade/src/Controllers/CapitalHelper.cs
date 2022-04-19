@@ -85,7 +85,7 @@ namespace GNAy.Capital.Trade.Controllers
             //    return false;
             //}
 
-            bool firstTick = false;
+            bool firstTick = _appCtrl.Config.StartOnTime && quote.DealQty <= 0 && quote.Simulate.IsSimulating() && raw.nSimulate.IsRealTrading() && raw.nTickQty > 0;
 
             //quote.Symbol = raw.bstrStockNo;
             //quote.Name = raw.bstrStockName;
@@ -107,7 +107,6 @@ namespace GNAy.Capital.Trade.Controllers
                 if (quote.OpenPrice == 0 && raw.nSimulate.IsRealTrading() && raw.nTickQty > 0) //開盤第一筆成交
                 {
                     quote.OpenPrice = quote.DealPrice;
-                    firstTick = true;
                 }
             }
             else
@@ -245,7 +244,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void OnNotifyTicks(QuoteData quote, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
         {
-            bool firstTick = false;
+            bool firstTick = _appCtrl.Config.StartOnTime && quote.DealQty <= 0 && quote.Simulate.IsSimulating() && nSimulate.IsRealTrading() && nQty > 0;
 
             quote.Count = nPtr;
             if (nDate > quote.TradeDateRaw)
@@ -263,7 +262,6 @@ namespace GNAy.Capital.Trade.Controllers
                 if (quote.OpenPrice == 0 && nSimulate.IsRealTrading() && quote.DealQty > 0) //開盤第一筆成交
                 {
                     quote.OpenPrice = quote.DealPrice;
-                    firstTick = true;
                 }
             }
             quote.Simulate = nSimulate;

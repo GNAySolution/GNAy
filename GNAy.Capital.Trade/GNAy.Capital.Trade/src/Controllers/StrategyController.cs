@@ -1,6 +1,7 @@
 ﻿using GNAy.Capital.Models;
 using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
+using SKCOMLib;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -97,6 +98,62 @@ namespace GNAy.Capital.Trade.Controllers
         private void SaveDataAsync()
         {
             Task.Factory.StartNew(() => SaveData(null));
+        }
+
+        public void DataCheck(StrategyData strategy, bool readyToSend, DateTime start)
+        {
+            QuoteData quote = _appCtrl.Capital.GetQuote(strategy.Symbol);
+            Market.EGroup qGroup = Market.EGroup.Options;
+
+            if (quote == null)
+            {
+                (int, SKSTOCKLONG) product = _appCtrl.Capital.GetProductInfo(strategy.Symbol, start);
+
+                if (product.Item1 != 0)
+                {
+                    throw new ArgumentException($"strategy.Symbol={strategy.Symbol}");
+                }
+
+                qGroup = (Market.EGroup)short.Parse(product.Item2.bstrMarketNo);
+            }
+            else
+            {
+                qGroup = quote.MarketGroupEnum;
+
+                if (quote.Simulate.IsSimulating())
+                {
+                    throw new ArgumentException($"quote.Simulate.IsSimulating()|{quote.ToCSVString()}");
+                }
+
+                if (readyToSend)
+                {
+                    strategy.MarketPrice = quote.DealPrice;
+                }
+
+                string priceBefore = strategy.OrderPrice.Trim();
+                string priceAfter = OrderPrice.Parse(priceBefore, quote.DealPrice, quote.Reference, qGroup);
+
+                if (readyToSend)
+                {
+                    strategy.OrderPrice = priceAfter;
+                    _appCtrl.LogTrace($"委託價計算前={priceBefore}|計算後={priceAfter}", UniqueName, DateTime.Now - start);
+                }
+            }
+
+            if (qGroup == Market.EGroup.TSE || qGroup == Market.EGroup.OTC || qGroup == Market.EGroup.Emerging)
+            {
+                if (strategy.MarketType != Market.EType.Stock)
+                {
+                    throw new ArgumentException($"qGroup={qGroup}|strategy.MarketType={strategy.MarketType}");
+                }
+            }
+            else if (qGroup == Market.EGroup.Futures || qGroup == Market.EGroup.Options)
+            {
+                if (strategy.MarketType != Market.EType.Futures)
+                {
+                    throw new ArgumentException($"qGroup={qGroup}|strategy.MarketType={strategy.MarketType}");
+                }
+            }
         }
 
         private bool UpdateStatus(StrategyData strategy, DateTime start)
@@ -546,7 +603,9 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 try
                 {
-                    _orderDetailMap.Add($"{strategy.CreatedTime:HH:mm:ss.fff}", strategy);
+                    strategy.PrimaryKey = $"{strategy.CreatedTime:HHmmss.fff}";
+
+                    _orderDetailMap.Add(strategy.PrimaryKey, strategy);
                     _orderDetailCollection.Add(strategy);
                 }
                 catch (Exception ex)

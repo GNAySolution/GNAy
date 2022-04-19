@@ -38,16 +38,8 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nErrorCode"></param>
         private void OnConnect(string strUserID, int nErrorCode)
         {
-            if (nErrorCode == 0)
-            {
-                _appCtrl.LogTrace($"strUserID={strUserID}|nErrorCode={nErrorCode}", UniqueName);
-                AppendReply(strUserID, $"{nErrorCode}");
-                return;
-            }
-
-            (LogLevel, string) apiReturn = LogAPIMessage(QuoteStatus);
-            _appCtrl.Log(apiReturn.Item1, $"strUserID={strUserID}|{apiReturn.Item2}", UniqueName);
-            AppendReply(strUserID, apiReturn.Item2);
+            (LogLevel, string) apiMsg = LogAPIMessage(QuoteStatus, $"strUserID={strUserID}");
+            AppendReply(strUserID, apiMsg.Item2);
         }
 
         /// <summary>
@@ -57,16 +49,8 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nErrorCode"></param>
         private void OnDisconnect(string strUserID, int nErrorCode)
         {
-            if (nErrorCode == 0)
-            {
-                _appCtrl.LogTrace($"strUserID={strUserID}|nErrorCode={nErrorCode}", UniqueName);
-                AppendReply(strUserID, $"{nErrorCode}");
-                return;
-            }
-
-            (LogLevel, string) apiReturn = LogAPIMessage(QuoteStatus);
-            _appCtrl.Log(apiReturn.Item1, $"strUserID={strUserID}|{apiReturn.Item2}", UniqueName);
-            AppendReply(strUserID, apiReturn.Item2);
+            (LogLevel, string) apiMsg = LogAPIMessage(QuoteStatus, $"strUserID={strUserID}");
+            AppendReply(strUserID, apiMsg.Item2);
         }
 
         /// <summary>
@@ -76,16 +60,8 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nCode"></param>
         private void OnSolaceReplyConnection(string strUserID, int nCode)
         {
-            if (nCode == 0)
-            {
-                _appCtrl.LogTrace($"strUserID={strUserID}|nCode={nCode}", UniqueName);
-                AppendReply(strUserID, $"{nCode}");
-                return;
-            }
-
-            (LogLevel, string) apiReturn = LogAPIMessage(QuoteStatus);
-            _appCtrl.Log(apiReturn.Item1, $"strUserID={strUserID}|{apiReturn.Item2}", UniqueName);
-            AppendReply(strUserID, apiReturn.Item2);
+            (LogLevel, string) apiMsg = LogAPIMessage(QuoteStatus, $"strUserID={strUserID}");
+            AppendReply(strUserID, apiMsg.Item2);
         }
 
         /// <summary>
@@ -95,16 +71,8 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nErrorCode"></param>
         private void OnSolaceReplyDisconnect(string strUserID, int nErrorCode)
         {
-            if (nErrorCode == 0)
-            {
-                _appCtrl.LogTrace($"strUserID={strUserID}|nErrorCode={nErrorCode}", UniqueName);
-                AppendReply(strUserID, $"{nErrorCode}");
-                return;
-            }
-
-            (LogLevel, string) apiReturn = LogAPIMessage(QuoteStatus);
-            _appCtrl.Log(apiReturn.Item1, $"strUserID={strUserID}|{apiReturn.Item2}", UniqueName);
-            AppendReply(strUserID, apiReturn.Item2);
+            (LogLevel, string) apiMsg = LogAPIMessage(QuoteStatus, $"strUserID={strUserID}");
+            AppendReply(strUserID, apiMsg.Item2);
         }
 
         /// <summary>

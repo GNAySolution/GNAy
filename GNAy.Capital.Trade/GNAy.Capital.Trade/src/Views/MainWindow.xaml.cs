@@ -794,6 +794,11 @@ namespace GNAy.Capital.Trade
                 {
                     StatusBarItemBB1.Text = $"({DataGridStrategyRule.Columns.Count},{DataGridStrategyRule.Items.Count})";
                 }
+
+                if (TabControlCB.SelectedIndex == 0 && DataGridOrderDetail.ItemsSource != null)
+                {
+                    StatusBarItemCB1.Text = $"({DataGridOrderDetail.Columns.Count},{DataGridOrderDetail.Items.Count})";
+                }
             }
             catch (Exception ex)
             {
@@ -810,10 +815,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                string msg = $"{start:MM/dd HH:mm.ss}|IsHoliday={_appCtrl.Config.IsHoliday(start)}";
-                //_appCtrl.LogTrace(msg);
-                StatusBarItemCA2.Text = msg;
-
+                StatusBarItemCA2.Text = $"{start:HH:mm:ss}|IsHoliday={_appCtrl.Config.IsHoliday(start)}";
                 ButtonSaveQuotesTest_Click(null, null);
 
                 foreach (DateTime timeToExit in _appCtrl.Settings.TimeToExit)
@@ -967,7 +969,8 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                StatusBarItemAB4.Text = _appCtrl.Capital.IsConnected();
+                (LogLevel, string) apiMsg = _appCtrl.Capital.IsConnected();
+                StatusBarItemAB4.Text = apiMsg.Item1 == LogLevel.Trace ? apiMsg.Item2 : $"{apiMsg.Item1}|{apiMsg.Item2}";
             }
             catch (Exception ex)
             {
