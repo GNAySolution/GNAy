@@ -749,6 +749,13 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding ReturnedQtyResult}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding ReturnedDealResult}"/>
 
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
@@ -809,7 +816,7 @@
                 <Label Content="委託口數" HorizontalAlignment="Left" Margin="260,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxOrderQuantity" Text="委託口數" ToolTip="委託口數" HorizontalAlignment="Left" Margin="260,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="委託序號" HorizontalAlignment="Left" Margin="452,59,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderSeqNo" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,61,0,0" VerticalAlignment="Top" Width="120">
+                <ComboBox x:Name="ComboBoxOrderSeqNo" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,61,0,0" VerticalAlignment="Top" Width="120" IsEditable="True">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
@@ -818,7 +825,7 @@
                 </ComboBox>
                 <Button x:Name="ButtonCancelOrderBySeqNo" Content="刪單by序號" HorizontalAlignment="Left" Margin="635,61,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderBySeqNo_Click"/>
                 <Label Content="委託書號" HorizontalAlignment="Left" Margin="452,80,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderBookNo" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,82,0,0" VerticalAlignment="Top" Width="120">
+                <ComboBox x:Name="ComboBoxOrderBookNo" ToolTip="{Binding Path=SelectedItem.ToolTip, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,82,0,0" VerticalAlignment="Top" Width="120" IsEditable="True">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding ToolTip}"/>
@@ -932,6 +939,13 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding ReturnedPriPctResult}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding ReturnedQtyResult}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>

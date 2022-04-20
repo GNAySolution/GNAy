@@ -54,6 +54,16 @@ namespace GNAy.Capital.Trade.Controllers
         private StrategyController() : this(null)
         { }
 
+        public StrategyData GetStrategy(string primaryKey)
+        {
+            return _strategyMap.TryGetValue(primaryKey, out StrategyData data) ? data : null;
+        }
+
+        public StrategyData GetOrderDetail(string primaryKey)
+        {
+            return _orderDetailMap.TryGetValue(primaryKey, out StrategyData data) ? data : null;
+        }
+
         private void SaveData(ICollection<StrategyData> strategies)
         {
             DateTime start = _appCtrl.StartTrace();
@@ -100,8 +110,17 @@ namespace GNAy.Capital.Trade.Controllers
             Task.Factory.StartNew(() => SaveData(null));
         }
 
-        public void DataCheck(StrategyData strategy, bool readyToSend, DateTime start)
+        public void OrderCheck(StrategyData strategy, bool readyToSend, DateTime start)
         {
+            if (string.IsNullOrWhiteSpace(strategy.PrimaryKey))
+            {
+                throw new ArgumentException($"string.IsNullOrWhiteSpace(strategy.PrimaryKey)");
+            }
+            else if (strategy.OrderQuantity <= 0)
+            {
+                throw new ArgumentException($"委託口數({strategy.OrderQuantity}) <= 0");
+            }
+
             QuoteData quote = _appCtrl.Capital.GetQuote(strategy.Symbol);
             Market.EGroup qGroup = Market.EGroup.Options;
 
@@ -115,6 +134,11 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 qGroup = (Market.EGroup)short.Parse(product.Item2.bstrMarketNo);
+
+                if (!string.IsNullOrWhiteSpace(strategy.StopLoss) || !string.IsNullOrWhiteSpace(strategy.StopWinPrice) || !string.IsNullOrWhiteSpace(strategy.MoveStopWinPrice))
+                {
+                    throw new ArgumentException($"商品 {strategy.Symbol} 無訂閱報價，無法進行策略監控");
+                }
             }
             else
             {
@@ -130,13 +154,140 @@ namespace GNAy.Capital.Trade.Controllers
                     strategy.MarketPrice = quote.DealPrice;
                 }
 
-                string priceBefore = strategy.OrderPrice.Trim();
-                string priceAfter = OrderPrice.Parse(priceBefore, quote.DealPrice, quote.Reference, qGroup);
+                string orderPriceBefore = strategy.OrderPrice.Trim();
+                (string, decimal) orderPriceAfter = OrderPrice.Parse(orderPriceBefore, quote.DealPrice, quote.Reference, qGroup);
 
                 if (readyToSend)
                 {
-                    strategy.OrderPrice = priceAfter;
-                    _appCtrl.LogTrace($"委託價計算前={priceBefore}|計算後={priceAfter}", UniqueName, DateTime.Now - start);
+                    strategy.OrderPrice = orderPriceAfter.Item1;
+                    _appCtrl.LogTrace(start, $"委託價格計算前={orderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
+                }
+
+                if (!string.IsNullOrWhiteSpace(strategy.StopLoss))
+                {
+                    string stopLossPriceBefore = strategy.StopLoss.Trim();
+                    (string, decimal) stopLossPriceAfter = OrderPrice.Parse(stopLossPriceBefore, quote.DealPrice, quote.Reference, qGroup);
+
+                    if (strategy.BSEnum == OrderBS.Enum.Buy)
+                    {
+                        if (stopLossPriceAfter.Item2 >= orderPriceAfter.Item2)
+                        {
+                            throw new ArgumentException($"停損價({stopLossPriceAfter.Item2}) >= 委託價({orderPriceAfter.Item2})");
+                        }
+                    }
+                    else if (strategy.BSEnum == OrderBS.Enum.Sell)
+                    {
+                        if (stopLossPriceAfter.Item2 <= orderPriceAfter.Item2)
+                        {
+                            throw new ArgumentException($"停損價({stopLossPriceAfter.Item2}) <= 委託價({orderPriceAfter.Item2})");
+                        }
+                    }
+
+                    if (readyToSend)
+                    {
+                        strategy.StopLoss = stopLossPriceAfter.Item1;
+                        _appCtrl.LogTrace(start, $"停損價格計算前={stopLossPriceBefore}|計算後={stopLossPriceAfter.Item1}", UniqueName);
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(strategy.StopWinPrice))
+                {
+                    string stopWinPriceBefore = strategy.StopWinPrice.Trim();
+
+                    if (stopWinPriceBefore.Contains("(") || stopWinPriceBefore.Contains(","))
+                    {
+                        string[] cells = stopWinPriceBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        stopWinPriceBefore = cells[0];
+                        strategy.StopWinPrice = stopWinPriceBefore;
+                        strategy.StopWinQty = int.Parse(cells[1]);
+                    }
+
+                    (string, decimal) stopWinPriceAfter = OrderPrice.Parse(stopWinPriceBefore, quote.DealPrice, quote.Reference, qGroup);
+
+                    if (strategy.BSEnum == OrderBS.Enum.Buy)
+                    {
+                        if (stopWinPriceAfter.Item2 <= orderPriceAfter.Item2)
+                        {
+                            throw new ArgumentException($"停利價({stopWinPriceAfter.Item2}) <= 委託價({orderPriceAfter.Item2})");
+                        }
+                    }
+                    else if (strategy.BSEnum == OrderBS.Enum.Sell)
+                    {
+                        if (stopWinPriceAfter.Item2 >= orderPriceAfter.Item2)
+                        {
+                            throw new ArgumentException($"停利價({stopWinPriceAfter.Item2}) >= 委託價({orderPriceAfter.Item2})");
+                        }
+                    }
+
+                    if (readyToSend)
+                    {
+                        strategy.StopWinPrice = stopWinPriceAfter.Item1;
+                        _appCtrl.LogTrace(start, $"停利價格計算前={stopWinPriceBefore}|計算後={stopWinPriceAfter.Item1}", UniqueName);
+                    }
+                }
+
+                if (strategy.StopWinQty == 0)
+                {
+                    //滿足停利點時不減倉
+                }
+                else if (strategy.StopWinQty > 0)
+                {
+                    throw new ArgumentException($"停利減倉口數({strategy.StopWinQty})應為負值或0");
+                }
+                else if (strategy.OrderQuantity + strategy.StopWinQty < 0)
+                {
+                    throw new ArgumentException($"停利減倉口數({strategy.StopWinQty}) > 委託口數({strategy.OrderQuantity})");
+                }
+
+                if (!string.IsNullOrWhiteSpace(strategy.MoveStopWinPrice))
+                {
+                    string moveStopWinPriceBefore = strategy.MoveStopWinPrice.Trim();
+
+                    if (moveStopWinPriceBefore.Contains("(") || moveStopWinPriceBefore.Contains(","))
+                    {
+                        string[] cells = moveStopWinPriceBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        moveStopWinPriceBefore = cells[0];
+                        strategy.MoveStopWinPrice = moveStopWinPriceBefore;
+                        strategy.MoveStopWinQty = int.Parse(cells[1]);
+                    }
+
+                    //(string, decimal) moveStopWinPriceAfter = OrderPrice.Parse(moveStopWinPriceBefore, quote.DealPrice, quote.Reference, qGroup);
+
+                    //if (strategy.BSEnum == OrderBS.Enum.Buy)
+                    //{
+                    //    if (moveStopWinPriceAfter.Item2 <= orderPriceAfter.Item2)
+                    //    {
+                    //        throw new ArgumentException($"移動停利價({moveStopWinPriceAfter.Item2}) <= 委託價({orderPriceAfter.Item2})");
+                    //    }
+                    //}
+                    //else if (strategy.BSEnum == OrderBS.Enum.Sell)
+                    //{
+                    //    if (moveStopWinPriceAfter.Item2 >= orderPriceAfter.Item2)
+                    //    {
+                    //        throw new ArgumentException($"移動停利價({moveStopWinPriceAfter.Item2}) >= 委託價({orderPriceAfter.Item2})");
+                    //    }
+                    //}
+
+                    //if (readyToSend)
+                    //{
+                    //    strategy.MoveStopWinPrice = moveStopWinPriceAfter.Item1;
+                    //    _appCtrl.LogTrace(start, $"移動停利價格計算前={moveStopWinPriceBefore}|計算後={moveStopWinPriceAfter.Item1}", UniqueName);
+                    //}
+                }
+
+                if (strategy.MoveStopWinQty == 0)
+                {
+                    //滿足移動停利點時不減倉
+                }
+                else if (strategy.MoveStopWinQty > 0)
+                {
+                    throw new ArgumentException($"移動停利減倉口數({strategy.MoveStopWinQty})應為負值或0");
+                }
+                else if (strategy.OrderQuantity + strategy.StopWinQty + strategy.MoveStopWinQty < 0)
+                {
+                    throw new ArgumentException($"移動停利減倉口數({strategy.MoveStopWinQty}) + 停利減倉口數({strategy.StopWinQty}) > 委託口數({strategy.OrderQuantity})");
                 }
             }
 
@@ -195,17 +346,17 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled)
                     {
-                        _appCtrl.LogError(strategy.ToLog(), UniqueName, DateTime.Now - start);
+                        _appCtrl.LogError(start, strategy.ToLog(), UniqueName);
                     }
                     //else if (strategy.StatusEnum == StrategyStatus.Enum.Executed)
                     //{
-                    //    _appCtrl.LogError($"{strategy.ToLog()}|已觸發無法取消", UniqueName, DateTime.Now - start);
+                    //    _appCtrl.LogError(start, $"{strategy.ToLog()}|已觸發無法取消", UniqueName);
                     //}
                     else
                     {
                         strategy.StatusEnum = StrategyStatus.Enum.Cancelled;
                         strategy.Comment = $"手動取消";
-                        _appCtrl.LogTrace(strategy.ToLog(), UniqueName, DateTime.Now - start);
+                        _appCtrl.LogTrace(start, strategy.ToLog(), UniqueName);
                     }
 
                     if (_waitToCancel.Count <= 0)
@@ -215,7 +366,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError($"{primaryKey}|查無此唯一鍵", UniqueName, DateTime.Now - start);
+                    _appCtrl.LogError(start, $"{primaryKey}|查無此唯一鍵", UniqueName);
                 }
             }
 
@@ -229,17 +380,17 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (strategy.StatusEnum != StrategyStatus.Enum.Cancelled)
                     {
-                        _appCtrl.LogTrace($"{strategy.ToLog()}|新增設定", UniqueName, DateTime.Now - start);
+                        _appCtrl.LogTrace(start, $"{strategy.ToLog()}|新增設定", UniqueName);
                     }
                 }
                 //else if (_old.StatusEnum == StrategyStatus.Enum.Executed)
                 //{
-                //    _appCtrl.LogWarn($"{strategy.ToLog()}|舊設定已觸發，將新增設定", UniqueName, DateTime.Now - start);
+                //    _appCtrl.LogWarn(start, $"{strategy.ToLog()}|舊設定已觸發，將新增設定", UniqueName);
                 //    _strategyMap.Remove(strategy.PrimaryKey);
                 //}
                 else
                 {
-                    _appCtrl.LogWarn($"{strategy.ToLog()}|舊設定未觸發，將進行重置", UniqueName, DateTime.Now - start);
+                    _appCtrl.LogWarn(start, $"{strategy.ToLog()}|舊設定未觸發，將進行重置", UniqueName);
                     _strategyMap.Remove(strategy.PrimaryKey);
                     toRemove = _old;
                 }
@@ -548,7 +699,7 @@ namespace GNAy.Capital.Trade.Controllers
                         //{
                         //    strategy.StatusEnum = StrategyStatus.Enum.Cancelled;
                         //    strategy.Comment = "程式沒有在正常時間啟動，不執行此監控";
-                        //    _appCtrl.LogError(strategy.ToLog(), UniqueName, DateTime.Now - start);
+                        //    _appCtrl.LogError(start, strategy.ToLog(), UniqueName);
                         //}
 
                         strategy.Updater = nameof(RecoverSetting);
@@ -592,19 +743,12 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void AddOrder(StrategyData strategy)
         {
-            if (!string.IsNullOrWhiteSpace(strategy.PrimaryKey))
-            {
-                return;
-            }
-
-            DateTime start = _appCtrl.StartTrace();
-
             _appCtrl.MainForm.InvokeRequired(delegate
             {
+                DateTime start = _appCtrl.StartTrace();
+
                 try
                 {
-                    strategy.PrimaryKey = $"{strategy.CreatedTime:HHmmss.fff}";
-
                     _orderDetailMap.Add(strategy.PrimaryKey, strategy);
                     _orderDetailCollection.Add(strategy);
                 }

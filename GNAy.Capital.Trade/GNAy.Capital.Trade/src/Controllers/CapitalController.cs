@@ -253,13 +253,13 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (LoginUserResult == 0)
                 {
-                    _appCtrl.LogTrace($"LoginUserResult={LoginUserResult}|雙因子登入成功", UniqueName);
+                    _appCtrl.LogTrace(start, $"LoginUserResult={LoginUserResult}|雙因子登入成功", UniqueName);
                     UserID = userID;
                     DWP = "********";
                 }
                 else if (LoginUserResult >= 600 && LoginUserResult <= 699)
                 {
-                    _appCtrl.LogTrace($"LoginUserResult={LoginUserResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效", UniqueName);
+                    _appCtrl.LogTrace(start, $"LoginUserResult={LoginUserResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效", UniqueName);
                     UserID = userID;
                     DWP = "********";
                 }
@@ -284,7 +284,7 @@ namespace GNAy.Capital.Trade.Controllers
                 //}
 
                 string version = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(userID); //取得目前註冊SKAPI 版本及位元
-                _appCtrl.LogTrace($"SKAPIVersionAndBit={version}", UniqueName);
+                _appCtrl.LogTrace(start, $"SKAPIVersionAndBit={version}", UniqueName);
                 _appCtrl.MainForm.StatusBarItemBA2.Text = $"SKAPIVersionAndBit={version}";
             }
             catch (Exception ex)
@@ -320,7 +320,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (QuoteStatus == 0 || (QuoteStatus >= 600 && QuoteStatus <= 699))
                     {
-                        _appCtrl.LogTrace($"QuoteStatus={QuoteStatus}|登入成功", UniqueName);
+                        _appCtrl.LogTrace(start, $"QuoteStatus={QuoteStatus}|登入成功", UniqueName);
                     }
                     else
                     {
@@ -422,7 +422,7 @@ namespace GNAy.Capital.Trade.Controllers
                     LogAPIMessage(start, nCode);
                 }
 
-                _appCtrl.LogTrace(result, UniqueName);
+                _appCtrl.LogTrace(start, result, UniqueName);
 
                 return (LogLevel.Trace, result);
             }
@@ -618,7 +618,7 @@ namespace GNAy.Capital.Trade.Controllers
                     if (start.Hour >= 14 && tradeDate <= int.Parse(start.ToString("yyyyMMdd")) && !IsAMMarket)
                     {
                         QuoteFileNameBase = $"{tradeDate}_{(int)Market.EDayNight.AM}";
-                        _appCtrl.LogTrace($"未訂閱或尚未收到夜盤商品基本資料|QuoteFileNameBase={QuoteFileNameBase}", UniqueName);
+                        _appCtrl.LogWarn(start, $"未訂閱或尚未收到夜盤商品基本資料|QuoteFileNameBase={QuoteFileNameBase}", UniqueName);
                     }
                     else if (IsAMMarket)
                     {
@@ -677,7 +677,7 @@ namespace GNAy.Capital.Trade.Controllers
                         quoteSub.HighPrice = quoteLast.HighPrice;
                         quoteSub.LowPrice = quoteLast.LowPrice;
                         quoteSub.Recovered = true;
-                        _appCtrl.LogTrace($"檔案回補開盤|{quoteSub.MarketGroupEnum}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.OpenPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}", UniqueName);
+                        _appCtrl.LogTrace(start, $"檔案回補開盤|{quoteSub.MarketGroupEnum}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.OpenPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}", UniqueName);
                     }
                 }
             }
@@ -734,7 +734,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         if (qPage < 0)
                         {
-                            _appCtrl.LogError($"Sub quote failed.|Symbol={quote.Symbol}|qPage={qPage}", UniqueName);
+                            _appCtrl.LogError(start, $"Sub quote failed.|Symbol={quote.Symbol}|qPage={qPage}", UniqueName);
                         }
 
                         quote.Page = qPage;
@@ -751,13 +751,13 @@ namespace GNAy.Capital.Trade.Controllers
                             LogAPIMessage(start, nCode);
 
                             //nCode=3030|SK_SUBJECT_NO_QUOTE_SUBSCRIBE|即時行情連線數已達上限，行情訂閱功能受限
-                            _appCtrl.LogWarn($"QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}", UniqueName);
+                            _appCtrl.LogWarn(start, $"QuoteStatus is changing.|before={QuoteStatus}|after={nCode + StatusCode.BaseWarnValue}", UniqueName);
                             QuoteStatus = nCode + StatusCode.BaseWarnValue;
                         }
 
                         if (qPage < 0)
                         {
-                            _appCtrl.LogError($"Sub quote failed.|requests={requests}|qPage={qPage}", UniqueName);
+                            _appCtrl.LogError(start, $"Sub quote failed.|requests={requests}|qPage={qPage}", UniqueName);
                         }
                     }
 
@@ -799,7 +799,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         if (qPage < 0)
                         {
-                            _appCtrl.LogError($"Recover quote failed.|Symbol={product}|qPage={qPage}", UniqueName);
+                            _appCtrl.LogError(start, $"Recover quote failed.|Symbol={product}|qPage={qPage}", UniqueName);
                         }
                     }
                 }
@@ -1177,8 +1177,23 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                _appCtrl.Strategy.AddOrder(strategy);
-                _appCtrl.Strategy.DataCheck(strategy, true, start);
+                if (string.IsNullOrWhiteSpace(strategy.PrimaryKey))
+                {
+                    strategy.PrimaryKey = $"{strategy.CreatedTime:HH:mm:ss.fff}";
+
+                    if (_appCtrl.Strategy.GetStrategy(strategy.PrimaryKey) != null)
+                    {
+                        throw new ArgumentException($"_appCtrl.Strategy.GetStrategy({strategy.PrimaryKey}) != null");
+                    }
+                    else if (_appCtrl.Strategy.GetOrderDetail(strategy.PrimaryKey) != null)
+                    {
+                        throw new ArgumentException($"_appCtrl.Strategy.GetOrderDetail({strategy.PrimaryKey}) != null");
+                    }
+
+                    _appCtrl.Strategy.AddOrder(strategy);
+                }
+
+                _appCtrl.Strategy.OrderCheck(strategy, true, start);
 
                 //
 
@@ -1204,7 +1219,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.Log(apiMsg.Item1, $"m_nCode={m_nCode}|{orderMsg}", UniqueName);
+                    _appCtrl.Log(apiMsg.Item1, $"m_nCode={m_nCode}|{orderMsg}", UniqueName, DateTime.Now - start);
                 }
 
                 strategy.StatusEnum = StrategyStatus.Enum.ReturnedOrder;

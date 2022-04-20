@@ -34,7 +34,7 @@ namespace GNAy.Capital.Models
             Enum.P.GetDescription(),
         }.AsReadOnly();
 
-        public static string Parse(string orderPrice, decimal marketPrice, decimal reference, Market.EGroup mGroup)
+        public static (string, decimal) Parse(string orderPrice, decimal marketPrice, decimal reference, Market.EGroup mGroup)
         {
             if (orderPrice.StartsWith(M) || orderPrice.StartsWith(P))
             {
@@ -52,17 +52,19 @@ namespace GNAy.Capital.Models
                             format = "0";
                         }
 
-                        return (marketPrice + reference * offsetPct).ToString(format);
+                        string strResult = (marketPrice + reference * offsetPct).ToString(format);
+                        return (strResult, decimal.Parse(strResult));
                     }
 
                     decimal offset = decimal.Parse(orderPrice.Substring(1));
-                    return (marketPrice + offset).ToString("0.00");
+                    decimal pri = marketPrice + offset;
+                    return (pri.ToString("0.00"), pri);
                 }
 
-                return orderPrice;
+                return (orderPrice, marketPrice);
             }
 
-            return decimal.Parse(orderPrice).ToString("0.00");
+            return (orderPrice, decimal.Parse(orderPrice));
         }
     }
 }

@@ -74,7 +74,7 @@ namespace GNAy.Capital.Trade
             TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
             StatusBarItemAB2.Text = $"Subscribed={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}";
 
-            _appCtrl.LogTrace(Title, UniqueName);
+            _appCtrl.LogTrace(StartTime, Title, UniqueName);
         }
 
         private void Window_Activated(object sender, EventArgs e)
@@ -261,21 +261,21 @@ namespace GNAy.Capital.Trade
                 {
                     if (!_appCtrl.Config.StartOnTime)
                     {
-                        _appCtrl.LogWarn($"程式沒有在正常時間啟動", UniqueName);
+                        _appCtrl.LogWarn(start, $"程式沒有在正常時間啟動", UniqueName);
                     }
 
-                    _appCtrl.LogTrace($"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-3))}", UniqueName);
-                    _appCtrl.LogTrace($"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-2))}", UniqueName);
-                    _appCtrl.LogTrace($"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-1))}", UniqueName);
-                    _appCtrl.LogTrace($"{StartTime.AddDays(0):MM/dd HH:mm}|{StartTime.AddDays(+0).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(0))}|Today", UniqueName);
-                    _appCtrl.LogTrace($"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(1))}", UniqueName);
-                    _appCtrl.LogTrace($"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(2))}", UniqueName);
-                    _appCtrl.LogTrace($"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(3))}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-3))}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-2))}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-1))}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(0):MM/dd HH:mm}|{StartTime.AddDays(+0).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(0))}|Today", UniqueName);
+                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(1))}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(2))}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(3))}", UniqueName);
 
-                    _appCtrl.LogTrace($"{_appCtrl.Config.Archive.FullName}", UniqueName);
-                    _appCtrl.LogTrace($"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.FullName}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}", UniqueName);
 
-                    _appCtrl.LogTrace($"AutoRun={_appCtrl.Settings.AutoRun}", UniqueName);
+                    _appCtrl.LogTrace(start, $"AutoRun={_appCtrl.Settings.AutoRun}", UniqueName);
                 }
                 catch (Exception ex)
                 {
@@ -852,7 +852,7 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                _appCtrl.Log(reConnect, $"Retry to connect quote service.|reConnect={reConnect}", UniqueName);
+                _appCtrl.Log(reConnect, $"Retry to connect quote service.|reConnect={reConnect}", UniqueName, DateTime.Now - start);
                 Task.Factory.StartNew(() =>
                 {
                     if (_appCtrl.Capital != null)
@@ -1264,7 +1264,8 @@ namespace GNAy.Capital.Trade
                 if (TabControlBB.SelectedIndex != 0)
                 {
                     TabControlBB.SelectedIndex = 0;
-                    _appCtrl.LogWarn("防呆，再次確認，避免看錯", UniqueName);
+                    _appCtrl.LogWarn(start, "防呆，再次確認，避免看錯", UniqueName);
+                    StatusBarItemBB2.Text = "防呆，再次確認，避免看錯";
                     return;
                 }
 
@@ -1289,7 +1290,8 @@ namespace GNAy.Capital.Trade
                 if (TabControlBB.SelectedIndex != 0)
                 {
                     TabControlBB.SelectedIndex = 0;
-                    _appCtrl.LogWarn("防呆，再次確認，避免看錯", UniqueName);
+                    _appCtrl.LogWarn(start, "防呆，再次確認，避免看錯", UniqueName);
+                    StatusBarItemBB2.Text = "防呆，再次確認，避免看錯";
                     return;
                 }
 
@@ -1312,7 +1314,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 TriggerData trigger = ((DataGridCell)sender).GetItem<TriggerData>();
-                _appCtrl.LogTrace(trigger.ToLog(), UniqueName);
+                _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
 
                 ComboBoxTriggerProduct.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxTriggerProduct.Items.Count; ++i)
@@ -1326,7 +1328,7 @@ namespace GNAy.Capital.Trade
                         }
                         else
                         {
-                            _appCtrl.LogError($"Trigger|觸價關聯報價代碼錯誤|quote.Symbol{quote.Symbol} != trigger.Symbol{trigger.Symbol}|{trigger.ToLog()}", UniqueName);
+                            _appCtrl.LogError(start, $"Trigger|觸價關聯報價代碼錯誤|quote.Symbol{quote.Symbol} != trigger.Symbol{trigger.Symbol}|{trigger.ToLog()}", UniqueName);
                             ComboBoxTriggerProduct.SelectedIndex = -1;
                             break;
                         }
@@ -1334,7 +1336,7 @@ namespace GNAy.Capital.Trade
                 }
                 if (ComboBoxTriggerProduct.SelectedIndex < 0)
                 {
-                    _appCtrl.LogError($"Trigger|觸價關聯報價代碼錯誤|{trigger.ToLog()}", UniqueName);
+                    _appCtrl.LogError(start, $"Trigger|觸價關聯報價代碼錯誤|{trigger.ToLog()}", UniqueName);
                 }
 
                 ComboBoxTriggerColumn.SelectedIndex = -1;
@@ -1349,7 +1351,7 @@ namespace GNAy.Capital.Trade
                         }
                         else
                         {
-                            _appCtrl.LogError($"Trigger|觸價關聯報價欄位錯誤|column.Property.Name{column.Property.Name} != trigger.ColumnProperty{trigger.ColumnProperty}|{trigger.ToLog()}", UniqueName);
+                            _appCtrl.LogError(start, $"Trigger|觸價關聯報價欄位錯誤|column.Property.Name{column.Property.Name} != trigger.ColumnProperty{trigger.ColumnProperty}|{trigger.ToLog()}", UniqueName);
                             ComboBoxTriggerColumn.SelectedIndex = -1;
                             break;
                         }
@@ -1357,7 +1359,7 @@ namespace GNAy.Capital.Trade
                 }
                 if (ComboBoxTriggerColumn.SelectedIndex < 0)
                 {
-                    _appCtrl.LogError($"Trigger|觸價關聯報價欄位錯誤|{trigger.ToLog()}", UniqueName);
+                    _appCtrl.LogError(start, $"Trigger|觸價關聯報價欄位錯誤|{trigger.ToLog()}", UniqueName);
                 }
 
                 ComboBoxTriggerCancel.SelectedIndex = trigger.Cancel;
@@ -1431,7 +1433,8 @@ namespace GNAy.Capital.Trade
                 if (TabControlBB.SelectedIndex != 1)
                 {
                     TabControlBB.SelectedIndex = 1;
-                    _appCtrl.LogWarn("防呆，再次確認，避免看錯", UniqueName);
+                    _appCtrl.LogWarn(start, "防呆，再次確認，避免看錯", UniqueName);
+                    StatusBarItemBB2.Text = "防呆，再次確認，避免看錯";
                     return;
                 }
 
@@ -1456,7 +1459,8 @@ namespace GNAy.Capital.Trade
                 if (TabControlBB.SelectedIndex != 1)
                 {
                     TabControlBB.SelectedIndex = 1;
-                    _appCtrl.LogWarn("防呆，再次確認，避免看錯", UniqueName);
+                    _appCtrl.LogWarn(start, "防呆，再次確認，避免看錯", UniqueName);
+                    StatusBarItemBB2.Text = "防呆，再次確認，避免看錯";
                     return;
                 }
 
@@ -1492,7 +1496,7 @@ namespace GNAy.Capital.Trade
                     Position = (short)_appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex,
                     OrderPrice = _appCtrl.MainForm.TextBoxOrderPrice.Text,
                     OrderQuantity = int.Parse(_appCtrl.MainForm.TextBoxOrderQuantity.Text),
-                    //
+                    //TODO
                     Updater = nameof(ButtonSendFutureOrder_Click),
                     UpdateTime = DateTime.Now,
                 };
@@ -1518,11 +1522,34 @@ namespace GNAy.Capital.Trade
                 if (TabControlBB.SelectedIndex != 1)
                 {
                     TabControlBB.SelectedIndex = 1;
-                    _appCtrl.LogWarn("防呆，再次確認，避免看錯", UniqueName);
+                    _appCtrl.LogWarn(start, "防呆，再次確認，避免看錯", UniqueName);
+                    StatusBarItemBB2.Text = "防呆，再次確認，避免看錯";
                     return;
                 }
 
-                //
+                OrderAccData acc = (OrderAccData)_appCtrl.MainForm.ComboBoxOrderAccs.SelectedItem;
+
+                StrategyData strategy = new StrategyData()
+                {
+                    MarketType = acc.MarketType,
+                    Branch = acc.Branch,
+                    Account = acc.Account,
+                    Symbol = _appCtrl.MainForm.ComboBoxOrderProduct.Text,
+                    BS = (short)_appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex,
+                    TradeType = (short)_appCtrl.MainForm.ComboBoxOrderTradeType.SelectedIndex,
+                    DayTrade = (short)_appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex,
+                    Position = (short)_appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex,
+                    OrderPrice = _appCtrl.MainForm.TextBoxOrderPrice.Text,
+                    OrderQuantity = int.Parse(_appCtrl.MainForm.TextBoxOrderQuantity.Text),
+                    StopLoss = _appCtrl.MainForm.TextBoxStrategyStopLoss.Text,
+                    StopWinPrice = _appCtrl.MainForm.TextBoxStrategyStopWin.Text,
+                    MoveStopWinPrice = _appCtrl.MainForm.TextBoxStrategyMoveStopWin.Text,
+                    //TODO
+                    Updater = nameof(ButtonSendFutureOrder_Click),
+                    UpdateTime = DateTime.Now,
+                };
+
+                _appCtrl.Capital.SendFutureOrderAsync(strategy);
             }
             catch (Exception ex)
             {

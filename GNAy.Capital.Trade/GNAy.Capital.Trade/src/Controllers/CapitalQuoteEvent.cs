@@ -94,20 +94,35 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (!_quoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote))
+                QuoteData q = null;
+
+                if (_quoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote))
                 {
-                    quote = new QuoteData()
+                    (int, SKSTOCKLONG) product = GetProductInfo(quote.Symbol, DateTime.Now);
+
+                    if (product.Item1 == 0)
+                    {
+                        q = CreateQuote(product.Item2);
+                    }
+                    else
+                    {
+                        q = new QuoteData()
+                        {
+                            MarketGroup = sMarketNo,
+                            Index = nStockIdx,
+                        };
+                    }
+                }
+                else
+                {
+                    q = new QuoteData()
                     {
                         MarketGroup = sMarketNo,
                         Index = nStockIdx,
                     };
                 }
-                //else
-                //{
-                //    quote = quote.DeepClone();
-                //}
 
-                OnNotifyHistoryTicks(quote, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
+                OnNotifyHistoryTicks(q, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
             }
             catch (Exception ex)
             {

@@ -85,7 +85,7 @@ namespace GNAy.Capital.Trade.Controllers
             //    return false;
             //}
 
-            bool firstTick = _appCtrl.Config.StartOnTime && quote.DealQty <= 0 && quote.Simulate.IsSimulating() && raw.nSimulate.IsRealTrading() && raw.nTickQty > 0;
+            bool firstTick = false;
 
             //quote.Symbol = raw.bstrStockNo;
             //quote.Name = raw.bstrStockName;
@@ -102,6 +102,10 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestBuyQty = raw.nBc;
             quote.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
             quote.BestSellQty = raw.nAc;
+            if (IsAMMarket && _appCtrl.Config.StartOnTime && quote.OpenPrice == 0 && raw.nSimulate.IsRealTrading() && raw.nTickQty > 0)
+            {
+                firstTick = true;
+            }
             if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
             {
                 if (quote.OpenPrice == 0 && raw.nSimulate.IsRealTrading() && raw.nTickQty > 0) //開盤第一筆成交
@@ -146,8 +150,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteLastUpdated = quote;
 
-            if ((raw.nSimulate.IsSimulating() || firstTick) && (DateTime.Now.Hour == 8 || DateTime.Now.Hour == 9 || DateTime.Now.Hour == 14 || DateTime.Now.Hour == 15) &&
-                _appCtrl.Config.StartOnTime && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
+            if (IsAMMarket && (raw.nSimulate.IsSimulating() || firstTick) && (DateTime.Now.Hour == 8 || DateTime.Now.Hour == 9) && _appCtrl.Config.StartOnTime && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
@@ -244,7 +247,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void OnNotifyTicks(QuoteData quote, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
         {
-            bool firstTick = _appCtrl.Config.StartOnTime && quote.DealQty <= 0 && quote.Simulate.IsSimulating() && nSimulate.IsRealTrading() && nQty > 0;
+            bool firstTick = false;
 
             quote.Count = nPtr;
             if (nDate > quote.TradeDateRaw)
@@ -257,9 +260,13 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
             quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
             quote.DealQty = nQty;
+            if (IsAMMarket && _appCtrl.Config.StartOnTime && quote.OpenPrice == 0 && nSimulate.IsRealTrading() && nQty > 0)
+            {
+                firstTick = true;
+            }
             if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && _appCtrl.Config.StartOnTime)
             {
-                if (quote.OpenPrice == 0 && nSimulate.IsRealTrading() && quote.DealQty > 0) //開盤第一筆成交
+                if (quote.OpenPrice == 0 && nSimulate.IsRealTrading() && nQty > 0) //開盤第一筆成交
                 {
                     quote.OpenPrice = quote.DealPrice;
                 }
@@ -286,8 +293,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteLastUpdated = quote;
 
-            if ((nSimulate.IsSimulating() || firstTick) && (DateTime.Now.Hour == 8 || DateTime.Now.Hour == 9 || DateTime.Now.Hour == 14 || DateTime.Now.Hour == 15) &&
-                _appCtrl.Config.StartOnTime && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
+            if (IsAMMarket && (nSimulate.IsSimulating() || firstTick) && (DateTime.Now.Hour == 8 || DateTime.Now.Hour == 9) && _appCtrl.Config.StartOnTime && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);

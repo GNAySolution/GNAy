@@ -133,7 +133,7 @@ namespace GNAy.Capital.Trade.Controllers
                     trigger.Comment = "觸價逾時，監控取消";
                     trigger.Updater = nameof(UpdateStatus);
                     trigger.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace(trigger.ToLog(), UniqueName, DateTime.Now - start);
+                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                     saveTriggers = true;
                     return saveTriggers;
                 }
@@ -141,7 +141,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     string des = trigger.StatusDes;
                     trigger.StatusEnum = TriggerStatus.Enum.Monitoring;
-                    _appCtrl.LogTrace($"{trigger.ToLog()}|{des} -> {trigger.StatusDes}", UniqueName, DateTime.Now - start);
+                    _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{des} -> {trigger.StatusDes}", UniqueName);
                     saveTriggers = true;
                 }
                 else if (trigger.StatusEnum == TriggerStatus.Enum.Monitoring)
@@ -174,7 +174,7 @@ namespace GNAy.Capital.Trade.Controllers
                     if (trigger.ColumnValue >= trigger.TargetValue)
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
-                        _appCtrl.LogTrace($"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName, DateTime.Now - start);
+                        _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
                         saveTriggers = true;
 
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
@@ -187,7 +187,7 @@ namespace GNAy.Capital.Trade.Controllers
                     if (trigger.ColumnValue <= trigger.TargetValue)
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
-                        _appCtrl.LogTrace($"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName, DateTime.Now - start);
+                        _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
                         saveTriggers = true;
 
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
@@ -200,7 +200,7 @@ namespace GNAy.Capital.Trade.Controllers
                     if (trigger.ColumnValue == trigger.TargetValue)
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
-                        _appCtrl.LogTrace($"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName, DateTime.Now - start);
+                        _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
                         saveTriggers = true;
 
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
@@ -212,7 +212,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                     trigger.Comment = $"條件({trigger.Rule})錯誤，必須是大於小於等於";
-                    _appCtrl.LogTrace(trigger.ToLog(), UniqueName, DateTime.Now - start);
+                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                     saveTriggers = true;
                     return saveTriggers;
                 }
@@ -236,7 +236,7 @@ namespace GNAy.Capital.Trade.Controllers
                     trigger.Comment = executed.ToLog();
                     trigger.Updater = nameof(CancelSameSymbolSameColumn);
                     trigger.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace(trigger.ToLog(), UniqueName, DateTime.Now - start);
+                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                 }
             }
         }
@@ -256,7 +256,7 @@ namespace GNAy.Capital.Trade.Controllers
                     trigger.Comment = executed.ToLog();
                     trigger.Updater = nameof(CancelSameSymbolAllColumns);
                     trigger.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace(trigger.ToLog(), UniqueName, DateTime.Now - start);
+                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                 }
             }
         }
@@ -276,7 +276,7 @@ namespace GNAy.Capital.Trade.Controllers
                     trigger.Comment = executed.ToLog();
                     trigger.Updater = nameof(CancelAllSymbolsSameColumn);
                     trigger.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace(trigger.ToLog(), UniqueName, DateTime.Now - start);
+                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                 }
             }
         }
@@ -296,7 +296,7 @@ namespace GNAy.Capital.Trade.Controllers
                     trigger.Comment = executed.ToLog();
                     trigger.Updater = nameof(CancelAllSymbolsAllColumns);
                     trigger.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace(trigger.ToLog(), UniqueName, DateTime.Now - start);
+                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                 }
             }
         }
@@ -328,17 +328,17 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (trigger.StatusEnum == TriggerStatus.Enum.Cancelled)
                     {
-                        _appCtrl.LogError(trigger.ToLog(), UniqueName, DateTime.Now - start);
+                        _appCtrl.LogError(start, trigger.ToLog(), UniqueName);
                     }
                     else if (trigger.StatusEnum == TriggerStatus.Enum.Executed)
                     {
-                        _appCtrl.LogError($"{trigger.ToLog()}|已觸發無法取消", UniqueName, DateTime.Now - start);
+                        _appCtrl.LogError(start, $"{trigger.ToLog()}|已觸發無法取消", UniqueName);
                     }
                     else
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                         trigger.Comment = $"手動取消";
-                        _appCtrl.LogTrace(trigger.ToLog(), UniqueName, DateTime.Now - start);
+                        _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                     }
 
                     if (_waitToCancel.Count <= 0)
@@ -348,7 +348,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError($"{primaryKey}|查無此唯一鍵", UniqueName, DateTime.Now - start);
+                    _appCtrl.LogError(start, $"{primaryKey}|查無此唯一鍵", UniqueName);
                 }
             }
 
@@ -362,17 +362,17 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (trigger.StatusEnum != TriggerStatus.Enum.Cancelled)
                     {
-                        _appCtrl.LogTrace($"{trigger.ToLog()}|新增設定", UniqueName, DateTime.Now - start);
+                        _appCtrl.LogTrace(start, $"{trigger.ToLog()}|新增設定", UniqueName);
                     }
                 }
                 else if (_old.StatusEnum == TriggerStatus.Enum.Executed)
                 {
-                    _appCtrl.LogWarn($"{trigger.ToLog()}|舊設定已觸發，將新增設定", UniqueName, DateTime.Now - start);
+                    _appCtrl.LogWarn(start, $"{trigger.ToLog()}|舊設定已觸發，將新增設定", UniqueName);
                     _triggerMap.Remove(trigger.PrimaryKey);
                 }
                 else
                 {
-                    _appCtrl.LogWarn($"{trigger.ToLog()}|舊設定未觸發，將進行重置", UniqueName, DateTime.Now - start);
+                    _appCtrl.LogWarn(start, $"{trigger.ToLog()}|舊設定未觸發，將進行重置", UniqueName);
                     _triggerMap.Remove(trigger.PrimaryKey);
                     toRemove = _old;
                 }
@@ -819,7 +819,7 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                             trigger.Comment = "程式沒有在正常時間啟動，不執行此監控";
-                            _appCtrl.LogError(trigger.ToLog(), UniqueName, DateTime.Now - start);
+                            _appCtrl.LogError(start, trigger.ToLog(), UniqueName);
                         }
 
                         trigger.Updater = nameof(RecoverSetting);

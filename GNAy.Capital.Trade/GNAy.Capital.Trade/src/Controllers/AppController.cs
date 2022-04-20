@@ -164,6 +164,11 @@ namespace GNAy.Capital.Trade.Controllers
             AppendLog(LogLevel.Trace, msg, lineNumber, memberName);
         }
 
+        public void LogTrace(DateTime startTime, string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            LogTrace(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
+        }
+
         public DateTime StartTrace()
         {
             return DateTime.Now;
@@ -192,6 +197,11 @@ namespace GNAy.Capital.Trade.Controllers
             AppendLog(LogLevel.Debug, msg, lineNumber, memberName);
         }
 
+        public void LogDebug(DateTime startTime, string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            LogDebug(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
+        }
+
         public void LogInfo(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             if (elapsed.HasValue)
@@ -201,6 +211,11 @@ namespace GNAy.Capital.Trade.Controllers
             memberName = $"{uniqueName}.{memberName}";
             _logger.Info(string.Join("|", msg, lineNumber, memberName));
             AppendLog(LogLevel.Info, msg, lineNumber, memberName);
+        }
+
+        public void LogInfo(DateTime startTime, string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            LogInfo(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
         }
 
         public void LogWarn(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
@@ -214,6 +229,11 @@ namespace GNAy.Capital.Trade.Controllers
             AppendLog(LogLevel.Warn, msg, lineNumber, memberName);
         }
 
+        public void LogWarn(DateTime startTime, string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            LogWarn(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
+        }
+
         public void LogError(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             if (elapsed.HasValue)
@@ -223,6 +243,11 @@ namespace GNAy.Capital.Trade.Controllers
             memberName = $"{uniqueName}.{memberName}";
             _logger.Error(string.Join("|", msg, lineNumber, memberName));
             AppendLog(LogLevel.Error, msg, lineNumber, memberName);
+        }
+
+        public void LogError(DateTime startTime, string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        {
+            LogError(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
         }
 
         public void LogException(Exception ex, string stackTrace, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")

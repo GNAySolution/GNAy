@@ -206,56 +206,47 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _orderQuantity, value); }
         }
 
-        private string _stopLossPrice;
-        [Column("停損價格設定")]
-        public string StopLossPrice
+        private string _stopLoss;
+        [Column("停損設定", WPFDisplayIndex = 14)]
+        public string StopLoss
         {
-            get { return _stopLossPrice; }
-            set { OnPropertiesChanged(ref _stopLossPrice, value, nameof(StopLossPrice), nameof(StopLoss)); }
+            get { return _stopLoss; }
+            set { OnPropertyChanged(ref _stopLoss, value); }
         }
-        private decimal _stopLossPct;
-        [Column("停損價%設定", CSVStringFormat = "0.00")]
-        public decimal StopLossPct
-        {
-            get { return _stopLossPct; }
-            set { OnPropertiesChanged(ref _stopLossPct, value, nameof(StopLossPct), nameof(StopLoss)); }
-        }
-        [Column("停損設定", CSVIndex = -1, WPFDisplayIndex = 14)]
-        public string StopLoss => string.IsNullOrWhiteSpace(StopLossPrice) ? string.Empty : $"{StopLossPrice} ({StopLossPct:0.00%})";
 
         private string _stopWinPrice;
-        [Column("停利價格設定")]
+        [Column("停利價格")]
         public string StopWinPrice
         {
             get { return _stopWinPrice; }
             set { OnPropertiesChanged(ref _stopWinPrice, value, nameof(StopWinPrice), nameof(StopWin)); }
         }
-        private decimal _stopWinPct;
-        [Column("停利價%設定", CSVStringFormat = "0.00")]
-        public decimal StopWinPct
+        private int _stopWinQty;
+        [Column("停利減倉")]
+        public int StopWinQty
         {
-            get { return _stopWinPct; }
-            set { OnPropertiesChanged(ref _stopWinPct, value, nameof(StopWinPct), nameof(StopWin)); }
+            get { return _stopWinQty; }
+            set { OnPropertiesChanged(ref _stopWinQty, value, nameof(StopWinQty), nameof(StopWin)); }
         }
         [Column("停利設定", CSVIndex = -1, WPFDisplayIndex = 15)]
-        public string StopWin => string.IsNullOrWhiteSpace(StopWinPrice) ? string.Empty : $"{StopWinPrice} ({StopWinPct:0.00%})";
+        public string StopWin => string.IsNullOrWhiteSpace(StopWinPrice) ? string.Empty : $"{StopWinPrice} ({StopWinQty})";
 
         private string _moveStopWinPrice;
-        [Column("移動停利價格設定")]
+        [Column("移動停利價格")]
         public string MoveStopWinPrice
         {
             get { return _moveStopWinPrice; }
             set { OnPropertiesChanged(ref _moveStopWinPrice, value, nameof(MoveStopWinPrice), nameof(MoveStopWin)); }
         }
-        private decimal _moveStopWinPct;
-        [Column("移動停利價%設定", CSVStringFormat = "0.00")]
-        public decimal MoveStopWinPct
+        private int _moveStopWinQty;
+        [Column("移動停利減倉")]
+        public int MoveStopWinQty
         {
-            get { return _moveStopWinPct; }
-            set { OnPropertiesChanged(ref _moveStopWinPct, value, nameof(MoveStopWinPct), nameof(MoveStopWin)); }
+            get { return _moveStopWinQty; }
+            set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWin)); }
         }
         [Column("移動停利設定", CSVIndex = -1, WPFDisplayIndex = 16)]
-        public string MoveStopWin => string.IsNullOrWhiteSpace(MoveStopWinPrice) ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinPct:0.00%})";
+        public string MoveStopWin => string.IsNullOrWhiteSpace(MoveStopWinPrice) ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinQty})";
 
         private string _sentOrderResult;
         [Column("13碼委託序號或錯誤訊息", "委託回報", WPFDisplayIndex = 17)]
@@ -281,8 +272,16 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _returnedPriPctResult, value); }
         }
 
+        private int _returnedQtyResult;
+        [Column("成交口數", WPFDisplayIndex = 20)]
+        public int ReturnedQtyResult
+        {
+            get { return _returnedQtyResult; }
+            set { OnPropertyChanged(ref _returnedQtyResult, value); }
+        }
+
         private string _returnedDealResult;
-        [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 20)]
+        [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 21)]
         public string ReturnedDealResult
         {
             get { return _returnedDealResult; }
@@ -292,7 +291,7 @@ namespace GNAy.Capital.Models
         //
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 21)]
+        [Column("註解", WPFDisplayIndex = 22)]
         public string Comment
         {
             get { return _comment; }
@@ -319,15 +318,15 @@ namespace GNAy.Capital.Models
             MarketPrice = 0;
             OrderPrice = Models.OrderPrice.P;
             OrderQuantity = -1;
-            StopLossPrice = string.Empty;
-            StopLossPct = 0;
+            StopLoss = string.Empty;
             StopWinPrice = string.Empty;
-            StopWinPct = 0;
+            StopWinQty = 0;
             MoveStopWinPrice = string.Empty;
-            MoveStopWinPct = 0;
+            MoveStopWinQty = 0;
             SentOrderResult = string.Empty;
             ReturnedPriceResult = 0;
             ReturnedPriPctResult = 0;
+            ReturnedQtyResult = 0;
             ReturnedDealResult = string.Empty;
             //
             Comment = string.Empty;

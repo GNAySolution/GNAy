@@ -133,7 +133,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.418.1";
+            Version = "0.22.420.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -144,7 +144,7 @@ namespace GNAy.Capital.Models
             HolidayFileKeywords2 = new List<string>();
             //HolidayFileKeywords2 = new List<string>() { "放假", "無交易", "補假" }; //
 
-            DataGridAppLogRowsMax = 500;
+            DataGridAppLogRowsMax = 1000;
 
             TimerIntervalBackground = 900;
             TimerIntervalTrigger = 30;
