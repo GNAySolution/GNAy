@@ -28,23 +28,35 @@ namespace GNAy.Capital.Models
             [Description("委託回報")]
             ReturnedOrder, //3
 
+            [Description("委託錯誤")]
+            OrderError, //4
+
             [Description("停損送出")]
-            SentStopLoss, //4,
+            SentStopLoss, //5,
 
             [Description("停損回報")]
-            ReturnedStopLoss, //5,
+            ReturnedStopLoss, //6,
+
+            [Description("停損錯誤")]
+            StopLossError, //7,
 
             [Description("停利送出")]
-            SentStopWin, //6,
+            SentStopWin, //8,
 
             [Description("停利回報")]
-            ReturnedStopWin, //7,
+            ReturnedStopWin, //9,
+
+            [Description("停利錯誤")]
+            StopWinError, //10,
 
             [Description("移動停利送出")]
-            SentMoveStopWin, //8,
+            SentMoveStopWin, //11,
 
             [Description("移動停利回報")]
-            ReturnedMoveStopWin, //9,
+            ReturnedMoveStopWin, //12,
+
+            [Description("移動停利錯誤")]
+            MoveStopWinError, //13,
         }
 
         public static ReadOnlyCollection<string> Description = new List<string>()
@@ -53,12 +65,16 @@ namespace GNAy.Capital.Models
             Enum.Cancelled.GetDescription(),
             Enum.SentOrder.GetDescription(),
             Enum.ReturnedOrder.GetDescription(),
+            Enum.OrderError.GetDescription(),
             Enum.SentStopLoss.GetDescription(),
             Enum.ReturnedStopLoss.GetDescription(),
+            Enum.StopLossError.GetDescription(),
             Enum.SentStopWin.GetDescription(),
             Enum.ReturnedStopWin.GetDescription(),
+            Enum.StopWinError.GetDescription(),
             Enum.SentMoveStopWin.GetDescription(),
             Enum.ReturnedMoveStopWin.GetDescription(),
+            Enum.MoveStopWinError.GetDescription(),
         }.AsReadOnly();
     }
 }

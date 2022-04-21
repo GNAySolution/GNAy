@@ -1482,26 +1482,25 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                OrderAccData acc = (OrderAccData)_appCtrl.MainForm.ComboBoxOrderAccs.SelectedItem;
+                OrderAccData acc = (OrderAccData)ComboBoxOrderAccs.SelectedItem;
 
-                StrategyData strategy = new StrategyData()
+                StrategyData order = new StrategyData()
                 {
                     MarketType = acc.MarketType,
                     Branch = acc.Branch,
                     Account = acc.Account,
-                    Symbol = _appCtrl.MainForm.ComboBoxOrderProduct.Text,
-                    BS = (short)_appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex,
-                    TradeType = (short)_appCtrl.MainForm.ComboBoxOrderTradeType.SelectedIndex,
-                    DayTrade = (short)_appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex,
-                    Position = (short)_appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex,
-                    OrderPrice = _appCtrl.MainForm.TextBoxOrderPrice.Text,
-                    OrderQuantity = int.Parse(_appCtrl.MainForm.TextBoxOrderQuantity.Text),
-                    //TODO
+                    Symbol = ComboBoxOrderProduct.Text,
+                    BS = (short)ComboBoxOrderBuySell.SelectedIndex,
+                    TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
+                    DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
+                    Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
+                    OrderPrice = TextBoxOrderPrice.Text,
+                    OrderQty = int.Parse(TextBoxOrderQuantity.Text),
                     Updater = nameof(ButtonSendFutureOrder_Click),
                     UpdateTime = DateTime.Now,
                 };
 
-                _appCtrl.Capital.SendFutureOrderAsync(strategy);
+                _appCtrl.Capital.SendFutureOrderAsync(order);
             }
             catch (Exception ex)
             {
@@ -1527,29 +1526,30 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                OrderAccData acc = (OrderAccData)_appCtrl.MainForm.ComboBoxOrderAccs.SelectedItem;
+                OrderAccData acc = (OrderAccData)ComboBoxOrderAccs.SelectedItem;
 
                 StrategyData strategy = new StrategyData()
                 {
+                    PrimaryKey = TextBoxStrategyPrimaryKey.Text,
                     MarketType = acc.MarketType,
                     Branch = acc.Branch,
                     Account = acc.Account,
-                    Symbol = _appCtrl.MainForm.ComboBoxOrderProduct.Text,
-                    BS = (short)_appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex,
-                    TradeType = (short)_appCtrl.MainForm.ComboBoxOrderTradeType.SelectedIndex,
-                    DayTrade = (short)_appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex,
-                    Position = (short)_appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex,
-                    OrderPrice = _appCtrl.MainForm.TextBoxOrderPrice.Text,
-                    OrderQuantity = int.Parse(_appCtrl.MainForm.TextBoxOrderQuantity.Text),
-                    StopLoss = _appCtrl.MainForm.TextBoxStrategyStopLoss.Text,
-                    StopWinPrice = _appCtrl.MainForm.TextBoxStrategyStopWin.Text,
-                    MoveStopWinPrice = _appCtrl.MainForm.TextBoxStrategyMoveStopWin.Text,
+                    Symbol = ComboBoxOrderProduct.Text,
+                    BS = (short)ComboBoxOrderBuySell.SelectedIndex,
+                    TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
+                    DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
+                    Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
+                    OrderPrice = TextBoxOrderPrice.Text,
+                    OrderQty = int.Parse(TextBoxOrderQuantity.Text),
+                    StopLoss = TextBoxStrategyStopLoss.Text,
+                    StopWinPrice = TextBoxStrategyStopWin.Text,
+                    MoveStopWinPrice = TextBoxStrategyMoveStopWin.Text,
                     //TODO
-                    Updater = nameof(ButtonSendFutureOrder_Click),
+                    Updater = nameof(ButtonStartFutureStartegyNow_Click),
                     UpdateTime = DateTime.Now,
                 };
 
-                _appCtrl.Capital.SendFutureOrderAsync(strategy);
+                _appCtrl.Capital.StartFutureStartegyAsync(strategy);
             }
             catch (Exception ex)
             {
@@ -1567,7 +1567,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //
+                _appCtrl.Capital.CancelOrderBySeqNo((OrderAccData)ComboBoxOrderAccs.SelectedItem, ComboBoxOrderSeqNo.Text);
             }
             catch (Exception ex)
             {

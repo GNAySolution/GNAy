@@ -319,7 +319,7 @@ namespace GNAy.Capital.Trade.Controllers
                 sDayTrade = strategy.DayTrade,
                 sNewClose = strategy.Position,
                 bstrPrice = strategy.OrderPrice,
-                nQty = strategy.OrderQuantity,
+                nQty = strategy.OrderQty,
             };
 
             return pFutureOrder;

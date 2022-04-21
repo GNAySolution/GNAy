@@ -224,7 +224,7 @@ namespace GNAy.Capital.Trade.Controllers
             userID = userID.Trim().ToUpper();
             dwp = dwp.Trim();
 
-            DateTime start = _appCtrl.StartTrace(UniqueName, $"userID={userID}|dwp=********");
+            DateTime start = _appCtrl.StartTrace($"userID={userID}|dwp=********", UniqueName);
 
             try
             {
@@ -305,7 +305,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 dwp = dwp.Trim();
 
-                DateTime start = _appCtrl.StartTrace(UniqueName, $"userID={UserID}|dwp=********");
+                DateTime start = _appCtrl.StartTrace($"UserID={UserID}|dwp=********", UniqueName);
 
                 try
                 {
@@ -473,7 +473,7 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            DateTime start = _appCtrl.StartTrace(UniqueName, quoteFile.FullName);
+            DateTime start = _appCtrl.StartTrace(quoteFile.FullName, UniqueName);
 
             try
             {
@@ -661,7 +661,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return;
                 }
-                start = _appCtrl.StartTrace(UniqueName, quoteFile.FullName);
+                start = _appCtrl.StartTrace(quoteFile.FullName, UniqueName);
 
                 List<string> columnNames = new List<string>();
 
@@ -782,7 +782,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             Task.Factory.StartNew(() =>
             {
-                DateTime start = _appCtrl.StartTrace(UniqueName, $"products={products}");
+                DateTime start = _appCtrl.StartTrace($"products={products}", UniqueName);
 
                 try
                 {
@@ -821,7 +821,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void RequestKLine(string product = "")
         {
-            DateTime start = _appCtrl.StartTrace(UniqueName, $"product={product}");
+            DateTime start = _appCtrl.StartTrace($"product={product}", UniqueName);
 
             try
             {
@@ -859,7 +859,7 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            DateTime start = _appCtrl.StartTrace(UniqueName, $"folder={folder?.Name}|append={append}|prefix={prefix}|suffix={suffix}");
+            DateTime start = _appCtrl.StartTrace($"folder={folder?.Name}|append={append}|prefix={prefix}|suffix={suffix}", UniqueName);
 
             try
             {
@@ -1008,7 +1008,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void UnlockOrder(int marketType = -1)
         {
-            DateTime start = _appCtrl.StartTrace(UniqueName, $"marketType={marketType}");
+            DateTime start = _appCtrl.StartTrace($"marketType={marketType}", UniqueName);
 
             try
             {
@@ -1050,7 +1050,7 @@ namespace GNAy.Capital.Trade.Controllers
                 maxQty = _appCtrl.Settings.OrderMaxQty;
             }
 
-            DateTime start = _appCtrl.StartTrace(UniqueName, $"marketType={marketType}|maxQty={maxQty}");
+            DateTime start = _appCtrl.StartTrace($"marketType={marketType}|maxQty={maxQty}", UniqueName);
 
             try
             {
@@ -1092,7 +1092,7 @@ namespace GNAy.Capital.Trade.Controllers
                 maxCount = _appCtrl.Settings.OrderMaxCount;
             }
 
-            DateTime start = _appCtrl.StartTrace(UniqueName, $"marketType={marketType}|maxCount={maxCount}");
+            DateTime start = _appCtrl.StartTrace($"marketType={marketType}|maxCount={maxCount}", UniqueName);
 
             try
             {
@@ -1131,7 +1131,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             Task.Factory.StartNew(() =>
             {
-                DateTime start = _appCtrl.StartTrace(UniqueName, $"orderAcc={orderAcc}|format={format}");
+                DateTime start = _appCtrl.StartTrace($"orderAcc={orderAcc}|format={format}", UniqueName);
 
                 try
                 {
@@ -1171,39 +1171,55 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
-        public void SendFutureOrder(StrategyData strategy)
+        public void SendFutureOrder(StrategyData order)
         {
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                if (string.IsNullOrWhiteSpace(strategy.PrimaryKey))
+                if (string.IsNullOrWhiteSpace(order.PrimaryKey))
                 {
-                    strategy.PrimaryKey = $"{strategy.CreatedTime:HH:mm:ss.fff}";
+                    order.PrimaryKey = $"{order.CreatedTime:HH:mm:ss.fff}";
 
-                    if (_appCtrl.Strategy.GetStrategy(strategy.PrimaryKey) != null)
+                    if (_appCtrl.Strategy.GetStrategy(order.PrimaryKey) != null)
                     {
-                        throw new ArgumentException($"_appCtrl.Strategy.GetStrategy({strategy.PrimaryKey}) != null");
+                        throw new ArgumentException($"_appCtrl.Strategy.GetStrategy({order.PrimaryKey}) != null");
                     }
-                    else if (_appCtrl.Strategy.GetOrderDetail(strategy.PrimaryKey) != null)
+                    else if (_appCtrl.Strategy.GetOrderDetail(order.PrimaryKey) != null)
                     {
-                        throw new ArgumentException($"_appCtrl.Strategy.GetOrderDetail({strategy.PrimaryKey}) != null");
+                        throw new ArgumentException($"_appCtrl.Strategy.GetOrderDetail({order.PrimaryKey}) != null");
                     }
-
-                    _appCtrl.Strategy.AddOrder(strategy);
+                }
+                else if (_appCtrl.Strategy.GetStrategy(order.PrimaryKey) == null)
+                {
+                    throw new ArgumentException($"_appCtrl.Strategy.GetStrategy({order.PrimaryKey}) == null");
+                }
+                else if (_appCtrl.Strategy.GetStrategy(order.PrimaryKey) == order)
+                {
+                    throw new ArgumentException($"_appCtrl.Strategy.GetStrategy({order.PrimaryKey}) == order");
+                }
+                else if (_appCtrl.Strategy.GetOrderDetail(order.PrimaryKey) != null)
+                {
+                    throw new ArgumentException($"_appCtrl.Strategy.GetOrderDetail({order.PrimaryKey}) != null");
                 }
 
-                _appCtrl.Strategy.OrderCheck(strategy, true, start);
+                order.PrimaryKey = $"{order.PrimaryKey}_{StrategyStatus.Enum.SentOrder}";
 
-                //
+                _appCtrl.Strategy.AddOrder(order);
+                _appCtrl.Strategy.OrderCheck(order, true, start);
 
-                strategy.StatusEnum = StrategyStatus.Enum.SentOrder;
-
-                FUTUREORDER pFutureOrder = CreateCaptialFutureOrder(strategy);
+                FUTUREORDER pFutureOrder = CreateCaptialFutureOrder(order);
 
                 string orderMsg = $"_appCtrl.Settings.SendRealOrder={_appCtrl.Settings.SendRealOrder}"; //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
                 int m_nCode = 0;
                 (LogLevel, string) apiMsg = (LogLevel.Trace, orderMsg);
+
+                order.StatusEnum = StrategyStatus.Enum.SentOrder;
+
+                if (order.Parent != null)
+                {
+                    order.Parent.StatusEnum = order.StatusEnum;
+                }
 
                 if (_appCtrl.Settings.SendRealOrder)
                 {
@@ -1222,18 +1238,58 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.Log(apiMsg.Item1, $"m_nCode={m_nCode}|{orderMsg}", UniqueName, DateTime.Now - start);
                 }
 
-                strategy.StatusEnum = StrategyStatus.Enum.ReturnedOrder;
-                strategy.SentOrderResult= orderMsg;
-                strategy.Updater = nameof(SendFutureOrder);
-                strategy.UpdateTime = DateTime.Now;
+                order.StatusEnum = m_nCode == 0 ? StrategyStatus.Enum.ReturnedOrder : StrategyStatus.Enum.OrderError;
+                order.SentOrderResult= orderMsg;
+                order.Updater = nameof(SendFutureOrder);
+                order.UpdateTime = DateTime.Now;
             }
             catch (Exception ex)
             {
                 _appCtrl.LogException(start, ex, ex.StackTrace);
 
-                strategy.StatusEnum = StrategyStatus.Enum.ReturnedOrder;
+                order.StatusEnum = StrategyStatus.Enum.OrderError;
+                order.SentOrderResult = ex.Message;
+                order.Updater = nameof(SendFutureOrder);
+                order.UpdateTime = DateTime.Now;
+            }
+            finally
+            {
+                if (order.Parent != null)
+                {
+                    order.Parent.StatusEnum = order.StatusEnum;
+                    order.Parent.Updater = nameof(SendFutureOrder);
+                    order.Parent.UpdateTime = DateTime.Now;
+                }
+
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        public void SendFutureOrderAsync(StrategyData order)
+        {
+            Task.Factory.StartNew(() => SendFutureOrder(order));
+        }
+
+        public void StartFutureStartegy(StrategyData strategy)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                _appCtrl.Strategy.OrderCheck(strategy, true, start);
+                _appCtrl.Strategy.AddRule(strategy);
+                Thread.Sleep(_appCtrl.Settings.TimerIntervalStrategy * 2);
+
+                StrategyData order = _appCtrl.Strategy.CreateOrder(strategy);
+                SendFutureOrderAsync(order);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+
+                strategy.StatusEnum = StrategyStatus.Enum.OrderError;
                 strategy.SentOrderResult = ex.Message;
-                strategy.Updater = nameof(SendFutureOrder);
+                strategy.Updater = nameof(StartFutureStartegy);
                 strategy.UpdateTime = DateTime.Now;
             }
             finally
@@ -1242,9 +1298,37 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void SendFutureOrderAsync(StrategyData strategy)
+        public void StartFutureStartegyAsync(StrategyData strategy)
         {
-            Task.Factory.StartNew(() => SendFutureOrder(strategy));
+            Task.Factory.StartNew(() => StartFutureStartegy(strategy));
+        }
+
+        public void CancelOrderBySeqNo(OrderAccData acc, string seqNo)
+        {
+            DateTime start = _appCtrl.StartTrace(seqNo, UniqueName);
+
+            try
+            {
+                //TODO
+
+                string strMessage = "";
+                int m_nCode = m_pSKOrder.CancelOrderBySeqNo(UserID, false, acc.FullAccount, seqNo, out strMessage); //國內委託删單(By委託序號)
+
+                if (m_nCode != 0)
+                {
+                    LogAPIMessage(start, m_nCode);
+                }
+
+                _appCtrl.LogTrace(start, strMessage, UniqueName);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
         }
     }
 }

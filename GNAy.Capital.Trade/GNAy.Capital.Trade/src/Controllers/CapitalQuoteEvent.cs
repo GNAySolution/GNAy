@@ -39,6 +39,7 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.MainForm.InvokeRequired(delegate
                 {
                     _appCtrl.Trigger?.ClearQuotes();
+                    _appCtrl.Strategy?.ClearQuotes();
 
                     _capitalProductRawMap.Clear();
                     _quoteIndexMap.Clear();

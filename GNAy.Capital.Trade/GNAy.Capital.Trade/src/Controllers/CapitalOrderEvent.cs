@@ -17,7 +17,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrAccountData"></param>
         private void m_OrderObj_OnAccount(string bstrLogInID, string bstrAccountData)
         {
-            DateTime start = _appCtrl.StartTrace(UniqueName, $"bstrLogInID={bstrLogInID}|bstrAccountData={bstrAccountData}");
+            DateTime start = _appCtrl.StartTrace($"bstrLogInID={bstrLogInID}|bstrAccountData={bstrAccountData}", UniqueName);
 
             AppendReply(bstrLogInID, bstrAccountData);
 

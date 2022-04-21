@@ -21,6 +21,8 @@ namespace GNAy.Capital.Models
 
         public readonly object SyncRoot;
 
+        public StrategyData Parent;
+
         private string _creator;
         [Column("建立者")]
         public string Creator
@@ -110,6 +112,8 @@ namespace GNAy.Capital.Models
         [Column("下單帳號", CSVIndex = -1, WPFDisplayIndex = 5)]
         public string FullAccount => $"{Branch}{Account}";
 
+        public QuoteData Quote;
+
         private string _symbol;
         [Column("代碼", WPFDisplayIndex = 6)]
         public string Symbol
@@ -198,12 +202,12 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _orderPrice, value); }
         }
 
-        private int _orderQuantity;
+        private int _orderQty;
         [Column("委託口數", "委量", WPFDisplayIndex = 13)]
-        public int OrderQuantity
+        public int OrderQty
         {
-            get { return _orderQuantity; }
-            set { OnPropertyChanged(ref _orderQuantity, value); }
+            get { return _orderQty; }
+            set { OnPropertyChanged(ref _orderQty, value); }
         }
 
         private string _stopLoss;
@@ -301,6 +305,7 @@ namespace GNAy.Capital.Models
         public StrategyData([CallerMemberName] string memberName = "")
         {
             SyncRoot = new object();
+            Parent = null;
             Creator = memberName;
             CreatedTime = DateTime.Now;
             Updater = string.Empty;
@@ -310,6 +315,7 @@ namespace GNAy.Capital.Models
             MarketType = Market.EType.OverseaStock;
             Branch = string.Empty;
             Account = string.Empty;
+            Quote = null;
             Symbol = string.Empty;
             BSEnum = OrderBS.Enum.Buy;
             TradeTypeEnum = OrderTradeType.Enum.ROD;
@@ -317,7 +323,7 @@ namespace GNAy.Capital.Models
             PositionEnum = OrderPosition.Enum.Open;
             MarketPrice = 0;
             OrderPrice = Models.OrderPrice.P;
-            OrderQuantity = -1;
+            OrderQty = -1;
             StopLoss = string.Empty;
             StopWinPrice = string.Empty;
             StopWinQty = 0;
@@ -333,7 +339,7 @@ namespace GNAy.Capital.Models
         }
 
         public string ToLog()
-        {
+        {//TODO
             return $"{StatusDes},{PrimaryKey},,{Comment}";
         }
 

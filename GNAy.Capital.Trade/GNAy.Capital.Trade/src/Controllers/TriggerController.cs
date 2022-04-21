@@ -71,7 +71,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, string.Format("{0}.csv", DateTime.Now.ToString(_appCtrl.Settings.TriggerFileFormat)));
-                _appCtrl.LogTrace(path, UniqueName);
+                _appCtrl.LogTrace(start, path, UniqueName);
 
                 using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
                 {
@@ -602,7 +602,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void Cancel(string primaryKey)
         {
-            DateTime start = _appCtrl.StartTrace(UniqueName, $"primaryKey={primaryKey}");
+            DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
 
             try
             {
@@ -633,7 +633,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (_appCtrl.Config.TriggerFolder == null)
                 {
-                    _appCtrl.LogError("未設定觸價資料夾(Settings.TriggerFolderPath)，無法建立觸價資料", UniqueName);
+                    _appCtrl.LogError(start, "未設定觸價資料夾(Settings.TriggerFolderPath)，無法建立觸價資料", UniqueName);
                     return;
                 }
                 else if (_appCtrl.MainForm.ComboBoxTriggerProduct.SelectedIndex < 0)
@@ -692,7 +692,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError($"條件({rule})錯誤，開頭必須是大於小於等於", UniqueName);
+                    _appCtrl.LogError(start, $"條件({rule})錯誤，開頭必須是大於小於等於", UniqueName);
                     return;
                 }
 
@@ -702,7 +702,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError($"條件錯誤，無法解析({bodyValue})", UniqueName);
+                    _appCtrl.LogError(start, $"條件錯誤，無法解析({bodyValue})", UniqueName);
                     return;
                 }
 
