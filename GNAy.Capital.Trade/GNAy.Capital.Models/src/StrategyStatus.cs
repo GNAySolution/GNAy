@@ -22,58 +22,82 @@ namespace GNAy.Capital.Models
             [Description("已取消")]
             Cancelled, //1
 
+            [Description("已完成")]
+            Finished, //2,
+
             [Description("委託送出")]
-            SentOrder, //2
+            OrderSent, //3
 
             [Description("委託回報")]
-            ReturnedOrder, //3
+            OrderReport, //4
+
+            [Description("委託成交")]
+            DealReport, //5
 
             [Description("委託錯誤")]
-            OrderError, //4
+            OrderError, //6
 
             [Description("停損送出")]
-            SentStopLoss, //5,
+            StopLossSent, //7,
 
             [Description("停損回報")]
-            ReturnedStopLoss, //6,
+            StopLossOrderReport, //8,
+
+            [Description("停損成交")]
+            StopLossDealReport, //9,
 
             [Description("停損錯誤")]
-            StopLossError, //7,
+            StopLossError, //10,
 
             [Description("停利送出")]
-            SentStopWin, //8,
+            StopWinSent, //11,
 
             [Description("停利回報")]
-            ReturnedStopWin, //9,
+            StopWinOrderReport, //12,
+
+            [Description("停利成交")]
+            StopWinDealReport, //13,
 
             [Description("停利錯誤")]
-            StopWinError, //10,
+            StopWinError, //14,
 
             [Description("移動停利送出")]
-            SentMoveStopWin, //11,
+            MoveStopWinSent, //15,
 
             [Description("移動停利回報")]
-            ReturnedMoveStopWin, //12,
+            MoveStopWinOrderReport, //16,
+
+            [Description("移動停利成交")]
+            MoveStopWinDealReport, //17,
 
             [Description("移動停利錯誤")]
-            MoveStopWinError, //13,
+            MoveStopWinError, //18,
         }
 
         public static ReadOnlyCollection<string> Description = new List<string>()
         {
             Enum.Waiting.GetDescription(),
             Enum.Cancelled.GetDescription(),
-            Enum.SentOrder.GetDescription(),
-            Enum.ReturnedOrder.GetDescription(),
+            Enum.Finished.GetDescription(),
+            //
+            Enum.OrderSent.GetDescription(),
+            Enum.OrderReport.GetDescription(),
+            Enum.DealReport.GetDescription(),
             Enum.OrderError.GetDescription(),
-            Enum.SentStopLoss.GetDescription(),
-            Enum.ReturnedStopLoss.GetDescription(),
+            //
+            Enum.StopLossSent.GetDescription(),
+            Enum.StopLossOrderReport.GetDescription(),
+            Enum.StopLossDealReport.GetDescription(),
             Enum.StopLossError.GetDescription(),
-            Enum.SentStopWin.GetDescription(),
-            Enum.ReturnedStopWin.GetDescription(),
+            //
+            Enum.StopWinSent.GetDescription(),
+            Enum.StopWinOrderReport.GetDescription(),
+            Enum.StopWinDealReport.GetDescription(),
             Enum.StopWinError.GetDescription(),
-            Enum.SentMoveStopWin.GetDescription(),
-            Enum.ReturnedMoveStopWin.GetDescription(),
+            //
+            Enum.MoveStopWinSent.GetDescription(),
+            Enum.MoveStopWinOrderReport.GetDescription(),
+            Enum.MoveStopWinDealReport.GetDescription(),
             Enum.MoveStopWinError.GetDescription(),
         }.AsReadOnly();
     }

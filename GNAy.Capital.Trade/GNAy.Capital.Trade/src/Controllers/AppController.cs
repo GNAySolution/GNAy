@@ -451,8 +451,12 @@ namespace GNAy.Capital.Trade.Controllers
                 if (Capital == null)
                 {
                     Capital = new CapitalController(this);
+
                     Trigger = new TriggerController(this);
+                    MainForm.TextBoxTriggerPrimaryKey.Text = $"{Trigger.Count + 1}";
+
                     Strategy = new StrategyController(this);
+                    MainForm.TextBoxStrategyPrimaryKey.Text = $"{Strategy.Count + 1}";
                 }
 
                 return true;

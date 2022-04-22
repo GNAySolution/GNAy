@@ -252,44 +252,39 @@ namespace GNAy.Capital.Models
         [Column("移動停利設定", CSVIndex = -1, WPFDisplayIndex = 16)]
         public string MoveStopWin => string.IsNullOrWhiteSpace(MoveStopWinPrice) ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinQty})";
 
-        private string _sentOrderResult;
+        private string _orderReport;
         [Column("13碼委託序號或錯誤訊息", "委託回報", WPFDisplayIndex = 17)]
-        public string SentOrderResult
+        public string OrderReport
         {
-            get { return _sentOrderResult; }
-            set { OnPropertyChanged(ref _sentOrderResult, value); }
+            get { return _orderReport; }
+            set { OnPropertyChanged(ref _orderReport, value); }
         }
 
-        private decimal _returnedPriceResult;
+        private decimal _dealPrice;
         [Column("成交價格", CSVStringFormat = "0.00", WPFDisplayIndex = 18, WPFStringFormat = "{0:0.00}")]
-        public decimal ReturnedPriceResult
+        public decimal DealPrice
         {
-            get { return _returnedPriceResult; }
-            set { OnPropertyChanged(ref _returnedPriceResult, value); }
+            get { return _dealPrice; }
+            set { OnPropertiesChanged(ref _dealPrice, value, nameof(DealPrice), nameof(DealPct)); }
         }
 
-        private decimal _returnedPriPctResult;
-        [Column("成交價%", CSVStringFormat = "0.00", WPFDisplayIndex = 19, WPFStringFormat = "{0:0.00}%")]
-        public decimal ReturnedPriPctResult
+        private int _dealQty;
+        [Column("成交口數", WPFDisplayIndex = 19)]
+        public int DealQty
         {
-            get { return _returnedPriPctResult; }
-            set { OnPropertyChanged(ref _returnedPriPctResult, value); }
+            get { return _dealQty; }
+            set { OnPropertyChanged(ref _dealQty, value); }
         }
 
-        private int _returnedQtyResult;
-        [Column("成交口數", WPFDisplayIndex = 20)]
-        public int ReturnedQtyResult
-        {
-            get { return _returnedQtyResult; }
-            set { OnPropertyChanged(ref _returnedQtyResult, value); }
-        }
+        [Column("成交價%", CSVStringFormat = "0.00", WPFDisplayIndex = 20, WPFStringFormat = "{0:0.00}%")]
+        public decimal DealPct => (DealPrice != 0 && Quote != null && Quote.Reference != 0) ? (DealPrice - Quote.Reference) / Quote.Reference * 100 : 0;
 
-        private string _returnedDealResult;
+        private string _dealReport;
         [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 21)]
-        public string ReturnedDealResult
+        public string DealReport
         {
-            get { return _returnedDealResult; }
-            set { OnPropertyChanged(ref _returnedDealResult, value); }
+            get { return _dealReport; }
+            set { OnPropertyChanged(ref _dealReport, value); }
         }
 
         //
@@ -329,13 +324,116 @@ namespace GNAy.Capital.Models
             StopWinQty = 0;
             MoveStopWinPrice = string.Empty;
             MoveStopWinQty = 0;
-            SentOrderResult = string.Empty;
-            ReturnedPriceResult = 0;
-            ReturnedPriPctResult = 0;
-            ReturnedQtyResult = 0;
-            ReturnedDealResult = string.Empty;
+            OrderReport = string.Empty;
+            DealPrice = 0;
+            DealQty = 0;
+            DealReport = string.Empty;
             //
             Comment = string.Empty;
+        }
+
+        public StrategyData CreateOrder()
+        {
+            if (Parent != null)
+            {
+                throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
+            }
+            else if (StatusDes != StrategyStatus.Description[(int)StrategyStatus.Enum.Waiting])
+            {
+                throw new ArgumentException($"{StatusDes} != {StrategyStatus.Description[(int)StrategyStatus.Enum.Waiting]}|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(PrimaryKey))
+            {
+                throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Branch))
+            {
+                throw new ArgumentException($"未設定分公司|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Account))
+            {
+                throw new ArgumentException($"未設定下單帳號|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Symbol))
+            {
+                throw new ArgumentException($"未設定代碼|{ToLog()}");
+            }
+            else if (PositionDes == OrderPosition.Description[(int)OrderPosition.Enum.Close])
+            {
+                throw new ArgumentException($"PositionDes == {OrderPosition.Description[(int)OrderPosition.Enum.Close]}|{ToLog()}");
+            }
+            else if (OrderQty <= 0)
+            {
+                throw new ArgumentException($"委託口數({OrderQty}) <= 0|{ToLog()}");
+            }
+
+            StrategyData order = new StrategyData()
+            {
+                Parent = this,
+                PrimaryKey = $"{PrimaryKey}_{StrategyStatus.Enum.OrderSent}",
+                MarketType = MarketType,
+                Branch = Branch,
+                Account = Account,
+                Symbol = Symbol,
+                BS = BS,
+                TradeType = TradeType,
+                DayTrade = DayTrade,
+                Position = Position,
+                OrderPrice = OrderPrice,
+                OrderQty = OrderQty,
+                Updater = nameof(CreateOrder),
+                UpdateTime = DateTime.Now,
+            };
+
+            return order;
+        }
+
+        public StrategyData CreateStopLossOrder()
+        {
+            if (Parent != null)
+            {
+                throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
+            }
+            else if (StatusDes != StrategyStatus.Description[(int)StrategyStatus.Enum.DealReport])
+            {
+                throw new ArgumentException($"{StatusDes} != {StrategyStatus.Description[(int)StrategyStatus.Enum.DealReport]}|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(PrimaryKey))
+            {
+                throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Branch))
+            {
+                throw new ArgumentException($"未設定分公司|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Account))
+            {
+                throw new ArgumentException($"未設定下單帳號|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Symbol))
+            {
+                throw new ArgumentException($"未設定代碼|{ToLog()}");
+            }
+
+            StrategyData order = new StrategyData()
+            {
+                Parent = this,
+                PrimaryKey = $"{PrimaryKey}_{StrategyStatus.Enum.StopLossSent}",
+                MarketType = MarketType,
+                Branch = Branch,
+                Account = Account,
+                Symbol = Symbol,
+                BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
+                TradeType = TradeType,
+                DayTrade = DayTrade,
+                PositionEnum = OrderPosition.Enum.Close,
+                OrderPrice = Models.OrderPrice.P,
+                //OrderQty = OrderQty,
+                Updater = nameof(CreateStopLossOrder),
+                UpdateTime = DateTime.Now,
+            };
+
+            return order;
         }
 
         public string ToLog()

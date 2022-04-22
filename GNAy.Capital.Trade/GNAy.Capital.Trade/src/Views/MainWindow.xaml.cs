@@ -777,6 +777,8 @@ namespace GNAy.Capital.Trade
 
                     elapsed = (start - _appCtrl.Capital.QuoteLastUpdated.UpdateTime).ToString("mm':'ss'.'fff");
                     StatusBarItemAA2.Text = $"{StatusBarItemAA2.Text}|{elapsed}";
+
+                    StatusBarItemCB3.Text = _appCtrl.Capital.OrderNotice;
                 }
 
                 StatusBarItemCA3.Text = $"BG={_appCtrl.SignalTimeBG:ss.fff}|Trigger={_appCtrl.SignalTimeTrigger:ss.fff}|Strategy={_appCtrl.SignalTimeStrategy:ss.fff}";
@@ -793,6 +795,11 @@ namespace GNAy.Capital.Trade
                 else if (TabControlBB.SelectedIndex == 1 && DataGridStrategyRule.ItemsSource != null)
                 {
                     StatusBarItemBB1.Text = $"({DataGridStrategyRule.Columns.Count},{DataGridStrategyRule.Items.Count})";
+                }
+
+                if (_appCtrl.Strategy != null)
+                {
+                    StatusBarItemBB3.Text = _appCtrl.Strategy.Notice;
                 }
 
                 if (TabControlCB.SelectedIndex == 0 && DataGridOrderDetail.ItemsSource != null)
@@ -1237,24 +1244,6 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonRecoverTriggerSetting_Click(object sender, RoutedEventArgs e)
-        {
-            DateTime start = _appCtrl.StartTrace();
-
-            try
-            {
-                _appCtrl.Trigger.RecoverSetting();
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
-        }
-
         private void ButtonCancelTrigger_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
@@ -1296,6 +1285,21 @@ namespace GNAy.Capital.Trade
                 }
 
                 _appCtrl.Trigger.AddRule();
+
+                if (decimal.TryParse(TextBoxTriggerPrimaryKey.Text, out decimal pk))
+                {
+                    if (pk < _appCtrl.Trigger.Count)
+                    {
+                        pk = _appCtrl.Trigger.Count;
+                    }
+
+                    ++pk;
+
+                    if (_appCtrl.Trigger[$"{pk}"] == null)
+                    {
+                        _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{pk}";
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -1438,7 +1442,7 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                //
+                _appCtrl.Strategy.Cancel(TextBoxStrategyPrimaryKey.Text);
             }
             catch (Exception ex)
             {
@@ -1464,7 +1468,45 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                //
+                OrderAccData acc = (OrderAccData)ComboBoxOrderAccs.SelectedItem;
+
+                StrategyData strategy = new StrategyData()
+                {
+                    PrimaryKey = TextBoxStrategyPrimaryKey.Text,
+                    MarketType = acc.MarketType,
+                    Branch = acc.Branch,
+                    Account = acc.Account,
+                    Symbol = ComboBoxOrderProduct.Text,
+                    BS = (short)ComboBoxOrderBuySell.SelectedIndex,
+                    TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
+                    DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
+                    Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
+                    OrderPrice = TextBoxOrderPrice.Text,
+                    OrderQty = int.Parse(TextBoxOrderQuantity.Text),
+                    StopLoss = TextBoxStrategyStopLoss.Text,
+                    StopWinPrice = TextBoxStrategyStopWin.Text,
+                    MoveStopWinPrice = TextBoxStrategyMoveStopWin.Text,
+                    //TODO
+                    Updater = nameof(ButtonStartFutureStartegyNow_Click),
+                    UpdateTime = DateTime.Now,
+                };
+
+                _appCtrl.Strategy.AddRuleAsync(strategy);
+
+                if (decimal.TryParse(TextBoxStrategyPrimaryKey.Text, out decimal pk))
+                {
+                    if (pk < _appCtrl.Strategy.Count)
+                    {
+                        pk = _appCtrl.Strategy.Count;
+                    }
+
+                    ++pk;
+
+                    if (_appCtrl.Strategy[$"{pk}"] == null)
+                    {
+                        _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -1549,7 +1591,22 @@ namespace GNAy.Capital.Trade
                     UpdateTime = DateTime.Now,
                 };
 
-                _appCtrl.Capital.StartFutureStartegyAsync(strategy);
+                _appCtrl.Strategy.StartFutureStartegyAsync(strategy);
+
+                if (decimal.TryParse(TextBoxStrategyPrimaryKey.Text, out decimal pk))
+                {
+                    if (pk < _appCtrl.Strategy.Count)
+                    {
+                        pk = _appCtrl.Strategy.Count;
+                    }
+
+                    ++pk;
+
+                    if (_appCtrl.Strategy[$"{pk}"] == null)
+                    {
+                        _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
+                    }
+                }
             }
             catch (Exception ex)
             {

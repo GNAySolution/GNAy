@@ -31,6 +31,9 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly SortedDictionary<string, TriggerData> _triggerMap;
         private readonly ObservableCollection<TriggerData> _triggerCollection;
 
+        public int Count => _triggerMap.Count;
+        public TriggerData this[string key] => _triggerMap.TryGetValue(key, out TriggerData data)? data :null;
+
         private readonly ConcurrentDictionary<string, TriggerData> _executedMap;
 
         public TriggerController(AppController appCtrl)
@@ -52,8 +55,6 @@ namespace GNAy.Capital.Trade.Controllers
             _triggerCollection = _appCtrl.MainForm.DataGridTriggerRule.SetAndGetItemsSource<TriggerData>();
 
             _executedMap = new ConcurrentDictionary<string, TriggerData>();
-
-            _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{_triggerMap.Count + 1}";
         }
 
         private TriggerController() : this(null)
@@ -107,25 +108,25 @@ namespace GNAy.Capital.Trade.Controllers
 
         private bool UpdateStatus(TriggerData trigger, QuoteData quote, DateTime start)
         {
-            bool saveTriggers = false;
+            bool saveData = false;
 
             lock (trigger.SyncRoot)
             {
                 if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
                 {
-                    return saveTriggers;
+                    return saveData;
                 }
                 else if (quote == null)
                 {
-                    return saveTriggers;
+                    return saveData;
                 }
                 else if (quote.Simulate.IsSimulating())
                 {
-                    return saveTriggers;
+                    return saveData;
                 }
                 else if (trigger.StatusEnum == TriggerStatus.Enum.Cancelled || trigger.StatusEnum == TriggerStatus.Enum.Executed)
                 {
-                    return saveTriggers;
+                    return saveData;
                 }
                 else if (trigger.StatusEnum != TriggerStatus.Enum.Executed && trigger.EndTime.HasValue && trigger.EndTime.Value <= DateTime.Now)
                 {
@@ -134,21 +135,21 @@ namespace GNAy.Capital.Trade.Controllers
                     trigger.Updater = nameof(UpdateStatus);
                     trigger.UpdateTime = DateTime.Now;
                     _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
-                    saveTriggers = true;
-                    return saveTriggers;
+                    saveData = true;
+                    return saveData;
                 }
                 else if (trigger.StatusEnum == TriggerStatus.Enum.Waiting && (!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now))
                 {
                     string des = trigger.StatusDes;
                     trigger.StatusEnum = TriggerStatus.Enum.Monitoring;
                     _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{des} -> {trigger.StatusDes}", UniqueName);
-                    saveTriggers = true;
+                    saveData = true;
                 }
                 else if (trigger.StatusEnum == TriggerStatus.Enum.Monitoring)
                 { }
                 else
                 {
-                    return saveTriggers;
+                    return saveData;
                 }
 
                 object valueObj = trigger.Column.Property.GetValue(quote);
@@ -175,11 +176,11 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
                         _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
-                        saveTriggers = true;
+                        saveData = true;
 
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
 
-                        //
+                        //TODO
                     }
                 }
                 else if (trigger.Rule == Definition.IsLessThanOrEqualTo)
@@ -188,7 +189,7 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
                         _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
-                        saveTriggers = true;
+                        saveData = true;
 
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
 
@@ -201,7 +202,7 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
                         _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
-                        saveTriggers = true;
+                        saveData = true;
 
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
 
@@ -213,12 +214,12 @@ namespace GNAy.Capital.Trade.Controllers
                     trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                     trigger.Comment = $"條件({trigger.Rule})錯誤，必須是大於小於等於";
                     _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
-                    saveTriggers = true;
-                    return saveTriggers;
+                    saveData = true;
+                    return saveData;
                 }
             }
 
-            return saveTriggers;
+            return saveData;
         }
 
         private void CancelSameSymbolSameColumn(TriggerData executed, DateTime start)
@@ -332,7 +333,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else if (trigger.StatusEnum == TriggerStatus.Enum.Executed)
                     {
-                        _appCtrl.LogError(start, $"{trigger.ToLog()}|已觸發無法取消", UniqueName);
+                        _appCtrl.LogError(start, $"已觸發無法取消|{trigger.ToLog()}", UniqueName);
                     }
                     else
                     {
@@ -348,7 +349,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError(start, $"{primaryKey}|查無此唯一鍵", UniqueName);
+                    _appCtrl.LogError(start, $"查無此唯一鍵|{primaryKey}", UniqueName);
                 }
             }
 
@@ -362,17 +363,17 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (trigger.StatusEnum != TriggerStatus.Enum.Cancelled)
                     {
-                        _appCtrl.LogTrace(start, $"{trigger.ToLog()}|新增設定", UniqueName);
+                        _appCtrl.LogTrace(start, $"新增設定|{trigger.ToLog()}", UniqueName);
                     }
                 }
                 else if (_old.StatusEnum == TriggerStatus.Enum.Executed)
                 {
-                    _appCtrl.LogWarn(start, $"{trigger.ToLog()}|舊設定已觸發，將新增設定", UniqueName);
+                    _appCtrl.LogWarn(start, $"舊設定已觸發，將新增設定|{trigger.ToLog()}", UniqueName);
                     _triggerMap.Remove(trigger.PrimaryKey);
                 }
                 else
                 {
-                    _appCtrl.LogWarn(start, $"{trigger.ToLog()}|舊設定未觸發，將進行重置", UniqueName);
+                    _appCtrl.LogWarn(start, $"舊設定未觸發，將進行重置|{trigger.ToLog()}", UniqueName);
                     _triggerMap.Remove(trigger.PrimaryKey);
                     toRemove = _old;
                 }
@@ -416,7 +417,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            bool saveTriggers = false;
+            bool saveData = false;
 
             _executedMap.Clear();
 
@@ -427,7 +428,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (UpdateStatus(pair.Value, pair.Value.Quote, start))
                     {
-                        saveTriggers = true;
+                        saveData = true;
                     }
                 }
                 catch (Exception ex)
@@ -462,7 +463,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            if (saveTriggers)
+            if (saveData)
             {
                 SaveData(_triggerCollection);
             }
@@ -496,17 +497,11 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                //_appCtrl.LogTrace($"Symbol={quote.Symbol}|Page={quote.Page}");
-
                 _waitToReset.Enqueue(quote);
             }
             catch (Exception ex)
             {
                 _appCtrl.LogException(ex, ex.StackTrace);
-            }
-            finally
-            {
-                //_appCtrl.LogTrace("Trigger|End");
             }
         }
 
@@ -657,7 +652,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (string.IsNullOrWhiteSpace(primaryKey))
                 {
-                    primaryKey = $"{_triggerMap.Count + 1}";
+                    _appCtrl.LogError(start, "未設定唯一鍵", UniqueName);
+                    return;
                 }
 
                 QuoteData selectedQuote = (QuoteData)_appCtrl.MainForm.ComboBoxTriggerProduct.SelectedItem;
@@ -729,16 +725,6 @@ namespace GNAy.Capital.Trade.Controllers
                     StartTime = parseResult.Item2,
                     EndTime = parseResult.Item3,
                 };
-
-                if (decimal.TryParse(primaryKey, out decimal _pk))
-                {
-                    if (_pk < _triggerMap.Count)
-                    {
-                        _pk = _triggerMap.Count;
-                    }
-
-                    _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{_pk + 1}";
-                }
 
                 _waitToAdd.Enqueue(trigger);
             }
@@ -846,10 +832,13 @@ namespace GNAy.Capital.Trade.Controllers
                     nextPK = _triggerCollection.Count + 1;
                 }
 
-                _appCtrl.MainForm.InvokeRequired(delegate
+                if (!_triggerMap.ContainsKey($"{nextPK}"))
                 {
-                    _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{nextPK}";
-                });
+                    _appCtrl.MainForm.InvokeRequired(delegate
+                    {
+                        _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{nextPK}";
+                    });
+                }
             }
             catch (Exception ex)
             {
