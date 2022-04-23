@@ -195,23 +195,24 @@ namespace GNAy.Tools.WPF
         /// <summary>
         /// https://stackoverflow.com/questions/3869309/how-to-find-its-owner-datagrid-and-datagridrow-from-datagridcell-in-wpf
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static DataGridRow FindRowOwner(this DataGridCell obj)
+        public static T FindOwner<T>(this DependencyObject obj) where T : DependencyObject
         {
             DependencyObject parent = VisualTreeHelper.GetParent(obj);
 
-            while (parent != null && !(parent is DataGridRow))
+            while ((parent != null) && !(parent is T))
             {
                 parent = VisualTreeHelper.GetParent(parent);
             }
 
-            return parent as DataGridRow;
+            return parent as T;
         }
 
         public static T GetItem<T>(this DataGridCell obj) where T : class
         {
-            DataGridRow row = obj.FindRowOwner();
+            DataGridRow row = obj.FindOwner<DataGridRow>();
             return row == null ? null : (T)row.Item;
         }
     }

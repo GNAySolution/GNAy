@@ -1179,7 +1179,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void SendFutureOrder(StrategyData order)
         {
-            DateTime start = _appCtrl.StartTrace();
+            DateTime start = _appCtrl.StartTrace($"{order?.ToLog()}", UniqueName);
 
             try
             {
@@ -1206,7 +1206,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 _appCtrl.Strategy.AddOrder(order);
-                _appCtrl.Strategy.OrderCheck(order, true, start);
+                _appCtrl.Strategy.OrderCheck(order, start);
 
                 FUTUREORDER pFutureOrder = CreateCaptialFutureOrder(order);
 
@@ -1317,7 +1317,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void CancelOrderBySeqNo(OrderAccData acc, string seqNo)
         {
-            DateTime start = _appCtrl.StartTrace(seqNo, UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{acc?.FullAccount}|seqNo={seqNo}", UniqueName);
 
             try
             {

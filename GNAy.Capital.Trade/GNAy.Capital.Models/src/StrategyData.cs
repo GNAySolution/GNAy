@@ -210,6 +210,8 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _orderQty, value); }
         }
 
+        public StrategyData OrderData;
+
         private string _stopLoss;
         [Column("停損設定", WPFDisplayIndex = 14)]
         public string StopLoss
@@ -217,6 +219,8 @@ namespace GNAy.Capital.Models
             get { return _stopLoss; }
             set { OnPropertyChanged(ref _stopLoss, value); }
         }
+
+        public StrategyData StopLossData;
 
         private string _stopWinPrice;
         [Column("停利價格")]
@@ -235,6 +239,8 @@ namespace GNAy.Capital.Models
         [Column("停利設定", CSVIndex = -1, WPFDisplayIndex = 15)]
         public string StopWin => string.IsNullOrWhiteSpace(StopWinPrice) ? string.Empty : $"{StopWinPrice} ({StopWinQty})";
 
+        public StrategyData StopWinData;
+
         private string _moveStopWinPrice;
         [Column("移動停利價格")]
         public string MoveStopWinPrice
@@ -251,6 +257,8 @@ namespace GNAy.Capital.Models
         }
         [Column("移動停利設定", CSVIndex = -1, WPFDisplayIndex = 16)]
         public string MoveStopWin => string.IsNullOrWhiteSpace(MoveStopWinPrice) ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinQty})";
+
+        public StrategyData MoveStopWinData;
 
         private string _orderReport;
         [Column("13碼委託序號或錯誤訊息", "委託回報", WPFDisplayIndex = 17)]
@@ -319,11 +327,15 @@ namespace GNAy.Capital.Models
             MarketPrice = 0;
             OrderPrice = Models.OrderPrice.P;
             OrderQty = -1;
+            OrderData = null;
             StopLoss = string.Empty;
+            StopLossData = null;
             StopWinPrice = string.Empty;
             StopWinQty = 0;
+            StopWinData = null;
             MoveStopWinPrice = string.Empty;
             MoveStopWinQty = 0;
+            MoveStopWinData = null;
             OrderReport = string.Empty;
             DealPrice = 0;
             DealQty = 0;
@@ -374,6 +386,7 @@ namespace GNAy.Capital.Models
                 MarketType = MarketType,
                 Branch = Branch,
                 Account = Account,
+                Quote = Quote,
                 Symbol = Symbol,
                 BS = BS,
                 TradeType = TradeType,
@@ -384,6 +397,8 @@ namespace GNAy.Capital.Models
                 Updater = nameof(CreateOrder),
                 UpdateTime = DateTime.Now,
             };
+
+            OrderData = order;
 
             return order;
         }
@@ -414,6 +429,14 @@ namespace GNAy.Capital.Models
             {
                 throw new ArgumentException($"未設定代碼|{ToLog()}");
             }
+            else if (PositionDes == OrderPosition.Description[(int)OrderPosition.Enum.Close])
+            {
+                throw new ArgumentException($"PositionDes == {OrderPosition.Description[(int)OrderPosition.Enum.Close]}|{ToLog()}");
+            }
+            else if (OrderQty <= 0)
+            {
+                throw new ArgumentException($"委託口數({OrderQty}) <= 0|{ToLog()}");
+            }
 
             StrategyData order = new StrategyData()
             {
@@ -422,6 +445,7 @@ namespace GNAy.Capital.Models
                 MarketType = MarketType,
                 Branch = Branch,
                 Account = Account,
+                Quote = Quote,
                 Symbol = Symbol,
                 BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
                 TradeType = TradeType,
@@ -432,6 +456,8 @@ namespace GNAy.Capital.Models
                 Updater = nameof(CreateStopLossOrder),
                 UpdateTime = DateTime.Now,
             };
+
+            StopLossData = order;
 
             return order;
         }

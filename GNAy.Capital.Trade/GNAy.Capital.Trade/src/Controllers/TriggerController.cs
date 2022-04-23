@@ -740,7 +740,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void RecoverSetting(FileInfo file = null)
         {
-            DateTime start = _appCtrl.StartTrace();
+            DateTime start = _appCtrl.StartTrace($"{file?.FullName}", UniqueName);
 
             try
             {
@@ -825,7 +825,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 SpinWait.SpinUntil(() => _waitToAdd.Count <= 0);
-                Thread.Sleep(_appCtrl.Settings.TimerIntervalTrigger * 2);
+                Thread.Sleep(_appCtrl.Settings.TimerIntervalTrigger * 3);
 
                 if (_triggerCollection.Count >= nextPK)
                 {

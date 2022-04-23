@@ -34,6 +34,8 @@ namespace GNAy.Capital.Trade
         public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
+        private readonly Dictionary<TextBox, ComboBox> _editableCBMap;
+
         private readonly DispatcherTimer _timer1;
         private readonly DispatcherTimer _timer2;
 
@@ -58,6 +60,21 @@ namespace GNAy.Capital.Trade
             {
                 Title = $"{Title}(附加偵錯)";
             }
+
+            _editableCBMap = new Dictionary<TextBox, ComboBox>();
+            //https://github.com/punker76/MahApps.Metro.SimpleChildWindow/issues/69
+            ComboBoxOrderProduct.ApplyTemplate();
+            TextBox partTB1 = (TextBox)ComboBoxOrderProduct.Template.FindName("PART_EditableTextBox", ComboBoxOrderProduct);
+            partTB1.GotFocus += TextBox_GotFocus;
+            _editableCBMap[partTB1] = ComboBoxOrderProduct;
+            ComboBoxOrderSeqNo.ApplyTemplate();
+            TextBox partTB2 = (TextBox)ComboBoxOrderSeqNo.Template.FindName("PART_EditableTextBox", ComboBoxOrderSeqNo);
+            partTB2.GotFocus += TextBox_GotFocus;
+            _editableCBMap[partTB2] = ComboBoxOrderSeqNo;
+            ComboBoxOrderBookNo.ApplyTemplate();
+            TextBox partTB3 = (TextBox)ComboBoxOrderBookNo.Template.FindName("PART_EditableTextBox", ComboBoxOrderBookNo);
+            partTB3.GotFocus += TextBox_GotFocus;
+            _editableCBMap[partTB3] = ComboBoxOrderBookNo;
 
             _timer1 = new DispatcherTimer(DispatcherPriority.ContextIdle)
             {
@@ -158,6 +175,42 @@ namespace GNAy.Capital.Trade
             finally
             {
                 //_appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                if (sender is TextBox tb)
+                {
+                    Task.Factory.StartNew(() =>
+                    {
+                        Thread.Sleep(100);
+                        this.InvokeRequired(delegate
+                        {
+                            tb.SelectAll();
+                            if (_editableCBMap.TryGetValue(tb, out ComboBox cb))
+                            {
+                                cb.IsDropDownOpen = true;
+                            }
+                        });
+                    });
+                }
+                else if (sender is PasswordBox pb)
+                {
+                    Task.Factory.StartNew(() =>
+                    {
+                        Thread.Sleep(100);
+                        this.InvokeRequired(delegate { pb.SelectAll(); });
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
         }
 
@@ -1288,17 +1341,27 @@ namespace GNAy.Capital.Trade
 
                 if (decimal.TryParse(TextBoxTriggerPrimaryKey.Text, out decimal pk))
                 {
-                    if (pk < _appCtrl.Trigger.Count)
+                    Task.Factory.StartNew(() =>
                     {
-                        pk = _appCtrl.Trigger.Count;
-                    }
+                        Thread.Sleep(_appCtrl.Settings.TimerIntervalTrigger * 3);
+                        this.InvokeRequired(delegate
+                        {
+                            if (_appCtrl.Trigger[TextBoxTriggerPrimaryKey.Text.Trim()] != null)
+                            {
+                                if (pk < _appCtrl.Trigger.Count)
+                                {
+                                    pk = _appCtrl.Trigger.Count;
+                                }
 
-                    ++pk;
+                                ++pk;
 
-                    if (_appCtrl.Trigger[$"{pk}"] == null)
-                    {
-                        _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{pk}";
-                    }
+                                if (_appCtrl.Trigger[$"{pk}"] == null)
+                                {
+                                    _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{pk}";
+                                }
+                            }
+                        });
+                    });
                 }
             }
             catch (Exception ex)
@@ -1398,7 +1461,48 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //
+                StrategyData strategy = ((DataGridCell)sender).GetItem<StrategyData>();
+                _appCtrl.LogTrace(start, strategy.ToLog(), UniqueName);
+                
+                TextBoxStrategyPrimaryKey.Text = strategy.PrimaryKey;
+                TextBoxStrategyStopLoss.Text = strategy.StopLoss;
+                TextBoxStrategyStopWin.Text = strategy.StopWin;
+                TextBoxStrategyMoveStopWin.Text = strategy.MoveStopWin;
+
+                ComboBoxOrderAccs.SelectedIndex = -1;
+                for (int i = 0; i < ComboBoxOrderAccs.Items.Count; ++i)
+                {
+                    ComboBoxOrderAccs.SelectedIndex = i;
+                    if (ComboBoxOrderAccs.SelectedItem is OrderAccData orderAcc && orderAcc.FullAccount == strategy.FullAccount)
+                    {
+                        break;
+                    }
+                }
+                if (ComboBoxOrderAccs.SelectedIndex < 0)
+                {
+                    _appCtrl.LogError(start, $"Strategy|策略關聯帳號錯誤|{strategy.ToLog()}", UniqueName);
+                }
+
+                ComboBoxOrderProduct.SelectedIndex = -1;
+                for (int i = 0; i < ComboBoxOrderProduct.Items.Count; ++i)
+                {
+                    ComboBoxOrderProduct.SelectedIndex = i;
+                    if (ComboBoxOrderProduct.SelectedItem is string symbol && symbol == strategy.Symbol)
+                    {
+                        break;
+                    }
+                }
+                if (ComboBoxOrderProduct.SelectedIndex < 0)
+                {
+                    _appCtrl.LogError(start, $"Strategy|策略關聯報價代碼錯誤|{strategy.ToLog()}", UniqueName);
+                }
+
+                ComboBoxOrderBuySell.SelectedIndex = strategy.BS;
+                ComboBoxOrderTradeType.SelectedIndex = strategy.TradeType;
+                ComboBoxOrderDayTrade.SelectedIndex = strategy.DayTrade;
+                ComboBoxOrderPositionKind.SelectedIndex = strategy.Position;
+                TextBoxOrderPrice.Text = strategy.OrderPrice;
+                TextBoxOrderQuantity.Text = $"{strategy.OrderQty}";
             }
             catch (Exception ex)
             {
@@ -1495,17 +1599,27 @@ namespace GNAy.Capital.Trade
 
                 if (decimal.TryParse(TextBoxStrategyPrimaryKey.Text, out decimal pk))
                 {
-                    if (pk < _appCtrl.Strategy.Count)
+                    Task.Factory.StartNew(() =>
                     {
-                        pk = _appCtrl.Strategy.Count;
-                    }
+                        Thread.Sleep(_appCtrl.Settings.TimerIntervalStrategy * 3);
+                        this.InvokeRequired(delegate
+                        {
+                            if (_appCtrl.Strategy[strategy.PrimaryKey] != null)
+                            {
+                                if (pk < _appCtrl.Strategy.Count)
+                                {
+                                    pk = _appCtrl.Strategy.Count;
+                                }
 
-                    ++pk;
+                                ++pk;
 
-                    if (_appCtrl.Strategy[$"{pk}"] == null)
-                    {
-                        _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
-                    }
+                                if (_appCtrl.Strategy[$"{pk}"] == null)
+                                {
+                                    _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
+                                }
+                            }
+                        });
+                    });
                 }
             }
             catch (Exception ex)
@@ -1568,9 +1682,18 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
+                if (DataGridStrategyRule.SelectedCells.Count > 0 && DataGridStrategyRule.SelectedCells[0].Item is StrategyData strategy)
+                {
+                    if (strategy.PrimaryKey == TextBoxStrategyPrimaryKey.Text.Trim() && strategy.StatusEnum == StrategyStatus.Enum.Waiting)
+                    {
+                        _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
+                        return;
+                    }
+                }
+
                 OrderAccData acc = (OrderAccData)ComboBoxOrderAccs.SelectedItem;
 
-                StrategyData strategy = new StrategyData()
+                strategy = new StrategyData()
                 {
                     PrimaryKey = TextBoxStrategyPrimaryKey.Text,
                     MarketType = acc.MarketType,
@@ -1595,17 +1718,27 @@ namespace GNAy.Capital.Trade
 
                 if (decimal.TryParse(TextBoxStrategyPrimaryKey.Text, out decimal pk))
                 {
-                    if (pk < _appCtrl.Strategy.Count)
+                    Task.Factory.StartNew(() =>
                     {
-                        pk = _appCtrl.Strategy.Count;
-                    }
+                        Thread.Sleep(_appCtrl.Settings.TimerIntervalStrategy * 3);
+                        this.InvokeRequired(delegate
+                        {
+                            if (_appCtrl.Strategy[strategy.PrimaryKey] != null)
+                            {
+                                if (pk < _appCtrl.Strategy.Count)
+                                {
+                                    pk = _appCtrl.Strategy.Count;
+                                }
 
-                    ++pk;
+                                ++pk;
 
-                    if (_appCtrl.Strategy[$"{pk}"] == null)
-                    {
-                        _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
-                    }
+                                if (_appCtrl.Strategy[$"{pk}"] == null)
+                                {
+                                    _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
+                                }
+                            }
+                        });
+                    });
                 }
             }
             catch (Exception ex)

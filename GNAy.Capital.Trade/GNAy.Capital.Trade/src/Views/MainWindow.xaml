@@ -29,19 +29,19 @@
                     <TabItem Header="初始化">
                         <Grid Background="#FFE5E5E5">
                             <Label Content="會員帳號" HorizontalAlignment="Left" Margin="33,6,0,0" VerticalAlignment="Top"/>
-                            <TextBox x:Name="TextBoxUserID" Text="" ToolTip="會員帳號" HorizontalAlignment="Left" Margin="91,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                            <TextBox x:Name="TextBoxUserID" Text="" ToolTip="會員帳號" HorizontalAlignment="Left" Margin="91,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                             <Label Content="會員密碼" HorizontalAlignment="Left" Margin="33,28,0,0" VerticalAlignment="Top"/>
-                            <PasswordBox x:Name="DWPBox" ToolTip="會員密碼" HorizontalAlignment="Left" Margin="91,32,0,0" VerticalAlignment="Top" Width="120"/>
+                            <PasswordBox x:Name="DWPBox" ToolTip="會員密碼" HorizontalAlignment="Left" Margin="91,32,0,0" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                             <Button x:Name="ButtonLoginUser" Content="登入會員帳號" HorizontalAlignment="Left" Margin="54,54,0,0" VerticalAlignment="Top" Click="ButtonLoginUser_Click"/>
                             <Button x:Name="ButtonLoginQuote" Content="登入報價元件" HorizontalAlignment="Left" Margin="135,54,0,0" VerticalAlignment="Top" Click="ButtonLoginQuote_Click"/>
                             <Button x:Name="ButtonIsConnected" Content="IsConnected" HorizontalAlignment="Left" Margin="55,78,0,0" VerticalAlignment="Top" Click="ButtonIsConnected_Click"/>
                             <Button x:Name="ButtonDisconnect" Content="Disconnect" HorizontalAlignment="Left" Margin="144,78,0,0" VerticalAlignment="Top" Click="ButtonDisconnect_Click"/>
                             <Button x:Name="ButtonGetProductInfo" Content="商品基本資料" HorizontalAlignment="Left" Margin="54,102,0,0" VerticalAlignment="Top" Click="ButtonGetProductInfo_Click"/>
                             <Button x:Name="ButtonSubQuotes" Content="訂閱即時報價" HorizontalAlignment="Left" Margin="135,102,0,0" VerticalAlignment="Top" Click="ButtonSubQuotes_Click"/>
-                            <TextBox x:Name="TextBoxRecoverQuotes" Text="回補報價商品代碼" ToolTip="回補報價商品儲存到檔案" HorizontalAlignment="Left" Margin="10,127,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                            <TextBox x:Name="TextBoxRecoverQuotes" Text="回補報價商品代碼" ToolTip="回補報價商品儲存到檔案" HorizontalAlignment="Left" Margin="10,127,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                             <Button x:Name="ButtonRecoverQuotes" Content="回補報價商品" ToolTip="回補報價商品儲存到檔案" HorizontalAlignment="Left" Margin="135,126,0,0" VerticalAlignment="Top" Click="ButtonRecoverQuotes_Click"/>
                             <Button x:Name="ButtonRequestKLine" Content="查詢KLine" HorizontalAlignment="Left" Margin="152,150,0,0" VerticalAlignment="Top" Click="ButtonRequestKLine_Click"/>
-                            <TextBox x:Name="TextBoxQuoteFolderTest" Text="報價資料夾測試用" ToolTip="測試儲存報價到此資料夾" HorizontalAlignment="Left" Margin="10,175,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                            <TextBox x:Name="TextBoxQuoteFolderTest" Text="報價資料夾測試用" ToolTip="測試儲存報價到此資料夾" HorizontalAlignment="Left" Margin="10,175,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                             <Button x:Name="ButtonSaveQuotesTest" Content="儲存報價資料" HorizontalAlignment="Left" Margin="135,174,0,0" VerticalAlignment="Top" Click="ButtonSaveQuotesTest_Click"/>
                             <Button x:Name="ButtonReadCertification" Content="讀取下單憑證" HorizontalAlignment="Left" Margin="216,54,0,0" VerticalAlignment="Top" Click="ButtonReadCertification_Click"/>
                             <Button x:Name="ButtonGetOrderAccs" Content="取得下單帳號" HorizontalAlignment="Left" Margin="297,54,0,0" VerticalAlignment="Top" Click="ButtonGetOrderAccs_Click"/>
@@ -499,7 +499,7 @@
                 <Button x:Name="ButtonCancelTrigger" Content="取消觸價監控" HorizontalAlignment="Left" Margin="10,11,0,0" VerticalAlignment="Top" Click="ButtonCancelTrigger_Click"/>
                 <Button x:Name="ButtonSaveTriggerRule" Content="儲存觸價條件" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Click="ButtonSaveTriggerRule_Click"/>
                 <Label Content="自定義觸價唯一鍵" HorizontalAlignment="Left" Margin="91,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerPrimaryKey" Text="自定義觸價唯一鍵" ToolTip="自定義觸價唯一鍵" HorizontalAlignment="Left" Margin="91,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxTriggerPrimaryKey" Text="自定義觸價唯一鍵" ToolTip="自定義觸價唯一鍵" HorizontalAlignment="Left" Margin="91,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="觸價商品代碼" HorizontalAlignment="Left" Margin="216,8,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxTriggerProduct" ToolTip="{Binding Path=SelectedItem.SymbolAndName, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="216,33,0,0" VerticalAlignment="Top" Width="120">
                     <ComboBox.ItemTemplate>
@@ -517,35 +517,35 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <Label Content="大於小於等於數值" HorizontalAlignment="Left" Margin="466,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerRuleValue" Text="大於小於等於數值" ToolTip="系統會自動補上等於" HorizontalAlignment="Left" Margin="466,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxTriggerRuleValue" Text="大於小於等於數值" ToolTip="系統會自動補上等於" HorizontalAlignment="Left" Margin="466,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="觸價後取消監控" HorizontalAlignment="Left" Margin="591,8,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxTriggerCancel" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="591,33,0,0" VerticalAlignment="Top" Width="120"/>
                 <Label Content="觸價後執行策略OR" HorizontalAlignment="Left" Margin="716,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerStrategyOR" Text="滿足單一條件即執行" ToolTip="滿足單一條件即執行策略" HorizontalAlignment="Left" Margin="716,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxTriggerStrategyOR" Text="滿足單一條件即執行" ToolTip="滿足單一條件即執行策略" HorizontalAlignment="Left" Margin="716,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="觸價後執行策略AND" HorizontalAlignment="Left" Margin="841,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerStrategyAND" Text="滿足全部條件再執行" ToolTip="滿足全部條件再執行策略" HorizontalAlignment="Left" Margin="841,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxTriggerStrategyAND" Text="滿足全部條件再執行" ToolTip="滿足全部條件再執行策略" HorizontalAlignment="Left" Margin="841,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="監控時間區間" HorizontalAlignment="Left" Margin="966,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerTimeDuration" Text="監控時間區間" ToolTip="監控時間區間" HorizontalAlignment="Left" Margin="966,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxTriggerTimeDuration" Text="監控時間區間" ToolTip="監控時間區間" HorizontalAlignment="Left" Margin="966,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Button x:Name="ButtonCancelStrategy" Content="取消策略監控" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top" Click="ButtonCancelStrategy_Click"/>
                 <Button x:Name="ButtonSaveStrategyRule" Content="儲存策略條件" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top" Click="ButtonSaveStrategyRule_Click"/>
                 <Label Content="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyPrimaryKey" Text="自定義策略唯一鍵" ToolTip="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxStrategyPrimaryKey" Text="自定義策略唯一鍵" ToolTip="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="停損價差(%)" HorizontalAlignment="Left" Margin="216,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyStopLoss" Text="停損價差(%)" ToolTip="停損價差(%)" HorizontalAlignment="Left" Margin="216,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxStrategyStopLoss" Text="停損價差(%)" ToolTip="停損價差(%)" HorizontalAlignment="Left" Margin="216,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="停利價差(%)" HorizontalAlignment="Left" Margin="341,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyStopWin" Text="停利價差(%)" ToolTip="停利價差(%)" HorizontalAlignment="Left" Margin="341,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxStrategyStopWin" Text="停利價差(%)" ToolTip="停利價差(%)" HorizontalAlignment="Left" Margin="341,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="移動停利價差(%)" HorizontalAlignment="Left" Margin="466,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyMoveStopWin" Text="移動停利價差(%)" ToolTip="移動停利價差(%)" HorizontalAlignment="Left" Margin="466,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxStrategyMoveStopWin" Text="移動停利價差(%)" ToolTip="移動停利價差(%)" HorizontalAlignment="Left" Margin="466,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="停損後執行" HorizontalAlignment="Left" Margin="591,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyAfterStopLoss" Text="停損後執行觸價" ToolTip="停損後接續執行觸價" HorizontalAlignment="Left" Margin="591,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <TextBox x:Name="TextBoxTriggerAfterStopLoss" Text="停損後執行策略" ToolTip="停損後接續執行策略" HorizontalAlignment="Left" Margin="591,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxStrategyAfterStopLoss" Text="停損後執行觸價" ToolTip="停損後接續執行觸價" HorizontalAlignment="Left" Margin="591,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxTriggerAfterStopLoss" Text="停損後執行策略" ToolTip="停損後接續執行策略" HorizontalAlignment="Left" Margin="591,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="停利後執行" HorizontalAlignment="Left" Margin="716,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyAfterStopWin" Text="停利後執行觸價" ToolTip="停利後接續執行觸價" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <TextBox x:Name="TextBoxTriggerAfterStopWin" Text="停利後執行策略" ToolTip="停利後接續執行策略" HorizontalAlignment="Left" Margin="716,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxStrategyAfterStopWin" Text="停利後執行觸價" ToolTip="停利後接續執行觸價" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxTriggerAfterStopWin" Text="停利後執行策略" ToolTip="停利後接續執行策略" HorizontalAlignment="Left" Margin="716,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="收盤獲利減倉或CD單" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyOffsetWin" Text="CD:seconds" ToolTip="收盤對獲利部位做減倉，或CD單" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxStrategyOffsetWin" Text="CD:seconds" ToolTip="收盤對獲利部位做減倉，或CD單" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="收盤損失減倉" HorizontalAlignment="Left" Margin="966,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyOffsetLoss" Text="收盤損失減倉" ToolTip="收盤對損失部位做減倉" HorizontalAlignment="Left" Margin="966,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxStrategyOffsetLoss" Text="收盤損失減倉" ToolTip="收盤對損失部位做減倉" HorizontalAlignment="Left" Margin="966,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
@@ -799,7 +799,7 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
                 <Label Content="下單商品代碼" HorizontalAlignment="Left" Margin="135,8,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderProduct" HorizontalAlignment="Left" Margin="135,35,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"/>
+                <ComboBox x:Name="ComboBoxOrderProduct" HorizontalAlignment="Left" Margin="135,35,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"></ComboBox>
                 <Label Content="Buy/Sell" HorizontalAlignment="Left" Margin="260,10,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxOrderBuySell" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="260,35,0,0" VerticalAlignment="Top" Width="120"/>
                 <Label Content="掛單類型" HorizontalAlignment="Left" Margin="385,10,0,0" VerticalAlignment="Top"/>
@@ -811,9 +811,9 @@
                 <Button x:Name="ButtonSendFutureOrder" Content="期貨委託送出" HorizontalAlignment="Left" Margin="54,61,0,0" VerticalAlignment="Top" Click="ButtonSendFutureOrder_Click"/>
                 <Button x:Name="ButtonStartFutureStartegyNow" Content="立刻啟動策略" HorizontalAlignment="Left" Margin="54,82,0,0" VerticalAlignment="Top" Click="ButtonStartFutureStartegyNow_Click"/>
                 <Label Content="委託價格" HorizontalAlignment="Left" Margin="135,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxOrderPrice" Text="M市價，P範圍市價" ToolTip="M市價，P範圍市價" HorizontalAlignment="Left" Margin="135,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxOrderPrice" Text="M市價，P範圍市價" ToolTip="M市價，P範圍市價" HorizontalAlignment="Left" Margin="135,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="委託口數" HorizontalAlignment="Left" Margin="260,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxOrderQuantity" Text="委託口數" ToolTip="委託口數" HorizontalAlignment="Left" Margin="260,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <TextBox x:Name="TextBoxOrderQuantity" Text="委託口數" ToolTip="委託口數" HorizontalAlignment="Left" Margin="260,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="委託序號" HorizontalAlignment="Left" Margin="452,59,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxOrderSeqNo" HorizontalAlignment="Left" Margin="510,61,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"/>
                 <Button x:Name="ButtonCancelOrderBySeqNo" Content="刪單by序號" HorizontalAlignment="Left" Margin="635,61,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderBySeqNo_Click"/>
