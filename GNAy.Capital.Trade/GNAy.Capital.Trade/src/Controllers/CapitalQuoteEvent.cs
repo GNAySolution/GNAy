@@ -455,7 +455,13 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrStockListData"></param>
         private void m_SKQuoteLib_OnNotifyCommodityListWithTypeNo(short sMarketNo, string bstrStockListData)
         {
-            _appCtrl.LogTrace($"sMarketNo={sMarketNo}|bstrStockListData={bstrStockListData}", UniqueName);
+            int count = 0;
+
+            foreach (string product in bstrStockListData.Split(';'))
+            {
+                ++count;
+                _appCtrl.LogTrace($"sMarketNo={sMarketNo}|{count:000000}|{product}", UniqueName);
+            }
 
             //string strData = "";
             //strData = "[OnNotifyCommodityList]" + bstrStockListData;

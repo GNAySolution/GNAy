@@ -350,10 +350,10 @@ namespace GNAy.Capital.Models
             {
                 throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
             }
-            else if (StatusDes != StrategyStatus.Description[(int)StrategyStatus.Enum.Waiting])
-            {
-                throw new ArgumentException($"{StatusDes} != {StrategyStatus.Description[(int)StrategyStatus.Enum.Waiting]}|{ToLog()}");
-            }
+            //else if (StatusEnum != StrategyStatus.Enum.Waiting)
+            //{
+            //    throw new ArgumentException($"{StatusEnum} != StrategyStatus.Enum.Waiting|{ToLog()}");
+            //}
             else if (string.IsNullOrWhiteSpace(PrimaryKey))
             {
                 throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
@@ -370,9 +370,9 @@ namespace GNAy.Capital.Models
             {
                 throw new ArgumentException($"未設定代碼|{ToLog()}");
             }
-            else if (PositionDes == OrderPosition.Description[(int)OrderPosition.Enum.Close])
+            else if (PositionEnum == OrderPosition.Enum.Close)
             {
-                throw new ArgumentException($"PositionDes == {OrderPosition.Description[(int)OrderPosition.Enum.Close]}|{ToLog()}");
+                throw new ArgumentException($"PositionEnum == OrderPosition.Enum.Close|{ToLog()}");
             }
             else if (OrderQty <= 0)
             {
@@ -409,10 +409,10 @@ namespace GNAy.Capital.Models
             {
                 throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
             }
-            else if (StatusDes != StrategyStatus.Description[(int)StrategyStatus.Enum.DealReport])
-            {
-                throw new ArgumentException($"{StatusDes} != {StrategyStatus.Description[(int)StrategyStatus.Enum.DealReport]}|{ToLog()}");
-            }
+            //else if (StatusEnum != StrategyStatus.Enum.DealReport)
+            //{
+            //    throw new ArgumentException($"{StatusEnum} != StrategyStatus.Enum.DealReport|{ToLog()}");
+            //}
             else if (string.IsNullOrWhiteSpace(PrimaryKey))
             {
                 throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
@@ -429,9 +429,9 @@ namespace GNAy.Capital.Models
             {
                 throw new ArgumentException($"未設定代碼|{ToLog()}");
             }
-            else if (PositionDes == OrderPosition.Description[(int)OrderPosition.Enum.Close])
+            else if (PositionEnum == OrderPosition.Enum.Close)
             {
-                throw new ArgumentException($"PositionDes == {OrderPosition.Description[(int)OrderPosition.Enum.Close]}|{ToLog()}");
+                throw new ArgumentException($"PositionEnum == OrderPosition.Enum.Close|{ToLog()}");
             }
             else if (OrderQty <= 0)
             {
@@ -452,12 +452,71 @@ namespace GNAy.Capital.Models
                 DayTrade = DayTrade,
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPrice = Models.OrderPrice.P,
-                //OrderQty = OrderQty,
+                OrderQty = OrderQty,
                 Updater = nameof(CreateStopLossOrder),
                 UpdateTime = DateTime.Now,
             };
 
             StopLossData = order;
+
+            return order;
+        }
+
+        public StrategyData CreateStopWinOrder()
+        {
+            if (Parent != null)
+            {
+                throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
+            }
+            //else if (StatusEnum != StrategyStatus.Enum.DealReport)
+            //{
+            //    throw new ArgumentException($"{StatusEnum} != StrategyStatus.Enum.DealReport|{ToLog()}");
+            //}
+            else if (string.IsNullOrWhiteSpace(PrimaryKey))
+            {
+                throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Branch))
+            {
+                throw new ArgumentException($"未設定分公司|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Account))
+            {
+                throw new ArgumentException($"未設定下單帳號|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Symbol))
+            {
+                throw new ArgumentException($"未設定代碼|{ToLog()}");
+            }
+            else if (PositionEnum == OrderPosition.Enum.Close)
+            {
+                throw new ArgumentException($"PositionEnum == OrderPosition.Enum.Close|{ToLog()}");
+            }
+            else if (OrderQty <= 0)
+            {
+                throw new ArgumentException($"委託口數({OrderQty}) <= 0|{ToLog()}");
+            }
+
+            StrategyData order = new StrategyData()
+            {
+                Parent = this,
+                PrimaryKey = $"{PrimaryKey}_{StrategyStatus.Enum.StopWinSent}",
+                MarketType = MarketType,
+                Branch = Branch,
+                Account = Account,
+                Quote = Quote,
+                Symbol = Symbol,
+                BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
+                TradeType = TradeType,
+                DayTrade = DayTrade,
+                PositionEnum = OrderPosition.Enum.Close,
+                OrderPrice = Models.OrderPrice.P,
+                OrderQty = StopWinQty,
+                Updater = nameof(CreateStopWinOrder),
+                UpdateTime = DateTime.Now,
+            };
+
+            StopWinData = order;
 
             return order;
         }

@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.420.1",
+  "Version": "0.22.424.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -38,7 +38,17 @@
     "00632R",
     "UN2206",
     "TX06",
-    "MTX06"
+    "MTX06",
+    "TXO16500Q2",
+    "TXO16500E2",
+    "TXO16600Q2",
+    "TXO16600E2",
+    "TXO16700Q2",
+    "TXO16700E2",
+    "TXO16800Q2",
+    "TXO16800E2",
+    "TXO16900Q2",
+    "TXO16900E2"
   ],
   "QuoteLive": [
     "2330",
@@ -59,5 +69,5 @@
   "StrategyFileFormat": "MMdd_HHmm",
   "SentOrderFolderPath": "SentOrder",
   "SentOrderFileFormat": "yyMMdd_HHmmss_ffffff",
-  "SendRealOrder": false
+  "SendRealOrder": true
 }

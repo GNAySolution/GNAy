@@ -1,5 +1,6 @@
 # GNAy
 * Yang的專案開發紀錄
+* 儲存庫裡的程式碼都是自己寫的或參考網路上的，參考都有在註解內附上連結，表示感謝
 
 ## GNAy.Capital.Trade.csproj
 ![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg)

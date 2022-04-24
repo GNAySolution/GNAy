@@ -20,7 +20,7 @@ namespace GNAy.Capital.Models
             Futures, //1
 
             [Description("TO,選擇權")]
-            Options, //2
+            Option, //2
 
             [Description("OS,複委託")]
             OverseaStock, //3
@@ -29,17 +29,17 @@ namespace GNAy.Capital.Models
             OverseaFutures, //4
 
             [Description("OO,海外選擇權")]
-            OverseaOptions, //5
+            OverseaOption, //5
         }
 
         public static ReadOnlyCollection<string> CodeDescription = new List<string>()
         {
             EType.Stock.GetDescription().Split(',')[0],
             EType.Futures.GetDescription().Split(',')[0],
-            EType.Options.GetDescription().Split(',')[0],
+            EType.Option.GetDescription().Split(',')[0],
             EType.OverseaStock.GetDescription().Split(',')[0],
             EType.OverseaFutures.GetDescription().Split(',')[0],
-            EType.OverseaOptions.GetDescription().Split(',')[0],
+            EType.OverseaOption.GetDescription().Split(',')[0],
         }.AsReadOnly();
 
         public static Dictionary<string, EType> CodeMap = CodeDescription.ToDictionary(x => x, x => (EType)CodeDescription.IndexOf(x));
@@ -48,10 +48,10 @@ namespace GNAy.Capital.Models
         {
             EType.Stock.GetDescription().Split(',')[1],
             EType.Futures.GetDescription().Split(',')[1],
-            EType.Options.GetDescription().Split(',')[1],
+            EType.Option.GetDescription().Split(',')[1],
             EType.OverseaStock.GetDescription().Split(',')[1],
             EType.OverseaFutures.GetDescription().Split(',')[1],
-            EType.OverseaOptions.GetDescription().Split(',')[1],
+            EType.OverseaOption.GetDescription().Split(',')[1],
         }.AsReadOnly();
 
         public static Dictionary<string, EType> NameMap = NameDescription.ToDictionary(x => x, x => (EType)NameDescription.IndexOf(x));
@@ -68,7 +68,7 @@ namespace GNAy.Capital.Models
             Futures, //2
 
             [Description("選擇權")]
-            Options, //3
+            Option, //3
 
             [Description("興櫃")]
             Emerging, //4
@@ -79,7 +79,7 @@ namespace GNAy.Capital.Models
             EGroup.TSE.GetDescription(),
             EGroup.OTC.GetDescription(),
             EGroup.Futures.GetDescription(),
-            EGroup.Options.GetDescription(),
+            EGroup.Option.GetDescription(),
             EGroup.Emerging.GetDescription(),
         }.AsReadOnly();
 

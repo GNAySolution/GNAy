@@ -133,7 +133,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.420.1";
+            Version = "0.22.424.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -175,7 +175,7 @@ namespace GNAy.Capital.Models
             QuoteMarkets = new List<int>();
             //QuoteMarkets = new List<int>() { (int)Market.EGroup.TSE, (int)Market.EGroup.OTC, (int)Market.EGroup.Futures, (int)Market.EGroup.Emerging }; //
             QuoteRequest = new List<string>();
-            //QuoteRequest = new List<string>() { "TSEA", "0050", "00632R", "UN2206", "TX06", "MTX06" }; //
+            //QuoteRequest = new List<string>() { "TSEA", "0050", "00632R", "UN2206", "TX06", "MTX06", TXO16500Q2, TXO16500E2, TXO16600Q2, TXO16600E2, TXO16700Q2, TXO16700E2, TXO16800Q2, TXO16800E2, TXO16900Q2, TXO16900E2 }; //
             QuoteLive = new List<string>();
             //QuoteLive = new List<string>() { "2330", "UD06", "TX05", "MTX05" }; //
 

@@ -165,10 +165,12 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.LogTrace(msg, UniqueName, elapsed, lineNumber, memberName);
                 return (LogLevel.Trace, msg);
             }
+            //2020 SK_WARNING_PRECHECK_RESULT_FAIL Precheck 失敗(EX:RCode)
+            //2021 SK_WARNING_PRECHECK_RESULT_EMPTY Precheck結果回傳空值
             //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
             //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
             //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
-            else if (_code < 2000 || _code == 3021 || _code == 3022 || _code == 3033)
+            else if (_code < 2000 || _code == 2020 || _code == 2021 || _code == 3021 || _code == 3022 || _code == 3033)
             {
                 _appCtrl.LogError(msg, UniqueName, elapsed, lineNumber, memberName);
                 return (LogLevel.Error, msg);
@@ -304,6 +306,23 @@ namespace GNAy.Capital.Trade.Controllers
             return LoginUserResult;
         }
 
+        private void QuoteEnterMonitor(DateTime start)
+        {
+            QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
+
+            //2020 SK_WARNING_PRECHECK_RESULT_FAIL Precheck 失敗(EX:RCode)
+            //2021 SK_WARNING_PRECHECK_RESULT_EMPTY Precheck結果回傳空值
+            //https://www.capital.com.tw/Service2/download/API_BBS.asp
+            LogAPIMessage(start, QuoteStatus);
+            //(LogLevel, string) apiMsg = LogAPIMessage(start, QuoteStatus);
+            //if (QuoteStatus == 2020 || _appCtrl.Capital.QuoteStatus == 2021)
+            //{
+            //    m_pSKCenter = null;
+            //    m_SKQuoteLib = null;
+            //    _appCtrl.Exit(apiMsg.Item2, apiMsg.Item1);
+            //}
+        }
+
         public void LoginQuoteAsync(string dwp)
         {
             Task.Factory.StartNew(() =>
@@ -316,8 +335,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (m_SKQuoteLib != null)
                     {
-                        QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
-                        LogAPIMessage(start, QuoteStatus);
+                        QuoteEnterMonitor(start);
                         return;
                     }
 
@@ -354,8 +372,7 @@ namespace GNAy.Capital.Trade.Controllers
                     m_SKQuoteLib.OnNotifyCommodityListWithTypeNo += m_SKQuoteLib_OnNotifyCommodityListWithTypeNo;
                     m_SKQuoteLib.OnNotifyOddLotSpreadDeal += m_SKQuoteLib_OnNotifyOddLotSpreadDeal;
 
-                    QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
-                    LogAPIMessage(start, QuoteStatus);
+                    QuoteEnterMonitor(start);
                 }
                 catch (Exception ex)
                 {
@@ -490,7 +507,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (quoteSub != null && quoteSub.LastClosePrice == 0)
                     {
-                        if (quoteLast.MarketGroupEnum == Market.EGroup.Futures || quoteLast.MarketGroupEnum == Market.EGroup.Options)
+                        if (quoteLast.MarketGroupEnum == Market.EGroup.Futures || quoteLast.MarketGroupEnum == Market.EGroup.Option)
                         {
                             quoteSub.LastClosePrice = quoteLast.DealPrice;
                         }
@@ -599,6 +616,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                 QuoteFileNameBase = string.Empty;
 
+                List<QuoteData> optionList = new List<QuoteData>();
+
                 foreach (string symbol in _appCtrl.Config.QuoteSubscribed)
                 {
                     (int, SKSTOCKLONG) product = GetProductInfo(symbol, start);
@@ -611,10 +630,32 @@ namespace GNAy.Capital.Trade.Controllers
                     _capitalProductRawMap.Add(product.Item2.nStockIdx, product.Item2);
 
                     QuoteData quote = CreateQuote(product.Item2);
+
                     _appCtrl.Trigger.Reset(quote);
                     _appCtrl.Strategy.Reset(quote);
-                    _quoteIndexMap.Add(quote.Index, quote);
-                    _quoteCollection.Add(quote);
+
+                    try
+                    {
+                        _quoteIndexMap.Add(quote.Index, quote);
+
+                        if (quote.MarketGroupEnum == Market.EGroup.Option)
+                        {
+                            optionList.Add(quote);
+                        }
+                        else
+                        {
+                            _quoteCollection.Add(quote);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, $"{quote.ToCSVString()}{Environment.NewLine}{ex.StackTrace}");
+                    }
+                }
+
+                foreach (QuoteData option in optionList)
+                {
+                    _quoteCollection.Add(option);
                 }
 
                 if (_quoteIndexMap.Count > 0)
@@ -675,7 +716,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     QuoteData quoteSub = _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
 
-                    if (quoteSub != null && (quoteLast.MarketGroupEnum == Market.EGroup.Futures || quoteLast.MarketGroupEnum == Market.EGroup.Options))
+                    if (quoteSub != null && (quoteLast.MarketGroupEnum == Market.EGroup.Futures || quoteLast.MarketGroupEnum == Market.EGroup.Option))
                     {
                         quoteSub.DealPrice = quoteLast.DealPrice;
                         quoteSub.DealQty = quoteLast.DealQty;
@@ -724,7 +765,7 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
-                        else if (!_appCtrl.Config.IsAMMarket(start) && quote.MarketGroupEnum != Market.EGroup.Futures && quote.MarketGroupEnum != Market.EGroup.Options) //期貨選擇權夜盤，上市櫃已經收盤
+                        else if (!_appCtrl.Config.IsAMMarket(start) && quote.MarketGroupEnum != Market.EGroup.Futures && quote.MarketGroupEnum != Market.EGroup.Option) //期貨選擇權夜盤，上市櫃已經收盤
                         {
                             continue;
                         }

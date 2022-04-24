@@ -893,11 +893,18 @@ namespace GNAy.Capital.Trade
                 {
                     reConnect = 1 + StatusCode.BaseTraceValue;
                 }
+                //2020 SK_WARNING_PRECHECK_RESULT_FAIL Precheck 失敗(EX:RCode)
+                //2021 SK_WARNING_PRECHECK_RESULT_EMPTY Precheck結果回傳空值
                 //3002 SK_SUBJECT_CONNECTION_DISCONNECT 斷線
                 //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
                 //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
                 //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
-                else if (_appCtrl.Capital != null && (_appCtrl.Capital.QuoteStatus == 3002 || _appCtrl.Capital.QuoteStatus == 3021 || _appCtrl.Capital.QuoteStatus == 3022 || _appCtrl.Capital.QuoteStatus == 3033))
+                else if (_appCtrl.Capital != null && (_appCtrl.Capital.QuoteStatus == 2020 ||
+                    _appCtrl.Capital.QuoteStatus == 2021 ||
+                    _appCtrl.Capital.QuoteStatus == 3002 ||
+                    _appCtrl.Capital.QuoteStatus == 3021 ||
+                    _appCtrl.Capital.QuoteStatus == 3022 ||
+                    _appCtrl.Capital.QuoteStatus == 3033))
                 {
                     reConnect = _appCtrl.Capital.QuoteStatus + StatusCode.BaseErrorValue;
                 }
@@ -921,16 +928,19 @@ namespace GNAy.Capital.Trade
                         _appCtrl.Capital.Disconnect();
                     }
 
-                    Thread.Sleep(3 * 1000);
+                    Thread.Sleep(2 * 1000);
+                    this.InvokeRequired(delegate { ButtonLoginUser_Click(null, null); });
+
+                    Thread.Sleep(2 * 1000);
+                    SpinWait.SpinUntil(() => _appCtrl.Capital.LoginUserResult == 0 || (_appCtrl.Capital.LoginUserResult >= 600 && _appCtrl.Capital.LoginUserResult <= 699), 1 * 60 * 1000);
                     this.InvokeRequired(delegate
                     {
-                        ButtonLoginUser_Click(null, null);
                         ButtonLoginQuote_Click(null, null);
                         ButtonReadCertification_Click(null, null);
                     });
 
-                    Thread.Sleep(3 * 1000);
-                    SpinWait.SpinUntil(() => _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY, 2 * 60 * 1000);
+                    Thread.Sleep(2 * 1000);
+                    SpinWait.SpinUntil(() => _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY, 1 * 60 * 1000);
                     if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
                     {
                         //TODO: Send alert mail.
@@ -939,15 +949,17 @@ namespace GNAy.Capital.Trade
                         return;
                     }
 
-                    Thread.Sleep(1 * 1000);
+                    Thread.Sleep(2 * 1000);
                     this.InvokeRequired(delegate
                     {
                         ButtonIsConnected_Click(null, null);
+                        //ButtonPrintProductList_Click(null, null);
                         ButtonGetProductInfo_Click(null, null);
                         ButtonSubQuotes_Click(null, null);
                         ButtonGetOrderAccs_Click(null, null);
                     });
 
+                    Thread.Sleep(2 * 1000);
                     SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 8 * 1000);
                     _appCtrl.Capital.GetOpenInterestAsync();
                     _appCtrl.Capital.UnlockOrder();
@@ -955,7 +967,7 @@ namespace GNAy.Capital.Trade
                     _appCtrl.Capital.SetOrderMaxCount();
                     _appCtrl.Trigger.RecoverSetting();
 
-                    Thread.Sleep(3 * 1000);
+                    Thread.Sleep(2 * 1000);
                     this.InvokeRequired(delegate { _timer2.Start(); });
                 });
             }

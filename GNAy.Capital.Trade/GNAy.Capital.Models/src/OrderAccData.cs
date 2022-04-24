@@ -54,7 +54,7 @@ namespace GNAy.Capital.Models
         {
             Creator = memberName;
             CreatedTime = DateTime.Now;
-            MarketType = Market.EType.Options;
+            MarketType = Market.EType.Option;
             Branch = string.Empty;
             BranchCode = string.Empty;
             Account = string.Empty;

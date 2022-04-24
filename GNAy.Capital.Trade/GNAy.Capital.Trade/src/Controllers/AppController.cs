@@ -177,7 +177,10 @@ namespace GNAy.Capital.Trade.Controllers
         public DateTime StartTrace(string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             DateTime now = DateTime.Now;
-            LogTrace(msg, uniqueName, null, lineNumber, memberName);
+            if (!string.IsNullOrWhiteSpace(msg))
+            {
+                LogTrace(msg, uniqueName, null, lineNumber, memberName);
+            }
             return now;
         }
 

@@ -106,7 +106,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 firstTick = true;
             }
-            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (_appCtrl.Config.StartOnTime || quote.Recovered))
             {
                 if (quote.OpenPrice == 0 && raw.nSimulate.IsRealTrading() && raw.nTickQty > 0) //開盤第一筆成交
                 {
@@ -133,7 +133,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.Updater = nameof(UpdateQuote);
             quote.UpdateTime = DateTime.Now;
 
-            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (_appCtrl.Config.StartOnTime || quote.Recovered))
             {
                 if (quote.OpenPrice != 0)
                 {
@@ -264,7 +264,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 firstTick = true;
             }
-            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && _appCtrl.Config.StartOnTime)
+            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && _appCtrl.Config.StartOnTime)
             {
                 if (quote.OpenPrice == 0 && nSimulate.IsRealTrading() && nQty > 0) //開盤第一筆成交
                 {
@@ -276,7 +276,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.Updater = nameof(OnNotifyTicks);
             quote.UpdateTime = DateTime.Now;
 
-            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Options) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (_appCtrl.Config.StartOnTime || quote.Recovered))
             {
                 if (quote.OpenPrice != 0)
                 {
