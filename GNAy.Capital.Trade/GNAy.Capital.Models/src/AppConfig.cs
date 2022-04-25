@@ -19,7 +19,7 @@ namespace GNAy.Capital.Models
 
         public readonly SortedDictionary<DateTime, string> Holidays;
 
-        public readonly List<string> QuoteSubscribed;
+        public readonly HashSet<string> QuoteSubscribed;
         public readonly DirectoryInfo QuoteFolder;
 
         public readonly DirectoryInfo TriggerFolder;
@@ -54,20 +54,14 @@ namespace GNAy.Capital.Models
             string holidayPathLastYear = settings.HolidayFilePath.ToROCYear(today.AddYears(-1));
             Holidays.LoadHolidays(holidayPathLastYear, Big5Encoding, today.AddYears(-1).Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
 
-            QuoteSubscribed = new List<string>();
+            QuoteSubscribed = new HashSet<string>();
             foreach (string product in settings.QuoteRequest)
             {
-                if (!QuoteSubscribed.Contains(product))
-                {
-                    QuoteSubscribed.Add(product);
-                }
+                QuoteSubscribed.Add(product.Trim());
             }
             foreach (string product in settings.QuoteLive)
             {
-                if (!QuoteSubscribed.Contains(product))
-                {
-                    QuoteSubscribed.Add(product);
-                }
+                QuoteSubscribed.Add(product.Trim());
             }
 
             QuoteFolder = null;

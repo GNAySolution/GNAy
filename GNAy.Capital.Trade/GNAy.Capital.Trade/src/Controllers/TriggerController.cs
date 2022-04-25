@@ -106,6 +106,74 @@ namespace GNAy.Capital.Trade.Controllers
             Task.Factory.StartNew(() => SaveData(null));
         }
 
+        private void StartStrategy(TriggerData trigger, DateTime start)
+        {
+            HashSet<string> primariesOR = new HashSet<string>(trigger.StrategyOR.Split(','));
+            HashSet<string> primariesAND = new HashSet<string>(trigger.StrategyAND.Split(','));
+
+            foreach (string primary in primariesOR)
+            {
+                try
+                {
+                    StrategyData strategy = _appCtrl.Strategy[primary.Trim()];
+
+                    if (strategy != null && strategy.StatusEnum == StrategyStatus.Enum.Waiting)
+                    {
+                        _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
+                }
+            }
+
+            foreach (string primary in primariesAND)
+            {
+                string _p = $",{primary.Trim()},";
+                bool doStrategy = true;
+
+                foreach (TriggerData _t in _triggerMap.Values)
+                {
+                    if (_t == trigger)
+                    {
+                        continue;
+                    }
+                    else if (string.Format(",{0},", _t.StrategyAND.Replace(" ", string.Empty)).Contains(_p) && (_t.StatusEnum == TriggerStatus.Enum.Waiting || _t.StatusEnum == TriggerStatus.Enum.Monitoring))
+                    {
+                        doStrategy = false;
+                    }
+                }
+
+                if (!doStrategy)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    StrategyData strategy = _appCtrl.Strategy[primary.Trim()];
+
+                    if (strategy != null && strategy.StatusEnum == StrategyStatus.Enum.Waiting)
+                    {
+                        _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
+                }
+            }
+        }
+
         private bool UpdateStatus(TriggerData trigger, QuoteData quote, DateTime start)
         {
             bool saveData = false;
@@ -176,11 +244,10 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
                         _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
+
                         saveData = true;
-
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
-
-                        //TODO
+                        StartStrategy(trigger, start);
                     }
                 }
                 else if (trigger.Rule == Definition.IsLessThanOrEqualTo)
@@ -189,11 +256,10 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
                         _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
+
                         saveData = true;
-
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
-
-                        //
+                        StartStrategy(trigger, start);
                     }
                 }
                 else if (trigger.Rule == Definition.IsEqualTo)
@@ -202,11 +268,10 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         trigger.StatusEnum = TriggerStatus.Enum.Executed;
                         _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
+
                         saveData = true;
-
                         _executedMap.TryAdd(trigger.PrimaryKey, trigger);
-
-                        //
+                        StartStrategy(trigger, start);
                     }
                 }
                 else

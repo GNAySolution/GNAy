@@ -295,6 +295,9 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _dealReport, value); }
         }
 
+        //StrategyAfterStopLoss
+        //TriggerAfterStopLoss
+
         //
 
         private string _comment;
@@ -511,7 +514,7 @@ namespace GNAy.Capital.Models
                 DayTrade = DayTrade,
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPrice = Models.OrderPrice.P,
-                OrderQty = StopWinQty,
+                OrderQty = Math.Abs(StopWinQty),
                 Updater = nameof(CreateStopWinOrder),
                 UpdateTime = DateTime.Now,
             };

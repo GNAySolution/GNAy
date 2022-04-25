@@ -627,8 +627,6 @@ namespace GNAy.Capital.Trade.Controllers
                         continue;
                     }
 
-                    _capitalProductRawMap.Add(product.Item2.nStockIdx, product.Item2);
-
                     QuoteData quote = CreateQuote(product.Item2);
 
                     _appCtrl.Trigger.Reset(quote);
@@ -636,6 +634,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     try
                     {
+                        _capitalProductRawMap.Add(product.Item2.nStockIdx, product.Item2);
                         _quoteIndexMap.Add(quote.Index, quote);
 
                         if (quote.MarketGroupEnum == Market.EGroup.Option)

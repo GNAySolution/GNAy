@@ -248,7 +248,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _count;
-        [TradeColumn("筆數", CSVIndex = -1, WPFDisplayIndex = 25)]
+        [TradeColumn("筆數", WPFDisplayIndex = 25)]
         public int Count
         {
             get { return _count; }
