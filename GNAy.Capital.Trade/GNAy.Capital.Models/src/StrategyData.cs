@@ -295,13 +295,26 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _dealReport, value); }
         }
 
-        //StrategyAfterStopLoss
-        //TriggerAfterStopLoss
+        private string _triggerAfterStopLoss;
+        [Column("停損後接續執行觸價", "停損後觸價", WPFDisplayIndex = 22)]
+        public string TriggerAfterStopLoss
+        {
+            get { return _triggerAfterStopLoss; }
+            set { OnPropertyChanged(ref _triggerAfterStopLoss, value); }
+        }
+
+        private string _strategyAfterStopLoss;
+        [Column("停損後接續執行策略", "停損後策略", WPFDisplayIndex = 23)]
+        public string StrategyAfterStopLoss
+        {
+            get { return _strategyAfterStopLoss; }
+            set { OnPropertyChanged(ref _strategyAfterStopLoss, value); }
+        }
 
         //
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 22)]
+        [Column("註解", WPFDisplayIndex = 24)]
         public string Comment
         {
             get { return _comment; }
@@ -343,8 +356,27 @@ namespace GNAy.Capital.Models
             DealPrice = 0;
             DealQty = 0;
             DealReport = string.Empty;
+            TriggerAfterStopLoss = string.Empty;
+            StrategyAfterStopLoss = string.Empty;
             //
             Comment = string.Empty;
+        }
+
+        public StrategyData Trim()
+        {
+            PrimaryKey = PrimaryKey.Replace(" ", string.Empty);
+            Branch = Branch.Replace(" ", string.Empty);
+            Account = Account.Replace(" ", string.Empty);
+            Symbol = Symbol.Replace(" ", string.Empty);
+            StopWinPrice = StopWinPrice.Replace(" ", string.Empty);
+            MoveStopWinPrice = MoveStopWinPrice.Replace(" ", string.Empty);
+            OrderReport = OrderReport.Replace(" ", string.Empty);
+            DealReport = DealReport.Replace(" ", string.Empty);
+            TriggerAfterStopLoss = TriggerAfterStopLoss.Replace(" ", string.Empty);
+            StrategyAfterStopLoss = StrategyAfterStopLoss.Replace(" ", string.Empty);
+            Comment = Comment.Replace(" ", string.Empty);
+
+            return this;
         }
 
         public StrategyData CreateOrder()

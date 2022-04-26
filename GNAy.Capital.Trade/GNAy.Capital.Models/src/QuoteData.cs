@@ -271,9 +271,9 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _page, value); }
         }
 
-        private short _marketGroup;
+        private int _marketGroup;
         [TradeColumn("市場", "市")]
-        public short MarketGroup
+        public int MarketGroup
         {
             get { return _marketGroup; }
             set { OnPropertiesChanged(ref _marketGroup, value, nameof(MarketGroup), nameof(MarketGroupEnum)); }
@@ -282,7 +282,7 @@ namespace GNAy.Capital.Models
         public Market.EGroup MarketGroupEnum
         {
             get { return (Market.EGroup)MarketGroup; }
-            set { MarketGroup = (short)value; }
+            set { MarketGroup = (int)value; }
         }
 
         private short _decimalPos;

@@ -1,10 +1,10 @@
 # GNAy
 * Yang的專案開發紀錄
-* 儲存庫裡的程式碼都是自己寫的或參考網路上的，參考都有在註解內附上連結，表示感謝
+* 儲存庫裡的程式碼都是自己寫或參考網路上的，參考都有在註解內附上連結，表示感謝
 
 ## GNAy.Capital.Trade.csproj
 ![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg)
-* 策略交易框架與範例，交易輔助APP，基於群益API(SKCOM.dll)，開發中
+* 策略交易框架與範例，交易輔助APP，方便自行組合與測試交易策略，基於群益API(SKCOM.dll)，開發中
 * https://www.capital.com.tw/Service2/download/api.asp
 * 需要先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
 

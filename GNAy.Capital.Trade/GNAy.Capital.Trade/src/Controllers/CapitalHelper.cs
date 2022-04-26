@@ -34,7 +34,7 @@ namespace GNAy.Capital.Trade.Controllers
                 HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal),
                 LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal),
                 Index = raw.nStockIdx,
-                MarketGroup = short.Parse(raw.bstrMarketNo),
+                MarketGroup = raw.bstrMarketNo[0] - '0',
                 DecimalPos = raw.sDecimal,
                 TotalQtyBefore = raw.nYQty,
             };
@@ -64,14 +64,15 @@ namespace GNAy.Capital.Trade.Controllers
 
         private bool UpdateQuote(SKSTOCKLONG raw)
         {
-            if (!_quoteIndexMap.TryGetValue(raw.nStockIdx, out QuoteData quote))
+            //https://stackoverflow.com/questions/628761/convert-a-character-digit-to-the-corresponding-integer-in-c
+            if (!_quoteIndexMap.TryGetValue((raw.bstrMarketNo[0] - '0') * 1000000 + raw.nStockIdx, out QuoteData quote))
             {
-                _appCtrl.LogError($"!_quoteIndexMap.TryGetValue(raw.nStockIdx, out QuoteData quote)|nStockIdx={raw.nStockIdx}", UniqueName);
+                _appCtrl.LogError($"!_quoteIndexMap.TryGetValue((raw.bstrMarketNo[0] - '0') * 1000000 + raw.nStockIdx, out QuoteData quote)|bstrMarketNo={raw.bstrMarketNo}|nStockIdx={raw.nStockIdx}", UniqueName);
                 return false;
             }
             else if (quote.Symbol != raw.bstrStockNo)
             {
-                _appCtrl.LogError($"quote.Symbol != raw.bstrStockNo|Symbol={quote.Symbol}|bstrStockNo={raw.bstrStockNo}", UniqueName);
+                _appCtrl.LogError($"quote.Symbol != raw.bstrStockNo|Symbol={quote.Symbol}|bstrMarketNo={raw.bstrMarketNo}|bstrStockNo={raw.bstrStockNo}", UniqueName);
                 return false;
             }
             //else if (quote.Name != raw.bstrStockName)
@@ -108,7 +109,7 @@ namespace GNAy.Capital.Trade.Controllers
             //}
             if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (_appCtrl.Config.StartOnTime || quote.Recovered))
             {
-                if (quote.OpenPrice == 0 && raw.nSimulate.IsRealTrading() && raw.nTickQty > 0) //開盤第一筆成交
+                if (quote.OpenPrice == 0 && raw.nSimulate.IsRealTrading() && raw.nTQty > quote.TotalQty) //開盤第一筆成交
                 {
                     quote.OpenPrice = quote.DealPrice;
                 }
@@ -150,7 +151,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteLastUpdated = quote;
 
-            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && DateTime.Now.Hour == 8 && DateTime.Now.Minute <= 47 && _appCtrl.Config.StartOnTime && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
+            if (IsAMMarket && quote.MarketGroupEnum == Market.EGroup.Futures && DateTime.Now.Hour == 8 && DateTime.Now.Minute <= 45 && _appCtrl.Config.StartOnTime && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
@@ -293,7 +294,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteLastUpdated = quote;
 
-            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && DateTime.Now.Hour == 8 && DateTime.Now.Minute <= 47 && _appCtrl.Config.StartOnTime && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
+            if (IsAMMarket && quote.MarketGroupEnum == Market.EGroup.Futures && DateTime.Now.Hour == 8 && DateTime.Now.Minute <= 45 && _appCtrl.Config.StartOnTime && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);

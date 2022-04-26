@@ -106,6 +106,31 @@ namespace GNAy.Capital.Trade.Controllers
             Task.Factory.StartNew(() => SaveData(null));
         }
 
+        private void StartStrategy(TriggerData trigger, string primary, DateTime start)
+        {
+            try
+            {
+                StrategyData strategy = _appCtrl.Strategy[primary];
+
+                if (strategy != null && strategy.StatusEnum == StrategyStatus.Enum.Waiting)
+                {
+                    _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
+                    return;
+                }
+
+                _appCtrl.LogError(start, $"執行策略({primary})失敗|{trigger.ToLog()}", UniqueName);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+                _appCtrl.LogError(start, $"執行策略({primary})失敗|{trigger.ToLog()}", UniqueName);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
         private void StartStrategy(TriggerData trigger, DateTime start)
         {
             HashSet<string> primariesOR = new HashSet<string>(trigger.StrategyOR.Split(','));
@@ -113,37 +138,21 @@ namespace GNAy.Capital.Trade.Controllers
 
             foreach (string primary in primariesOR)
             {
-                try
-                {
-                    StrategyData strategy = _appCtrl.Strategy[primary.Trim()];
-
-                    if (strategy != null && strategy.StatusEnum == StrategyStatus.Enum.Waiting)
-                    {
-                        _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _appCtrl.LogException(start, ex, ex.StackTrace);
-                }
-                finally
-                {
-                    _appCtrl.EndTrace(start, UniqueName);
-                }
+                StartStrategy(trigger, primary, start);
             }
 
             foreach (string primary in primariesAND)
             {
-                string _p = $",{primary.Trim()},";
+                string pk = $",{primary},";
                 bool doStrategy = true;
 
-                foreach (TriggerData _t in _triggerMap.Values)
+                foreach (TriggerData td in _triggerMap.Values)
                 {
-                    if (_t == trigger)
+                    if (td == trigger)
                     {
                         continue;
                     }
-                    else if (string.Format(",{0},", _t.StrategyAND.Replace(" ", string.Empty)).Contains(_p) && (_t.StatusEnum == TriggerStatus.Enum.Waiting || _t.StatusEnum == TriggerStatus.Enum.Monitoring))
+                    else if (string.Format(",{0},", td.StrategyAND).Contains(pk) && (td.StatusEnum == TriggerStatus.Enum.Waiting || td.StatusEnum == TriggerStatus.Enum.Monitoring))
                     {
                         doStrategy = false;
                     }
@@ -151,26 +160,11 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (!doStrategy)
                 {
+                    _appCtrl.LogError(start, $"執行策略({primary})失敗|{trigger.ToLog()}", UniqueName);
                     continue;
                 }
 
-                try
-                {
-                    StrategyData strategy = _appCtrl.Strategy[primary.Trim()];
-
-                    if (strategy != null && strategy.StatusEnum == StrategyStatus.Enum.Waiting)
-                    {
-                        _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _appCtrl.LogException(start, ex, ex.StackTrace);
-                }
-                finally
-                {
-                    _appCtrl.EndTrace(start, UniqueName);
-                }
+                StartStrategy(trigger, primary, start);
             }
         }
 
@@ -663,14 +657,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                primaryKey = primaryKey.Replace(" ", string.Empty);
-
-                if (string.IsNullOrWhiteSpace(primaryKey))
-                {
-                    return;
-                }
-
-                _waitToCancel.Enqueue(primaryKey);
+                _waitToCancel.Enqueue(primaryKey.Replace(" ", string.Empty));
             }
             catch (Exception ex)
             {
@@ -782,8 +769,8 @@ namespace GNAy.Capital.Trade.Controllers
                     Rule = rule,
                     TargetValue = value,
                     Cancel = _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex,
-                    StrategyOR = _appCtrl.MainForm.TextBoxTriggerStrategyOR.Text.Trim(),
-                    StrategyAND = _appCtrl.MainForm.TextBoxTriggerStrategyAND.Text.Trim(),
+                    StrategyOR = _appCtrl.MainForm.TextBoxTriggerStrategyOR.Text.Replace(" ", string.Empty),
+                    StrategyAND = _appCtrl.MainForm.TextBoxTriggerStrategyAND.Text.Replace(" ", string.Empty),
                     StartTime = parseResult.Item2,
                     EndTime = parseResult.Item3,
                 };
@@ -834,6 +821,13 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     try
                     {
+                        trigger.PrimaryKey = trigger.PrimaryKey.Replace(" ", string.Empty);
+                        trigger.Symbol = trigger.Symbol.Replace(" ", string.Empty);
+                        trigger.Rule = trigger.Rule.Replace(" ", string.Empty);
+                        trigger.StrategyOR = trigger.StrategyOR.Replace(" ", string.Empty);
+                        trigger.StrategyAND = trigger.StrategyAND.Replace(" ", string.Empty);
+                        trigger.Comment = trigger.Comment.Replace(" ", string.Empty);
+
                         if (string.IsNullOrWhiteSpace(trigger.PrimaryKey))
                         {
                             continue;

@@ -520,12 +520,10 @@
                 <TextBox x:Name="TextBoxTriggerRuleValue" Text="大於小於等於數值" ToolTip="系統會自動補上等於" HorizontalAlignment="Left" Margin="466,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="觸價後取消監控" HorizontalAlignment="Left" Margin="591,8,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxTriggerCancel" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="591,33,0,0" VerticalAlignment="Top" Width="120"/>
-                <Label Content="觸價後執行策略OR" HorizontalAlignment="Left" Margin="716,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerStrategyOR" Text="滿足單一條件即執行" ToolTip="滿足單一條件即執行策略" HorizontalAlignment="Left" Margin="716,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="觸價後執行策略AND" HorizontalAlignment="Left" Margin="841,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerStrategyAND" Text="滿足全部條件再執行" ToolTip="滿足全部條件再執行策略" HorizontalAlignment="Left" Margin="841,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="監控時間區間" HorizontalAlignment="Left" Margin="966,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerTimeDuration" Text="監控時間區間" ToolTip="監控時間區間" HorizontalAlignment="Left" Margin="966,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxTriggerStrategyOR" Text="單一觸價即執行策略" ToolTip="滿足單一觸價條件即執行策略" HorizontalAlignment="Left" Margin="716,18,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxTriggerStrategyAND" Text="全部觸價再執行策略" ToolTip="滿足全部觸價條件再執行策略" HorizontalAlignment="Left" Margin="716,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <Label Content="監控時間區間" HorizontalAlignment="Left" Margin="841,8,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxTriggerTimeDuration" Text="監控時間區間" ToolTip="監控時間區間" HorizontalAlignment="Left" Margin="841,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Button x:Name="ButtonCancelStrategy" Content="取消策略監控" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top" Click="ButtonCancelStrategy_Click"/>
                 <Button x:Name="ButtonSaveStrategyRule" Content="儲存策略條件" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top" Click="ButtonSaveStrategyRule_Click"/>
                 <Label Content="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,57,0,0" VerticalAlignment="Top"/>
@@ -534,18 +532,17 @@
                 <TextBox x:Name="TextBoxStrategyStopLoss" Text="停損價差(%)" ToolTip="停損價差(%)" HorizontalAlignment="Left" Margin="216,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="停利價差(%)" HorizontalAlignment="Left" Margin="341,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyStopWin" Text="停利價差(%)" ToolTip="停利價差(%)" HorizontalAlignment="Left" Margin="341,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="移動停利價差(%)" HorizontalAlignment="Left" Margin="466,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyMoveStopWin" Text="移動停利價差(%)" ToolTip="移動停利價差(%)" HorizontalAlignment="Left" Margin="466,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="停損後執行" HorizontalAlignment="Left" Margin="591,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyAfterStopLoss" Text="停損後執行觸價" ToolTip="停損後接續執行觸價" HorizontalAlignment="Left" Margin="591,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <TextBox x:Name="TextBoxTriggerAfterStopLoss" Text="停損後執行策略" ToolTip="停損後接續執行策略" HorizontalAlignment="Left" Margin="591,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="停利後執行" HorizontalAlignment="Left" Margin="716,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyAfterStopWin" Text="停利後執行觸價" ToolTip="停利後接續執行觸價" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <TextBox x:Name="TextBoxTriggerAfterStopWin" Text="停利後執行策略" ToolTip="停利後接續執行策略" HorizontalAlignment="Left" Margin="716,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="收盤獲利減倉或CD單" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyOffsetWin" Text="CD:seconds" ToolTip="收盤對獲利部位做減倉，或CD單" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="收盤損失減倉" HorizontalAlignment="Left" Margin="966,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyOffsetLoss" Text="收盤損失減倉" ToolTip="收盤對損失部位做減倉" HorizontalAlignment="Left" Margin="966,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyMoveStopWin" Text="移動停利價差(%)" ToolTip="移動停利價差(%)" HorizontalAlignment="Left" Margin="341,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <Label Content="停損後執行" HorizontalAlignment="Left" Margin="466,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxTriggerAfterStopLoss" Text="停損後執行觸價" ToolTip="停損後接續執行觸價" HorizontalAlignment="Left" Margin="466,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyAfterStopLoss" Text="停損後執行策略" ToolTip="停損後接續執行策略" HorizontalAlignment="Left" Margin="466,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <Label Content="停利後執行" HorizontalAlignment="Left" Margin="591,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxTriggerAfterStopWin" Text="停利後執行觸價" ToolTip="停利後接續執行觸價" HorizontalAlignment="Left" Margin="591,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyAfterStopWin" Text="停利後執行策略" ToolTip="停利後接續執行策略" HorizontalAlignment="Left" Margin="591,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <Label Content="收盤獲利減倉或CD單" HorizontalAlignment="Left" Margin="716,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStrategyOffsetWin" Text="CD:seconds" ToolTip="收盤對獲利部位做減倉，或CD單" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <Label Content="收盤損失減倉" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStrategyOffsetLoss" Text="收盤損失減倉" ToolTip="收盤對損失部位做減倉" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
@@ -756,6 +753,8 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding DealReport}"/>
+                                    <DataGridTextColumn Binding="{Binding TriggerAfterStopLoss}"/>
+                                    <DataGridTextColumn Binding="{Binding StrategyAfterStopLoss}"/>
 
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
                                 </DataGrid.Columns>
@@ -940,6 +939,8 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding DealReport}"/>
+                                    <DataGridTextColumn Binding="{Binding TriggerAfterStopLoss}"/>
+                                    <DataGridTextColumn Binding="{Binding StrategyAfterStopLoss}"/>
 
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
                                 </DataGrid.Columns>

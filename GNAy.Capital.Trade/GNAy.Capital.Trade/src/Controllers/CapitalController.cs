@@ -635,7 +635,7 @@ namespace GNAy.Capital.Trade.Controllers
                     try
                     {
                         _capitalProductRawMap.Add(product.Item2.nStockIdx, product.Item2);
-                        _quoteIndexMap.Add(quote.Index, quote);
+                        _quoteIndexMap.Add(quote.MarketGroup * 1000000 + quote.Index, quote);
 
                         if (quote.MarketGroupEnum == Market.EGroup.Option)
                         {
@@ -900,7 +900,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void SaveQuotes(DirectoryInfo folder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
         {
-            if (_quoteIndexMap.Count <= 0 || string.IsNullOrWhiteSpace(QuoteFileNameBase))
+            if (_quoteCollection.Count <= 0 || string.IsNullOrWhiteSpace(QuoteFileNameBase))
             {
                 return;
             }
@@ -909,7 +909,6 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                QuoteData[] quotes = _quoteIndexMap.Values.ToArray();
                 string path = Path.Combine(folder.FullName, $"{prefix}{QuoteFileNameBase}{suffix}.csv");
                 bool exists = File.Exists(path);
 
@@ -922,7 +921,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (quote == null)
                     {
-                        foreach (QuoteData q in quotes)
+                        foreach (QuoteData q in _quoteCollection)
                         {
                             try
                             {
@@ -959,7 +958,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public Task SaveQuotesAsync(DirectoryInfo quoteFolder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
         {
-            if (_quoteIndexMap.Count <= 0 || string.IsNullOrWhiteSpace(QuoteFileNameBase))
+            if (_quoteCollection.Count <= 0 || string.IsNullOrWhiteSpace(QuoteFileNameBase))
             {
                 return null;
             }

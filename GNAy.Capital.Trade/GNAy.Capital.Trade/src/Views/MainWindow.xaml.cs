@@ -1351,30 +1351,36 @@ namespace GNAy.Capital.Trade
 
                 _appCtrl.Trigger.AddRule();
 
-                if (decimal.TryParse(TextBoxTriggerPrimaryKey.Text, out decimal pk))
+                string primaryKey = TextBoxTriggerPrimaryKey.Text.Replace(" ", string.Empty);
+
+                if (!decimal.TryParse(primaryKey, out decimal pk))
                 {
-                    Task.Factory.StartNew(() =>
-                    {
-                        Thread.Sleep(_appCtrl.Settings.TimerIntervalTrigger * 3);
-                        this.InvokeRequired(delegate
-                        {
-                            if (_appCtrl.Trigger[TextBoxTriggerPrimaryKey.Text.Trim()] != null)
-                            {
-                                if (pk < _appCtrl.Trigger.Count)
-                                {
-                                    pk = _appCtrl.Trigger.Count;
-                                }
-
-                                ++pk;
-
-                                if (_appCtrl.Trigger[$"{pk}"] == null)
-                                {
-                                    _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{pk}";
-                                }
-                            }
-                        });
-                    });
+                    return;
                 }
+
+                Task.Factory.StartNew(() =>
+                {
+                    Thread.Sleep(_appCtrl.Settings.TimerIntervalTrigger * 3);
+                    if (_appCtrl.Trigger[primaryKey] == null)
+                    {
+                        return;
+                    }
+
+                    this.InvokeRequired(delegate
+                    {
+                        if (pk < _appCtrl.Trigger.Count)
+                        {
+                            pk = _appCtrl.Trigger.Count;
+                        }
+
+                        ++pk;
+
+                        if (_appCtrl.Trigger[$"{pk}"] == null)
+                        {
+                            _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{pk}";
+                        }
+                    });
+                });
             }
             catch (Exception ex)
             {
@@ -1602,6 +1608,8 @@ namespace GNAy.Capital.Trade
                     StopLoss = TextBoxStrategyStopLoss.Text,
                     StopWinPrice = TextBoxStrategyStopWin.Text,
                     MoveStopWinPrice = TextBoxStrategyMoveStopWin.Text,
+                    TriggerAfterStopLoss = TextBoxTriggerAfterStopLoss.Text,
+                    StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
                     //TODO
                     Updater = nameof(ButtonStartFutureStartegyNow_Click),
                     UpdateTime = DateTime.Now,
@@ -1609,30 +1617,34 @@ namespace GNAy.Capital.Trade
 
                 _appCtrl.Strategy.AddRuleAsync(strategy);
 
-                if (decimal.TryParse(TextBoxStrategyPrimaryKey.Text, out decimal pk))
+                if (!decimal.TryParse(TextBoxStrategyPrimaryKey.Text.Replace(" ", string.Empty), out decimal pk))
                 {
-                    Task.Factory.StartNew(() =>
-                    {
-                        Thread.Sleep(_appCtrl.Settings.TimerIntervalStrategy * 3);
-                        this.InvokeRequired(delegate
-                        {
-                            if (_appCtrl.Strategy[strategy.PrimaryKey] != null)
-                            {
-                                if (pk < _appCtrl.Strategy.Count)
-                                {
-                                    pk = _appCtrl.Strategy.Count;
-                                }
-
-                                ++pk;
-
-                                if (_appCtrl.Strategy[$"{pk}"] == null)
-                                {
-                                    _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
-                                }
-                            }
-                        });
-                    });
+                    return;
                 }
+
+                Task.Factory.StartNew(() =>
+                {
+                    Thread.Sleep(_appCtrl.Settings.TimerIntervalStrategy * 3);
+                    if (_appCtrl.Strategy[strategy.PrimaryKey] == null)
+                    {
+                        return;
+                    }
+
+                    this.InvokeRequired(delegate
+                    {
+                        if (pk < _appCtrl.Strategy.Count)
+                        {
+                            pk = _appCtrl.Strategy.Count;
+                        }
+
+                        ++pk;
+
+                        if (_appCtrl.Strategy[$"{pk}"] == null)
+                        {
+                            _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
+                        }
+                    });
+                });
             }
             catch (Exception ex)
             {
@@ -1721,6 +1733,8 @@ namespace GNAy.Capital.Trade
                     StopLoss = TextBoxStrategyStopLoss.Text,
                     StopWinPrice = TextBoxStrategyStopWin.Text,
                     MoveStopWinPrice = TextBoxStrategyMoveStopWin.Text,
+                    TriggerAfterStopLoss = TextBoxTriggerAfterStopLoss.Text,
+                    StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
                     //TODO
                     Updater = nameof(ButtonStartFutureStartegyNow_Click),
                     UpdateTime = DateTime.Now,
@@ -1728,30 +1742,34 @@ namespace GNAy.Capital.Trade
 
                 _appCtrl.Strategy.StartFutureStartegyAsync(strategy);
 
-                if (decimal.TryParse(TextBoxStrategyPrimaryKey.Text, out decimal pk))
+                if (!decimal.TryParse(TextBoxStrategyPrimaryKey.Text.Replace(" ", string.Empty), out decimal pk))
                 {
-                    Task.Factory.StartNew(() =>
-                    {
-                        Thread.Sleep(_appCtrl.Settings.TimerIntervalStrategy * 3);
-                        this.InvokeRequired(delegate
-                        {
-                            if (_appCtrl.Strategy[strategy.PrimaryKey] != null)
-                            {
-                                if (pk < _appCtrl.Strategy.Count)
-                                {
-                                    pk = _appCtrl.Strategy.Count;
-                                }
-
-                                ++pk;
-
-                                if (_appCtrl.Strategy[$"{pk}"] == null)
-                                {
-                                    _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
-                                }
-                            }
-                        });
-                    });
+                    return;
                 }
+
+                Task.Factory.StartNew(() =>
+                {
+                    Thread.Sleep(_appCtrl.Settings.TimerIntervalStrategy * 3);
+                    if (_appCtrl.Strategy[strategy.PrimaryKey] == null)
+                    {
+                        return;
+                    }
+
+                    this.InvokeRequired(delegate
+                    {
+                        if (pk < _appCtrl.Strategy.Count)
+                        {
+                            pk = _appCtrl.Strategy.Count;
+                        }
+
+                        ++pk;
+
+                        if (_appCtrl.Strategy[$"{pk}"] == null)
+                        {
+                            _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
+                        }
+                    });
+                });
             }
             catch (Exception ex)
             {

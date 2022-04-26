@@ -97,7 +97,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 QuoteData q = null;
 
-                if (_quoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote))
+                if (_quoteIndexMap.TryGetValue(sMarketNo * 1000000 + nStockIdx, out QuoteData quote))
                 {
                     (int, SKSTOCKLONG) product = GetProductInfo(quote.Symbol, DateTime.Now);
 
@@ -151,9 +151,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (!_quoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote))
+                if (!_quoteIndexMap.TryGetValue(sMarketNo * 1000000 + nStockIdx, out QuoteData quote))
                 {
-                    _appCtrl.LogError($"!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote)|nStockIdx={nStockIdx}", UniqueName);
+                    _appCtrl.LogError($"!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote)|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}", UniqueName);
                     return;
                 }
                 //else if (quote.MarketGroup != sMarketNo)

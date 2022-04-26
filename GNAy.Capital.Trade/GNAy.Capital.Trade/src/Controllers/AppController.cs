@@ -14,6 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace GNAy.Capital.Trade.Controllers
 {
@@ -460,6 +461,18 @@ namespace GNAy.Capital.Trade.Controllers
 
                     Strategy = new StrategyController(this);
                     MainForm.TextBoxStrategyPrimaryKey.Text = $"{Strategy.Count + 1}";
+
+                    MainForm.DataGridStrategyRule.Columns[17].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridStrategyRule.Columns[18].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridStrategyRule.Columns[19].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridStrategyRule.Columns[20].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridStrategyRule.Columns[21].Visibility = System.Windows.Visibility.Collapsed;
+
+                    MainForm.DataGridOrderDetail.Columns[23].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[22].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[16].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[15].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[14].Visibility = System.Windows.Visibility.Collapsed;
                 }
 
                 return true;

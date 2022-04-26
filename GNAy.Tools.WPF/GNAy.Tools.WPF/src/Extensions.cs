@@ -108,7 +108,7 @@ namespace GNAy.Tools.WPF
                         column.CanUserSort = attr.WPFCanUserSort;
 
                         Style s = new Style(typeof(DataGridColumnHeader));
-                        s.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{attr.CSVName},{bind.Path.Path},{bind.StringFormat}"));
+                        s.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{column.DisplayIndex},{attr.CSVName},{bind.Path.Path},{bind.StringFormat}"));
 
                         column.HeaderStyle = s;
                     }
