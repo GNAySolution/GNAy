@@ -74,6 +74,8 @@ namespace GNAy.Capital.Trade.Controllers
                 Settings.TriggerFileFormat = newSetting.TriggerFileFormat;
             }
 
+            p.PriorityClass = ProcessPriorityClass.High;
+
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
@@ -462,17 +464,20 @@ namespace GNAy.Capital.Trade.Controllers
                     Strategy = new StrategyController(this);
                     MainForm.TextBoxStrategyPrimaryKey.Text = $"{Strategy.Count + 1}";
 
-                    MainForm.DataGridStrategyRule.Columns[17].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridStrategyRule.Columns[18].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridStrategyRule.Columns[19].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridStrategyRule.Columns[20].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridStrategyRule.Columns[21].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridStrategyRule.Columns[22].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridStrategyRule.Columns[23].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridStrategyRule.Columns[24].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridStrategyRule.Columns[25].Visibility = System.Windows.Visibility.Collapsed;
 
-                    MainForm.DataGridOrderDetail.Columns[23].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[22].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[16].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[15].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[14].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[16].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[17].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[18].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[19].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[20].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[26].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[27].Visibility = System.Windows.Visibility.Collapsed;
                 }
 
                 return true;

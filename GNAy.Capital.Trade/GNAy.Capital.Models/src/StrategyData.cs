@@ -194,16 +194,23 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _marketPrice, value); }
         }
 
-        private string _orderPrice;
-        [Column("委託價格", WPFDisplayIndex = 12)]
-        public string OrderPrice
+        private string _orderPriceBefore;
+        [Column("委託價設定", WPFDisplayIndex = 12)]
+        public string OrderPriceBefore
         {
-            get { return _orderPrice; }
-            set { OnPropertyChanged(ref _orderPrice, value); }
+            get { return _orderPriceBefore; }
+            set { OnPropertyChanged(ref _orderPriceBefore, value); }
+        }
+        private decimal _orderPriceAfter;
+        [Column("委託價觸發", CSVStringFormat = "0.00", WPFDisplayIndex = 13, WPFStringFormat = "{0:0.00}")]
+        public decimal OrderPriceAfter
+        {
+            get { return _orderPriceAfter; }
+            set { OnPropertyChanged(ref _orderPriceAfter, value); }
         }
 
         private int _orderQty;
-        [Column("委託口數", "委量", WPFDisplayIndex = 13)]
+        [Column("委託口數", "委量", WPFDisplayIndex = 14)]
         public int OrderQty
         {
             get { return _orderQty; }
@@ -212,56 +219,77 @@ namespace GNAy.Capital.Models
 
         public StrategyData OrderData;
 
-        private string _stopLoss;
-        [Column("停損設定", WPFDisplayIndex = 14)]
-        public string StopLoss
+        private string _stopLossBefore;
+        [Column("停損設定", WPFDisplayIndex = 15)]
+        public string StopLossBefore
         {
-            get { return _stopLoss; }
-            set { OnPropertyChanged(ref _stopLoss, value); }
+            get { return _stopLossBefore; }
+            set { OnPropertyChanged(ref _stopLossBefore, value); }
+        }
+        private decimal _stopLossAfter;
+        [Column("停損觸發", CSVStringFormat = "0.00", WPFDisplayIndex = 16, WPFStringFormat = "{0:0.00}")]
+        public decimal StopLossAfter
+        {
+            get { return _stopLossAfter; }
+            set { OnPropertyChanged(ref _stopLossAfter, value); }
         }
 
         public StrategyData StopLossData;
 
-        private string _stopWinPrice;
-        [Column("停利價格")]
-        public string StopWinPrice
+        private string _stopWinBefore;
+        [Column("停利設定", WPFDisplayIndex = 17)]
+        public string StopWinBefore
+        {
+            get { return _stopWinBefore; }
+            set { OnPropertyChanged(ref _stopWinBefore, value); }
+        }
+        private decimal _stopWinPrice;
+        [Column("停利價格", CSVStringFormat = "0.00")]
+        public decimal StopWinPrice
         {
             get { return _stopWinPrice; }
-            set { OnPropertiesChanged(ref _stopWinPrice, value, nameof(StopWinPrice), nameof(StopWin)); }
+            set { OnPropertiesChanged(ref _stopWinPrice, value, nameof(StopWinPrice), nameof(StopWinAfter)); }
         }
         private int _stopWinQty;
         [Column("停利減倉")]
         public int StopWinQty
         {
             get { return _stopWinQty; }
-            set { OnPropertiesChanged(ref _stopWinQty, value, nameof(StopWinQty), nameof(StopWin)); }
+            set { OnPropertiesChanged(ref _stopWinQty, value, nameof(StopWinQty), nameof(StopWinAfter)); }
         }
-        [Column("停利設定", CSVIndex = -1, WPFDisplayIndex = 15)]
-        public string StopWin => string.IsNullOrWhiteSpace(StopWinPrice) ? string.Empty : $"{StopWinPrice} ({StopWinQty})";
+        [Column("停利觸發", CSVIndex = -1, WPFDisplayIndex = 18)]
+        public string StopWinAfter => StopWinPrice == 0 ? string.Empty : $"{StopWinPrice} ({StopWinQty})";
 
         public StrategyData StopWinData;
 
-        private string _moveStopWinPrice;
-        [Column("移動停利價格")]
-        public string MoveStopWinPrice
+        private string _moveStopWinBefore;
+        [Column("移動停利設定", WPFDisplayIndex = 19)]
+        public string MoveStopWinBefore
+        {
+            get { return _moveStopWinBefore; }
+            set { OnPropertyChanged(ref _moveStopWinBefore, value); }
+        }
+        private decimal _moveStopWinPrice;
+        [Column("移動停利價格", CSVStringFormat = "0.00")]
+        public decimal MoveStopWinPrice
         {
             get { return _moveStopWinPrice; }
-            set { OnPropertiesChanged(ref _moveStopWinPrice, value, nameof(MoveStopWinPrice), nameof(MoveStopWin)); }
+            set { OnPropertiesChanged(ref _moveStopWinPrice, value, nameof(MoveStopWinPrice), nameof(MoveStopWinAfter)); }
         }
         private int _moveStopWinQty;
         [Column("移動停利減倉")]
         public int MoveStopWinQty
         {
             get { return _moveStopWinQty; }
-            set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWin)); }
+            set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWinAfter)); }
         }
-        [Column("移動停利設定", CSVIndex = -1, WPFDisplayIndex = 16)]
-        public string MoveStopWin => string.IsNullOrWhiteSpace(MoveStopWinPrice) ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinQty})";
+        [Column("移動停利觸發", CSVIndex = -1, WPFDisplayIndex = 20)]
+        public string MoveStopWinAfter => MoveStopWinPrice == 0 ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinQty})";
 
         public StrategyData MoveStopWinData;
 
         private string _orderReport;
-        [Column("13碼委託序號或錯誤訊息", "委託回報", WPFDisplayIndex = 17)]
+        [Column("13碼委託序號或錯誤訊息", "委託回報", WPFDisplayIndex = 21)]
         public string OrderReport
         {
             get { return _orderReport; }
@@ -269,7 +297,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _dealPrice;
-        [Column("成交價格", CSVStringFormat = "0.00", WPFDisplayIndex = 18, WPFStringFormat = "{0:0.00}")]
+        [Column("成交價格", CSVStringFormat = "0.00", WPFDisplayIndex = 22, WPFStringFormat = "{0:0.00}")]
         public decimal DealPrice
         {
             get { return _dealPrice; }
@@ -277,18 +305,18 @@ namespace GNAy.Capital.Models
         }
 
         private int _dealQty;
-        [Column("成交口數", WPFDisplayIndex = 19)]
+        [Column("成交口數", WPFDisplayIndex = 23)]
         public int DealQty
         {
             get { return _dealQty; }
             set { OnPropertyChanged(ref _dealQty, value); }
         }
 
-        [Column("成交價%", CSVStringFormat = "0.00", WPFDisplayIndex = 20, WPFStringFormat = "{0:0.00}%")]
+        [Column("成交價%", CSVStringFormat = "0.00", WPFDisplayIndex = 24, WPFStringFormat = "{0:0.00}%")]
         public decimal DealPct => (DealPrice != 0 && Quote != null && Quote.Reference != 0) ? (DealPrice - Quote.Reference) / Quote.Reference * 100 : 0;
 
         private string _dealReport;
-        [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 21)]
+        [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 25)]
         public string DealReport
         {
             get { return _dealReport; }
@@ -296,7 +324,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _triggerAfterStopLoss;
-        [Column("停損後接續執行觸價", "停損後觸價", WPFDisplayIndex = 22)]
+        [Column("停損後接續執行觸價", "停損後觸價", WPFDisplayIndex = 26)]
         public string TriggerAfterStopLoss
         {
             get { return _triggerAfterStopLoss; }
@@ -304,7 +332,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyAfterStopLoss;
-        [Column("停損後接續執行策略", "停損後策略", WPFDisplayIndex = 23)]
+        [Column("停損後接續執行策略", "停損後策略", WPFDisplayIndex = 27)]
         public string StrategyAfterStopLoss
         {
             get { return _strategyAfterStopLoss; }
@@ -314,7 +342,7 @@ namespace GNAy.Capital.Models
         //
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 24)]
+        [Column("註解", WPFDisplayIndex = 28)]
         public string Comment
         {
             get { return _comment; }
@@ -341,15 +369,19 @@ namespace GNAy.Capital.Models
             DayTradeEnum = OrderDayTrade.Enum.No;
             PositionEnum = OrderPosition.Enum.Open;
             MarketPrice = 0;
-            OrderPrice = Models.OrderPrice.P;
+            OrderPriceBefore = OrderPrice.P;
+            OrderPriceAfter = 0;
             OrderQty = -1;
             OrderData = null;
-            StopLoss = string.Empty;
+            StopLossBefore = string.Empty;
+            StopLossAfter = 0;
             StopLossData = null;
-            StopWinPrice = string.Empty;
+            StopWinBefore = string.Empty;
+            StopWinPrice = 0;
             StopWinQty = 0;
             StopWinData = null;
-            MoveStopWinPrice = string.Empty;
+            MoveStopWinBefore = string.Empty;
+            MoveStopWinPrice = 0;
             MoveStopWinQty = 0;
             MoveStopWinData = null;
             OrderReport = string.Empty;
@@ -368,8 +400,10 @@ namespace GNAy.Capital.Models
             Branch = Branch.Replace(" ", string.Empty);
             Account = Account.Replace(" ", string.Empty);
             Symbol = Symbol.Replace(" ", string.Empty);
-            StopWinPrice = StopWinPrice.Replace(" ", string.Empty);
-            MoveStopWinPrice = MoveStopWinPrice.Replace(" ", string.Empty);
+            OrderPriceBefore = OrderPriceBefore.Replace(" ", string.Empty);
+            StopLossBefore = StopLossBefore.Replace(" ", string.Empty);
+            StopWinBefore = StopWinBefore.Replace(" ", string.Empty);
+            MoveStopWinBefore = MoveStopWinBefore.Replace(" ", string.Empty);
             OrderReport = OrderReport.Replace(" ", string.Empty);
             DealReport = DealReport.Replace(" ", string.Empty);
             TriggerAfterStopLoss = TriggerAfterStopLoss.Replace(" ", string.Empty);
@@ -427,7 +461,8 @@ namespace GNAy.Capital.Models
                 TradeType = TradeType,
                 DayTrade = DayTrade,
                 Position = Position,
-                OrderPrice = OrderPrice,
+                OrderPriceBefore = OrderPriceBefore,
+                OrderPriceAfter = OrderPriceAfter,
                 OrderQty = OrderQty,
                 Updater = nameof(CreateOrder),
                 UpdateTime = DateTime.Now,
@@ -486,7 +521,8 @@ namespace GNAy.Capital.Models
                 TradeType = TradeType,
                 DayTrade = DayTrade,
                 PositionEnum = OrderPosition.Enum.Close,
-                OrderPrice = Models.OrderPrice.P,
+                OrderPriceBefore = OrderPrice.P,
+                OrderPriceAfter = 0,
                 OrderQty = OrderQty,
                 Updater = nameof(CreateStopLossOrder),
                 UpdateTime = DateTime.Now,
@@ -545,7 +581,8 @@ namespace GNAy.Capital.Models
                 TradeType = TradeType,
                 DayTrade = DayTrade,
                 PositionEnum = OrderPosition.Enum.Close,
-                OrderPrice = Models.OrderPrice.P,
+                OrderPriceBefore = OrderPrice.P,
+                OrderPriceAfter = 0,
                 OrderQty = Math.Abs(StopWinQty),
                 Updater = nameof(CreateStopWinOrder),
                 UpdateTime = DateTime.Now,

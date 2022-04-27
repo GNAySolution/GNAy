@@ -133,38 +133,46 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void StartStrategy(TriggerData trigger, DateTime start)
         {
-            HashSet<string> primariesOR = new HashSet<string>(trigger.StrategyOR.Split(','));
-            HashSet<string> primariesAND = new HashSet<string>(trigger.StrategyAND.Split(','));
-
-            foreach (string primary in primariesOR)
+            if (!string.IsNullOrWhiteSpace(trigger.StrategyOR))
             {
-                StartStrategy(trigger, primary, start);
+                HashSet<string> primariesOR = new HashSet<string>(trigger.StrategyOR.Split(','));
+
+                foreach (string primary in primariesOR)
+                {
+                    StartStrategy(trigger, primary, start);
+                }
             }
 
-            foreach (string primary in primariesAND)
+            if (!string.IsNullOrWhiteSpace(trigger.StrategyAND))
             {
-                string pk = $",{primary},";
-                bool doStrategy = true;
+                HashSet<string> primariesAND = new HashSet<string>(trigger.StrategyAND.Split(','));
 
-                foreach (TriggerData td in _triggerMap.Values)
+                foreach (string primary in primariesAND)
                 {
-                    if (td == trigger)
+                    string pk = $",{primary},";
+                    bool doStrategy = true;
+
+                    foreach (TriggerData td in _triggerMap.Values)
                     {
+                        if (td == trigger)
+                        {
+                            continue;
+                        }
+                        else if (string.Format(",{0},", td.StrategyAND).Contains(pk) && (td.StatusEnum == TriggerStatus.Enum.Waiting || td.StatusEnum == TriggerStatus.Enum.Monitoring))
+                        {
+                            doStrategy = false;
+                            break;
+                        }
+                    }
+
+                    if (!doStrategy)
+                    {
+                        _appCtrl.LogError(start, $"執行策略({primary})失敗|{trigger.ToLog()}", UniqueName);
                         continue;
                     }
-                    else if (string.Format(",{0},", td.StrategyAND).Contains(pk) && (td.StatusEnum == TriggerStatus.Enum.Waiting || td.StatusEnum == TriggerStatus.Enum.Monitoring))
-                    {
-                        doStrategy = false;
-                    }
-                }
 
-                if (!doStrategy)
-                {
-                    _appCtrl.LogError(start, $"執行策略({primary})失敗|{trigger.ToLog()}", UniqueName);
-                    continue;
+                    StartStrategy(trigger, primary, start);
                 }
-
-                StartStrategy(trigger, primary, start);
             }
         }
 

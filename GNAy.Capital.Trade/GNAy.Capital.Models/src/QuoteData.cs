@@ -285,6 +285,8 @@ namespace GNAy.Capital.Models
             set { MarketGroup = (int)value; }
         }
 
+        public int PrimaryKey => MarketGroup * 1000000 + Index;
+
         private short _decimalPos;
         [TradeColumn("小數位數", "D", WPFDisplayIndex = 33)]
         public short DecimalPos

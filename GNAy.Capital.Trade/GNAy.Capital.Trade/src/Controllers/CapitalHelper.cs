@@ -156,7 +156,7 @@ namespace GNAy.Capital.Trade.Controllers
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
 
-                if (_capitalProductRawMap.TryGetValue(quote.Index, out SKSTOCKLONG productInfo))
+                if (_capitalProductRawMap.TryGetValue(quote.PrimaryKey, out SKSTOCKLONG productInfo))
                 {
                     QuoteData qRaw = CreateQuote(productInfo);
 
@@ -236,7 +236,7 @@ namespace GNAy.Capital.Trade.Controllers
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_", string.Empty, quote);
 
-                if (_capitalProductRawMap.TryGetValue(quote.Index, out SKSTOCKLONG productInfo))
+                if (_capitalProductRawMap.TryGetValue(quote.PrimaryKey, out SKSTOCKLONG productInfo))
                 {
                     QuoteData qRaw = CreateQuote(productInfo, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
 
@@ -299,7 +299,7 @@ namespace GNAy.Capital.Trade.Controllers
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
 
-                if (_capitalProductRawMap.TryGetValue(quote.Index, out SKSTOCKLONG productInfo))
+                if (_capitalProductRawMap.TryGetValue(quote.PrimaryKey, out SKSTOCKLONG productInfo))
                 {
                     QuoteData qRaw = CreateQuote(productInfo, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
 
@@ -309,18 +309,18 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private FUTUREORDER CreateCaptialFutureOrder(StrategyData strategy)
+        private FUTUREORDER CreateCaptialFutureOrder(StrategyData order)
         {
             FUTUREORDER pFutureOrder = new FUTUREORDER()
             {
-                bstrFullAccount = strategy.FullAccount,
-                bstrStockNo = strategy.Symbol,
-                sBuySell = strategy.BS,
-                sTradeType = strategy.TradeType,
-                sDayTrade = strategy.DayTrade,
-                sNewClose = strategy.Position,
-                bstrPrice = strategy.OrderPrice,
-                nQty = strategy.OrderQty,
+                bstrFullAccount = order.FullAccount,
+                bstrStockNo = order.Symbol,
+                sBuySell = order.BS,
+                sTradeType = order.TradeType,
+                sDayTrade = order.DayTrade,
+                sNewClose = order.Position,
+                bstrPrice = (order.OrderPriceBefore == OrderPrice.M || order.OrderPriceBefore == OrderPrice.P) ? order.OrderPriceBefore : order.OrderPriceAfter.ToString("0.00"),
+                nQty = order.OrderQty,
             };
 
             return pFutureOrder;

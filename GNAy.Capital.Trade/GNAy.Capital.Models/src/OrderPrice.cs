@@ -42,6 +42,8 @@ namespace GNAy.Capital.Models
             {
                 if (oldPri.Length > 1)
                 {
+                    decimal newPri = 0;
+
                     if (oldPri.EndsWith("%"))
                     {
                         decimal offsetPct = decimal.Parse(oldPri.Substring(1, oldPri.Length - 2));
@@ -54,12 +56,12 @@ namespace GNAy.Capital.Models
                             format = "0";
                         }
 
-                        string strResult = (marketPrice + reference * offsetPct).ToString(format);
-                        return (strResult, decimal.Parse(strResult));
+                        newPri = marketPrice + reference * offsetPct;
+                        return (newPri.ToString(format), newPri);
                     }
 
                     decimal offset = decimal.Parse(oldPri.Substring(1));
-                    decimal newPri = marketPrice + offset;
+                    newPri = marketPrice + offset;
                     return (newPri.ToString("0.00"), newPri);
                 }
 

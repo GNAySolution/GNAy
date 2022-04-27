@@ -167,7 +167,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     throw new ArgumentException($"strategy.Symbol={strategy.Symbol}|{strategy.ToLog()}");
                 }
-                else if (!string.IsNullOrWhiteSpace(strategy.StopLoss) || !string.IsNullOrWhiteSpace(strategy.StopWinPrice) || !string.IsNullOrWhiteSpace(strategy.MoveStopWinPrice))
+                else if (!string.IsNullOrWhiteSpace(strategy.StopLossBefore) || !string.IsNullOrWhiteSpace(strategy.StopWinBefore) || !string.IsNullOrWhiteSpace(strategy.MoveStopWinBefore))
                 {
                     throw new ArgumentException($"商品 {strategy.Symbol} 無訂閱報價，無法進行策略監控|{strategy.ToLog()}");
                 }
@@ -185,20 +185,18 @@ namespace GNAy.Capital.Trade.Controllers
                 throw new ArgumentException($"strategy.Quote.Simulate.IsSimulating()|{strategy.ToLog()}");
             }
 
-            string orderPriceBefore = strategy.OrderPrice;
-            (string, decimal) orderPriceAfter = OrderPrice.Parse(orderPriceBefore, strategy.Quote.DealPrice, strategy.Quote.Reference, qGroup);
+            (string, decimal) orderPriceAfter = OrderPrice.Parse(strategy.OrderPriceBefore, strategy.Quote.DealPrice, strategy.Quote.Reference, qGroup);
 
             if (readyToSend)
             {
-                strategy.OrderPrice = orderPriceAfter.Item1;
-                _appCtrl.LogTrace(start, $"委託價格計算前={orderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
-                Notice = $"委託價格計算前={orderPriceBefore}|計算後={orderPriceAfter.Item1}";
+                strategy.OrderPriceAfter = orderPriceAfter.Item2;
+                _appCtrl.LogTrace(start, $"委託價計算前={strategy.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
+                Notice = $"委託價計算前={strategy.OrderPriceBefore}|計算後={orderPriceAfter.Item1}";
             }
 
-            if (!string.IsNullOrWhiteSpace(strategy.StopLoss))
+            if (!string.IsNullOrWhiteSpace(strategy.StopLossBefore))
             {
-                string stopLossPriceBefore = strategy.StopLoss;
-                (string, decimal) stopLossPriceAfter = OrderPrice.Parse(stopLossPriceBefore, strategy.Quote.DealPrice, strategy.Quote.Reference, qGroup);
+                (string, decimal) stopLossPriceAfter = OrderPrice.Parse(strategy.StopLossBefore, strategy.Quote.DealPrice, strategy.Quote.Reference, qGroup);
 
                 if (strategy.BSEnum == OrderBS.Enum.Buy)
                 {
@@ -214,26 +212,25 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (readyToSend)
                 {
-                    strategy.StopLoss = stopLossPriceAfter.Item1;
-                    _appCtrl.LogTrace(start, $"停損價格計算前={stopLossPriceBefore}|計算後={stopLossPriceAfter.Item1}", UniqueName);
-                    Notice = $"停損價格計算前={stopLossPriceBefore}|計算後={stopLossPriceAfter.Item1}";
+                    strategy.StopLossAfter = stopLossPriceAfter.Item2;
+                    _appCtrl.LogTrace(start, $"停損價計算前={strategy.StopLossBefore}|計算後={stopLossPriceAfter.Item1}", UniqueName);
+                    Notice = $"停損價計算前={strategy.StopLossBefore}|計算後={stopLossPriceAfter.Item1}";
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(strategy.StopWinPrice))
+            if (!string.IsNullOrWhiteSpace(strategy.StopWinBefore))
             {
-                string stopWinPriceBefore = strategy.StopWinPrice;
+                string stopWinBefore = strategy.StopWinBefore;
 
-                if (stopWinPriceBefore.Contains("(") || stopWinPriceBefore.Contains(","))
+                if (stopWinBefore.Contains("(") || stopWinBefore.Contains(","))
                 {
-                    string[] cells = stopWinPriceBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] cells = stopWinBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    stopWinPriceBefore = cells[0];
-                    strategy.StopWinPrice = stopWinPriceBefore;
+                    stopWinBefore = cells[0];
                     strategy.StopWinQty = int.Parse(cells[1]);
                 }
 
-                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(stopWinPriceBefore, strategy.Quote.DealPrice, strategy.Quote.Reference, qGroup);
+                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(stopWinBefore, strategy.Quote.DealPrice, strategy.Quote.Reference, qGroup);
 
                 if (strategy.BSEnum == OrderBS.Enum.Buy)
                 {
@@ -249,15 +246,15 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (readyToSend)
                 {
-                    strategy.StopWinPrice = stopWinPriceAfter.Item1;
-                    _appCtrl.LogTrace(start, $"停利價格計算前={stopWinPriceBefore}|計算後={stopWinPriceAfter.Item1}", UniqueName);
-                    Notice = $"停利價格計算前={stopWinPriceBefore}|計算後={stopWinPriceAfter.Item1}";
+                    strategy.StopWinPrice = stopWinPriceAfter.Item2;
+                    _appCtrl.LogTrace(start, $"停利價計算前={stopWinBefore}|計算後={stopWinPriceAfter.Item1}", UniqueName);
+                    Notice = $"停利價計算前={stopWinBefore}|計算後={stopWinPriceAfter.Item1}";
                 }
             }
 
             if (strategy.StopWinQty == 0)
             {
-                //滿足停利點時不減倉
+                //滿足條件但不減倉
             }
             else if (strategy.StopWinQty > 0)
             {
@@ -268,16 +265,15 @@ namespace GNAy.Capital.Trade.Controllers
                 throw new ArgumentException($"停利減倉口數({strategy.StopWinQty}) > 委託口數({strategy.OrderQty})|{strategy.ToLog()}");
             }
 
-            if (!string.IsNullOrWhiteSpace(strategy.MoveStopWinPrice))
+            if (!string.IsNullOrWhiteSpace(strategy.MoveStopWinBefore))
             {
-                string moveStopWinPriceBefore = strategy.MoveStopWinPrice;
+                string moveStopWinBefore = strategy.MoveStopWinBefore;
 
-                if (moveStopWinPriceBefore.Contains("(") || moveStopWinPriceBefore.Contains(","))
+                if (moveStopWinBefore.Contains("(") || moveStopWinBefore.Contains(","))
                 {
-                    string[] cells = moveStopWinPriceBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] cells = moveStopWinBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    moveStopWinPriceBefore = cells[0];
-                    strategy.MoveStopWinPrice = moveStopWinPriceBefore;
+                    moveStopWinBefore = cells[0];
                     strategy.MoveStopWinQty = int.Parse(cells[1]);
                 }
 
@@ -307,7 +303,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (strategy.MoveStopWinQty == 0)
             {
-                //滿足移動停利點時不減倉
+                //滿足條件但不減倉
             }
             else if (strategy.MoveStopWinQty > 0)
             {
@@ -378,12 +374,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             order.MarketPrice = order.Quote.DealPrice;
 
-            string orderPriceBefore = order.OrderPrice;
-            (string, decimal) orderPriceAfter = OrderPrice.Parse(orderPriceBefore, order.Quote.DealPrice, order.Quote.Reference, qGroup);
+            (string, decimal) orderPriceAfter = OrderPrice.Parse(order.OrderPriceBefore, order.Quote.DealPrice, order.Quote.Reference, qGroup);
 
-            order.OrderPrice = orderPriceAfter.Item1;
-            _appCtrl.LogTrace(start, $"委託價格計算前={orderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
-            Notice = $"委託價格計算前={orderPriceBefore}|計算後={orderPriceAfter.Item1}";
+            order.OrderPriceAfter = orderPriceAfter.Item2;
+            _appCtrl.LogTrace(start, $"委託價計算前={order.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
+            Notice = $"委託價計算前={order.OrderPriceBefore}|計算後={orderPriceAfter.Item1}";
         }
 
         private void StartTrigger(StrategyData data, string primary, DateTime start)
@@ -440,17 +435,24 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void StartAfterStop(StrategyData data, DateTime start)
         {
-            HashSet<string> triggers = new HashSet<string>(data.TriggerAfterStopLoss.Split(','));
-            HashSet<string> strategise = new HashSet<string>(data.StrategyAfterStopLoss.Split(','));
-
-            foreach (string primary in triggers)
+            if (!string.IsNullOrWhiteSpace(data.TriggerAfterStopLoss))
             {
-                StartTrigger(data, primary, start);
+                HashSet<string> triggers = new HashSet<string>(data.TriggerAfterStopLoss.Split(','));
+
+                foreach (string primary in triggers)
+                {
+                    StartTrigger(data, primary, start);
+                }
             }
 
-            foreach (string primary in strategise)
+            if (!string.IsNullOrWhiteSpace(data.StrategyAfterStopLoss))
             {
-                StartStrategy(data, primary, start);
+                HashSet<string> strategise = new HashSet<string>(data.StrategyAfterStopLoss.Split(','));
+
+                foreach (string primary in strategise)
+                {
+                    StartStrategy(data, primary, start);
+                }
             }
         }
 
@@ -489,7 +491,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (strategy.BSEnum == OrderBS.Enum.Buy)
                     {
-                        if (quote.DealPrice <= decimal.Parse(strategy.StopLoss))
+                        if (quote.DealPrice <= strategy.StopLossAfter)
                         {
                             StrategyData stopLossOrder = strategy.CreateStopLossOrder();
 
@@ -504,12 +506,20 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             StartAfterStop(strategy, start);
                         }
-                        else if (quote.DealPrice >= decimal.Parse(strategy.StopWin) && strategy.StopWinQty > 0)
+                        else if (quote.DealPrice >= strategy.StopWinPrice && strategy.StopWinQty <= 0)
                         {
                             StrategyData stopWinOrder = strategy.CreateStopWinOrder();
 
                             strategy.StatusEnum = StrategyStatus.Enum.StopWinSent;
-                            _appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
+
+                            if (strategy.StopWinQty == 0)
+                            {
+                                //滿足條件但不減倉
+                            }
+                            else
+                            {
+                                _appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
+                            }
 
                             saveData = true;
                             //TODO: StartAfterWin
@@ -517,7 +527,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else if (strategy.BSEnum == OrderBS.Enum.Sell)
                     {
-                        if (quote.DealPrice >= decimal.Parse(strategy.StopLoss))
+                        if (quote.DealPrice >= strategy.StopLossAfter)
                         {
                             StrategyData stopLossOrder = strategy.CreateStopLossOrder();
 
@@ -532,12 +542,20 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             StartAfterStop(strategy, start);
                         }
-                        else if (quote.DealPrice <= decimal.Parse(strategy.StopWin) && strategy.StopWinQty > 0)
+                        else if (quote.DealPrice <= strategy.StopWinPrice && strategy.StopWinQty <= 0)
                         {
                             StrategyData stopWinOrder = strategy.CreateStopWinOrder();
 
                             strategy.StatusEnum = StrategyStatus.Enum.StopWinSent;
-                            _appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
+
+                            if (strategy.StopWinQty == 0)
+                            {
+                                //滿足條件但不減倉
+                            }
+                            else
+                            {
+                                _appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
+                            }
 
                             saveData = true;
                             //TODO: StartAfterWin

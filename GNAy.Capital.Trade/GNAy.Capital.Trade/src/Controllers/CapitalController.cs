@@ -634,8 +634,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                     try
                     {
-                        _capitalProductRawMap.Add(product.Item2.nStockIdx, product.Item2);
-                        _quoteIndexMap.Add(quote.MarketGroup * 1000000 + quote.Index, quote);
+                        _capitalProductRawMap.Add((product.Item2.bstrMarketNo[0] - '0') * 1000000 + product.Item2.nStockIdx, product.Item2);
+                        _quoteIndexMap.Add(quote.PrimaryKey, quote);
 
                         if (quote.MarketGroupEnum == Market.EGroup.Option)
                         {
@@ -1282,7 +1282,7 @@ namespace GNAy.Capital.Trade.Controllers
                 if (!_appCtrl.Settings.SendRealOrder)
                 {
                     order.StatusEnum = StrategyStatus.Enum.DealReport;
-                    order.DealPrice = decimal.TryParse(order.OrderPrice, out decimal pri) ? pri : order.MarketPrice;
+                    order.DealPrice = order.OrderPriceAfter;
                     order.DealQty = order.OrderQty;
                     order.DealReport = order.OrderReport;
                     order.Updater = nameof(SendFutureOrder);

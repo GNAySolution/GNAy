@@ -107,9 +107,11 @@ namespace GNAy.Tools.WPF
                         column.CanUserReorder = attr.WPFCanUserReorder;
                         column.CanUserSort = attr.WPFCanUserSort;
 
+                        //https://stackoverflow.com/questions/4577944/how-to-resize-wpf-datagrid-to-fit-its-content
+                        column.Width = new DataGridLength(1.0, DataGridLengthUnitType.Auto);
+
                         Style s = new Style(typeof(DataGridColumnHeader));
                         s.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{column.DisplayIndex},{attr.CSVName},{bind.Path.Path},{bind.StringFormat}"));
-
                         column.HeaderStyle = s;
                     }
                 }

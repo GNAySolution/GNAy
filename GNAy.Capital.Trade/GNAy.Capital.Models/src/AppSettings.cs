@@ -52,15 +52,11 @@ namespace GNAy.Capital.Models
         /// <summary>
         /// 在台指期日盤夜盤開盤前啟動程式
         /// </summary>
-        public List<DateTime> TimeToStart { get; set; }
+        public List<DateTime> MarketStart { get; set; }
         /// <summary>
         /// 台指期日盤夜盤收盤
         /// </summary>
-        public List<DateTime> TimeToClose { get; set; }
-        /// <summary>
-        /// 在台指期日盤夜盤收盤後關閉程式
-        /// </summary>
-        public List<DateTime> TimeToExit { get; set; }
+        public List<DateTime> MarketClose { get; set; }
 
         /// <summary>
         /// 上市 0、上櫃 1、期貨 2、選擇權 3、興櫃 4、盤中零股-上市5、盤中零股-上櫃6
@@ -133,7 +129,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.424.1";
+            Version = "0.22.426.1";
             Description = "測試用設定";
 
             Big5EncodingCodePage = 950; //"big5"
@@ -153,23 +149,17 @@ namespace GNAy.Capital.Models
             TimerIntervalUI2 = 35 * 1000;
 
             AutoRun = true;
-            TimeToStart = new List<DateTime>();
+            MarketStart = new List<DateTime>();
             //TimeToStart = new List<DateTime>() //
             //{
-            //    DateTime.ParseExact("14:58", "HH:mm", CultureInfo.InvariantCulture),
-            //    DateTime.ParseExact("08:43", "HH:mm", CultureInfo.InvariantCulture),
+            //    DateTime.ParseExact("15:00", "HH:mm", CultureInfo.InvariantCulture),
+            //    DateTime.ParseExact("08:45", "HH:mm", CultureInfo.InvariantCulture),
             //};
-            TimeToClose = new List<DateTime>();
+            MarketClose = new List<DateTime>();
             //TimeToClose = new List<DateTime>() //
             //{
-            //    DateTime.ParseExact("04:59:30", "HH:mm:ss", CultureInfo.InvariantCulture),
-            //    DateTime.ParseExact("13:44:30", "HH:mm:ss", CultureInfo.InvariantCulture),
-            //};
-            TimeToExit = new List<DateTime>();
-            //TimeToExit = new List<DateTime>() //
-            //{
-            //    DateTime.ParseExact("05:03", "HH:mm", CultureInfo.InvariantCulture),
-            //    DateTime.ParseExact("13:48", "HH:mm", CultureInfo.InvariantCulture),
+            //    DateTime.ParseExact("05:00:00", "HH:mm:ss", CultureInfo.InvariantCulture),
+            //    DateTime.ParseExact("13:45:00", "HH:mm:ss", CultureInfo.InvariantCulture),
             //};
 
             QuoteMarkets = new List<int>();

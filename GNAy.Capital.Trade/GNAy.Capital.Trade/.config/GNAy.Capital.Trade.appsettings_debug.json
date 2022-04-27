@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.424.1",
+  "Version": "0.22.426.1",
   "Description": "測試用設定",
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
@@ -19,17 +19,13 @@
   "TimerIntervalUI1": 200,
   "TimerIntervalUI2": 35000,
   "AutoRun": true,
-  "TimeToStart": [
-    "14:58:00",
-    "08:43:00"
+  "MarketStart": [
+    "15:00:00",
+    "08:45:00"
   ],
-  "TimeToClose": [
-    "04:59:30",
-    "13:44:30"
-  ],
-  "TimeToExit": [
-    "05:03:00",
-    "13:48:00"
+  "MarketClose": [
+    "05:00:00",
+    "13:45:00"
   ],
   "QuoteMarkets": [],
   "QuoteRequest": [
@@ -39,16 +35,16 @@
     "UN2206",
     "TX06",
     "MTX06",
+    "TXO16200Q2",
+    "TXO16200E2",
+    "TXO16300Q2",
+    "TXO16300E2",
+    "TXO16400Q2",
+    "TXO16400E2",
     "TXO16500Q2",
     "TXO16500E2",
     "TXO16600Q2",
-    "TXO16600E2",
-    "TXO16700Q2",
-    "TXO16700E2",
-    "TXO16800Q2",
-    "TXO16800E2",
-    "TXO16900Q2",
-    "TXO16900E2"
+    "TXO16600E2"
   ],
   "QuoteLive": [
     "2330",

@@ -91,6 +91,19 @@ namespace GNAy.Capital.Trade
             TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
             StatusBarItemAB2.Text = $"Subscribed={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}";
 
+            StatusBarItemCA4.Text = string.Empty;
+            if (_appCtrl.Config.IsAMMarket(StartTime))
+            {
+                StatusBarItemCA4.Text = $"{_appCtrl.Settings.MarketStart[(int)Market.EDayNight.AM]:MM/dd HH:mm}~{_appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM]:MM/dd HH:mm}";
+            }
+            else if (!_appCtrl.Config.IsHoliday(StartTime))
+            {
+                StatusBarItemCA4.Text = $"{_appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM]:MM/dd HH:mm}~{_appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].AddDays(1):MM/dd HH:mm}";
+            }
+
+            ButtonSetOrderMaxQty.IsEnabled = false;
+            ButtonSetOrderMaxCount.IsEnabled = false;
+
             _appCtrl.LogTrace(StartTime, Title, UniqueName);
         }
 
@@ -797,16 +810,16 @@ namespace GNAy.Capital.Trade
 
                     if (StatusBarItemAA1.IsMouseOver || StatusBarItemBA1.IsMouseOver || StatusBarItemCA1.IsMouseOver) //GridAA.IsMouseOver || GridBA.IsMouseOver || GridCA.IsMouseOver
                     {
-                        if (ColumnDef.Width.Value < Width - 400)
+                        if (ColumnDef.Width.Value < Width - 350)
                         {
-                            ColumnDef.Width = new GridLength(ColumnDef.Width.Value + 100, ColumnDef.Width.GridUnitType);
+                            ColumnDef.Width = new GridLength(ColumnDef.Width.Value + 50, ColumnDef.Width.GridUnitType);
                         }
                     }
                     else if (StatusBarItemAA2.IsMouseOver || StatusBarItemBA2.IsMouseOver || StatusBarItemCA2.IsMouseOver) //GridAB.IsMouseOver || GridBB.IsMouseOver || GridCB.IsMouseOver
                     {
-                        if (ColumnDef.Width.Value > 400)
+                        if (ColumnDef.Width.Value > 350)
                         {
-                            ColumnDef.Width = new GridLength(ColumnDef.Width.Value - 100, ColumnDef.Width.GridUnitType);
+                            ColumnDef.Width = new GridLength(ColumnDef.Width.Value - 50, ColumnDef.Width.GridUnitType);
                         }
                     }
                 }
@@ -878,9 +891,9 @@ namespace GNAy.Capital.Trade
                 StatusBarItemCA2.Text = $"{start:HH:mm:ss}|IsHoliday={_appCtrl.Config.IsHoliday(start)}";
                 ButtonSaveQuotesTest_Click(null, null);
 
-                foreach (DateTime timeToExit in _appCtrl.Settings.TimeToExit)
+                foreach (DateTime timeToClose in _appCtrl.Settings.MarketClose)
                 {
-                    if (start.Hour == timeToExit.Hour && start.Minute >= timeToExit.Minute && start.Minute <= (timeToExit.Minute + 2))
+                    if (start.Hour == timeToClose.Hour && start.Minute >= (timeToClose.Minute + 2) && start.Minute <= (timeToClose.Minute + 4))
                     {
                         _timer1.Stop();
                         Thread.Sleep(3 * 1000);
@@ -931,7 +944,7 @@ namespace GNAy.Capital.Trade
                     Thread.Sleep(2 * 1000);
                     this.InvokeRequired(delegate { ButtonLoginUser_Click(null, null); });
 
-                    Thread.Sleep(2 * 1000);
+                    Thread.Sleep(4 * 1000);
                     SpinWait.SpinUntil(() => _appCtrl.Capital.LoginUserResult == 0 || (_appCtrl.Capital.LoginUserResult >= 600 && _appCtrl.Capital.LoginUserResult <= 699), 1 * 60 * 1000);
                     this.InvokeRequired(delegate
                     {
@@ -939,7 +952,7 @@ namespace GNAy.Capital.Trade
                         ButtonReadCertification_Click(null, null);
                     });
 
-                    Thread.Sleep(2 * 1000);
+                    Thread.Sleep(4 * 1000);
                     SpinWait.SpinUntil(() => _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY, 1 * 60 * 1000);
                     if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
                     {
@@ -949,7 +962,7 @@ namespace GNAy.Capital.Trade
                         return;
                     }
 
-                    Thread.Sleep(2 * 1000);
+                    Thread.Sleep(4 * 1000);
                     this.InvokeRequired(delegate
                     {
                         ButtonIsConnected_Click(null, null);
@@ -959,15 +972,16 @@ namespace GNAy.Capital.Trade
                         ButtonGetOrderAccs_Click(null, null);
                     });
 
-                    Thread.Sleep(2 * 1000);
+                    Thread.Sleep(4 * 1000);
                     SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 8 * 1000);
                     _appCtrl.Capital.GetOpenInterestAsync();
                     _appCtrl.Capital.UnlockOrder();
                     _appCtrl.Capital.SetOrderMaxQty();
                     _appCtrl.Capital.SetOrderMaxCount();
                     _appCtrl.Trigger.RecoverSetting();
+                    _appCtrl.Strategy.RecoverSetting();
 
-                    Thread.Sleep(2 * 1000);
+                    Thread.Sleep(4 * 1000);
                     this.InvokeRequired(delegate { _timer2.Start(); });
                 });
             }
@@ -1483,9 +1497,9 @@ namespace GNAy.Capital.Trade
                 _appCtrl.LogTrace(start, strategy.ToLog(), UniqueName);
                 
                 TextBoxStrategyPrimaryKey.Text = strategy.PrimaryKey;
-                TextBoxStrategyStopLoss.Text = strategy.StopLoss;
-                TextBoxStrategyStopWin.Text = strategy.StopWin;
-                TextBoxStrategyMoveStopWin.Text = strategy.MoveStopWin;
+                TextBoxStrategyStopLoss.Text = strategy.StopLossBefore;
+                TextBoxStrategyStopWin.Text = strategy.StopWinBefore;
+                TextBoxStrategyMoveStopWin.Text = strategy.MoveStopWinBefore;
 
                 ComboBoxOrderAccs.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxOrderAccs.Items.Count; ++i)
@@ -1519,7 +1533,7 @@ namespace GNAy.Capital.Trade
                 ComboBoxOrderTradeType.SelectedIndex = strategy.TradeType;
                 ComboBoxOrderDayTrade.SelectedIndex = strategy.DayTrade;
                 ComboBoxOrderPositionKind.SelectedIndex = strategy.Position;
-                TextBoxOrderPrice.Text = strategy.OrderPrice;
+                TextBoxOrderPrice.Text = strategy.OrderPriceBefore;
                 TextBoxOrderQuantity.Text = $"{strategy.OrderQty}";
             }
             catch (Exception ex)
@@ -1603,11 +1617,11 @@ namespace GNAy.Capital.Trade
                     TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
                     DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
                     Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
-                    OrderPrice = TextBoxOrderPrice.Text,
+                    OrderPriceBefore = TextBoxOrderPrice.Text,
                     OrderQty = int.Parse(TextBoxOrderQuantity.Text),
-                    StopLoss = TextBoxStrategyStopLoss.Text,
-                    StopWinPrice = TextBoxStrategyStopWin.Text,
-                    MoveStopWinPrice = TextBoxStrategyMoveStopWin.Text,
+                    StopLossBefore = TextBoxStrategyStopLoss.Text,
+                    StopWinBefore = TextBoxStrategyStopWin.Text,
+                    MoveStopWinBefore = TextBoxStrategyMoveStopWin.Text,
                     TriggerAfterStopLoss = TextBoxTriggerAfterStopLoss.Text,
                     StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
                     //TODO
@@ -1674,7 +1688,7 @@ namespace GNAy.Capital.Trade
                     TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
                     DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
                     Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
-                    OrderPrice = TextBoxOrderPrice.Text,
+                    OrderPriceBefore = TextBoxOrderPrice.Text,
                     OrderQty = int.Parse(TextBoxOrderQuantity.Text),
                     Updater = nameof(ButtonSendFutureOrder_Click),
                     UpdateTime = DateTime.Now,
@@ -1728,11 +1742,11 @@ namespace GNAy.Capital.Trade
                     TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
                     DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
                     Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
-                    OrderPrice = TextBoxOrderPrice.Text,
+                    OrderPriceBefore = TextBoxOrderPrice.Text,
                     OrderQty = int.Parse(TextBoxOrderQuantity.Text),
-                    StopLoss = TextBoxStrategyStopLoss.Text,
-                    StopWinPrice = TextBoxStrategyStopWin.Text,
-                    MoveStopWinPrice = TextBoxStrategyMoveStopWin.Text,
+                    StopLossBefore = TextBoxStrategyStopLoss.Text,
+                    StopWinBefore = TextBoxStrategyStopWin.Text,
+                    MoveStopWinBefore = TextBoxStrategyMoveStopWin.Text,
                     TriggerAfterStopLoss = TextBoxTriggerAfterStopLoss.Text,
                     StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
                     //TODO

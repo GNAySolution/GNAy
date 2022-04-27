@@ -103,7 +103,7 @@ namespace GNAy.Capital.Models
         public string ColumnProperty => Column.Property.Name;
 
         private decimal _columnValue;
-        [Column("欄位值", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00####}")]
+        [Column("欄位值", CSVStringFormat = "0.00####", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00####}")]
         public decimal ColumnValue
         {
             get { return _columnValue; }
@@ -119,7 +119,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _targetValue;
-        [Column("目標值", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00####}")]
+        [Column("目標值", CSVStringFormat = "0.00####", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00####}")]
         public decimal TargetValue
         {
             get { return _targetValue; }
