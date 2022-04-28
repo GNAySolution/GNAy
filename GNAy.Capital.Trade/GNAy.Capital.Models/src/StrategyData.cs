@@ -415,6 +415,8 @@ namespace GNAy.Capital.Models
 
         public StrategyData CreateOrder()
         {
+            const string methodName = nameof(CreateOrder);
+
             if (Parent != null)
             {
                 throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
@@ -464,7 +466,7 @@ namespace GNAy.Capital.Models
                 OrderPriceBefore = OrderPriceBefore,
                 OrderPriceAfter = OrderPriceAfter,
                 OrderQty = OrderQty,
-                Updater = nameof(CreateOrder),
+                Updater = methodName,
                 UpdateTime = DateTime.Now,
             };
 
@@ -475,6 +477,8 @@ namespace GNAy.Capital.Models
 
         public StrategyData CreateStopLossOrder()
         {
+            const string methodName = nameof(CreateStopLossOrder);
+
             if (Parent != null)
             {
                 throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
@@ -524,7 +528,7 @@ namespace GNAy.Capital.Models
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,
                 OrderQty = OrderQty,
-                Updater = nameof(CreateStopLossOrder),
+                Updater = methodName,
                 UpdateTime = DateTime.Now,
             };
 
@@ -535,6 +539,8 @@ namespace GNAy.Capital.Models
 
         public StrategyData CreateStopWinOrder()
         {
+            const string methodName = nameof(CreateStopWinOrder);
+
             if (Parent != null)
             {
                 throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
@@ -584,7 +590,7 @@ namespace GNAy.Capital.Models
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,
                 OrderQty = Math.Abs(StopWinQty),
-                Updater = nameof(CreateStopWinOrder),
+                Updater = methodName,
                 UpdateTime = DateTime.Now,
             };
 

@@ -69,10 +69,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int ReadCertResult { get; private set; }
 
-        private readonly SortedDictionary<string, OrderAccData> _orderAccMap;
         private readonly ObservableCollection<OrderAccData> _orderAccCollection;
-
-        public int OrderAccCount => _orderAccMap.Count;
+        public int OrderAccCount => _orderAccCollection.Count;
 
         private readonly ObservableCollection<string> _buySell;
         private readonly ObservableCollection<string> _tradeTypes;
@@ -114,7 +112,6 @@ namespace GNAy.Capital.Trade.Controllers
 
             ReadCertResult = -1;
 
-            _orderAccMap = new SortedDictionary<string, OrderAccData>();
             _orderAccCollection = _appCtrl.MainForm.ComboBoxOrderAccs.SetAndGetItemsSource<OrderAccData>();
 
             _buySell = _appCtrl.MainForm.ComboBoxOrderBuySell.SetAndGetItemsSource(OrderBS.Description);
@@ -744,8 +741,6 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            RecoverOpenQuotesFromFile();
-
             Task.Factory.StartNew(() =>
             {
                 DateTime start = _appCtrl.StartTrace();
@@ -753,6 +748,8 @@ namespace GNAy.Capital.Trade.Controllers
                 try
                 {
                     bool isHoliday = _appCtrl.Config.IsHoliday(start);
+
+                    RecoverOpenQuotesFromFile();
 
                     foreach (QuoteData quote in _quoteIndexMap.Values)
                     {
@@ -860,9 +857,9 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
-        public QuoteData GetQuote(string symbol)
+        public OrderAccData GetOrderAcc(string fullAccount)
         {
-            return _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == symbol);
+            return _orderAccCollection.FirstOrDefault(x => x.FullAccount == fullAccount);
         }
 
         public void RequestKLine(string product = "")
@@ -1025,13 +1022,12 @@ namespace GNAy.Capital.Trade.Controllers
             return ReadCertResult;
         }
 
-        public void GetGetOrderAccs()
+        public void GetOrderAccs()
         {
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                _orderAccMap.Clear();
                 _orderAccCollection.Clear();
 
                 int m_nCode = m_pSKOrder.GetUserAccount(); //取回目前可交易的所有帳號。資料由OnAccount事件回傳
@@ -1049,6 +1045,11 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _appCtrl.EndTrace(start, UniqueName);
             }
+        }
+
+        public QuoteData GetQuote(string symbol)
+        {
+            return _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == symbol);
         }
 
         public void UnlockOrder(int marketType = -1)
@@ -1218,6 +1219,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void SendFutureOrder(StrategyData order)
         {
+            const string methodName = nameof(SendFutureOrder);
+
             DateTime start = _appCtrl.StartTrace($"{order?.ToLog()}", UniqueName);
 
             try
@@ -1276,7 +1279,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 order.StatusEnum = m_nCode == 0 ? StrategyStatus.Enum.OrderReport : StrategyStatus.Enum.OrderError;
                 order.OrderReport = orderMsg;
-                order.Updater = nameof(SendFutureOrder);
+                order.Updater = methodName;
                 order.UpdateTime = DateTime.Now;
 
                 if (!_appCtrl.Settings.SendRealOrder)
@@ -1285,7 +1288,7 @@ namespace GNAy.Capital.Trade.Controllers
                     order.DealPrice = order.OrderPriceAfter;
                     order.DealQty = order.OrderQty;
                     order.DealReport = order.OrderReport;
-                    order.Updater = nameof(SendFutureOrder);
+                    order.Updater = methodName;
                     order.UpdateTime = DateTime.Now;
 
                     if (order.Parent != null)
@@ -1306,7 +1309,7 @@ namespace GNAy.Capital.Trade.Controllers
                                 break;
                         }
 
-                        order.Parent.Updater = nameof(SendFutureOrder);
+                        order.Parent.Updater = methodName;
                         order.Parent.UpdateTime = DateTime.Now;
                     }
                 }
@@ -1318,7 +1321,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 order.StatusEnum = StrategyStatus.Enum.OrderError;
                 order.OrderReport = ex.Message;
-                order.Updater = nameof(SendFutureOrder);
+                order.Updater = methodName;
                 order.UpdateTime = DateTime.Now;
             }
             finally
@@ -1341,7 +1344,7 @@ namespace GNAy.Capital.Trade.Controllers
                             break;
                     }
 
-                    order.Parent.Updater = nameof(SendFutureOrder);
+                    order.Parent.Updater = methodName;
                     order.Parent.UpdateTime = DateTime.Now;
                 }
 

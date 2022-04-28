@@ -458,6 +458,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private bool UpdateStatus(StrategyData strategy, QuoteData quote, DateTime start)
         {
+            const string methodName = nameof(UpdateStatus);
+
             bool saveData = false;
 
             lock (strategy.SyncRoot)
@@ -481,7 +483,7 @@ namespace GNAy.Capital.Trade.Controllers
                 else
                 {
                     strategy.MarketPrice = quote.DealPrice;
-                    strategy.Updater = nameof(UpdateStatus);
+                    strategy.Updater = methodName;
                     strategy.UpdateTime = DateTime.Now;
                 }
 
@@ -900,6 +902,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void StartFutureStartegy(StrategyData strategy)
         {
+            const string methodName = nameof(StartFutureStartegy);
+
             DateTime start = _appCtrl.StartTrace($"{strategy?.ToLog()}", UniqueName);
 
             try
@@ -917,7 +921,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 strategy.StatusEnum = StrategyStatus.Enum.OrderError;
                 strategy.OrderReport = ex.Message;
-                strategy.Updater = nameof(StartFutureStartegy);
+                strategy.Updater = methodName;
                 strategy.UpdateTime = DateTime.Now;
             }
             finally
@@ -933,6 +937,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void RecoverSetting(FileInfo file = null)
         {
+            const string methodName = nameof(RecoverSetting);
+
             DateTime start = _appCtrl.StartTrace($"{file?.FullName}", UniqueName);
 
             try
@@ -961,47 +967,25 @@ namespace GNAy.Capital.Trade.Controllers
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;
 
-                foreach (StrategyData strategy in StrategyData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
+                foreach (StrategyData data in StrategyData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
                 {
                     try
                     {
+                        StrategyData strategy = data.Trim();
+
                         if (string.IsNullOrWhiteSpace(strategy.PrimaryKey))
                         {
                             continue;
                         }
 
-                        //QuoteData quote = _appCtrl.Capital.GetQuote(strategy.Symbol);
+                        strategy.StatusEnum = StrategyStatus.Enum.Waiting;
+                        strategy.Quote = _appCtrl.Capital.GetQuote(strategy.Symbol);
+                        strategy.Comment = string.Empty;
 
-                        //if (quote == null)
-                        //{
-                        //    continue;
-                        //}
+                        OrderAccData acc = _appCtrl.Capital.GetOrderAcc(strategy.FullAccount);
+                        strategy.MarketType = acc.MarketType;
 
-                        //strategy.StatusEnum = StrategyStatus.Enum.Waiting;
-                        //strategy.Quote = quote;
-                        //strategy.ColumnValue = 0;
-                        //strategy.Comment = string.Empty;
-
-                        //string startTime = strategy.StartTime.HasValue ? strategy.StartTime.Value.ToString("HHmmss") : string.Empty;
-                        //string endTime = strategy.EndTime.HasValue ? strategy.EndTime.Value.ToString("HHmmss") : string.Empty;
-                        //(bool, DateTime?, DateTime?) parseResult = TimeParse(quote, startTime, endTime);
-
-                        //if (!parseResult.Item1)
-                        //{
-                        //    continue;
-                        //}
-
-                        //strategy.StartTime = parseResult.Item2;
-                        //strategy.EndTime = parseResult.Item3;
-
-                        //if ((!strategy.StartTime.HasValue || strategy.StartTime.Value <= DateTime.Now) && !_appCtrl.Config.StartOnTime)
-                        //{
-                        //    strategy.StatusEnum = StrategyStatus.Enum.Cancelled;
-                        //    strategy.Comment = "程式沒有在正常時間啟動，不執行此監控";
-                        //    _appCtrl.LogError(start, strategy.ToLog(), UniqueName);
-                        //}
-
-                        strategy.Updater = nameof(RecoverSetting);
+                        strategy.Updater = methodName;
                         strategy.UpdateTime = DateTime.Now;
 
                         if (decimal.TryParse(strategy.PrimaryKey, out decimal _pk) && _pk > nextPK)
@@ -1009,7 +993,7 @@ namespace GNAy.Capital.Trade.Controllers
                             nextPK = _pk + 1;
                         }
 
-                        _waitToAdd.Enqueue(strategy);
+                        AddRule(strategy);
                     }
                     catch (Exception ex)
                     {

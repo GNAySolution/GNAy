@@ -178,6 +178,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private bool UpdateStatus(TriggerData trigger, QuoteData quote, DateTime start)
         {
+            const string methodName = nameof(UpdateStatus);
+
             bool saveData = false;
 
             lock (trigger.SyncRoot)
@@ -202,7 +204,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                     trigger.Comment = "觸價逾時，監控取消";
-                    trigger.Updater = nameof(UpdateStatus);
+                    trigger.Updater = methodName;
                     trigger.UpdateTime = DateTime.Now;
                     _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                     saveData = true;
@@ -237,7 +239,7 @@ namespace GNAy.Capital.Trade.Controllers
                     trigger.ColumnValue = (decimal)valueObj;
                 }
 
-                trigger.Updater = nameof(UpdateStatus);
+                trigger.Updater = methodName;
                 trigger.UpdateTime = DateTime.Now;
 
                 if (trigger.Rule == Definition.IsGreaterThanOrEqualTo)
@@ -291,6 +293,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void CancelSameSymbolSameColumn(TriggerData executed, DateTime start)
         {
+            const string methodName = nameof(CancelSameSymbolSameColumn);
+
             foreach (TriggerData trigger in _triggerMap.Values)
             {
                 lock (trigger.SyncRoot)
@@ -302,7 +306,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                     trigger.Comment = executed.ToLog();
-                    trigger.Updater = nameof(CancelSameSymbolSameColumn);
+                    trigger.Updater = methodName;
                     trigger.UpdateTime = DateTime.Now;
                     _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                 }
@@ -311,6 +315,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void CancelSameSymbolAllColumns(TriggerData executed, DateTime start)
         {
+            const string methodName = nameof(CancelSameSymbolAllColumns);
+
             foreach (TriggerData trigger in _triggerMap.Values)
             {
                 lock (trigger.SyncRoot)
@@ -322,7 +328,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                     trigger.Comment = executed.ToLog();
-                    trigger.Updater = nameof(CancelSameSymbolAllColumns);
+                    trigger.Updater = methodName;
                     trigger.UpdateTime = DateTime.Now;
                     _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                 }
@@ -331,6 +337,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void CancelAllSymbolsSameColumn(TriggerData executed, DateTime start)
         {
+            const string methodName = nameof(CancelAllSymbolsSameColumn);
+
             foreach (TriggerData trigger in _triggerMap.Values)
             {
                 lock (trigger.SyncRoot)
@@ -342,7 +350,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                     trigger.Comment = executed.ToLog();
-                    trigger.Updater = nameof(CancelAllSymbolsSameColumn);
+                    trigger.Updater = methodName;
                     trigger.UpdateTime = DateTime.Now;
                     _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                 }
@@ -351,6 +359,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void CancelAllSymbolsAllColumns(TriggerData executed, DateTime start)
         {
+            const string methodName = nameof(CancelAllSymbolsAllColumns);
+
             foreach (TriggerData trigger in _triggerMap.Values)
             {
                 lock (trigger.SyncRoot)
@@ -362,7 +372,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                     trigger.Comment = executed.ToLog();
-                    trigger.Updater = nameof(CancelAllSymbolsAllColumns);
+                    trigger.Updater = methodName;
                     trigger.UpdateTime = DateTime.Now;
                     _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
                 }
@@ -679,6 +689,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void AddRule()
         {
+            const string methodName = nameof(AddRule);
+
             DateTime start = _appCtrl.StartTrace();
 
             try
@@ -769,8 +781,6 @@ namespace GNAy.Capital.Trade.Controllers
 
                 TriggerData trigger = new TriggerData((TradeColumnTrigger)_appCtrl.MainForm.ComboBoxTriggerColumn.SelectedItem)
                 {
-                    Updater = nameof(AddRule),
-                    UpdateTime = DateTime.Now,
                     PrimaryKey = primaryKey,
                     Quote = selectedQuote,
                     Symbol = selectedQuote.Symbol,
@@ -781,6 +791,8 @@ namespace GNAy.Capital.Trade.Controllers
                     StrategyAND = _appCtrl.MainForm.TextBoxTriggerStrategyAND.Text.Replace(" ", string.Empty),
                     StartTime = parseResult.Item2,
                     EndTime = parseResult.Item3,
+                    Updater = methodName,
+                    UpdateTime = DateTime.Now,
                 };
 
                 _waitToAdd.Enqueue(trigger);
@@ -797,6 +809,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void RecoverSetting(FileInfo file = null)
         {
+            const string methodName = nameof(RecoverSetting);
+
             DateTime start = _appCtrl.StartTrace($"{file?.FullName}", UniqueName);
 
             try
@@ -872,7 +886,7 @@ namespace GNAy.Capital.Trade.Controllers
                             _appCtrl.LogError(start, trigger.ToLog(), UniqueName);
                         }
 
-                        trigger.Updater = nameof(RecoverSetting);
+                        trigger.Updater = methodName;
                         trigger.UpdateTime = DateTime.Now;
 
                         if (decimal.TryParse(trigger.PrimaryKey, out decimal _pk) && _pk > nextPK)

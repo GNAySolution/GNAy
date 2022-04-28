@@ -53,9 +53,9 @@ namespace GNAy.Capital.Trade.Controllers
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 
-            Process p = Process.GetCurrentProcess();
-            ProcessName = p.ProcessName.Replace(".vshost", string.Empty);
-            ProcessID = p.Id;
+            Process ps = Process.GetCurrentProcess();
+            ProcessName = ps.ProcessName.Replace(".vshost", string.Empty);
+            ProcessID = ps.Id;
 
             mainForm.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _appLogCollection = mainForm.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
@@ -74,7 +74,7 @@ namespace GNAy.Capital.Trade.Controllers
                 Settings.TriggerFileFormat = newSetting.TriggerFileFormat;
             }
 
-            p.PriorityClass = ProcessPriorityClass.High;
+            ps.PriorityClass = (ProcessPriorityClass)Settings.ProcessPriority;
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;

@@ -40,7 +40,6 @@ namespace GNAy.Capital.Trade.Controllers
                     if (Market.CodeMap.TryGetValue(cells[0], out Market.EType marketType))
                     {
                         acc.MarketType = marketType;
-                        _orderAccMap.Add(acc.Key, acc);
                         _orderAccCollection.Add(acc);
                         _appCtrl.MainForm.ComboBoxOrderAccs.SelectedIndex = 0;
                     }

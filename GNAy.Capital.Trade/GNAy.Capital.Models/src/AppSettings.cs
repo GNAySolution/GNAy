@@ -16,6 +16,7 @@ namespace GNAy.Capital.Models
         public string Version { get; set; }
         public string Description { get; set; }
 
+        public int ProcessPriority { get; set; }
         public int Big5EncodingCodePage { get; set; }
 
         public string HolidayFilePath { get; set; }
@@ -129,9 +130,10 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.426.1";
+            Version = "0.22.427.1";
             Description = "測試用設定";
 
+            ProcessPriority = 0x80; //ProcessPriorityClass.High
             Big5EncodingCodePage = 950; //"big5"
 
             HolidayFilePath = "holidaySchedule_{yyy}.csv";
@@ -150,13 +152,13 @@ namespace GNAy.Capital.Models
 
             AutoRun = true;
             MarketStart = new List<DateTime>();
-            //TimeToStart = new List<DateTime>() //
+            //MarketStart = new List<DateTime>() //
             //{
             //    DateTime.ParseExact("15:00", "HH:mm", CultureInfo.InvariantCulture),
             //    DateTime.ParseExact("08:45", "HH:mm", CultureInfo.InvariantCulture),
             //};
             MarketClose = new List<DateTime>();
-            //TimeToClose = new List<DateTime>() //
+            //MarketClose = new List<DateTime>() //
             //{
             //    DateTime.ParseExact("05:00:00", "HH:mm:ss", CultureInfo.InvariantCulture),
             //    DateTime.ParseExact("13:45:00", "HH:mm:ss", CultureInfo.InvariantCulture),
@@ -165,7 +167,7 @@ namespace GNAy.Capital.Models
             QuoteMarkets = new List<int>();
             //QuoteMarkets = new List<int>() { (int)Market.EGroup.TSE, (int)Market.EGroup.OTC, (int)Market.EGroup.Futures, (int)Market.EGroup.Emerging }; //
             QuoteRequest = new List<string>();
-            //QuoteRequest = new List<string>() { "TSEA", "0050", "00632R", "UN2206", "TX06", "MTX06", TXO16500Q2, TXO16500E2, TXO16600Q2, TXO16600E2, TXO16700Q2, TXO16700E2, TXO16800Q2, TXO16800E2, TXO16900Q2, TXO16900E2 }; //
+            //QuoteRequest = new List<string>() { "TSEA", "0050", "00632R", "UN2206", "TX06", "MTX06", "TXO16500Q2", "TXO16500E2", "TXO16600Q2", "TXO16600E2", "TXO16700Q2", "TXO16700E2", "TXO16800Q2", "TXO16800E2", "TXO16900Q2", "TXO16900E2" }; //
             QuoteLive = new List<string>();
             //QuoteLive = new List<string>() { "2330", "UD06", "TX05", "MTX05" }; //
 

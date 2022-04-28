@@ -45,7 +45,6 @@ namespace GNAy.Capital.Models
         [Column("姓名")]
         public string MemberName { get; set; }
 
-        public string Key => $"{MarketType},{Account}";
         public string FullAccount => $"{Branch}{Account}";
         public string DisplayName => $"{Account},{MarketName},{Identity}";
         public string ToolTip => ToString();

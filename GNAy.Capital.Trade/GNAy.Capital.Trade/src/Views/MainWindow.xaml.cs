@@ -94,11 +94,11 @@ namespace GNAy.Capital.Trade
             StatusBarItemCA4.Text = string.Empty;
             if (_appCtrl.Config.IsAMMarket(StartTime))
             {
-                StatusBarItemCA4.Text = $"{_appCtrl.Settings.MarketStart[(int)Market.EDayNight.AM]:MM/dd HH:mm}~{_appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM]:MM/dd HH:mm}";
+                StatusBarItemCA4.Text = $"{_appCtrl.Settings.MarketStart[(int)Market.EDayNight.AM]:MM/dd HH:mm} ~ {_appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM]:MM/dd HH:mm}";
             }
             else if (!_appCtrl.Config.IsHoliday(StartTime))
             {
-                StatusBarItemCA4.Text = $"{_appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM]:MM/dd HH:mm}~{_appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].AddDays(1):MM/dd HH:mm}";
+                StatusBarItemCA4.Text = $"{_appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM]:MM/dd HH:mm} ~ {_appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].AddDays(1):MM/dd HH:mm}";
             }
 
             ButtonSetOrderMaxQty.IsEnabled = false;
@@ -109,11 +109,13 @@ namespace GNAy.Capital.Trade
 
         private void Window_Activated(object sender, EventArgs e)
         {
+            const string methodName = nameof(Window_Activated);
+
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                StatusBarItemAA4.Text = nameof(Window_Activated);
+                StatusBarItemAA4.Text = methodName;
             }
             catch (Exception ex)
             {
@@ -139,11 +141,13 @@ namespace GNAy.Capital.Trade
 
         private void Window_Deactivated(object sender, EventArgs e)
         {
+            const string methodName = nameof(Window_Deactivated);
+
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                StatusBarItemAA4.Text = nameof(Window_Deactivated);
+                StatusBarItemAA4.Text = methodName;
             }
             catch (Exception ex)
             {
@@ -981,7 +985,7 @@ namespace GNAy.Capital.Trade
                     _appCtrl.Trigger.RecoverSetting();
                     _appCtrl.Strategy.RecoverSetting();
 
-                    Thread.Sleep(4 * 1000);
+                    Thread.Sleep(2 * 1000);
                     this.InvokeRequired(delegate { _timer2.Start(); });
                 });
             }
@@ -1232,7 +1236,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.GetGetOrderAccs();
+                _appCtrl.Capital.GetOrderAccs();
             }
             catch (Exception ex)
             {
@@ -1592,6 +1596,8 @@ namespace GNAy.Capital.Trade
 
         private void ButtonSaveStrategyRule_Click(object sender, RoutedEventArgs e)
         {
+            const string methodName = nameof(ButtonSaveStrategyRule_Click);
+
             DateTime start = _appCtrl.StartTrace();
 
             try
@@ -1625,7 +1631,7 @@ namespace GNAy.Capital.Trade
                     TriggerAfterStopLoss = TextBoxTriggerAfterStopLoss.Text,
                     StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
                     //TODO
-                    Updater = nameof(ButtonStartFutureStartegyNow_Click),
+                    Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
 
@@ -1672,6 +1678,8 @@ namespace GNAy.Capital.Trade
 
         private void ButtonSendFutureOrder_Click(object sender, RoutedEventArgs e)
         {
+            const string methodName = nameof(ButtonSendFutureOrder_Click);
+
             DateTime start = _appCtrl.StartTrace();
 
             try
@@ -1690,7 +1698,7 @@ namespace GNAy.Capital.Trade
                     Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
                     OrderPriceBefore = TextBoxOrderPrice.Text,
                     OrderQty = int.Parse(TextBoxOrderQuantity.Text),
-                    Updater = nameof(ButtonSendFutureOrder_Click),
+                    Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
 
@@ -1708,6 +1716,8 @@ namespace GNAy.Capital.Trade
 
         private void ButtonStartFutureStartegyNow_Click(object sender, RoutedEventArgs e)
         {
+            const string methodName = nameof(ButtonStartFutureStartegyNow_Click);
+
             DateTime start = _appCtrl.StartTrace();
 
             try
@@ -1750,7 +1760,7 @@ namespace GNAy.Capital.Trade
                     TriggerAfterStopLoss = TextBoxTriggerAfterStopLoss.Text,
                     StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
                     //TODO
-                    Updater = nameof(ButtonStartFutureStartegyNow_Click),
+                    Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
 

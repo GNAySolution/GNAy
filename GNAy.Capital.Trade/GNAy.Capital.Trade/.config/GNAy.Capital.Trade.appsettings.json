@@ -1,6 +1,7 @@
 {
-  "Version": "0.22.426.1",
+  "Version": "0.22.427.1",
   "Description": "測試用設定",
+  "ProcessPriority": 128,
   "Big5EncodingCodePage": 950,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
   "HolidayFileKeywords1": [
@@ -65,5 +66,5 @@
   "StrategyFileFormat": "MMdd_HHmm",
   "SentOrderFolderPath": "SentOrder",
   "SentOrderFileFormat": "yyMMdd_HHmmss_ffffff",
-  "SendRealOrder": true
+  "SendRealOrder": false
 }
