@@ -783,6 +783,8 @@
                                     <DataGridTextColumn Binding="{Binding DealReport}"/>
                                     <DataGridTextColumn Binding="{Binding TriggerAfterStopLoss}"/>
                                     <DataGridTextColumn Binding="{Binding StrategyAfterStopLoss}"/>
+                                    <DataGridTextColumn Binding="{Binding TriggerAfterStopWin}"/>
+                                    <DataGridTextColumn Binding="{Binding StrategyAfterStopWin}"/>
 
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
                                 </DataGrid.Columns>
@@ -997,6 +999,8 @@
                                     <DataGridTextColumn Binding="{Binding DealReport}"/>
                                     <DataGridTextColumn Binding="{Binding TriggerAfterStopLoss}"/>
                                     <DataGridTextColumn Binding="{Binding StrategyAfterStopLoss}"/>
+                                    <DataGridTextColumn Binding="{Binding TriggerAfterStopWin}"/>
+                                    <DataGridTextColumn Binding="{Binding StrategyAfterStopWin}"/>
 
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
                                 </DataGrid.Columns>

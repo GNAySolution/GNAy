@@ -428,7 +428,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void StartAfterStop(StrategyData data, DateTime start)
+        private void AfterStopLoss(StrategyData data, DateTime start)
         {
             if (!string.IsNullOrWhiteSpace(data.TriggerAfterStopLoss))
             {
@@ -443,6 +443,38 @@ namespace GNAy.Capital.Trade.Controllers
             if (!string.IsNullOrWhiteSpace(data.StrategyAfterStopLoss))
             {
                 HashSet<string> strategise = new HashSet<string>(data.StrategyAfterStopLoss.Split(','));
+
+                foreach (string primary in strategise)
+                {
+                    StartStrategy(data, primary, start);
+                }
+            }
+        }
+
+        private void AfterStopWin(StrategyData data, DateTime start)
+        {
+            if (string.IsNullOrWhiteSpace(data.MoveStopWinBefore))
+            { }
+            else if (!decimal.TryParse(data.MoveStopWinBefore, out decimal offset) || offset == 0)
+            { }
+            else
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.TriggerAfterStopWin))
+            {
+                HashSet<string> triggers = new HashSet<string>(data.TriggerAfterStopWin.Split(','));
+
+                foreach (string primary in triggers)
+                {
+                    StartTrigger(data, primary, start);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.StrategyAfterStopWin))
+            {
+                HashSet<string> strategise = new HashSet<string>(data.StrategyAfterStopWin.Split(','));
 
                 foreach (string primary in strategise)
                 {
@@ -484,6 +516,10 @@ namespace GNAy.Capital.Trade.Controllers
                     strategy.StatusEnum = StrategyStatus.Enum.Finished;
                     return saveData;
                 }
+                else if (strategy.MoveStopWinData != null)
+                {
+                    return saveData;
+                }
                 else
                 {
                     strategy.MarketPrice = quote.DealPrice;
@@ -510,7 +546,7 @@ namespace GNAy.Capital.Trade.Controllers
                             _appCtrl.Capital.SendFutureOrderAsync(stopLossOrder);
 
                             saveData = true;
-                            StartAfterStop(strategy, start);
+                            AfterStopLoss(strategy, start);
                         }
                         else if (quote.DealPrice >= strategy.StopWinPrice && strategy.StopWinQty <= 0)
                         {
@@ -528,7 +564,7 @@ namespace GNAy.Capital.Trade.Controllers
                             }
 
                             saveData = true;
-                            //TODO: StartAfterWin
+                            AfterStopWin(strategy, start);
                         }
                     }
                     else if (strategy.BSEnum == OrderBS.Enum.Sell)
@@ -546,7 +582,7 @@ namespace GNAy.Capital.Trade.Controllers
                             _appCtrl.Capital.SendFutureOrderAsync(stopLossOrder);
 
                             saveData = true;
-                            StartAfterStop(strategy, start);
+                            AfterStopLoss(strategy, start);
                         }
                         else if (quote.DealPrice <= strategy.StopWinPrice && strategy.StopWinQty <= 0)
                         {
@@ -564,7 +600,7 @@ namespace GNAy.Capital.Trade.Controllers
                             }
 
                             saveData = true;
-                            //TODO: StartAfterWin
+                            AfterStopWin(strategy, start);
                         }
                     }
                 }

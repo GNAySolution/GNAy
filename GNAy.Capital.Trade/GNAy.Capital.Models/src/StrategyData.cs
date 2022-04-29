@@ -339,10 +339,26 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _strategyAfterStopLoss, value); }
         }
 
+        private string _triggerAfterStopWin;
+        [Column("停利後接續執行觸價", "停利後觸價", WPFDisplayIndex = 28)]
+        public string TriggerAfterStopWin
+        {
+            get { return _triggerAfterStopWin; }
+            set { OnPropertyChanged(ref _triggerAfterStopWin, value); }
+        }
+
+        private string _strategyAfterStopWin;
+        [Column("停利後接續執行策略", "停利後策略", WPFDisplayIndex = 29)]
+        public string StrategyAfterStopWin
+        {
+            get { return _strategyAfterStopWin; }
+            set { OnPropertyChanged(ref _strategyAfterStopWin, value); }
+        }
+
         //
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 28)]
+        [Column("註解", WPFDisplayIndex = 30)]
         public string Comment
         {
             get { return _comment; }
@@ -390,6 +406,8 @@ namespace GNAy.Capital.Models
             DealReport = string.Empty;
             TriggerAfterStopLoss = string.Empty;
             StrategyAfterStopLoss = string.Empty;
+            TriggerAfterStopWin = string.Empty;
+            StrategyAfterStopWin = string.Empty;
             //
             Comment = string.Empty;
         }
@@ -408,6 +426,8 @@ namespace GNAy.Capital.Models
             DealReport = DealReport.Replace(" ", string.Empty);
             TriggerAfterStopLoss = TriggerAfterStopLoss.Replace(" ", string.Empty);
             StrategyAfterStopLoss = StrategyAfterStopLoss.Replace(" ", string.Empty);
+            TriggerAfterStopWin = TriggerAfterStopWin.Replace(" ", string.Empty);
+            StrategyAfterStopWin = StrategyAfterStopWin.Replace(" ", string.Empty);
             Comment = Comment.Replace(" ", string.Empty);
 
             return this;
