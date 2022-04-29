@@ -208,9 +208,21 @@ namespace GNAy.Capital.Models
         private TriggerData() : this(null, null)
         { }
 
+        public TriggerData Trim()
+        {
+            PrimaryKey = PrimaryKey.Replace(" ", string.Empty);
+            Symbol = Symbol.Replace(" ", string.Empty);
+            Rule = Rule.Replace(" ", string.Empty);
+            StrategyOR = StrategyOR.Replace(" ", string.Empty);
+            StrategyAND = StrategyAND.Replace(" ", string.Empty);
+            Comment = Comment.Replace(" ", string.Empty);
+
+            return this;
+        }
+
         public string ToLog()
         {
-            return $"{StatusDes},{PrimaryKey},{ColumnProperty}({ColumnName}),{CancelDes},{Comment}";
+            return $"{StatusDes},{PrimaryKey},{Symbol},{ColumnProperty}({ColumnName}),{CancelDes},{Comment}";
         }
 
         public string ToCSVString()

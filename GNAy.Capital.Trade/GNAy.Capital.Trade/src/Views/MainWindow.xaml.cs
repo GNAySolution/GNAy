@@ -1355,6 +1355,8 @@ namespace GNAy.Capital.Trade
 
         private void ButtonSaveTriggerRule_Click(object sender, RoutedEventArgs e)
         {
+            const string methodName = nameof(ButtonSaveTriggerRule_Click);
+
             DateTime start = _appCtrl.StartTrace();
 
             try
@@ -1367,7 +1369,22 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                _appCtrl.Trigger.AddRule();
+                QuoteData selectedQuote = (QuoteData)ComboBoxTriggerProduct.SelectedItem;
+
+                TriggerData trigger = new TriggerData((TradeColumnTrigger)ComboBoxTriggerColumn.SelectedItem)
+                {
+                    PrimaryKey = TextBoxTriggerPrimaryKey.Text,
+                    Quote = selectedQuote,
+                    Symbol = selectedQuote.Symbol,
+                    Rule = TextBoxTriggerRuleValue.Text,
+                    Cancel = ComboBoxTriggerCancel.SelectedIndex,
+                    StrategyOR = TextBoxTriggerStrategyOR.Text,
+                    StrategyAND = TextBoxTriggerStrategyAND.Text,
+                    Updater = methodName,
+                    UpdateTime = DateTime.Now,
+                };
+
+                _appCtrl.Trigger.AddRule(trigger, TextBoxTriggerTimeDuration.Text);
 
                 string primaryKey = TextBoxTriggerPrimaryKey.Text.Replace(" ", string.Empty);
 
@@ -1395,7 +1412,7 @@ namespace GNAy.Capital.Trade
 
                         if (_appCtrl.Trigger[$"{pk}"] == null)
                         {
-                            _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{pk}";
+                            TextBoxTriggerPrimaryKey.Text = $"{pk}";
                         }
                     });
                 });
@@ -1661,7 +1678,7 @@ namespace GNAy.Capital.Trade
 
                         if (_appCtrl.Strategy[$"{pk}"] == null)
                         {
-                            _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
+                            TextBoxStrategyPrimaryKey.Text = $"{pk}";
                         }
                     });
                 });
@@ -1790,7 +1807,7 @@ namespace GNAy.Capital.Trade
 
                         if (_appCtrl.Strategy[$"{pk}"] == null)
                         {
-                            _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{pk}";
+                            TextBoxStrategyPrimaryKey.Text = $"{pk}";
                         }
                     });
                 });

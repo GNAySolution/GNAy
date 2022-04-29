@@ -600,8 +600,8 @@ namespace GNAy.Capital.Models
         }
 
         public string ToLog()
-        {//TODO
-            return $"{StatusDes},{PrimaryKey},,{Comment}";
+        {
+            return $"{StatusDes},{PrimaryKey},{MarketType},{Account},{Symbol},{BSEnum},{PositionEnum},{OrderPriceBefore},{OrderPriceAfter:0.00},{OrderQty},{Comment}";
         }
 
         public string ToCSVString()

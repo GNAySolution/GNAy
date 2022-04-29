@@ -180,11 +180,6 @@ namespace GNAy.Capital.Trade.Controllers
             qGroup = strategy.Quote.MarketGroupEnum;
             MarketCheck(strategy, qGroup);
 
-            if (strategy.Quote.Simulate.IsSimulating())
-            {
-                throw new ArgumentException($"strategy.Quote.Simulate.IsSimulating()|{strategy.ToLog()}");
-            }
-
             (string, decimal) orderPriceAfter = OrderPrice.Parse(strategy.OrderPriceBefore, strategy.Quote.DealPrice, strategy.Quote.Reference, qGroup);
 
             if (readyToSend)
@@ -476,10 +471,19 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled ||
-                    strategy.StatusEnum == StrategyStatus.Enum.Finished ||
-                    strategy.StatusEnum == StrategyStatus.Enum.OrderError)
-                { }
+                else if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled || strategy.StatusEnum == StrategyStatus.Enum.Finished || strategy.StatusEnum == StrategyStatus.Enum.OrderError)
+                {
+                    return saveData;
+                }
+                else if (strategy.StopLossData != null)
+                {
+                    return saveData;
+                }
+                else if (strategy.StopWinData != null && strategy.StopWinData.DealQty == strategy.OrderQty)
+                {
+                    strategy.StatusEnum = StrategyStatus.Enum.Finished;
+                    return saveData;
+                }
                 else
                 {
                     strategy.MarketPrice = quote.DealPrice;
@@ -622,6 +626,8 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else if (strategy.StatusEnum == StrategyStatus.Enum.Finished ||
                         strategy.StatusEnum == StrategyStatus.Enum.OrderError ||
+                        strategy.StatusEnum == StrategyStatus.Enum.StopLossSent ||
+                        strategy.StatusEnum == StrategyStatus.Enum.StopLossOrderReport ||
                         strategy.StatusEnum == StrategyStatus.Enum.StopLossDealReport ||
                         strategy.StatusEnum == StrategyStatus.Enum.StopLossError ||
                         strategy.StatusEnum == StrategyStatus.Enum.StopWinError ||
@@ -808,7 +814,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (_appCtrl.Config.StrategyFolder == null)
             {
-                throw new ArgumentException($"未設定策略資料夾(Settings.StrategyFolderPath)，無法建立策略|{strategy.ToLog()}");
+                throw new ArgumentNullException($"未設定策略資料夾(Settings.StrategyFolderPath)，無法建立策略|{strategy.ToLog()}");
             }
             else if (string.IsNullOrWhiteSpace(strategy.PrimaryKey))
             {
@@ -978,13 +984,14 @@ namespace GNAy.Capital.Trade.Controllers
                             continue;
                         }
 
+                        //TODO
                         strategy.StatusEnum = StrategyStatus.Enum.Waiting;
+                        strategy.MarketType = _appCtrl.Capital.GetOrderAcc(strategy.FullAccount).MarketType;
                         strategy.Quote = _appCtrl.Capital.GetQuote(strategy.Symbol);
+                        strategy.StopLossAfter = 0;
+                        strategy.StopWinPrice = 0;
+                        strategy.MoveStopWinPrice = 0;
                         strategy.Comment = string.Empty;
-
-                        OrderAccData acc = _appCtrl.Capital.GetOrderAcc(strategy.FullAccount);
-                        strategy.MarketType = acc.MarketType;
-
                         strategy.Updater = methodName;
                         strategy.UpdateTime = DateTime.Now;
 

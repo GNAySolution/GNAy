@@ -599,7 +599,7 @@ namespace GNAy.Capital.Trade.Controllers
             return time;
         }
 
-        private (bool, DateTime?, DateTime?) TimeParse(QuoteData quote, params string[] times)
+        private (bool, DateTime?, DateTime?) TimeParse(QuoteData quote, DateTime start, params string[] times)
         {
             try
             {
@@ -616,7 +616,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else
                     {
-                        _appCtrl.LogError($"開始時間錯誤，無法解析({times[0]})", UniqueName);
+                        _appCtrl.LogError(start, $"開始時間錯誤，無法解析({times[0]})", UniqueName);
                         return (false, null, null);
                     }
                 }
@@ -631,39 +631,39 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else
                     {
-                        _appCtrl.LogError($"結束時間錯誤，無法解析({times[1]})", UniqueName);
+                        _appCtrl.LogError(start, $"結束時間錯誤，無法解析({times[1]})", UniqueName);
                         return (false, null, null);
                     }
                 }
 
                 if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && quote.MarketGroupEnum != Market.EGroup.Futures && quote.MarketGroupEnum != Market.EGroup.Option)
                 {
-                    _appCtrl.LogError($"非期貨選擇權，結束時間({times[1]})不可小於開始時間({times[0]})", UniqueName);
+                    _appCtrl.LogError(start, $"非期貨選擇權，結束時間({times[1]})不可小於開始時間({times[0]})", UniqueName);
                     return (false, null, null);
                 }
                 else if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && endTime.Value.Hour >= 5)
                 {
-                    _appCtrl.LogError($"結束時間({times[1]})不可大於等於凌晨5點", UniqueName);
+                    _appCtrl.LogError(start, $"結束時間({times[1]})不可大於等於凌晨5點", UniqueName);
                     return (false, null, null);
                 }
 
                 if (startTime.HasValue && startTime.Value < DateTime.Now && startTime.Value.Hour < 5 && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option))
                 {
                     startTime = startTime.Value.AddDays(1);
-                    _appCtrl.LogTrace($"期貨選擇權，開始時間跨日，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}", UniqueName);
+                    _appCtrl.LogTrace(start, $"期貨選擇權，開始時間跨日，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}", UniqueName);
                 }
 
                 if (endTime.HasValue && endTime.Value < DateTime.Now && endTime.Value.Hour < 5 && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option))
                 {
                     endTime = endTime.Value.AddDays(1);
-                    _appCtrl.LogTrace($"期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}", UniqueName);
+                    _appCtrl.LogTrace(start, $"期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}", UniqueName);
                 }
 
                 return (true, startTime, endTime);
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(ex, ex.StackTrace);
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
 
             return (false, null, null);
@@ -687,47 +687,35 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void AddRule()
+        public void AddRule(TriggerData trigger, string timeDuration)
         {
             const string methodName = nameof(AddRule);
 
-            DateTime start = _appCtrl.StartTrace();
+            DateTime start = _appCtrl.StartTrace($"{trigger?.ToLog()}", UniqueName);
 
             try
             {
                 if (_appCtrl.Config.TriggerFolder == null)
                 {
-                    _appCtrl.LogError(start, "未設定觸價資料夾(Settings.TriggerFolderPath)，無法建立觸價資料", UniqueName);
-                    return;
-                }
-                else if (_appCtrl.MainForm.ComboBoxTriggerProduct.SelectedIndex < 0)
-                {
-                    return;
-                }
-                else if (_appCtrl.MainForm.ComboBoxTriggerColumn.SelectedIndex < 0)
-                {
-                    return;
-                }
-                else if (_appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex < 0)
-                {
-                    return;
-                }
-                else if (string.IsNullOrWhiteSpace(_appCtrl.MainForm.TextBoxTriggerRuleValue.Text))
-                {
-                    return;
+                    throw new ArgumentNullException($"未設定觸價資料夾(Settings.TriggerFolderPath)，無法建立觸價資料|{trigger.ToLog()}");
                 }
 
-                string primaryKey = _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text.Replace(" ", string.Empty);
+                trigger = trigger.Trim();
 
-                if (string.IsNullOrWhiteSpace(primaryKey))
+                if (string.IsNullOrWhiteSpace(trigger.PrimaryKey))
                 {
-                    _appCtrl.LogError(start, "未設定唯一鍵", UniqueName);
-                    return;
+                    throw new ArgumentException($"未設定唯一鍵|{trigger.ToLog()}");
+                }
+                else if (string.IsNullOrWhiteSpace(trigger.Rule))
+                {
+                    throw new ArgumentNullException($"string.IsNullOrWhiteSpace(trigger.Rule)|{trigger.ToLog()}");
+                }
+                else if (trigger.Quote == null)
+                {
+                    trigger.Quote = _appCtrl.Capital.GetQuote(trigger.Symbol);
                 }
 
-                QuoteData selectedQuote = (QuoteData)_appCtrl.MainForm.ComboBoxTriggerProduct.SelectedItem;
-
-                string rule = _appCtrl.MainForm.TextBoxTriggerRuleValue.Text.Replace(" ", string.Empty);
+                string rule = trigger.Rule;
                 string bodyValue = string.Empty;
 
                 if (rule.StartsWith(Definition.IsGreaterThanOrEqualTo))
@@ -757,43 +745,37 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    _appCtrl.LogError(start, $"條件({rule})錯誤，開頭必須是大於小於等於", UniqueName);
-                    return;
+                    throw new ArgumentException($"條件({rule})錯誤，開頭必須是大於小於等於|{trigger.ToLog()}");
                 }
 
-                if (decimal.TryParse(bodyValue, out decimal value))
+                if (!string.IsNullOrWhiteSpace(bodyValue))
                 {
-                    _appCtrl.MainForm.TextBoxTriggerRuleValue.Text = $"{rule}{bodyValue}";
-                }
-                else
-                {
-                    _appCtrl.LogError(start, $"條件錯誤，無法解析({bodyValue})", UniqueName);
-                    return;
-                }
-
-                string duration = _appCtrl.MainForm.TextBoxTriggerTimeDuration.Text.Replace(" ", string.Empty);
-                (bool, DateTime?, DateTime?) parseResult = TimeParse(selectedQuote, duration.Split('~'));
-
-                if (!parseResult.Item1)
-                {
-                    return;
+                    if (decimal.TryParse(bodyValue, out decimal value))
+                    {
+                        trigger.Rule = rule;
+                        trigger.TargetValue = value;
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"條件錯誤，無法解析({bodyValue})|{trigger.ToLog()}");
+                    }
                 }
 
-                TriggerData trigger = new TriggerData((TradeColumnTrigger)_appCtrl.MainForm.ComboBoxTriggerColumn.SelectedItem)
+                if (!string.IsNullOrWhiteSpace(timeDuration))
                 {
-                    PrimaryKey = primaryKey,
-                    Quote = selectedQuote,
-                    Symbol = selectedQuote.Symbol,
-                    Rule = rule,
-                    TargetValue = value,
-                    Cancel = _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex,
-                    StrategyOR = _appCtrl.MainForm.TextBoxTriggerStrategyOR.Text.Replace(" ", string.Empty),
-                    StrategyAND = _appCtrl.MainForm.TextBoxTriggerStrategyAND.Text.Replace(" ", string.Empty),
-                    StartTime = parseResult.Item2,
-                    EndTime = parseResult.Item3,
-                    Updater = methodName,
-                    UpdateTime = DateTime.Now,
-                };
+                    (bool, DateTime?, DateTime?) parseResult = TimeParse(trigger.Quote, start, timeDuration.Split('~'));
+
+                    if (!parseResult.Item1)
+                    {
+                        return;
+                    }
+
+                    trigger.StartTime = parseResult.Item2;
+                    trigger.EndTime = parseResult.Item3;
+                }
+
+                trigger.Updater = methodName;
+                trigger.UpdateTime = DateTime.Now;
 
                 _waitToAdd.Enqueue(trigger);
             }
@@ -839,37 +821,25 @@ namespace GNAy.Capital.Trade.Controllers
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;
 
-                foreach (TriggerData trigger in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
+                foreach (TriggerData data in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
                 {
                     try
                     {
-                        trigger.PrimaryKey = trigger.PrimaryKey.Replace(" ", string.Empty);
-                        trigger.Symbol = trigger.Symbol.Replace(" ", string.Empty);
-                        trigger.Rule = trigger.Rule.Replace(" ", string.Empty);
-                        trigger.StrategyOR = trigger.StrategyOR.Replace(" ", string.Empty);
-                        trigger.StrategyAND = trigger.StrategyAND.Replace(" ", string.Empty);
-                        trigger.Comment = trigger.Comment.Replace(" ", string.Empty);
+                        TriggerData trigger = data.Trim();
 
                         if (string.IsNullOrWhiteSpace(trigger.PrimaryKey))
                         {
                             continue;
                         }
 
-                        QuoteData quote = _appCtrl.Capital.GetQuote(trigger.Symbol);
-
-                        if (quote == null)
-                        {
-                            continue;
-                        }
-
                         trigger.StatusEnum = TriggerStatus.Enum.Waiting;
-                        trigger.Quote = quote;
+                        trigger.Quote = _appCtrl.Capital.GetQuote(trigger.Symbol);
                         trigger.ColumnValue = 0;
                         trigger.Comment = string.Empty;
 
-                        string startTime = trigger.StartTime.HasValue ? trigger.StartTime.Value.ToString("HHmmss") : string.Empty;
-                        string endTime = trigger.EndTime.HasValue ? trigger.EndTime.Value.ToString("HHmmss") : string.Empty;
-                        (bool, DateTime?, DateTime?) parseResult = TimeParse(quote, startTime, endTime);
+                        string st = trigger.StartTime.HasValue ? trigger.StartTime.Value.ToString("HHmmss") : string.Empty;
+                        string et = trigger.EndTime.HasValue ? trigger.EndTime.Value.ToString("HHmmss") : string.Empty;
+                        (bool, DateTime?, DateTime?) parseResult = TimeParse(trigger.Quote, start, st, et);
 
                         if (!parseResult.Item1)
                         {
@@ -894,7 +864,7 @@ namespace GNAy.Capital.Trade.Controllers
                             nextPK = _pk + 1;
                         }
 
-                        _waitToAdd.Enqueue(trigger);
+                        AddRule(trigger, string.Empty);
                     }
                     catch (Exception ex)
                     {
