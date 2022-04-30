@@ -4,9 +4,9 @@
 
 ## GNAy.Capital.Trade.csproj
 ![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg)
-* 策略交易框架與範例，交易輔助APP，方便自行組合與測試交易策略，基於群益API(SKCOM.dll)，開發中
+* 交易輔助APP，策略交易框架與範例，提供多樣化的素材，方便客戶自行組合與測試交易策略
 * https://www.capital.com.tw/Service2/download/api.asp
-* 需要先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
+* 基於群益API(SKCOM.dll)，需先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
 
 ###### vcredist_x64.exe & CAP-*.pfx
 * 使用群益API的前置條件，要先安裝憑證(CAP-*.pfx)，以及微軟Visual C++ 2010 Service Pack 1 MFC可轉散發套件安全性更新(vcredist_x64.exe)
