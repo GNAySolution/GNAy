@@ -44,7 +44,7 @@ namespace GNAy.Capital.Trade
             InitializeComponent();
 
             StartTime = DateTime.Now;
-            UniqueName = GetType().Name.Replace("Controller", "Ctrl");
+            UniqueName = nameof(MainWindow);
             _appCtrl = new AppController(this);
 
             //https://www.796t.com/post/MWV3bG0=.html
@@ -1652,7 +1652,7 @@ namespace GNAy.Capital.Trade
                     UpdateTime = DateTime.Now,
                 };
 
-                _appCtrl.Strategy.AddRuleAsync(strategy);
+                _appCtrl.Strategy.AddRule(strategy);
 
                 if (!decimal.TryParse(TextBoxStrategyPrimaryKey.Text.Replace(" ", string.Empty), out decimal pk))
                 {
@@ -1781,7 +1781,7 @@ namespace GNAy.Capital.Trade
                     UpdateTime = DateTime.Now,
                 };
 
-                _appCtrl.Strategy.StartFutureStartegyAsync(strategy);
+                _appCtrl.Strategy.StartFutureStartegy(strategy);
 
                 if (!decimal.TryParse(TextBoxStrategyPrimaryKey.Text.Replace(" ", string.Empty), out decimal pk))
                 {

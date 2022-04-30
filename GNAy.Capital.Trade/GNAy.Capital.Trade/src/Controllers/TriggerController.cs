@@ -22,9 +22,10 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
+        private readonly DateTime _closeTime;
+
         private readonly ObservableCollection<string> _triggerCancelKinds;
 
-        private readonly ConcurrentQueue<QuoteData> _waitToReset;
         private readonly ConcurrentQueue<string> _waitToCancel;
         private readonly ConcurrentQueue<TriggerData> _waitToAdd;
 
@@ -39,14 +40,15 @@ namespace GNAy.Capital.Trade.Controllers
         public TriggerController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
-            UniqueName = GetType().Name.Replace("Controller", "Ctrl");
+            UniqueName = nameof(TriggerController).Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
+
+            _closeTime = _appCtrl.Capital.IsAMMarket ? _appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM] : _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].AddDays(1);
 
             //https://www.codeproject.com/Questions/1117817/Basic-WPF-binding-to-collection-in-combobox
             _triggerCancelKinds = _appCtrl.MainForm.ComboBoxTriggerCancel.SetAndGetItemsSource(TriggerCancel.Description);
             _appCtrl.MainForm.ComboBoxTriggerCancel.SelectedIndex = (int)TriggerCancel.Enum.SameSymbolSameColumn;
 
-            _waitToReset = new ConcurrentQueue<QuoteData>();
             _waitToCancel = new ConcurrentQueue<string>();
             _waitToAdd = new ConcurrentQueue<TriggerData>();
 
@@ -188,11 +190,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (quote == null)
-                {
-                    return saveData;
-                }
-                else if (quote.Simulate.IsSimulating())
+                else if (quote.Simulate != QuoteData.RealTrade)
                 {
                     return saveData;
                 }
@@ -204,6 +202,16 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                     trigger.Comment = "觸價逾時，監控取消";
+                    trigger.Updater = methodName;
+                    trigger.UpdateTime = DateTime.Now;
+                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
+                    saveData = true;
+                    return saveData;
+                }
+                else if (trigger.StatusEnum != TriggerStatus.Enum.Executed && trigger.StartTime.HasValue && trigger.StartTime.Value > _closeTime)
+                {
+                    trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
+                    trigger.Comment = "不同盤別，暫停監控";
                     trigger.Updater = methodName;
                     trigger.UpdateTime = DateTime.Now;
                     _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
@@ -242,7 +250,7 @@ namespace GNAy.Capital.Trade.Controllers
                 trigger.Updater = methodName;
                 trigger.UpdateTime = DateTime.Now;
 
-                if (trigger.Rule == Definition.IsGreaterThanOrEqualTo)
+                if (trigger.Rule == TriggerData.IsGreaterThanOrEqualTo)
                 {
                     if (trigger.ColumnValue >= trigger.TargetValue)
                     {
@@ -254,7 +262,7 @@ namespace GNAy.Capital.Trade.Controllers
                         StartStrategy(trigger, start);
                     }
                 }
-                else if (trigger.Rule == Definition.IsLessThanOrEqualTo)
+                else if (trigger.Rule == TriggerData.IsLessThanOrEqualTo)
                 {
                     if (trigger.ColumnValue <= trigger.TargetValue)
                     {
@@ -266,7 +274,7 @@ namespace GNAy.Capital.Trade.Controllers
                         StartStrategy(trigger, start);
                     }
                 }
-                else if (trigger.Rule == Definition.IsEqualTo)
+                else if (trigger.Rule == TriggerData.IsEqualTo)
                 {
                     if (trigger.ColumnValue == trigger.TargetValue)
                     {
@@ -385,19 +393,6 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="start"></param>
         public void UpdateStatus(DateTime start)
         {
-            while (_waitToReset.Count > 0)
-            {
-                _waitToReset.TryDequeue(out QuoteData quote);
-
-                foreach (TriggerData trigger in _triggerMap.Values)
-                {
-                    if (trigger.Symbol == quote.Symbol)
-                    {
-                        trigger.Quote = quote;
-                    }
-                }
-            }
-
             while (_waitToCancel.Count > 0)
             {
                 _waitToCancel.TryDequeue(out string primaryKey);
@@ -543,42 +538,6 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void ClearQuotes()
-        {
-            DateTime start = _appCtrl.StartTrace();
-
-            try
-            {
-                Parallel.ForEach(_triggerMap.Values, trigger =>
-                {
-                    lock (trigger.SyncRoot)
-                    {
-                        trigger.Quote = null;
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
-        }
-
-        public void Reset(QuoteData quote)
-        {
-            try
-            {
-                _waitToReset.Enqueue(quote);
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(ex, ex.StackTrace);
-            }
-        }
-
         private string ToHHmmss(string time)
         {
             time = time.Replace(":", string.Empty);
@@ -718,30 +677,30 @@ namespace GNAy.Capital.Trade.Controllers
                 string rule = trigger.Rule;
                 string bodyValue = string.Empty;
 
-                if (rule.StartsWith(Definition.IsGreaterThanOrEqualTo))
+                if (rule.StartsWith(TriggerData.IsGreaterThanOrEqualTo))
                 {
-                    bodyValue = rule.Substring(Definition.IsGreaterThanOrEqualTo.Length);
-                    rule = Definition.IsGreaterThanOrEqualTo;
+                    bodyValue = rule.Substring(TriggerData.IsGreaterThanOrEqualTo.Length);
+                    rule = TriggerData.IsGreaterThanOrEqualTo;
                 }
-                else if (rule.StartsWith(Definition.IsGreaterThan))
+                else if (rule.StartsWith(TriggerData.IsGreaterThan))
                 {
-                    bodyValue = rule.Substring(Definition.IsGreaterThan.Length);
-                    rule = Definition.IsGreaterThanOrEqualTo;
+                    bodyValue = rule.Substring(TriggerData.IsGreaterThan.Length);
+                    rule = TriggerData.IsGreaterThanOrEqualTo;
                 }
-                else if (rule.StartsWith(Definition.IsEqualTo))
+                else if (rule.StartsWith(TriggerData.IsEqualTo))
                 {
-                    bodyValue = rule.Substring(Definition.IsEqualTo.Length);
-                    rule = Definition.IsEqualTo;
+                    bodyValue = rule.Substring(TriggerData.IsEqualTo.Length);
+                    rule = TriggerData.IsEqualTo;
                 }
-                else if (rule.StartsWith(Definition.IsLessThanOrEqualTo))
+                else if (rule.StartsWith(TriggerData.IsLessThanOrEqualTo))
                 {
-                    bodyValue = rule.Substring(Definition.IsLessThanOrEqualTo.Length);
-                    rule = Definition.IsLessThanOrEqualTo;
+                    bodyValue = rule.Substring(TriggerData.IsLessThanOrEqualTo.Length);
+                    rule = TriggerData.IsLessThanOrEqualTo;
                 }
-                else if (rule.StartsWith(Definition.IsLessThan))
+                else if (rule.StartsWith(TriggerData.IsLessThan))
                 {
-                    bodyValue = rule.Substring(Definition.IsLessThan.Length);
-                    rule = Definition.IsLessThanOrEqualTo;
+                    bodyValue = rule.Substring(TriggerData.IsLessThan.Length);
+                    rule = TriggerData.IsLessThanOrEqualTo;
                 }
                 else
                 {
@@ -759,6 +718,11 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         throw new ArgumentException($"條件錯誤，無法解析({bodyValue})|{trigger.ToLog()}");
                     }
+                }
+
+                if (trigger.TargetValue == 0)
+                {
+                    throw new ArgumentException($"條件錯誤，目標值(TargetValue)不可為0|{trigger.ToLog()}");
                 }
 
                 if (!string.IsNullOrWhiteSpace(timeDuration))

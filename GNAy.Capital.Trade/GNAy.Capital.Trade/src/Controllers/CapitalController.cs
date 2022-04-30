@@ -82,7 +82,7 @@ namespace GNAy.Capital.Trade.Controllers
         public CapitalController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
-            UniqueName = GetType().Name.Replace("Controller", "Ctrl");
+            UniqueName = nameof(CapitalController).Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
             LoginUserResult = -1;
@@ -485,6 +485,16 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
+        public QuoteData GetQuote(string symbol)
+        {
+            return _quoteCollection.FirstOrDefault(x => x.Symbol == symbol);
+        }
+
+        public OrderAccData GetOrderAcc(string fullAccount)
+        {
+            return _orderAccCollection.FirstOrDefault(x => x.FullAccount == fullAccount);
+        }
+
         private void ReadLastClosePrice(FileInfo quoteFile)
         {
             if (quoteFile == null)
@@ -500,7 +510,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 foreach (QuoteData quoteLast in QuoteData.ForeachQuoteFromCSVFile(quoteFile.FullName, columnNames))
                 {
-                    QuoteData quoteSub = _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
+                    QuoteData quoteSub = _quoteCollection.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
 
                     if (quoteSub != null && quoteSub.LastClosePrice == 0)
                     {
@@ -624,21 +634,19 @@ namespace GNAy.Capital.Trade.Controllers
                         continue;
                     }
 
-                    QuoteData quote = CreateQuote(product.Item2);
-
-                    _appCtrl.Trigger.Reset(quote);
-                    _appCtrl.Strategy.Reset(quote);
+                    QuoteData quote = GetQuote(symbol);
+                    quote = CreateOrUpdateQuote(product.Item2, quote);
 
                     try
                     {
-                        _capitalProductRawMap.Add((product.Item2.bstrMarketNo[0] - '0') * 1000000 + product.Item2.nStockIdx, product.Item2);
+                        _capitalProductRawMap.Add(quote.PrimaryKey, product.Item2);
                         _quoteIndexMap.Add(quote.PrimaryKey, quote);
 
                         if (quote.MarketGroupEnum == Market.EGroup.Option)
                         {
                             optionList.Add(quote);
                         }
-                        else
+                        else if (GetQuote(quote.Symbol) == null)
                         {
                             _quoteCollection.Add(quote);
                         }
@@ -651,7 +659,10 @@ namespace GNAy.Capital.Trade.Controllers
 
                 foreach (QuoteData option in optionList)
                 {
-                    _quoteCollection.Add(option);
+                    if (GetQuote(option.Symbol) == null)
+                    {
+                        _quoteCollection.Add(option);
+                    }
                 }
 
                 if (_quoteIndexMap.Count > 0)
@@ -710,7 +721,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 foreach (QuoteData quoteLast in QuoteData.ForeachQuoteFromCSVFile(quoteFile.FullName, columnNames))
                 {
-                    QuoteData quoteSub = _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
+                    QuoteData quoteSub = _quoteCollection.FirstOrDefault(x => x.Symbol == quoteLast.Symbol);
 
                     if (quoteSub != null && (quoteLast.MarketGroupEnum == Market.EGroup.Futures || quoteLast.MarketGroupEnum == Market.EGroup.Option))
                     {
@@ -855,11 +866,6 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.EndTrace(start, UniqueName);
                 }
             });
-        }
-
-        public OrderAccData GetOrderAcc(string fullAccount)
-        {
-            return _orderAccCollection.FirstOrDefault(x => x.FullAccount == fullAccount);
         }
 
         public void RequestKLine(string product = "")
@@ -1047,11 +1053,6 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public QuoteData GetQuote(string symbol)
-        {
-            return _quoteIndexMap.Values.FirstOrDefault(x => x.Symbol == symbol);
-        }
-
         public void UnlockOrder(int marketType = -1)
         {
             DateTime start = _appCtrl.StartTrace($"marketType={marketType}", UniqueName);
@@ -1191,9 +1192,8 @@ namespace GNAy.Capital.Trade.Controllers
                             }
 
                             //nCode=1019|SK_ERROR_QUERY_IN_PROCESSING|GetOpenInterest_Format::1
-                            Thread.Sleep(1 * 1000);
                             GetOpenInterestAsync(acc.FullAccount, format);
-                            Thread.Sleep(7 * 1000);
+                            Thread.Sleep(12 * 1000);
                         }
                     }
                     else

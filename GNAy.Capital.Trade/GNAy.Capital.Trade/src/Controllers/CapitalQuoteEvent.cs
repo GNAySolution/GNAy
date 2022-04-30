@@ -38,12 +38,8 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _appCtrl.MainForm.InvokeRequired(delegate
                 {
-                    _appCtrl.Trigger?.ClearQuotes();
-                    _appCtrl.Strategy?.ClearQuotes();
-
                     _capitalProductRawMap.Clear();
                     _quoteIndexMap.Clear();
-                    _quoteCollection.Clear();
                     QuoteFileNameBase = string.Empty;
                 });
             }
@@ -95,35 +91,28 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                QuoteData q = null;
+                QuoteData quote = null;
 
-                if (_quoteIndexMap.TryGetValue(sMarketNo * 1000000 + nStockIdx, out QuoteData quote))
+                if (_quoteIndexMap.TryGetValue(sMarketNo * 1000000 + nStockIdx, out QuoteData qd))
                 {
-                    (int, SKSTOCKLONG) product = GetProductInfo(quote.Symbol, DateTime.Now);
+                    (int, SKSTOCKLONG) product = GetProductInfo(qd.Symbol, DateTime.Now);
 
-                    if (product.Item1 == 0)
+                    quote = product.Item1 == 0 ? CreateOrUpdateQuote(product.Item2) : new QuoteData()
                     {
-                        q = CreateQuote(product.Item2);
-                    }
-                    else
-                    {
-                        q = new QuoteData()
-                        {
-                            MarketGroup = sMarketNo,
-                            Index = nStockIdx,
-                        };
-                    }
+                        MarketGroup = sMarketNo,
+                        Index = nStockIdx,
+                    };
                 }
                 else
                 {
-                    q = new QuoteData()
+                    quote = new QuoteData()
                     {
                         MarketGroup = sMarketNo,
                         Index = nStockIdx,
                     };
                 }
 
-                OnNotifyHistoryTicks(q, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
+                OnNotifyHistoryTicks(quote, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
             }
             catch (Exception ex)
             {

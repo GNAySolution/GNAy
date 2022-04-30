@@ -523,7 +523,7 @@
                 <TextBox x:Name="TextBoxTriggerStrategyOR" Text="單一觸價即執行策略" ToolTip="滿足單一觸價條件即執行策略" HorizontalAlignment="Left" Margin="716,18,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxTriggerStrategyAND" Text="全部觸價再執行策略" ToolTip="滿足全部觸價條件再執行策略" HorizontalAlignment="Left" Margin="716,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="監控時間區間" HorizontalAlignment="Left" Margin="841,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerTimeDuration" Text="監控時間區間" ToolTip="監控時間區間" HorizontalAlignment="Left" Margin="841,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxTriggerTimeDuration" Text="監控時間區間" ToolTip="HHmmss~HHmmss" HorizontalAlignment="Left" Margin="841,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Button x:Name="ButtonCancelStrategy" Content="取消策略監控" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top" Click="ButtonCancelStrategy_Click"/>
                 <Button x:Name="ButtonSaveStrategyRule" Content="儲存策略條件" HorizontalAlignment="Left" Margin="10,82,0,0" VerticalAlignment="Top" Click="ButtonSaveStrategyRule_Click"/>
                 <Label Content="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,57,0,0" VerticalAlignment="Top"/>

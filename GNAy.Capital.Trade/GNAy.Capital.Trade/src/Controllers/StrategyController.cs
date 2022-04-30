@@ -22,7 +22,6 @@ namespace GNAy.Capital.Trade.Controllers
 
         public string Notice { get; private set; }
 
-        private readonly ConcurrentQueue<QuoteData> _waitToReset;
         private readonly ConcurrentQueue<string> _waitToCancel;
         private readonly ConcurrentQueue<StrategyData> _waitToAdd;
 
@@ -38,12 +37,11 @@ namespace GNAy.Capital.Trade.Controllers
         public StrategyController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
-            UniqueName = GetType().Name.Replace("Controller", "Ctrl");
+            UniqueName = nameof(StrategyController).Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
             Notice = string.Empty;
 
-            _waitToReset = new ConcurrentQueue<QuoteData>();
             _waitToCancel = new ConcurrentQueue<string>();
             _waitToAdd = new ConcurrentQueue<StrategyData>();
 
@@ -362,9 +360,9 @@ namespace GNAy.Capital.Trade.Controllers
             qGroup = order.Quote.MarketGroupEnum;
             MarketCheck(order, qGroup);
 
-            if (order.Quote.Simulate.IsSimulating())
+            if (order.Quote.Simulate != QuoteData.RealTrade)
             {
-                throw new ArgumentException($"order.Quote.Simulate.IsSimulating()|{order.ToLog()}");
+                throw new ArgumentException($"order.Quote.Simulate != QuoteData.RealTrade|{order.ToLog()}");
             }
 
             order.MarketPrice = order.Quote.DealPrice;
@@ -382,6 +380,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 TriggerData trigger = _appCtrl.Trigger[primary];
 
+                //TODO
                 if (trigger != null && (trigger.StatusEnum == TriggerStatus.Enum.Cancelled || trigger.StatusEnum == TriggerStatus.Enum.Executed))
                 {
                     trigger.Comment = $"策略重啟({data.ToLog()})";
@@ -495,11 +494,11 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (quote == null)
+                else if (quote.Simulate != QuoteData.RealTrade)
                 {
                     return saveData;
                 }
-                else if (quote.Simulate.IsSimulating())
+                else if (quote.DealPrice == 0)
                 {
                     return saveData;
                 }
@@ -518,6 +517,11 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (strategy.MoveStopWinData != null)
                 {
+                    return saveData;
+                }
+                else if (strategy.StatusEnum == StrategyStatus.Enum.Waiting)
+                {
+                    strategy.MarketPrice = quote.DealPrice;
                     return saveData;
                 }
                 else
@@ -629,27 +633,6 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="start"></param>
         public void UpdateStatus(DateTime start)
         {
-            while (_waitToReset.Count > 0)
-            {
-                _waitToReset.TryDequeue(out QuoteData quote);
-
-                foreach (StrategyData strategy in _strategyMap.Values)
-                {
-                    if (strategy.Symbol == quote.Symbol)
-                    {
-                        strategy.Quote = quote;
-                    }
-                }
-
-                foreach (StrategyData order in _orderDetailMap.Values)
-                {
-                    if (order.Symbol == quote.Symbol)
-                    {
-                        order.Quote = quote;
-                    }
-                }
-            }
-
             while (_waitToCancel.Count > 0)
             {
                 _waitToCancel.TryDequeue(out string primaryKey);
@@ -773,61 +756,6 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void ClearQuotes()
-        {
-            DateTime start = _appCtrl.StartTrace();
-
-            try
-            {
-                Parallel.ForEach(_strategyMap.Values, strategy =>
-                {
-                    lock (strategy.SyncRoot)
-                    {
-                        strategy.Quote = null;
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
-
-            try
-            {
-                Parallel.ForEach(_orderDetailMap.Values, order =>
-                {
-                    lock (order.SyncRoot)
-                    {
-                        order.Quote = null;
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
-        }
-
-        public void Reset(QuoteData quote)
-        {
-            try
-            {
-                _waitToReset.Enqueue(quote);
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(ex, ex.StackTrace);
-            }
-        }
-
         public void Cancel(string primaryKey)
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
@@ -919,11 +847,6 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void AddRuleAsync(StrategyData strategy)
-        {
-            Task.Factory.StartNew(() => AddRule(strategy));
-        }
-
         public void StartNow(string primaryKey)
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
@@ -970,11 +893,6 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _appCtrl.EndTrace(start, UniqueName);
             }
-        }
-
-        public void StartFutureStartegyAsync(StrategyData strategy)
-        {
-            Task.Factory.StartNew(() => StartFutureStartegy(strategy));
         }
 
         public void RecoverSetting(FileInfo file = null)
@@ -1024,6 +942,7 @@ namespace GNAy.Capital.Trade.Controllers
                         strategy.StatusEnum = StrategyStatus.Enum.Waiting;
                         strategy.MarketType = _appCtrl.Capital.GetOrderAcc(strategy.FullAccount).MarketType;
                         strategy.Quote = _appCtrl.Capital.GetQuote(strategy.Symbol);
+                        strategy.MarketPrice = 0;
                         strategy.StopLossAfter = 0;
                         strategy.StopWinPrice = 0;
                         strategy.MoveStopWinPrice = 0;

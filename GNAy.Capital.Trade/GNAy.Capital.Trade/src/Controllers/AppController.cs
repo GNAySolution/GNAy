@@ -47,7 +47,7 @@ namespace GNAy.Capital.Trade.Controllers
         public AppController(MainWindow mainForm)
         {
             CreatedTime = DateTime.Now;
-            UniqueName = GetType().Name.Replace("Controller", "Ctrl");
+            UniqueName = nameof(AppController).Replace("Controller", "Ctrl");
             MainForm = mainForm;
 
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };

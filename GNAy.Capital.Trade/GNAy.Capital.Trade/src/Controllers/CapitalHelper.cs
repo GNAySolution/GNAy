@@ -10,36 +10,44 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public partial class CapitalController
     {
-        private QuoteData CreateQuote(SKSTOCKLONG raw)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="raw"></param>
+        /// <param name="quote">通常是斷線重連時更新Index用</param>
+        /// <returns></returns>
+        private QuoteData CreateOrUpdateQuote(SKSTOCKLONG raw, QuoteData quote = null)
         {
-            const string methodName = nameof(CreateQuote);
+            const string methodName = nameof(CreateOrUpdateQuote);
 
-            QuoteData quote = new QuoteData()
+            if (quote == null)
             {
-                Symbol = raw.bstrStockNo,
-                Name = raw.bstrStockName,
-                DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal),
-                DealQty = raw.nTickQty,
-                BestBuyPrice = raw.nBid / (decimal)Math.Pow(10, raw.sDecimal),
-                BestBuyQty = raw.nBc,
-                BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal),
-                BestSellQty = raw.nAc,
-                //OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal),
-                //HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal),
-                //LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal),
-                Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal),
-                Simulate = raw.nSimulate,
-                TotalQty = raw.nTQty,
-                TradeDateRaw = raw.nTradingDay,
-                HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal),
-                LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal),
-                Index = raw.nStockIdx,
-                MarketGroup = raw.bstrMarketNo[0] - '0',
-                DecimalPos = raw.sDecimal,
-                TotalQtyBefore = raw.nYQty,
-                Updater = methodName,
-                UpdateTime = DateTime.Now,
-            };
+                quote = new QuoteData();
+            }
+
+            quote.Symbol = raw.bstrStockNo;
+            quote.Name = raw.bstrStockName;
+            quote.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.DealQty = raw.nTickQty;
+            quote.BestBuyPrice = raw.nBid / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.BestBuyQty = raw.nBc;
+            quote.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.BestSellQty = raw.nAc;
+            //quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal),
+            //quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal),
+            //quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal),
+            quote.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.Simulate = raw.nSimulate;
+            quote.TotalQty = raw.nTQty;
+            quote.TradeDateRaw = raw.nTradingDay;
+            quote.HighPriceLimit = raw.nUp / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.LowPriceLimit = raw.nDown / (decimal)Math.Pow(10, raw.sDecimal);
+            quote.Index = raw.nStockIdx;
+            quote.MarketGroup = raw.bstrMarketNo[0] - '0';
+            quote.DecimalPos = raw.sDecimal;
+            quote.TotalQtyBefore = raw.nYQty;
+            quote.Updater = methodName;
+            quote.UpdateTime = DateTime.Now;
 
             return quote;
         }
@@ -48,7 +56,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             const string methodName = nameof(CreateQuote);
 
-            QuoteData quote = CreateQuote(raw);
+            QuoteData quote = CreateOrUpdateQuote(raw);
 
             quote.Count = nPtr;
             quote.TradeDateRaw = nDate;
@@ -111,7 +119,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestSellQty = raw.nAc;
             if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (_appCtrl.Config.StartOnTime || quote.Recovered))
             {
-                if (quote.OpenPrice == 0 && raw.nSimulate.IsRealTrading() && raw.nTQty > quote.TotalQty) //開盤第一筆成交
+                if (quote.OpenPrice == 0 && raw.nSimulate == QuoteData.RealTrade && raw.nTQty > quote.TotalQty) //開盤第一筆成交
                 {
                     quote.OpenPrice = quote.DealPrice;
                     firstTick = true;
@@ -154,14 +162,14 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteLastUpdated = quote;
 
-            if (IsAMMarket && (raw.nSimulate.IsSimulating() || firstTick) && quote.MarketGroupEnum == Market.EGroup.Futures && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
+            if (IsAMMarket && (raw.nSimulate != QuoteData.RealTrade || firstTick) && quote.MarketGroupEnum == Market.EGroup.Futures && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
 
                 if (_capitalProductRawMap.TryGetValue(quote.PrimaryKey, out SKSTOCKLONG productInfo))
                 {
-                    QuoteData qRaw = CreateQuote(productInfo);
+                    QuoteData qRaw = CreateOrUpdateQuote(productInfo);
 
                     qRaw.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
                     qRaw.DealQty = raw.nTickQty;
@@ -210,7 +218,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
             quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
             quote.DealQty = nQty;
-            if (quote.OpenPrice == 0 && nSimulate.IsRealTrading() && quote.DealQty > 0) //開盤第一筆成交
+            if (quote.OpenPrice == 0 && nSimulate == QuoteData.RealTrade && quote.DealQty > 0) //開盤第一筆成交
             {
                 quote.OpenPrice = quote.DealPrice;
             }
@@ -219,7 +227,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.Updater = methodName;
             quote.UpdateTime = DateTime.Now;
 
-            if (quote.Simulate.IsRealTrading())
+            if (quote.Simulate == QuoteData.RealTrade)
             {
                 if (quote.OpenPrice != 0)
                 {
@@ -270,7 +278,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.DealQty = nQty;
             if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && _appCtrl.Config.StartOnTime)
             {
-                if (quote.OpenPrice == 0 && nSimulate.IsRealTrading() && nQty > 0) //開盤第一筆成交
+                if (quote.OpenPrice == 0 && nSimulate == QuoteData.RealTrade && nQty > 0) //開盤第一筆成交
                 {
                     quote.OpenPrice = quote.DealPrice;
                     firstTick = true;
@@ -298,7 +306,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuoteLastUpdated = quote;
 
-            if (IsAMMarket && (nSimulate.IsSimulating() || firstTick) && quote.MarketGroupEnum == Market.EGroup.Futures && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
+            if (IsAMMarket && (nSimulate != QuoteData.RealTrade || firstTick) && quote.MarketGroupEnum == Market.EGroup.Futures && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
                 SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);

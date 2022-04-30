@@ -14,6 +14,31 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class TriggerData : NotifyPropertyChanged
     {
+        /// <summary>
+        /// 大於或等於
+        /// </summary>
+        public const string IsGreaterThanOrEqualTo = ">=";
+
+        /// <summary>
+        /// 大於
+        /// </summary>
+        public const string IsGreaterThan = ">";
+
+        /// <summary>
+        /// 等於
+        /// </summary>
+        public const string IsEqualTo = "=";
+
+        /// <summary>
+        /// 小於或等於
+        /// </summary>
+        public const string IsLessThanOrEqualTo = "<=";
+
+        /// <summary>
+        /// 小於
+        /// </summary>
+        public const string IsLessThan = "<";
+
         public static readonly Dictionary<string, TradeColumnTrigger> QuoteColumnTriggerMap = QuoteData.PropertyMap.Values.Where(x => x.Item1.IsTrigger).ToDictionary(x => x.Item2.Name, x => new TradeColumnTrigger(x.Item1, x.Item2));
         public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(TriggerData).GetColumnAttrMapByProperty<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
         public static readonly SortedDictionary<int, (ColumnAttribute, PropertyInfo)> ColumnGetters = typeof(TriggerData).GetColumnAttrMapByIndex<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);

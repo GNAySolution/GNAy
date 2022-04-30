@@ -15,6 +15,9 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class QuoteData : NotifyPropertyChanged
     {
+        //public const int SimulateTrade = 1;
+        public const int RealTrade = 0;
+
         public static readonly Dictionary<string, (TradeColumnAttribute, PropertyInfo)> PropertyMap = typeof(QuoteData).GetColumnAttrMapByProperty<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
         public static readonly SortedDictionary<int, (TradeColumnAttribute, PropertyInfo)> ColumnGetters = typeof(QuoteData).GetColumnAttrMapByIndex<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
         public static readonly Dictionary<string, (TradeColumnAttribute, PropertyInfo)> ColumnSetters = typeof(QuoteData).GetColumnAttrMapByName<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
@@ -315,7 +318,7 @@ namespace GNAy.Capital.Models
         {
             get
             {
-                if (Simulate.IsRealTrading())
+                if (Simulate == RealTrade)
                 {
                     return UpDown > 0 ? 1 : 0;
                 }
@@ -345,7 +348,7 @@ namespace GNAy.Capital.Models
             LowPrice = 0;
             Reference = 0;
             LastClosePrice = 0;
-            Simulate = -1;
+            Simulate = 1;
             TotalQty = 0;
             TradeDateRaw = 0;
             HighPriceLimit = 0;
@@ -409,7 +412,8 @@ namespace GNAy.Capital.Models
                 }
 
                 QuoteData data = Create(columnNames, line);
-                if (!data.Simulate.IsRealTrading())
+
+                if (data.Simulate != RealTrade)
                 {
                     continue;
                 }
