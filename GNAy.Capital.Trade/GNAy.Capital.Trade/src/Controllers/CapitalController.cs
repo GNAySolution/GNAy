@@ -162,12 +162,11 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.LogTrace(msg, UniqueName, elapsed, lineNumber, memberName);
                 return (LogLevel.Trace, msg);
             }
-            //2020 SK_WARNING_PRECHECK_RESULT_FAIL Precheck 失敗(EX:RCode)
-            //2021 SK_WARNING_PRECHECK_RESULT_EMPTY Precheck結果回傳空值
-            //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
-            //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
-            //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
-            else if (_code < 2000 || _code == 2020 || _code == 2021 || _code == 3021 || _code == 3022 || _code == 3033)
+            else if (_code < 2000 || _code == StatusCode.SK_WARNING_PRECHECK_RESULT_FAIL ||
+                _code == StatusCode.SK_WARNING_PRECHECK_RESULT_EMPTY ||
+                _code == StatusCode.SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK ||
+                _code == StatusCode.SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL ||
+                _code == StatusCode.SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR)
             {
                 _appCtrl.LogError(msg, UniqueName, elapsed, lineNumber, memberName);
                 return (LogLevel.Error, msg);
@@ -307,12 +306,10 @@ namespace GNAy.Capital.Trade.Controllers
         {
             QuoteStatus = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
 
-            //2020 SK_WARNING_PRECHECK_RESULT_FAIL Precheck 失敗(EX:RCode)
-            //2021 SK_WARNING_PRECHECK_RESULT_EMPTY Precheck結果回傳空值
             //https://www.capital.com.tw/Service2/download/API_BBS.asp
             LogAPIMessage(start, QuoteStatus);
             //(LogLevel, string) apiMsg = LogAPIMessage(start, QuoteStatus);
-            //if (QuoteStatus == 2020 || _appCtrl.Capital.QuoteStatus == 2021)
+            //if (QuoteStatus == StatusCode.SK_WARNING_PRECHECK_RESULT_FAIL || _appCtrl.Capital.QuoteStatus == StatusCode.SK_WARNING_PRECHECK_RESULT_EMPTY)
             //{
             //    m_pSKCenter = null;
             //    m_SKQuoteLib = null;

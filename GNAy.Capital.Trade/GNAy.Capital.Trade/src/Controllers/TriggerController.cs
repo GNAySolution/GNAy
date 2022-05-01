@@ -108,6 +108,63 @@ namespace GNAy.Capital.Trade.Controllers
             Task.Factory.StartNew(() => SaveData(null));
         }
 
+        public (bool, string) Restart(string primary)
+        {
+            TriggerData trigger = this[primary];
+
+            if (trigger == null || trigger.StatusEnum != TriggerStatus.Enum.Cancelled)
+            {
+                return (false, $"重啟觸價({primary})失敗");
+            }
+
+            object valueObj = trigger.Column.Property.GetValue(trigger.Quote);
+            decimal columnValue = 0;
+
+            if (trigger.Column.Property.PropertyType == typeof(DateTime))
+            {
+                columnValue = decimal.Parse(((DateTime)valueObj).ToString(trigger.Column.Attribute.TriggerFormat));
+            }
+            else if (trigger.Column.Property.PropertyType == typeof(string))
+            {
+                columnValue = decimal.Parse((string)valueObj);
+            }
+            else
+            {
+                columnValue = (decimal)valueObj;
+            }
+
+            if (trigger.Rule == TriggerData.IsGreaterThanOrEqualTo)
+            {
+                if (columnValue >= trigger.TargetValue)
+                {
+                    return (false, $"觸價條件已滿足，重啟觸價({primary})失敗");
+                }
+            }
+            else if (trigger.Rule == TriggerData.IsLessThanOrEqualTo)
+            {
+                if (columnValue <= trigger.TargetValue)
+                {
+                    return (false, $"觸價條件已滿足，重啟觸價({primary})失敗");
+                }
+            }
+            else if (trigger.Rule == TriggerData.IsEqualTo)
+            {
+                if (columnValue == trigger.TargetValue)
+                {
+                    return (false, $"觸價條件已滿足，重啟觸價({primary})失敗");
+                }
+            }
+            else
+            {
+                return (false, $"重啟觸價({primary})失敗");
+            }
+
+            trigger.Comment = $"重啟";
+            trigger.StatusEnum = TriggerStatus.Enum.Waiting;
+
+            return (true, string.Empty);
+        }
+
         private void StartStrategy(TriggerData trigger, string primary, DateTime start)
         {
             try

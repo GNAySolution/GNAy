@@ -910,18 +910,12 @@ namespace GNAy.Capital.Trade
                 {
                     reConnect = 1 + StatusCode.BaseTraceValue;
                 }
-                //2020 SK_WARNING_PRECHECK_RESULT_FAIL Precheck 失敗(EX:RCode)
-                //2021 SK_WARNING_PRECHECK_RESULT_EMPTY Precheck結果回傳空值
-                //3002 SK_SUBJECT_CONNECTION_DISCONNECT 斷線
-                //3021 SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK 連線失敗(網路異常等)
-                //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
-                //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
-                else if (_appCtrl.Capital != null && (_appCtrl.Capital.QuoteStatus == 2020 ||
-                    _appCtrl.Capital.QuoteStatus == 2021 ||
-                    _appCtrl.Capital.QuoteStatus == 3002 ||
-                    _appCtrl.Capital.QuoteStatus == 3021 ||
-                    _appCtrl.Capital.QuoteStatus == 3022 ||
-                    _appCtrl.Capital.QuoteStatus == 3033))
+                else if (_appCtrl.Capital != null && (_appCtrl.Capital.QuoteStatus == StatusCode.SK_WARNING_PRECHECK_RESULT_FAIL ||
+                    _appCtrl.Capital.QuoteStatus == StatusCode.SK_WARNING_PRECHECK_RESULT_EMPTY ||
+                    _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_DISCONNECT ||
+                    _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK ||
+                    _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL ||
+                    _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR))
                 {
                     reConnect = _appCtrl.Capital.QuoteStatus + StatusCode.BaseErrorValue;
                 }
@@ -957,7 +951,20 @@ namespace GNAy.Capital.Trade
                     });
 
                     Thread.Sleep(4 * 1000);
-                    SpinWait.SpinUntil(() => _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY, 1 * 60 * 1000);
+                    SpinWait.SpinUntil(() =>
+                    {
+                        if (_appCtrl.Capital.QuoteStatus == StatusCode.SK_WARNING_PRECHECK_RESULT_FAIL ||
+                            _appCtrl.Capital.QuoteStatus == StatusCode.SK_WARNING_PRECHECK_RESULT_EMPTY ||
+                            _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_DISCONNECT ||
+                            _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK ||
+                            _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL ||
+                            _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR)
+                        {
+                            return LoopResult.Break;
+                        }
+
+                        return _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY;
+                    }, 1 * 60 * 1000);
                     if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
                     {
                         //TODO: Send alert mail.
@@ -966,7 +973,7 @@ namespace GNAy.Capital.Trade
                         return;
                     }
 
-                    Thread.Sleep(4 * 1000);
+                    Thread.Sleep(2 * 1000);
                     this.InvokeRequired(delegate
                     {
                         ButtonIsConnected_Click(null, null);
@@ -976,8 +983,9 @@ namespace GNAy.Capital.Trade
                         ButtonGetOrderAccs_Click(null, null);
                     });
 
-                    Thread.Sleep(4 * 1000);
+                    Thread.Sleep(2 * 1000);
                     SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 8 * 1000);
+                    Thread.Sleep(2 * 1000);
                     _appCtrl.Capital.GetOpenInterestAsync();
                     _appCtrl.Capital.UnlockOrder();
                     _appCtrl.Capital.SetOrderMaxQty();
@@ -1516,7 +1524,7 @@ namespace GNAy.Capital.Trade
             {
                 StrategyData strategy = ((DataGridCell)sender).GetItem<StrategyData>();
                 _appCtrl.LogTrace(start, strategy.ToLog(), UniqueName);
-                
+
                 TextBoxStrategyPrimaryKey.Text = strategy.PrimaryKey;
                 TextBoxStrategyStopLoss.Text = strategy.StopLossBefore;
                 TextBoxStrategyStopWin.Text = strategy.StopWinBefore;

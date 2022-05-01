@@ -36,17 +36,15 @@ namespace GNAy.Capital.Models
 
         public static (string, decimal) Parse(string orderPrice, decimal marketPrice, decimal reference, Market.EGroup mGroup)
         {
-            string oldPri = orderPrice.Replace(" ", string.Empty);
-
-            if (oldPri.StartsWith(M) || oldPri.StartsWith(P))
+            if (orderPrice.StartsWith(M) || orderPrice.StartsWith(P))
             {
-                if (oldPri.Length > 1)
+                if (orderPrice.Length > 1)
                 {
                     decimal newPri = 0;
 
-                    if (oldPri.EndsWith("%"))
+                    if (orderPrice.EndsWith("%"))
                     {
-                        decimal offsetPct = decimal.Parse(oldPri.Substring(1, oldPri.Length - 2));
+                        decimal offsetPct = decimal.Parse(orderPrice.Substring(1, orderPrice.Length - 2));
                         offsetPct /= 100;
 
                         string format = "0.00";
@@ -60,15 +58,15 @@ namespace GNAy.Capital.Models
                         return (newPri.ToString(format), newPri);
                     }
 
-                    decimal offset = decimal.Parse(oldPri.Substring(1));
+                    decimal offset = decimal.Parse(orderPrice.Substring(1));
                     newPri = marketPrice + offset;
                     return (newPri.ToString("0.00"), newPri);
                 }
 
-                return (oldPri, marketPrice);
+                return (orderPrice, marketPrice);
             }
 
-            return (oldPri, decimal.Parse(oldPri));
+            return (orderPrice, decimal.Parse(orderPrice));
         }
     }
 }

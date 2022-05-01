@@ -378,23 +378,21 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                TriggerData trigger = _appCtrl.Trigger[primary];
+                (bool, string) result = _appCtrl.Trigger.Restart(primary);
 
-                //TODO
-                if (trigger != null && (trigger.StatusEnum == TriggerStatus.Enum.Cancelled || trigger.StatusEnum == TriggerStatus.Enum.Executed))
+                if (result.Item1)
                 {
-                    trigger.Comment = $"策略重啟({data.ToLog()})";
-                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
-                    trigger.StatusEnum = TriggerStatus.Enum.Waiting;
-                    return;
+                    _appCtrl.LogTrace(start, $"重啟觸價({primary})|{data.ToLog()}", UniqueName);
                 }
-
-                _appCtrl.LogError(start, $"執行觸價({primary})失敗|{data.ToLog()}", UniqueName);
+                else
+                {
+                    _appCtrl.LogError(start, $"{result.Item2}|{data.ToLog()}", UniqueName);
+                }
             }
             catch (Exception ex)
             {
                 _appCtrl.LogException(start, ex, ex.StackTrace);
-                _appCtrl.LogError(start, $"執行觸價({primary})失敗|{data.ToLog()}", UniqueName);
+                _appCtrl.LogError(start, $"重啟觸價({primary})失敗|{data.ToLog()}", UniqueName);
             }
             finally
             {
