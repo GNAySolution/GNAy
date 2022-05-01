@@ -671,10 +671,6 @@ namespace GNAy.Capital.Trade
                 {
                     cb = ComboBoxTriggerColumn;
                 }
-                else if (ComboBoxTriggerCancel.IsMouseOver && !ComboBoxTriggerCancel.IsFocused)
-                {
-                    cb = ComboBoxTriggerCancel;
-                }
                 else if (ComboBoxOrderAccs.IsMouseOver && !ComboBoxOrderAccs.IsFocused)
                 {
                     cb = ComboBoxOrderAccs;
@@ -1385,9 +1381,11 @@ namespace GNAy.Capital.Trade
                     Quote = selectedQuote,
                     Symbol = selectedQuote.Symbol,
                     Rule = TextBoxTriggerRuleValue.Text,
-                    Cancel = ComboBoxTriggerCancel.SelectedIndex,
-                    StrategyOR = TextBoxTriggerStrategyOR.Text,
-                    StrategyAND = TextBoxTriggerStrategyAND.Text,
+                    Cancel = TextBoxTriggerCancel.Text,
+                    StrategyOpenOR = TextBoxTriggerStrategyOpenOR.Text,
+                    StrategyOpenAND = TextBoxTriggerStrategyOpenAND.Text,
+                    StrategyCloseOR = TextBoxTriggerStrategyCloseOR.Text,
+                    StrategyCloseAND = TextBoxTriggerStrategyCloseAND.Text,
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
@@ -1490,11 +1488,13 @@ namespace GNAy.Capital.Trade
                     _appCtrl.LogError(start, $"Trigger|觸價關聯報價欄位錯誤|{trigger.ToLog()}", UniqueName);
                 }
 
-                ComboBoxTriggerCancel.SelectedIndex = trigger.Cancel;
+                TextBoxTriggerCancel.Text = trigger.Cancel;
                 TextBoxTriggerPrimaryKey.Text = trigger.PrimaryKey;
                 TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00####}";
-                TextBoxTriggerStrategyOR.Text = trigger.StrategyOR;
-                TextBoxTriggerStrategyAND.Text = trigger.StrategyAND;
+                TextBoxTriggerStrategyOpenOR.Text = trigger.StrategyOpenOR;
+                TextBoxTriggerStrategyOpenAND.Text = trigger.StrategyOpenAND;
+                TextBoxTriggerStrategyCloseOR.Text = trigger.StrategyCloseOR;
+                TextBoxTriggerStrategyCloseAND.Text = trigger.StrategyCloseAND;
 
                 TextBoxTriggerTimeDuration.Text = string.Empty;
                 if (trigger.StartTime.HasValue)

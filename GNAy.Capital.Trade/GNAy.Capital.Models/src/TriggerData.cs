@@ -151,40 +151,48 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _targetValue, value); }
         }
 
-        private int _cancel;
-        [Column("觸價取消索引")]
-        public int Cancel
+        private string _cancel;
+        [Column("觸價後取消其他觸價監控", "觸價後取消", WPFDisplayIndex = 10)]
+        public string Cancel
         {
             get { return _cancel; }
-            set { OnPropertiesChanged(ref _cancel, value, nameof(Cancel), nameof(CancelDes)); }
-        }
-        public TriggerCancel.Enum CancelEnum
-        {
-            get { return (TriggerCancel.Enum)Cancel; }
-            set { Cancel = (int)value; }
+            set { OnPropertyChanged(ref _cancel, value); }
         }
 
-        [Column("觸價取消描述", "觸價後取消", WPFDisplayIndex = 10)]
-        public string CancelDes => TriggerCancel.Description[Cancel];
-
-        private string _strategyOR;
-        [Column("滿足單一條件即執行策略", "執行策略OR", WPFDisplayIndex = 11)]
-        public string StrategyOR
+        private string _strategyOpenOR;
+        [Column("滿足單一條件即執行策略新倉", "策略新倉OR", WPFDisplayIndex = 11)]
+        public string StrategyOpenOR
         {
-            get { return _strategyOR; }
-            set { OnPropertyChanged(ref _strategyOR, value); }
+            get { return _strategyOpenOR; }
+            set { OnPropertyChanged(ref _strategyOpenOR, value); }
         }
 
-        private string _strategyAND;
-        [Column("滿足全部條件再執行策略", "執行策略AND", WPFDisplayIndex = 12)]
-        public string StrategyAND
+        private string _strategyOpenAND;
+        [Column("滿足全部條件再執行策略新倉", "策略新倉AND", WPFDisplayIndex = 12)]
+        public string StrategyOpenAND
         {
-            get { return _strategyAND; }
-            set { OnPropertyChanged(ref _strategyAND, value); }
+            get { return _strategyOpenAND; }
+            set { OnPropertyChanged(ref _strategyOpenAND, value); }
+        }
+
+        private string _strategyCloseOR;
+        [Column("滿足單一條件即執行策略平倉", "策略平倉OR", WPFDisplayIndex = 13)]
+        public string StrategyCloseOR
+        {
+            get { return _strategyCloseOR; }
+            set { OnPropertyChanged(ref _strategyCloseOR, value); }
+        }
+
+        private string _strategyCloseAND;
+        [Column("滿足全部條件再執行策略平倉", "策略平倉AND", WPFDisplayIndex = 14)]
+        public string StrategyCloseAND
+        {
+            get { return _strategyCloseAND; }
+            set { OnPropertyChanged(ref _strategyCloseAND, value); }
         }
 
         private DateTime? _startTime;
-        [Column("監控開始", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 13, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("監控開始", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 15, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
         public DateTime? StartTime
         {
             get { return _startTime; }
@@ -192,7 +200,7 @@ namespace GNAy.Capital.Models
         }
 
         private DateTime? _endTime;
-        [Column("監控結束", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 14, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("監控結束", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 16, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
         public DateTime? EndTime
         {
             get { return _endTime; }
@@ -200,7 +208,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 15)]
+        [Column("註解", WPFDisplayIndex = 17)]
         public string Comment
         {
             get { return _comment; }
@@ -222,9 +230,11 @@ namespace GNAy.Capital.Models
             ColumnValue = 0;
             Rule = string.Empty;
             TargetValue = 0;
-            CancelEnum = TriggerCancel.Enum.SameSymbolSameColumn;
-            StrategyOR = string.Empty;
-            StrategyAND = string.Empty;
+            Cancel = string.Empty;
+            StrategyOpenOR = string.Empty;
+            StrategyOpenAND = string.Empty;
+            StrategyCloseOR = string.Empty;
+            StrategyCloseAND = string.Empty;
             StartTime = null;
             EndTime = null;
             Comment = string.Empty;
@@ -238,8 +248,11 @@ namespace GNAy.Capital.Models
             PrimaryKey = PrimaryKey.Replace(" ", string.Empty);
             Symbol = Symbol.Replace(" ", string.Empty);
             Rule = Rule.Replace(" ", string.Empty);
-            StrategyOR = StrategyOR.Replace(" ", string.Empty);
-            StrategyAND = StrategyAND.Replace(" ", string.Empty);
+            Cancel = Cancel.Replace(" ", string.Empty);
+            StrategyOpenOR = StrategyOpenOR.Replace(" ", string.Empty);
+            StrategyOpenAND = StrategyOpenAND.Replace(" ", string.Empty);
+            StrategyCloseOR = StrategyCloseOR.Replace(" ", string.Empty);
+            StrategyCloseAND = StrategyCloseAND.Replace(" ", string.Empty);
             Comment = Comment.Replace(" ", string.Empty);
 
             return this;
@@ -247,7 +260,7 @@ namespace GNAy.Capital.Models
 
         public string ToLog()
         {
-            return $"{StatusDes},{PrimaryKey},{Symbol},{ColumnProperty}({ColumnName}),{CancelDes},{Comment}";
+            return $"{StatusDes},{PrimaryKey},{Symbol},{ColumnProperty}({ColumnName}),{Cancel},{Comment}";
         }
 
         public string ToCSVString()

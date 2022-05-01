@@ -62,7 +62,6 @@
     <Compile Include="src\AppSettings.cs" />
     <Compile Include="src\StatusCode.cs" />
     <Compile Include="src\OrderPrice.cs" />
-    <Compile Include="src\TriggerCancel.cs" />
     <Compile Include="src\TriggerData.cs" />
     <Compile Include="src\TriggerStatus.cs" />
   </ItemGroup>
