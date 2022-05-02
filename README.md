@@ -15,7 +15,7 @@
 ###### GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg
 * APP(開發中)操作介面示意圖
 - [x] 自定義台灣期貨、單隻腳選擇權，多樣化的觸價條件與停損停利策略
-- [x] 可設定不實際下單(SendRealOrder = false)，方便觀察比較不同策略之間的差異
+- [x] 可設定不實際下單(SendRealOrder = false)，方便觀察比較不同策略之間的優劣
 - [x] 全自動(或半自動)運行，適合放在雲端主機上運行
 - [x] 直播模式(LiveMode = true)，隱藏隱私資料，只呈現損益，方便使用者實況(或錄影)播放自己的交易策略
 - [ ] 台股上市、上櫃股票，待實作
