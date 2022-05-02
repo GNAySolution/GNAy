@@ -344,11 +344,13 @@ namespace GNAy.Capital.Trade
                     _appCtrl.LogTrace(start, $"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(2))}", UniqueName);
                     _appCtrl.LogTrace(start, $"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(3))}", UniqueName);
                     
-                    _appCtrl.LogTrace(start, $"{OrderPrice.Parse("10050", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
-                    _appCtrl.LogTrace(start, $"{OrderPrice.Parse("M+50", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
-                    _appCtrl.LogTrace(start, $"{OrderPrice.Parse("M-50", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
-                    _appCtrl.LogTrace(start, $"{OrderPrice.Parse("P+0.5%", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
-                    _appCtrl.LogTrace(start, $"{OrderPrice.Parse("P-0.5%", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"L|{OrderPrice.Parse("10050", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"M|{OrderPrice.Parse("M", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"P|{OrderPrice.Parse("P", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"M+50|{OrderPrice.Parse("M+50", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"M-50|{OrderPrice.Parse("M-50", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"P+0.5%|{OrderPrice.Parse("P+0.5%", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"P-0.5%|{OrderPrice.Parse("P-0.5%", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
 
                     _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.FullName}", UniqueName);
                     _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}", UniqueName);
@@ -898,14 +900,15 @@ namespace GNAy.Capital.Trade
 
                 if (_appCtrl.Capital != null)
                 {
-                    StatusBarItemBA3.Text = $"{_appCtrl.Capital.UserIDTimer.Item1:mm:ss}|{_appCtrl.Capital.UserIDTimer.Item2}";
-                    StatusBarItemBA4.Text = _appCtrl.Capital.QuoteTimer;
-                    StatusBarItemAB5.Text = _appCtrl.Capital.QuoteStatusStr;
-                    StatusBarItemAB3.Text = $"{_appCtrl.Capital.QuoteLastUpdated.Name}|{_appCtrl.Capital.QuoteLastUpdated.UpdateTime:mm:ss.fff}|{_appCtrl.Capital.QuoteLastUpdated.Updater}";
-
                     elapsed = (start - _appCtrl.Capital.QuoteLastUpdated.UpdateTime).ToString("mm':'ss'.'fff");
                     StatusBarItemAA2.Text = $"{StatusBarItemAA2.Text}|{elapsed}";
 
+                    StatusBarItemBA3.Text = $"{_appCtrl.Capital.UserIDTimer.Item1:mm:ss}|{_appCtrl.Capital.UserIDTimer.Item2}";
+                    StatusBarItemBA4.Text = _appCtrl.Capital.QuoteTimer;
+                    StatusBarItemCA4.Text = $"{_appCtrl.Capital.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.Capital.MarketCloseTime:MM/dd HH:mm}";
+
+                    StatusBarItemAB5.Text = _appCtrl.Capital.QuoteStatusStr;
+                    StatusBarItemAB3.Text = $"{_appCtrl.Capital.QuoteLastUpdated.Name}|{_appCtrl.Capital.QuoteLastUpdated.UpdateTime:mm:ss.fff}|{_appCtrl.Capital.QuoteLastUpdated.Updater}";
                     StatusBarItemCB3.Text = _appCtrl.Capital.OrderNotice;
                 }
 
@@ -1034,7 +1037,6 @@ namespace GNAy.Capital.Trade
                     Thread.Sleep(2 * 1000);
                     this.InvokeRequired(delegate
                     {
-                        StatusBarItemCA4.Text = $"{_appCtrl.Capital.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.Capital.MarketCloseTime:MM/dd HH:mm}";
                         ButtonIsConnected_Click(null, null);
                         //ButtonPrintProductList_Click(null, null);
                         ButtonGetProductInfo_Click(null, null);
@@ -1090,6 +1092,17 @@ namespace GNAy.Capital.Trade
             {
                 _appCtrl.Settings.LiveMode = CheckBoxLiveMode.IsChecked.Value;
                 _appCtrl.LogTrace(start, $"LiveMode={_appCtrl.Settings.LiveMode}", UniqueName);
+
+                if (_appCtrl.Settings.LiveMode)
+                {
+                    TextBoxUserID.Visibility = Visibility.Collapsed;
+                    ComboBoxOrderAccs.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    TextBoxUserID.Visibility = Visibility.Visible;
+                    ComboBoxOrderAccs.Visibility = Visibility.Visible;
+                }
             }
             catch (Exception ex)
             {
@@ -1484,7 +1497,8 @@ namespace GNAy.Capital.Trade
                 TriggerData trigger = new TriggerData((TradeColumnTrigger)ComboBoxTriggerColumn.SelectedItem)
                 {
                     PrimaryKey = TextBoxTriggerPrimaryKey.Text,
-                    Symbol = ComboBoxTriggerProduct1.Text.Split(',')[0],
+                    Symbol1 = ComboBoxTriggerProduct1.Text.Split(',')[0],
+                    Symbol2 = ComboBoxTriggerProduct2.Text.Split(',')[0],
                     Rule = TextBoxTriggerRuleValue.Text,
                     Cancel = TextBoxTriggerCancel.Text,
                     StrategyOpenOR = TextBoxTriggerStrategyOpenOR.Text,
@@ -1547,7 +1561,8 @@ namespace GNAy.Capital.Trade
                 TriggerData trigger = ((DataGridCell)sender).GetItem<TriggerData>();
                 _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
 
-                ComboBoxTriggerProduct1.Text = trigger.Symbol;
+                ComboBoxTriggerProduct1.Text = trigger.Symbol1;
+                ComboBoxTriggerProduct2.Text = trigger.Symbol2;
 
                 ComboBoxTriggerColumn.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxTriggerColumn.Items.Count; ++i)

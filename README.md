@@ -4,7 +4,7 @@
 
 ## GNAy.Capital.Trade.csproj
 ![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg)
-* 交易輔助APP，策略交易框架與範例，提供多樣化的素材，方便客戶自行組合與測試交易策略
+* 交易輔助APP，策略交易框架與範例，提供多樣化的素材，方便user自行組合與測試交易策略
 * 基於群益API(SKCOM.dll)，需先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
 * https://www.capital.com.tw/Service2/download/api.asp
 
@@ -17,7 +17,7 @@
 - [x] 自定義台灣期貨、單隻腳選擇權，多樣化的觸價條件與停損停利策略
 - [x] 可設定不實際下單(SendRealOrder = false)，方便觀察比較不同策略之間的優劣
 - [x] 全自動(或半自動)運行，適合放在雲端主機上運行
-- [x] 直播模式(LiveMode = true)，隱藏隱私資料，只呈現損益，方便使用者實況(或錄影)播放自己的交易策略
+- [x] 直播模式(LiveMode = true)，隱藏隱私資料，只呈現損益，方便user實況(或錄影)播放自己的交易策略
 - [ ] 台股上市、上櫃股票，待實作
 - [ ] 國外期貨、選擇權，待實作
 

@@ -39,10 +39,11 @@ namespace GNAy.Tools.NET47.Models
 
             field = value;
             OnPropertyChanged(propertyName);
+
             return true;
         }
 
-        protected virtual bool OnPropertiesChanged<T>(ref T field, T value, params string[] propertyNames)
+        protected virtual bool OnPropertiesChanged<T>(ref T field, T value, string propertyName, params string[] otherNames)
         {
             if (EqualityComparer<T>.Default.Equals(field, value))
             {
@@ -50,10 +51,13 @@ namespace GNAy.Tools.NET47.Models
             }
 
             field = value;
-            foreach (string name in propertyNames)
+            OnPropertyChanged(propertyName);
+
+            foreach (string name in otherNames)
             {
                 OnPropertyChanged(name);
             }
+
             return true;
         }
     }

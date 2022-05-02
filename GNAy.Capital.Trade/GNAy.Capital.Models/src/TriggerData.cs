@@ -109,14 +109,14 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _primaryKey, value); }
         }
 
-        public QuoteData Quote;
+        public QuoteData Quote1;
 
-        private string _symbol;
-        [Column("代碼", WPFDisplayIndex = 4)]
-        public string Symbol
+        private string _symbol1;
+        [Column("代碼1", WPFDisplayIndex = 4)]
+        public string Symbol1
         {
-            get { return _symbol; }
-            set { OnPropertyChanged(ref _symbol, value); }
+            get { return _symbol1; }
+            set { OnPropertyChanged(ref _symbol1, value); }
         }
 
         public TradeColumnTrigger Column { get; private set; }
@@ -151,8 +151,33 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _targetValue, value); }
         }
 
+        public decimal Symbol2Offset;
+        private string _symbol2Setting;
+        [Column("代碼2設定", WPFDisplayIndex = 10)]
+        public string Symbol2Setting
+        {
+            get { return _symbol2Setting; }
+            set
+            {
+                if (OnPropertyChanged(ref _symbol2Setting, value))
+                {
+                    Symbol2Offset = string.IsNullOrWhiteSpace(value) ? 0 : decimal.Parse(value);
+                }
+            }
+        }
+
+        private string _symbol2;
+        [Column("代碼2", WPFDisplayIndex = 11)]
+        public string Symbol2
+        {
+            get { return _symbol2; }
+            set { OnPropertyChanged(ref _symbol2, value); }
+        }
+
+        public QuoteData Quote2;
+
         private string _cancel;
-        [Column("觸價後取消其他觸價監控", "觸價後取消", WPFDisplayIndex = 10)]
+        [Column("觸價後取消其他觸價監控", "觸價後取消", WPFDisplayIndex = 12)]
         public string Cancel
         {
             get { return _cancel; }
@@ -160,7 +185,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyOpenOR;
-        [Column("滿足單一條件即執行策略新倉", "策略新倉OR", WPFDisplayIndex = 11)]
+        [Column("滿足單一條件即執行策略新倉", "策略新倉OR", WPFDisplayIndex = 13)]
         public string StrategyOpenOR
         {
             get { return _strategyOpenOR; }
@@ -168,7 +193,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyOpenAND;
-        [Column("滿足全部條件再執行策略新倉", "策略新倉AND", WPFDisplayIndex = 12)]
+        [Column("滿足全部條件再執行策略新倉", "策略新倉AND", WPFDisplayIndex = 14)]
         public string StrategyOpenAND
         {
             get { return _strategyOpenAND; }
@@ -176,7 +201,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyCloseOR;
-        [Column("滿足單一條件即執行策略平倉", "策略平倉OR", WPFDisplayIndex = 13)]
+        [Column("滿足單一條件即執行策略平倉", "策略平倉OR", WPFDisplayIndex = 15)]
         public string StrategyCloseOR
         {
             get { return _strategyCloseOR; }
@@ -184,7 +209,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyCloseAND;
-        [Column("滿足全部條件再執行策略平倉", "策略平倉AND", WPFDisplayIndex = 14)]
+        [Column("滿足全部條件再執行策略平倉", "策略平倉AND", WPFDisplayIndex = 16)]
         public string StrategyCloseAND
         {
             get { return _strategyCloseAND; }
@@ -192,7 +217,7 @@ namespace GNAy.Capital.Models
         }
 
         private DateTime? _startTime;
-        [Column("監控開始", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 15, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("監控開始", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 17, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
         public DateTime? StartTime
         {
             get { return _startTime; }
@@ -200,7 +225,7 @@ namespace GNAy.Capital.Models
         }
 
         private DateTime? _endTime;
-        [Column("監控結束", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 16, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("監控結束", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 18, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
         public DateTime? EndTime
         {
             get { return _endTime; }
@@ -208,7 +233,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 17)]
+        [Column("註解", WPFDisplayIndex = 19)]
         public string Comment
         {
             get { return _comment; }
@@ -224,12 +249,16 @@ namespace GNAy.Capital.Models
             UpdateTime = DateTime.MaxValue;
             StatusEnum = TriggerStatus.Enum.Waiting;
             PrimaryKey = string.Empty;
-            Quote = null;
-            Symbol = string.Empty;
+            Quote1 = null;
+            Symbol1 = string.Empty;
             Column = column;
             ColumnValue = 0;
             Rule = string.Empty;
             TargetValue = 0;
+            Symbol2Offset = 0;
+            Symbol2Setting = string.Empty;
+            Symbol2 = string.Empty;
+            Quote2 = null;
             Cancel = string.Empty;
             StrategyOpenOR = string.Empty;
             StrategyOpenAND = string.Empty;
@@ -246,8 +275,10 @@ namespace GNAy.Capital.Models
         public TriggerData Trim()
         {
             PrimaryKey = PrimaryKey.Replace(" ", string.Empty);
-            Symbol = Symbol.Replace(" ", string.Empty);
+            Symbol1 = Symbol1.Replace(" ", string.Empty);
             Rule = Rule.Replace(" ", string.Empty);
+            Symbol2Setting = Symbol2Setting.Replace(" ", string.Empty);
+            Symbol2 = Symbol2.Replace(" ", string.Empty);
             Cancel = Cancel.Replace(" ", string.Empty);
             StrategyOpenOR = StrategyOpenOR.Replace(" ", string.Empty);
             StrategyOpenAND = StrategyOpenAND.Replace(" ", string.Empty);
@@ -258,9 +289,52 @@ namespace GNAy.Capital.Models
             return this;
         }
 
+        public decimal GetColumnValue(QuoteData quote)
+        {
+            object valueObj = Column.Property.GetValue(quote);
+
+            if (Column.Property.PropertyType == typeof(DateTime))
+            {
+                return decimal.Parse(((DateTime)valueObj).ToString(Column.Attribute.TriggerFormat));
+            }
+            else if (Column.Property.PropertyType == typeof(string))
+            {
+                return decimal.Parse((string)valueObj);
+            }
+
+            return (decimal)valueObj;
+        }
+
+        public decimal GetTargetValue()
+        {
+            return (Quote2 == null) ? TargetValue : (GetColumnValue(Quote2) + Symbol2Offset);
+        }
+
+        public bool? IsMatchedRule(decimal columnValue, decimal targetValue)
+        {
+            if (columnValue == 0 || targetValue == 0)
+            {
+                return false;
+            }
+            else if (Rule == IsGreaterThanOrEqualTo)
+            {
+                return columnValue >= targetValue;
+            }
+            else if (Rule == IsLessThanOrEqualTo)
+            {
+                return columnValue <= targetValue;
+            }
+            else if (Rule == IsEqualTo)
+            {
+                return columnValue == targetValue;
+            }
+
+            return null;
+        }
+
         public string ToLog()
         {
-            return $"{StatusDes},{PrimaryKey},{Symbol},{ColumnProperty}({ColumnName}),{Cancel},{Comment}";
+            return $"{StatusDes},{PrimaryKey},{Symbol1},{Symbol2},{ColumnProperty}({ColumnName}),{Cancel},{Comment}";
         }
 
         public string ToCSVString()
