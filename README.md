@@ -5,17 +5,19 @@
 ## GNAy.Capital.Trade.csproj
 ![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg)
 * 交易輔助APP，策略交易框架與範例，提供多樣化的素材，方便客戶自行組合與測試交易策略
-* https://www.capital.com.tw/Service2/download/api.asp
 * 基於群益API(SKCOM.dll)，需先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
+* https://www.capital.com.tw/Service2/download/api.asp
 
 ###### vcredist_x64.exe & CAP-*.pfx
 * 使用群益API的前置條件，要先安裝憑證(CAP-*.pfx)，以及微軟Visual C++ 2010 Service Pack 1 MFC可轉散發套件安全性更新(vcredist_x64.exe)
 * https://docs.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
 ###### GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg
-* APP操作介面示意圖
-- [x] 自定義台灣期貨、單隻腳選擇權，多樣化的觸價條件與停損停利策略，開發中
+* APP(開發中)操作介面示意圖
+- [x] 自定義台灣期貨、單隻腳選擇權，多樣化的觸價條件與停損停利策略
+- [x] 可設定不實際下單(SendRealOrder = false)，方便觀察比較不同策略之間的差異
 - [x] 全自動(或半自動)運行，適合放在雲端主機上運行
+- [x] 直播模式(LiveMode = true)，隱藏隱私資料，只呈現損益，方便使用者實況(或錄影)播放自己的交易策略
 - [ ] 台股上市、上櫃股票，待實作
 - [ ] 國外期貨、選擇權，待實作
 

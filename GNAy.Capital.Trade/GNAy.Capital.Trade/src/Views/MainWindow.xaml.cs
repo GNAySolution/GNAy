@@ -62,19 +62,43 @@ namespace GNAy.Capital.Trade
             }
 
             _editableCBMap = new Dictionary<TextBox, ComboBox>();
-            //https://github.com/punker76/MahApps.Metro.SimpleChildWindow/issues/69
-            ComboBoxOrderProduct.ApplyTemplate();
-            TextBox partTB1 = (TextBox)ComboBoxOrderProduct.Template.FindName("PART_EditableTextBox", ComboBoxOrderProduct);
-            partTB1.GotFocus += TextBox_GotFocus;
-            _editableCBMap[partTB1] = ComboBoxOrderProduct;
-            ComboBoxOrderSeqNo.ApplyTemplate();
-            TextBox partTB2 = (TextBox)ComboBoxOrderSeqNo.Template.FindName("PART_EditableTextBox", ComboBoxOrderSeqNo);
-            partTB2.GotFocus += TextBox_GotFocus;
-            _editableCBMap[partTB2] = ComboBoxOrderSeqNo;
-            ComboBoxOrderBookNo.ApplyTemplate();
-            TextBox partTB3 = (TextBox)ComboBoxOrderBookNo.Template.FindName("PART_EditableTextBox", ComboBoxOrderBookNo);
-            partTB3.GotFocus += TextBox_GotFocus;
-            _editableCBMap[partTB3] = ComboBoxOrderBookNo;
+            if (ComboBoxTriggerProduct1.IsEditable)
+            {
+                TextBox partTB = ComboBoxTriggerProduct1.GetEditableTextBox();
+                partTB.GotFocus += TextBox_GotFocus;
+                _editableCBMap[partTB] = ComboBoxTriggerProduct1;
+            }
+            if (ComboBoxTriggerProduct2.IsEditable)
+            {
+                TextBox partTB = ComboBoxTriggerProduct2.GetEditableTextBox();
+                partTB.GotFocus += TextBox_GotFocus;
+                _editableCBMap[partTB] = ComboBoxTriggerProduct2;
+            }
+            if (ComboBoxOrderProduct.IsEditable)
+            {
+                TextBox partTB = ComboBoxOrderProduct.GetEditableTextBox();
+                partTB.GotFocus += TextBox_GotFocus;
+                _editableCBMap[partTB] = ComboBoxOrderProduct;
+            }
+            if (ComboBoxOrderSeqNo.IsEditable)
+            {
+                TextBox partTB = ComboBoxOrderSeqNo.GetEditableTextBox();
+                partTB.GotFocus += TextBox_GotFocus;
+                _editableCBMap[partTB] = ComboBoxOrderSeqNo;
+            }
+            if (ComboBoxOrderBookNo.IsEditable)
+            {
+                TextBox partTB = ComboBoxOrderBookNo.GetEditableTextBox();
+                partTB.GotFocus += TextBox_GotFocus;
+                _editableCBMap[partTB] = ComboBoxOrderBookNo;
+            }
+
+            StatusBarItemAA1.Text = StartTime.ToString("MM/dd HH:mm");
+            TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
+            StatusBarItemAB2.Text = $"Subscribed={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}";
+
+            ButtonSetOrderMaxQty.IsEnabled = false;
+            ButtonSetOrderMaxCount.IsEnabled = false;
 
             _timer1 = new DispatcherTimer(DispatcherPriority.ContextIdle)
             {
@@ -86,23 +110,6 @@ namespace GNAy.Capital.Trade
                 Interval = TimeSpan.FromMilliseconds(_appCtrl.Settings.TimerIntervalUI2),
             };
             _timer2.Tick += Timer2_Tick;
-
-            StatusBarItemAA1.Text = StartTime.ToString("MM/dd HH:mm");
-            TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
-            StatusBarItemAB2.Text = $"Subscribed={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}";
-
-            StatusBarItemCA4.Text = string.Empty;
-            if (_appCtrl.Config.IsAMMarket(StartTime))
-            {
-                StatusBarItemCA4.Text = $"{_appCtrl.Settings.MarketStart[(int)Market.EDayNight.AM]:MM/dd HH:mm} ~ {_appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM]:MM/dd HH:mm}";
-            }
-            else if (!_appCtrl.Config.IsHoliday(StartTime))
-            {
-                StatusBarItemCA4.Text = $"{_appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM]:MM/dd HH:mm} ~ {_appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].AddDays(1):MM/dd HH:mm}";
-            }
-
-            ButtonSetOrderMaxQty.IsEnabled = false;
-            ButtonSetOrderMaxCount.IsEnabled = false;
 
             _appCtrl.LogTrace(StartTime, Title, UniqueName);
         }
@@ -329,11 +336,6 @@ namespace GNAy.Capital.Trade
             {
                 try
                 {
-                    if (!_appCtrl.Config.StartOnTime)
-                    {
-                        _appCtrl.LogWarn(start, $"程式沒有在正常時間啟動", UniqueName);
-                    }
-
                     _appCtrl.LogTrace(start, $"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-3))}", UniqueName);
                     _appCtrl.LogTrace(start, $"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-2))}", UniqueName);
                     _appCtrl.LogTrace(start, $"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-1))}", UniqueName);
@@ -341,11 +343,17 @@ namespace GNAy.Capital.Trade
                     _appCtrl.LogTrace(start, $"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(1))}", UniqueName);
                     _appCtrl.LogTrace(start, $"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(2))}", UniqueName);
                     _appCtrl.LogTrace(start, $"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(3))}", UniqueName);
+                    
+                    _appCtrl.LogTrace(start, $"{OrderPrice.Parse("10050", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{OrderPrice.Parse("M+50", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{OrderPrice.Parse("M-50", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{OrderPrice.Parse("P+0.5%", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{OrderPrice.Parse("P-0.5%", 10100, 10000, Market.EGroup.TSE)}", UniqueName);
 
                     _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.FullName}", UniqueName);
                     _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}", UniqueName);
 
-                    _appCtrl.LogTrace(start, $"AutoRun={_appCtrl.Settings.AutoRun}", UniqueName);
+                    _appCtrl.LogTrace(start, $"AutoRun={_appCtrl.Config.AutoRun}", UniqueName);
                 }
                 catch (Exception ex)
                 {
@@ -359,6 +367,11 @@ namespace GNAy.Capital.Trade
 
             try
             {
+                CheckBoxSendRealOrder.IsChecked = _appCtrl.Settings.SendRealOrder;
+                CheckBoxSendRealOrder_CheckedOrNot(null, null);
+                CheckBoxLiveMode.IsChecked = _appCtrl.Settings.LiveMode;
+                CheckBoxLiveMode_CheckedOrNot(null, null);
+
                 if (!_appCtrl.Config.Archive.Exists)
                 {
                     //https://docs.microsoft.com/zh-tw/dotnet/desktop/wpf/windows/how-to-open-message-box?view=netdesktop-6.0
@@ -371,7 +384,7 @@ namespace GNAy.Capital.Trade
                     _appCtrl.Exit(caption, LogLevel.Warn);
                     return;
                 }
-                else if (_appCtrl.Settings.AutoRun)
+                else if (_appCtrl.Config.AutoRun)
                 {
                     Task.Factory.StartNew(() =>
                     {
@@ -382,7 +395,7 @@ namespace GNAy.Capital.Trade
 
                 _timer1.Start();
 
-                if (!_appCtrl.Settings.AutoRun)
+                if (!_appCtrl.Config.AutoRun)
                 {
                     _timer2.Start();
                 }
@@ -430,6 +443,37 @@ namespace GNAy.Capital.Trade
             finally
             {
                 //_appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void ComboBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                if (sender is ComboBox cb)
+                {
+                    string[] cells = cb.Text.Split(',');
+
+                    if (cells.Length <= 0 || cells.Length > 1 || string.IsNullOrWhiteSpace(cells[0]))
+                    {
+                        return;
+                    }
+
+                    (int, SKCOMLib.SKSTOCKLONG) product = _appCtrl.Capital.GetProductInfo(cells[0], start);
+
+                    if (product.Item1 != 0)
+                    {
+                        return;
+                    }
+
+                    cb.Text = $"{product.Item2.bstrStockNo},{product.Item2.bstrStockName},{(Market.EGroup)(product.Item2.bstrMarketNo[0] - '0')}";
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
         }
 
@@ -538,6 +582,20 @@ namespace GNAy.Capital.Trade
             finally
             {
                 //_appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void ComboBox_MouseLeave(object sender, MouseEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                ComboBox_LostFocus(sender, e);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
         }
 
@@ -663,9 +721,13 @@ namespace GNAy.Capital.Trade
 
                 ComboBox cb = null;
 
-                if (ComboBoxTriggerProduct.IsMouseOver && !ComboBoxTriggerProduct.IsFocused)
+                if (ComboBoxTriggerProduct1.IsMouseOver && !ComboBoxTriggerProduct1.IsFocused)
                 {
-                    cb = ComboBoxTriggerProduct;
+                    cb = ComboBoxTriggerProduct1;
+                }
+                else if (ComboBoxTriggerProduct2.IsMouseOver && !ComboBoxTriggerProduct2.IsFocused)
+                {
+                    cb = ComboBoxTriggerProduct2;
                 }
                 else if (ComboBoxTriggerColumn.IsMouseOver && !ComboBoxTriggerColumn.IsFocused)
                 {
@@ -902,7 +964,7 @@ namespace GNAy.Capital.Trade
                     }
                 }
 
-                if (_appCtrl.Settings.AutoRun && _appCtrl.Capital == null)
+                if (_appCtrl.Config.AutoRun && _appCtrl.Capital == null)
                 {
                     reConnect = 1 + StatusCode.BaseTraceValue;
                 }
@@ -972,6 +1034,7 @@ namespace GNAy.Capital.Trade
                     Thread.Sleep(2 * 1000);
                     this.InvokeRequired(delegate
                     {
+                        StatusBarItemCA4.Text = $"{_appCtrl.Capital.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.Capital.MarketCloseTime:MM/dd HH:mm}";
                         ButtonIsConnected_Click(null, null);
                         //ButtonPrintProductList_Click(null, null);
                         ButtonGetProductInfo_Click(null, null);
@@ -979,7 +1042,7 @@ namespace GNAy.Capital.Trade
                         ButtonGetOrderAccs_Click(null, null);
                     });
 
-                    Thread.Sleep(2 * 1000);
+                    Thread.Sleep(8 * 1000);
                     SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 8 * 1000);
                     Thread.Sleep(2 * 1000);
                     _appCtrl.Capital.GetOpenInterestAsync();
@@ -997,6 +1060,44 @@ namespace GNAy.Capital.Trade
             {
                 _appCtrl.LogException(start, ex, ex.StackTrace);
                 _timer2.Start();
+            }
+        }
+
+        private void CheckBoxSendRealOrder_CheckedOrNot(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                _appCtrl.Settings.SendRealOrder = CheckBoxSendRealOrder.IsChecked.Value;
+                _appCtrl.LogTrace(start, $"SendRealOrder={_appCtrl.Settings.SendRealOrder}", UniqueName);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void CheckBoxLiveMode_CheckedOrNot(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                _appCtrl.Settings.LiveMode = CheckBoxLiveMode.IsChecked.Value;
+                _appCtrl.LogTrace(start, $"LiveMode={_appCtrl.Settings.LiveMode}", UniqueName);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
@@ -1139,6 +1240,13 @@ namespace GNAy.Capital.Trade
             {
                 _appCtrl.Capital.SubQuotesAsync();
                 _appCtrl.SetTriggerRule();
+
+                ComboBoxTriggerProduct1.SetAndGetItemsSource(_appCtrl.Capital.QuoteCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                ComboBoxTriggerProduct1.Text = "2330";
+                ComboBoxTriggerProduct2.SetAndGetItemsSource(_appCtrl.Capital.QuoteCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                ComboBoxTriggerProduct2.Text = "2330";
+                ComboBoxOrderProduct.SetAndGetItemsSource(_appCtrl.Capital.QuoteCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                ComboBoxOrderProduct.Text = "2330";
             }
             catch (Exception ex)
             {
@@ -1373,13 +1481,10 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                QuoteData selectedQuote = (QuoteData)ComboBoxTriggerProduct.SelectedItem;
-
                 TriggerData trigger = new TriggerData((TradeColumnTrigger)ComboBoxTriggerColumn.SelectedItem)
                 {
                     PrimaryKey = TextBoxTriggerPrimaryKey.Text,
-                    Quote = selectedQuote,
-                    Symbol = selectedQuote.Symbol,
+                    Symbol = ComboBoxTriggerProduct1.Text.Split(',')[0],
                     Rule = TextBoxTriggerRuleValue.Text,
                     Cancel = TextBoxTriggerCancel.Text,
                     StrategyOpenOR = TextBoxTriggerStrategyOpenOR.Text,
@@ -1442,28 +1547,7 @@ namespace GNAy.Capital.Trade
                 TriggerData trigger = ((DataGridCell)sender).GetItem<TriggerData>();
                 _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
 
-                ComboBoxTriggerProduct.SelectedIndex = -1;
-                for (int i = 0; i < ComboBoxTriggerProduct.Items.Count; ++i)
-                {
-                    ComboBoxTriggerProduct.SelectedIndex = i;
-                    if (ComboBoxTriggerProduct.SelectedItem is QuoteData quote && quote == trigger.Quote)
-                    {
-                        if (quote.Symbol == trigger.Symbol)
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            _appCtrl.LogError(start, $"Trigger|觸價關聯報價代碼錯誤|quote.Symbol{quote.Symbol} != trigger.Symbol{trigger.Symbol}|{trigger.ToLog()}", UniqueName);
-                            ComboBoxTriggerProduct.SelectedIndex = -1;
-                            break;
-                        }
-                    }
-                }
-                if (ComboBoxTriggerProduct.SelectedIndex < 0)
-                {
-                    _appCtrl.LogError(start, $"Trigger|觸價關聯報價代碼錯誤|{trigger.ToLog()}", UniqueName);
-                }
+                ComboBoxTriggerProduct1.Text = trigger.Symbol;
 
                 ComboBoxTriggerColumn.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxTriggerColumn.Items.Count; ++i)
@@ -1643,7 +1727,7 @@ namespace GNAy.Capital.Trade
                     MarketType = acc.MarketType,
                     Branch = acc.Branch,
                     Account = acc.Account,
-                    Symbol = ComboBoxOrderProduct.Text,
+                    Symbol = ComboBoxOrderProduct.Text.Split(',')[0],
                     BS = (short)ComboBoxOrderBuySell.SelectedIndex,
                     TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
                     DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
@@ -1716,7 +1800,7 @@ namespace GNAy.Capital.Trade
                     MarketType = acc.MarketType,
                     Branch = acc.Branch,
                     Account = acc.Account,
-                    Symbol = ComboBoxOrderProduct.Text,
+                    Symbol = ComboBoxOrderProduct.Text.Split(',')[0],
                     BS = (short)ComboBoxOrderBuySell.SelectedIndex,
                     TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
                     DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
@@ -1772,7 +1856,7 @@ namespace GNAy.Capital.Trade
                     MarketType = acc.MarketType,
                     Branch = acc.Branch,
                     Account = acc.Account,
-                    Symbol = ComboBoxOrderProduct.Text,
+                    Symbol = ComboBoxOrderProduct.Text.Split(',')[0],
                     BS = (short)ComboBoxOrderBuySell.SelectedIndex,
                     TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
                     DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,

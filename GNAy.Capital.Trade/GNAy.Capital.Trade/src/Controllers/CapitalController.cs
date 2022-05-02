@@ -53,7 +53,16 @@ namespace GNAy.Capital.Trade.Controllers
         public (DateTime, string) UserIDTimer { get; private set; }
         public string QuoteTimer { get; private set; }
 
-        public readonly bool IsAMMarket;
+        public bool IsAMMarket { get; private set; }
+
+        /// <summary>
+        /// 在開盤前執行登入動作(未考慮登入失敗或其他異常情況)
+        /// </summary>
+        public bool LoadedOnTime { get; private set; }
+
+        public DateTime MarketStartTime { get; private set; }
+        public DateTime MarketCloseTime { get; private set; }
+
         public string QuoteFileNameBase { get; private set; }
 
         private readonly Dictionary<int, APIReplyData> _apiReplyMap;
@@ -64,6 +73,7 @@ namespace GNAy.Capital.Trade.Controllers
         public QuoteData QuoteLastUpdated { get; private set; }
         private readonly Dictionary<int, QuoteData> _quoteIndexMap;
         private readonly ObservableCollection<QuoteData> _quoteCollection;
+        public IReadOnlyList<QuoteData> QuoteCollection => _quoteCollection;
 
         public string OrderNotice { get; private set; }
 
@@ -94,7 +104,11 @@ namespace GNAy.Capital.Trade.Controllers
             UserIDTimer = (DateTime.MinValue, string.Empty);
             QuoteTimer = string.Empty;
 
-            IsAMMarket = _appCtrl.Config.IsAMMarket(CreatedTime);
+            IsAMMarket = false;
+            LoadedOnTime = false;
+            MarketStartTime = DateTime.MinValue;
+            MarketCloseTime = DateTime.MinValue;
+
             QuoteFileNameBase = string.Empty;
 
             _apiReplyMap = new Dictionary<int, APIReplyData>();
@@ -367,6 +381,38 @@ namespace GNAy.Capital.Trade.Controllers
                     m_SKQuoteLib.OnNotifyOddLotSpreadDeal += m_SKQuoteLib_OnNotifyOddLotSpreadDeal;
 
                     QuoteEnterMonitor(start);
+
+                    IsAMMarket = _appCtrl.Config.IsAMMarket(CreatedTime);
+
+                    bool startDelayed = false; //因為一些異常情況，程式沒有在正常時間啟動
+                    if (IsAMMarket)
+                    {
+                        if (CreatedTime > _appCtrl.Settings.MarketStart[(int)Market.EDayNight.AM].AddMinutes(-2))
+                        {
+                            startDelayed = true;
+                        }
+                    }
+                    else if (CreatedTime > _appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM].AddMinutes(-2) || _appCtrl.Config.IsHoliday(CreatedTime) || CreatedTime.Hour < 8)
+                    {
+                        startDelayed = true;
+                    }
+                    LoadedOnTime = !startDelayed;
+
+                    if (IsAMMarket)
+                    {
+                        MarketStartTime = _appCtrl.Settings.MarketStart[(int)Market.EDayNight.AM];
+                        MarketCloseTime = _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM];
+                    }
+                    else if (!_appCtrl.Config.IsHoliday(start))
+                    {
+                        MarketStartTime = _appCtrl.Settings.MarketStart[(int)Market.EDayNight.AM];
+                        MarketCloseTime = _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].AddDays(1);
+                    }
+
+                    if (!LoadedOnTime)
+                    {
+                        _appCtrl.LogWarn(start, $"沒有在開盤前執行登入動作", UniqueName);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -615,7 +661,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (_quoteIndexMap.Count > 0)
                 {
-                    throw new ArgumentException($"_quoteCollection.Count > 0|Count={_quoteIndexMap.Count}|Quotes are subscribed.");
+                    throw new ArgumentException($"_quoteIndexMap.Count > 0|Count={_quoteIndexMap.Count}|Quotes are subscribed.");
                 }
 
                 QuoteFileNameBase = string.Empty;
@@ -662,9 +708,9 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                 }
 
-                if (_quoteIndexMap.Count > 0)
+                if (_quoteCollection.Count > 0)
                 {
-                    int tradeDate = _quoteIndexMap.Values.Max(x => x.TradeDateRaw);
+                    int tradeDate = _quoteCollection.Max(x => x.TradeDateRaw);
 
                     if (start.Hour >= 14 && tradeDate <= int.Parse(start.ToString("yyyyMMdd")) && !IsAMMarket)
                     {
@@ -744,11 +790,6 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void SubQuotesAsync()
         {
-            if (_quoteIndexMap.Count <= 0)
-            {
-                return;
-            }
-
             Task.Factory.StartNew(() =>
             {
                 DateTime start = _appCtrl.StartTrace();
@@ -759,7 +800,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     RecoverOpenQuotesFromFile();
 
-                    foreach (QuoteData quote in _quoteIndexMap.Values)
+                    foreach (QuoteData quote in _quoteCollection)
                     {
                         if (isHoliday) //假日不訂閱即時報價
                         {
@@ -811,12 +852,6 @@ namespace GNAy.Capital.Trade.Controllers
                             _appCtrl.LogError(start, $"Sub quote failed.|requests={requests}|qPage={qPage}", UniqueName);
                         }
                     }
-
-                    _appCtrl.MainForm.InvokeRequired(delegate
-                    {
-                        _appCtrl.MainForm.ComboBoxOrderProduct.SetAndGetItemsSource(_quoteIndexMap.Values.Select(x => x.Symbol));
-                        _appCtrl.MainForm.ComboBoxOrderProduct.SelectedIndex = _appCtrl.MainForm.ComboBoxOrderProduct.Items.Count - 1;
-                    });
                 }
                 catch (Exception ex)
                 {
@@ -882,7 +917,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    foreach (QuoteData quote in _quoteIndexMap.Values)
+                    foreach (QuoteData quote in _quoteCollection)
                     {
                         RequestKLine(quote.Symbol);
                     }

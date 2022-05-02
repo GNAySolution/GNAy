@@ -19,17 +19,14 @@ namespace GNAy.Capital.Models
 
         public readonly SortedDictionary<DateTime, string> Holidays;
 
+        public readonly bool AutoRun;
+
         public readonly HashSet<string> QuoteSubscribed;
         public readonly DirectoryInfo QuoteFolder;
 
         public readonly DirectoryInfo TriggerFolder;
         public readonly DirectoryInfo StrategyFolder;
         public readonly DirectoryInfo SentOrderFolder;
-
-        /// <summary>
-        /// 程式在正常時間啟動
-        /// </summary>
-        public readonly bool StartOnTime;
 
         public readonly FileInfo Archive;
 
@@ -53,6 +50,8 @@ namespace GNAy.Capital.Models
             Holidays.LoadHolidays(holidayPathThisYear, Big5Encoding, today.Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
             string holidayPathLastYear = settings.HolidayFilePath.ToROCYear(today.AddYears(-1));
             Holidays.LoadHolidays(holidayPathLastYear, Big5Encoding, today.AddYears(-1).Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
+
+            AutoRun = IsHoliday(CreatedTime) ? settings.AutoRunInHoliday : settings.AutoRunInTradeDay;
 
             QuoteSubscribed = new HashSet<string>();
             foreach (string product in settings.QuoteRequest)
@@ -95,20 +94,6 @@ namespace GNAy.Capital.Models
                 SentOrderFolder.Create();
                 SentOrderFolder.Refresh();
             }
-
-            bool startDelayed = false; //因為一些異常情況，程式沒有在正常時間啟動
-            if (IsAMMarket(CreatedTime))
-            {
-                if (CreatedTime > settings.MarketStart[(int)Market.EDayNight.AM].AddMinutes(-1))
-                {
-                    startDelayed = true;
-                }
-            }
-            else if (CreatedTime > settings.MarketStart[(int)Market.EDayNight.PM].AddMinutes(-1) || IsHoliday(CreatedTime) || CreatedTime.Hour < 8)
-            {
-                startDelayed = true;
-            }
-            StartOnTime = !startDelayed;
 
             Archive = archive;
         }

@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.427.1",
+  "Version": "0.22.502.1",
   "Description": "測試用設定",
   "ProcessPriority": 128,
   "Big5EncodingCodePage": 950,
@@ -19,7 +19,8 @@
   "TimerIntervalStrategy": 30,
   "TimerIntervalUI1": 200,
   "TimerIntervalUI2": 35000,
-  "AutoRun": true,
+  "AutoRunInTradeDay": true,
+  "AutoRunInHoliday": false,
   "MarketStart": [
     "15:00:00",
     "08:45:00"
@@ -36,16 +37,16 @@
     "UN2206",
     "TX06",
     "MTX06",
+    "TXO16200Q2",
+    "TXO16200E2",
+    "TXO16300Q2",
+    "TXO16300E2",
+    "TXO16400Q2",
+    "TXO16400E2",
     "TXO16500Q2",
     "TXO16500E2",
     "TXO16600Q2",
-    "TXO16600E2",
-    "TXO16700Q2",
-    "TXO16700E2",
-    "TXO16800Q2",
-    "TXO16800E2",
-    "TXO16900Q2",
-    "TXO16900E2"
+    "TXO16600E2"
   ],
   "QuoteLive": [
     "2330",
@@ -66,5 +67,6 @@
   "StrategyFileFormat": "MMdd_HHmm",
   "SentOrderFolderPath": "SentOrder",
   "SentOrderFileFormat": "yyMMdd_HHmmss_ffffff",
-  "SendRealOrder": false
+  "SendRealOrder": false,
+  "LiveMode": false
 }

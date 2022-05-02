@@ -22,8 +22,6 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
-        private readonly DateTime _closeTime;
-
         private readonly ObservableCollection<string> _triggerCancelKinds;
 
         private readonly ConcurrentQueue<string> _waitToCancel;
@@ -42,8 +40,6 @@ namespace GNAy.Capital.Trade.Controllers
             CreatedTime = DateTime.Now;
             UniqueName = nameof(TriggerController).Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
-
-            _closeTime = _appCtrl.Capital.IsAMMarket ? _appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM] : _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].AddDays(1);
 
             _waitToCancel = new ConcurrentQueue<string>();
             _waitToAdd = new ConcurrentQueue<TriggerData>();
@@ -269,7 +265,7 @@ namespace GNAy.Capital.Trade.Controllers
                     saveData = true;
                     return saveData;
                 }
-                else if (trigger.StatusEnum != TriggerStatus.Enum.Executed && trigger.StartTime.HasValue && trigger.StartTime.Value > _closeTime)
+                else if (trigger.StatusEnum != TriggerStatus.Enum.Executed && trigger.StartTime.HasValue && trigger.StartTime.Value >= _appCtrl.Capital.MarketCloseTime)
                 {
                     trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
                     trigger.Comment = "不同盤別，暫停監控";
@@ -811,10 +807,10 @@ namespace GNAy.Capital.Trade.Controllers
                         trigger.StartTime = parseResult.Item2;
                         trigger.EndTime = parseResult.Item3;
 
-                        if ((!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now) && !_appCtrl.Config.StartOnTime)
+                        if ((!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now) && !_appCtrl.Capital.LoadedOnTime)
                         {
                             trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
-                            trigger.Comment = "程式沒有在正常時間啟動，不執行此監控";
+                            trigger.Comment = "沒有在開盤前執行登入動作，不執行此監控";
                             _appCtrl.LogError(start, trigger.ToLog(), UniqueName);
                         }
 

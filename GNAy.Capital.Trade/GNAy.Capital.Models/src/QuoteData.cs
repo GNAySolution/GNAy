@@ -77,8 +77,6 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _name, value); }
         }
 
-        public string SymbolAndName => $"{Symbol},{Name}";
-
         private int _matchedTimeHHmmss;
         [TradeColumn("成交時分秒", "成時分秒", CSVStringFormat = "000000", WPFDisplayIndex = 3, WPFStringFormat = "{0:000000}", IsTrigger = true)]
         public int MatchedTimeHHmmss

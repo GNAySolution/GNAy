@@ -117,7 +117,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestBuyQty = raw.nBc;
             quote.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
             quote.BestSellQty = raw.nAc;
-            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (LoadedOnTime || quote.Recovered))
             {
                 if (quote.OpenPrice == 0 && raw.nSimulate == QuoteData.RealTrade && raw.nTQty > quote.TotalQty) //開盤第一筆成交
                 {
@@ -145,7 +145,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.Updater = methodName;
             quote.UpdateTime = DateTime.Now;
 
-            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (LoadedOnTime || quote.Recovered))
             {
                 if (quote.OpenPrice != 0)
                 {
@@ -276,7 +276,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
             quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
             quote.DealQty = nQty;
-            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && _appCtrl.Config.StartOnTime)
+            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && LoadedOnTime)
             {
                 if (quote.OpenPrice == 0 && nSimulate == QuoteData.RealTrade && nQty > 0) //開盤第一筆成交
                 {
@@ -289,7 +289,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.Updater = methodName;
             quote.UpdateTime = DateTime.Now;
 
-            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (_appCtrl.Config.StartOnTime || quote.Recovered))
+            if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (LoadedOnTime || quote.Recovered))
             {
                 if (quote.OpenPrice != 0)
                 {

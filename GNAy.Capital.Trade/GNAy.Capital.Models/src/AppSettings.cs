@@ -49,7 +49,12 @@ namespace GNAy.Capital.Models
         /// <summary>
         /// 排程啟動自動執行
         /// </summary>
-        public bool AutoRun { get; set; }
+        public bool AutoRunInTradeDay { get; set; }
+        /// <summary>
+        /// 排程啟動自動執行
+        /// </summary>
+        public bool AutoRunInHoliday { get; set; }
+
         /// <summary>
         /// 在台指期日盤夜盤開盤前啟動程式
         /// </summary>
@@ -128,9 +133,14 @@ namespace GNAy.Capital.Models
         /// </summary>
         public bool SendRealOrder { get; set; }
 
+        /// <summary>
+        /// 直播模式，隱藏隱私資料，只呈現損益，方便使用者實況(或錄影)播放自己的交易過程
+        /// </summary>
+        public bool LiveMode { get; set; }
+
         public AppSettings()
         {
-            Version = "0.22.427.1";
+            Version = "0.22.502.1";
             Description = "測試用設定";
 
             ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -150,7 +160,9 @@ namespace GNAy.Capital.Models
             TimerIntervalUI1 = 200;
             TimerIntervalUI2 = 35 * 1000;
 
-            AutoRun = true;
+            AutoRunInTradeDay = true;
+            AutoRunInHoliday = false;
+
             MarketStart = new List<DateTime>();
             //MarketStart = new List<DateTime>() //
             //{
@@ -189,7 +201,8 @@ namespace GNAy.Capital.Models
             SentOrderFolderPath = "SentOrder";
             SentOrderFileFormat = "yyMMdd_HHmmss_ffffff";
 
-            SendRealOrder = true;
+            SendRealOrder = false;
+            LiveMode = false;
         }
     }
 }

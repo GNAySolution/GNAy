@@ -67,6 +67,17 @@ namespace GNAy.Tools.WPF
         }
 
         /// <summary>
+        /// https://github.com/punker76/MahApps.Metro.SimpleChildWindow/issues/69
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static TextBox GetEditableTextBox(this ComboBox obj)
+        {
+            obj.ApplyTemplate();
+            return (TextBox)obj.Template.FindName("PART_EditableTextBox", obj);
+        }
+
+        /// <summary>
         /// https://stackoverflow.com/questions/15216362/wpf-datagrid-how-to-get-binding-expression-of-a-cell
         /// </summary>
         /// <param name="obj"></param>
