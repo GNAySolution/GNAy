@@ -1341,6 +1341,46 @@ namespace GNAy.Capital.Trade.Controllers
                                 break;
                         }
 
+                        if (order == order.Parent.OrderData)
+                        {
+                            order.ClosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.DealQty;
+                            order.UnclosedQty = order.DealQty;
+                            order.UnclosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.UnclosedQty;
+
+                            order.Parent.ClosedProfit += order.ClosedProfit;
+                            order.Parent.UnclosedQty = order.UnclosedQty;
+                        }
+                        else if (order == order.Parent.StopLossData || order == order.Parent.StopWinData)
+                        {
+                            order.ClosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.DealQty;
+                            order.UnclosedQty = order.Parent.OrderData.DealQty - order.DealQty;
+                            order.UnclosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.UnclosedQty;
+
+                            if (order.Parent.OrderData.BSEnum == OrderBS.Enum.Sell)
+                            {
+                                order.ClosedProfit *= -1;
+                                order.UnclosedProfit *= -1;
+                            }
+
+                            order.Parent.ClosedProfit += order.ClosedProfit;
+                            order.Parent.UnclosedQty = order.UnclosedQty;
+                        }
+                        else if (order == order.Parent.MoveStopWinData)
+                        {
+                            order.ClosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.DealQty;
+                            order.UnclosedQty = order.Parent.OrderData.DealQty - order.DealQty - order.Parent.StopWinData.DealQty;
+                            order.UnclosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.UnclosedQty;
+
+                            if (order.Parent.OrderData.BSEnum == OrderBS.Enum.Sell)
+                            {
+                                order.ClosedProfit *= -1;
+                                order.UnclosedProfit *= -1;
+                            }
+
+                            order.Parent.ClosedProfit += order.ClosedProfit;
+                            order.Parent.UnclosedQty = order.UnclosedQty;
+                        }
+
                         order.Parent.Updater = methodName;
                         order.Parent.UpdateTime = DateTime.Now;
                     }

@@ -525,6 +525,17 @@ namespace GNAy.Capital.Trade.Controllers
                 else
                 {
                     strategy.MarketPrice = quote.DealPrice;
+
+                    if (strategy.OrderData != null)
+                    {
+                        strategy.UnclosedProfit = (strategy.MarketPrice - strategy.OrderData.DealPrice) * strategy.UnclosedQty;
+
+                        if (strategy.OrderData.BSEnum == OrderBS.Enum.Sell)
+                        {
+                            strategy.UnclosedProfit *= -1;
+                        }
+                    }
+
                     strategy.Updater = methodName;
                     strategy.UpdateTime = DateTime.Now;
                 }
