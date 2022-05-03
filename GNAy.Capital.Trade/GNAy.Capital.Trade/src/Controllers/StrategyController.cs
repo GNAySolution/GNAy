@@ -33,6 +33,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private readonly SortedDictionary<string, StrategyData> _orderDetailMap;
         private readonly ObservableCollection<StrategyData> _orderDetailCollection;
+        public IReadOnlyList<StrategyData> OrderDetailCollection => _orderDetailCollection;
 
         public StrategyController(AppController appCtrl)
         {
@@ -62,29 +63,24 @@ namespace GNAy.Capital.Trade.Controllers
             return _orderDetailMap.TryGetValue(primaryKey, out StrategyData data) ? data : null;
         }
 
-        private void SaveData(ICollection<StrategyData> strategies)
+        public void SaveData(IEnumerable<StrategyData> dataCollection, DirectoryInfo dir, string fileFormat)
         {
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                if (strategies == null)
-                {
-                    strategies = _strategyCollection.ToArray();
-                }
-
-                string path = Path.Combine(_appCtrl.Config.StrategyFolder.FullName, string.Format("{0}.csv", DateTime.Now.ToString(_appCtrl.Settings.StrategyFileFormat)));
+                string path = Path.Combine(dir.FullName, string.Format("{0}.csv", DateTime.Now.ToString(fileFormat)));
                 _appCtrl.LogTrace(start, path, UniqueName);
 
                 using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
                 {
                     sw.WriteLine(StrategyData.CSVColumnNames);
 
-                    foreach (StrategyData strategy in strategies)
+                    foreach (StrategyData data in dataCollection)
                     {
                         try
                         {
-                            sw.WriteLine(strategy.ToCSVString());
+                            sw.WriteLine(data.ToCSVString());
                         }
                         catch (Exception ex)
                         {
@@ -103,9 +99,9 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void SaveDataAsync()
+        private void SaveDataAsync(ICollection<StrategyData> dataCollection, DirectoryInfo dir, string fileFormat)
         {
-            Task.Factory.StartNew(() => SaveData(null));
+            Task.Factory.StartNew(() => SaveData(dataCollection, dir, fileFormat));
         }
 
         private void MarketCheck(StrategyData data, Market.EGroup qGroup)
@@ -674,7 +670,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (_waitToCancel.Count <= 0)
                     {
-                        SaveDataAsync();
+                        SaveDataAsync(_strategyCollection, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
                     }
                 }
                 else
@@ -725,7 +721,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         if (_waitToAdd.Count <= 0)
                         {
-                            SaveDataAsync();
+                            SaveDataAsync(_strategyCollection, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
                         }
                     }
                     catch (Exception ex)
@@ -761,7 +757,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (saveData)
             {
-                SaveData(_strategyCollection);
+                SaveData(_strategyCollection, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
             }
         }
 
@@ -904,11 +900,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void RecoverSetting(FileInfo file = null)
+        public void RecoverSetting(FileInfo fileStrategy = null, FileInfo fileSentOrder = null)
         {
             const string methodName = nameof(RecoverSetting);
 
-            DateTime start = _appCtrl.StartTrace($"{file?.FullName}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{fileStrategy?.FullName}", UniqueName);
 
             try
             {
@@ -917,7 +913,7 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
-                if (file == null)
+                if (fileStrategy == null)
                 {
                     if (_appCtrl.Config.StrategyFolder == null)
                     {
@@ -925,10 +921,10 @@ namespace GNAy.Capital.Trade.Controllers
                     }
 
                     _appCtrl.Config.StrategyFolder.Refresh();
-                    file = _appCtrl.Config.StrategyFolder.GetFiles("*.csv").LastOrDefault(x => Path.GetFileNameWithoutExtension(x.Name).Length == _appCtrl.Settings.StrategyFileFormat.Length);
+                    fileStrategy = _appCtrl.Config.StrategyFolder.GetFiles("*.csv").LastOrDefault(x => Path.GetFileNameWithoutExtension(x.Name).Length == _appCtrl.Settings.StrategyFileFormat.Length);
                 }
 
-                if (file == null)
+                if (fileStrategy == null)
                 {
                     return;
                 }
@@ -936,7 +932,7 @@ namespace GNAy.Capital.Trade.Controllers
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;
 
-                foreach (StrategyData data in StrategyData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
+                foreach (StrategyData data in StrategyData.ForeachQuoteFromCSVFile(fileStrategy.FullName, columnNames))
                 {
                     try
                     {

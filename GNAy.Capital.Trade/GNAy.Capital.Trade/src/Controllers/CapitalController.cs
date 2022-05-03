@@ -1289,6 +1289,7 @@ namespace GNAy.Capital.Trade.Controllers
                 (LogLevel, string) apiMsg = (LogLevel.Trace, orderMsg);
 
                 order.StatusEnum = StrategyStatus.Enum.OrderSent;
+                _appCtrl.Strategy.SaveData(_appCtrl.Strategy.OrderDetailCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
 
                 if (_appCtrl.Settings.SendRealOrder)
                 {
@@ -1323,7 +1324,14 @@ namespace GNAy.Capital.Trade.Controllers
                     order.Updater = methodName;
                     order.UpdateTime = DateTime.Now;
 
-                    if (order.Parent != null)
+                    if (order.Parent == null)
+                    {
+                        if (order.PositionEnum == OrderPosition.Enum.Open)
+                        {
+                            order.UnclosedQty = order.DealQty;
+                        }
+                    }
+                    else
                     {
                         switch (order.Parent.StatusEnum)
                         {
@@ -1385,6 +1393,8 @@ namespace GNAy.Capital.Trade.Controllers
                         order.Parent.UpdateTime = DateTime.Now;
                     }
                 }
+
+                _appCtrl.Strategy.SaveData(_appCtrl.Strategy.OrderDetailCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
             }
             catch (Exception ex)
             {

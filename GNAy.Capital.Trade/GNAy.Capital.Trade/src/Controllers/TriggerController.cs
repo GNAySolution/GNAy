@@ -22,8 +22,6 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
-        private readonly ObservableCollection<string> _triggerCancelKinds;
-
         private readonly ConcurrentQueue<string> _waitToCancel;
         private readonly ConcurrentQueue<TriggerData> _waitToAdd;
 

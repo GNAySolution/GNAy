@@ -21,6 +21,7 @@
 - [x] 直播模式(LiveMode = true)，隱藏隱私資料，只呈現損益，方便user實況(或錄影)播放自己的交易策略
 - [ ] 台股上市、上櫃股票，待實作
 - [ ] 國外期貨、選擇權，待實作
+- [ ] 中期目標是連續IOC等多樣化的CD單
 - [ ] 長期目標是把程式移植到iOS平台上，用iPhone或Mac操作
 
 ###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/GNAy.Capital.Trade.dwp.config

@@ -333,7 +333,13 @@ namespace GNAy.Capital.Models
         public int UnclosedQty
         {
             get { return _unclosedQty; }
-            set { OnPropertyChanged(ref _unclosedQty, value); }
+            set
+            {
+                if (OnPropertyChanged(ref _unclosedQty, value) && value == 0)
+                {
+                    UnclosedProfit = 0;
+                }
+            }
         }
 
         private decimal _unclosedProfit;
@@ -426,7 +432,7 @@ namespace GNAy.Capital.Models
             DealQty = 0;
             DealReport = string.Empty;
             ClosedProfit = 0;
-            UnclosedQty = -1;
+            UnclosedQty = 0;
             UnclosedProfit = 0;
             TriggerAfterStopLoss = string.Empty;
             StrategyAfterStopLoss = string.Empty;
