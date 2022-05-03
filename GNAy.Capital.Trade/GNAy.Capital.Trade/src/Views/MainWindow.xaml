@@ -538,9 +538,9 @@
                 <TextBox x:Name="TextBoxTriggerAfterStopWin" Text="停利後執行觸價" ToolTip="停利後接續執行觸價" HorizontalAlignment="Left" Margin="591,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxStrategyAfterStopWin" Text="停利後執行策略" ToolTip="停利後接續執行策略" HorizontalAlignment="Left" Margin="591,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="收盤獲利減倉或CD單" HorizontalAlignment="Left" Margin="716,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyOffsetWin" Text="CD:seconds" ToolTip="收盤對獲利部位做減倉，或CD單" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyWinClose" Text="CD:seconds" ToolTip="收盤對獲利部位做減倉，或CD單" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="收盤損失減倉" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyOffsetLoss" Text="收盤損失減倉" ToolTip="收盤對損失部位做減倉" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyLossClose" Text="收盤損失減倉" ToolTip="收盤對損失部位做減倉" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
@@ -804,14 +804,28 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding DealPct}">
+                                    <DataGridTextColumn Binding="{Binding DealReport}"/>
+                                    <DataGridTextColumn Binding="{Binding ClosedProfit}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding DealReport}"/>
+                                    <DataGridTextColumn Binding="{Binding UnclosedQty}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding UnclosedProfit}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding TriggerAfterStopLoss}"/>
                                     <DataGridTextColumn Binding="{Binding StrategyAfterStopLoss}"/>
                                     <DataGridTextColumn Binding="{Binding TriggerAfterStopWin}"/>
@@ -1020,14 +1034,28 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding DealPct}">
+                                    <DataGridTextColumn Binding="{Binding DealReport}"/>
+                                    <DataGridTextColumn Binding="{Binding ClosedProfit}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="HorizontalAlignment" Value="Right"/>
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding DealReport}"/>
+                                    <DataGridTextColumn Binding="{Binding UnclosedQty}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding UnclosedProfit}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding TriggerAfterStopLoss}"/>
                                     <DataGridTextColumn Binding="{Binding StrategyAfterStopLoss}"/>
                                     <DataGridTextColumn Binding="{Binding TriggerAfterStopWin}"/>

@@ -465,11 +465,8 @@ namespace GNAy.Capital.Trade.Controllers
                     MainForm.TextBoxStrategyPrimaryKey.Text = $"{Strategy.Count + 1}";
 
                     MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderReport)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    //TODO: MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    //MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealQty)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Header = "未平倉均價";
-                    MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealQty)].Item1.WPFDisplayIndex].Header = "未平倉口數";
-                    MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPct)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealQty)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealReport)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
 
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopLossBefore)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;

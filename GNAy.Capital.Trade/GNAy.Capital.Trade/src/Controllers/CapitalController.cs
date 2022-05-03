@@ -401,11 +401,11 @@ namespace GNAy.Capital.Trade.Controllers
                     if (IsAMMarket)
                     {
                         MarketStartTime = _appCtrl.Settings.MarketStart[(int)Market.EDayNight.AM];
-                        MarketCloseTime = _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM];
+                        MarketCloseTime = _appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM];
                     }
                     else if (!_appCtrl.Config.IsHoliday(start))
                     {
-                        MarketStartTime = _appCtrl.Settings.MarketStart[(int)Market.EDayNight.AM];
+                        MarketStartTime = _appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM];
                         MarketCloseTime = _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].AddDays(1);
                     }
 

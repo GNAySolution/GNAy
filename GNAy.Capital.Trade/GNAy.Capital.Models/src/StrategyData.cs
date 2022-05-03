@@ -195,14 +195,14 @@ namespace GNAy.Capital.Models
         }
 
         private string _orderPriceBefore;
-        [Column("委託價設定", WPFDisplayIndex = 12)]
+        [Column("委託價設定", "委價設定", WPFDisplayIndex = 12)]
         public string OrderPriceBefore
         {
             get { return _orderPriceBefore; }
             set { OnPropertyChanged(ref _orderPriceBefore, value); }
         }
         private decimal _orderPriceAfter;
-        [Column("委託價觸發", CSVStringFormat = "0.00", WPFDisplayIndex = 13, WPFStringFormat = "{0:0.00}")]
+        [Column("委託價觸發", "委價觸發", CSVStringFormat = "0.00", WPFDisplayIndex = 13, WPFStringFormat = "{0:0.00}")]
         public decimal OrderPriceAfter
         {
             get { return _orderPriceAfter; }
@@ -263,7 +263,7 @@ namespace GNAy.Capital.Models
         public StrategyData StopWinData;
 
         private string _moveStopWinBefore;
-        [Column("移動停利設定", WPFDisplayIndex = 19)]
+        [Column("移動停利設定", "移利設定", WPFDisplayIndex = 19)]
         public string MoveStopWinBefore
         {
             get { return _moveStopWinBefore; }
@@ -283,7 +283,7 @@ namespace GNAy.Capital.Models
             get { return _moveStopWinQty; }
             set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWinAfter)); }
         }
-        [Column("移動停利觸發", CSVIndex = -1, WPFDisplayIndex = 20)]
+        [Column("移動停利觸發", "移利觸發", CSVIndex = -1, WPFDisplayIndex = 20)]
         public string MoveStopWinAfter => MoveStopWinPrice == 0 ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinQty})";
 
         public StrategyData MoveStopWinData;
@@ -297,34 +297,55 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _dealPrice;
-        [Column("成交價格", CSVStringFormat = "0.00", WPFDisplayIndex = 22, WPFStringFormat = "{0:0.00}")]
+        [Column("成交價格", "成價", CSVStringFormat = "0.00", WPFDisplayIndex = 22, WPFStringFormat = "{0:0.00}")]
         public decimal DealPrice
         {
             get { return _dealPrice; }
-            set { OnPropertiesChanged(ref _dealPrice, value, nameof(DealPrice), nameof(DealPct)); }
+            set { OnPropertyChanged(ref _dealPrice, value); }
         }
 
         private int _dealQty;
-        [Column("成交口數", WPFDisplayIndex = 23)]
+        [Column("成交口數", "成量", WPFDisplayIndex = 23)]
         public int DealQty
         {
             get { return _dealQty; }
             set { OnPropertyChanged(ref _dealQty, value); }
         }
 
-        [Column("成交價%", CSVStringFormat = "0.00", WPFDisplayIndex = 24, WPFStringFormat = "{0:0.00}%")]
-        public decimal DealPct => (DealPrice != 0 && Quote != null && Quote.Reference != 0) ? (DealPrice - Quote.Reference) / Quote.Reference * 100 : 0;
-
         private string _dealReport;
-        [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 25)]
+        [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 24)]
         public string DealReport
         {
             get { return _dealReport; }
             set { OnPropertyChanged(ref _dealReport, value); }
         }
 
+        private decimal _closedProfit;
+        [Column("已實現損益", "已損益", CSVStringFormat = "0.00", WPFDisplayIndex = 25, WPFStringFormat = "{0:0.00}")]
+        public decimal ClosedProfit
+        {
+            get { return _closedProfit; }
+            set { OnPropertyChanged(ref _closedProfit, value); }
+        }
+
+        private int _unclosedQty;
+        [Column("未平倉口數", "未平量", WPFDisplayIndex = 26)]
+        public int UnclosedQty
+        {
+            get { return _unclosedQty; }
+            set { OnPropertyChanged(ref _unclosedQty, value); }
+        }
+
+        private decimal _unclosedProfit;
+        [Column("未實現損益", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 27, WPFStringFormat = "{0:0.00}")]
+        public decimal UnclosedProfit
+        {
+            get { return _unclosedProfit; }
+            set { OnPropertyChanged(ref _unclosedProfit, value); }
+        }
+
         private string _triggerAfterStopLoss;
-        [Column("停損後接續執行觸價", "停損後觸價", WPFDisplayIndex = 26)]
+        [Column("停損後接續執行觸價", "停損後觸價", WPFDisplayIndex = 28)]
         public string TriggerAfterStopLoss
         {
             get { return _triggerAfterStopLoss; }
@@ -332,7 +353,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyAfterStopLoss;
-        [Column("停損後接續執行策略", "停損後策略", WPFDisplayIndex = 27)]
+        [Column("停損後接續執行策略", "停損後策略", WPFDisplayIndex = 29)]
         public string StrategyAfterStopLoss
         {
             get { return _strategyAfterStopLoss; }
@@ -340,7 +361,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _triggerAfterStopWin;
-        [Column("停利後接續執行觸價", "停利後觸價", WPFDisplayIndex = 28)]
+        [Column("停利後接續執行觸價", "停利後觸價", WPFDisplayIndex = 30)]
         public string TriggerAfterStopWin
         {
             get { return _triggerAfterStopWin; }
@@ -348,7 +369,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyAfterStopWin;
-        [Column("停利後接續執行策略", "停利後策略", WPFDisplayIndex = 29)]
+        [Column("停利後接續執行策略", "停利後策略", WPFDisplayIndex = 31)]
         public string StrategyAfterStopWin
         {
             get { return _strategyAfterStopWin; }
@@ -358,7 +379,7 @@ namespace GNAy.Capital.Models
         //
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 30)]
+        [Column("註解", WPFDisplayIndex = 32)]
         public string Comment
         {
             get { return _comment; }
@@ -404,6 +425,9 @@ namespace GNAy.Capital.Models
             DealPrice = 0;
             DealQty = 0;
             DealReport = string.Empty;
+            ClosedProfit = 0;
+            UnclosedQty = -1;
+            UnclosedProfit = 0;
             TriggerAfterStopLoss = string.Empty;
             StrategyAfterStopLoss = string.Empty;
             TriggerAfterStopWin = string.Empty;
