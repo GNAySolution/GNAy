@@ -47,6 +47,7 @@
     <Compile Include="src\AppConfig.cs" />
     <Compile Include="src\APIReplyData.cs" />
     <Compile Include="src\OrderBS.cs" />
+    <Compile Include="src\OpenInterestData.cs" />
     <Compile Include="src\StrategyStatus.cs" />
     <Compile Include="src\StrategyData.cs" />
     <Compile Include="src\StrategyStartPrinciple.cs" />

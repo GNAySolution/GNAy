@@ -423,6 +423,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void AfterStopLoss(StrategyData data, DateTime start)
         {
+            _appCtrl.LogTrace(start, $"TriggerAfterStopLoss={data.TriggerAfterStopLoss}|StrategyAfterStopLoss={data.StrategyAfterStopLoss}|{data.ToLog()}", UniqueName);
+
             if (!string.IsNullOrWhiteSpace(data.TriggerAfterStopLoss))
             {
                 HashSet<string> triggers = new HashSet<string>(data.TriggerAfterStopLoss.Split(','));
@@ -446,6 +448,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void AfterStopWin(StrategyData data, DateTime start)
         {
+            _appCtrl.LogTrace(start, $"MoveStopWinBefore={data.MoveStopWinBefore}|TriggerAfterStopWin={data.TriggerAfterStopWin}|StrategyAfterStopWin={data.StrategyAfterStopWin}|{data.ToLog()}", UniqueName);
+
             if (string.IsNullOrWhiteSpace(data.MoveStopWinBefore))
             { }
             else if (!decimal.TryParse(data.MoveStopWinBefore, out decimal offset) || offset == 0)

@@ -454,7 +454,11 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                if (sender is ComboBox cb)
+                if (_appCtrl.Capital == null)
+                {
+                    return;
+                }
+                else if (sender is ComboBox cb)
                 {
                     string[] cells = cb.Text.Split(',');
 
@@ -1044,13 +1048,15 @@ namespace GNAy.Capital.Trade
                         ButtonGetOrderAccs_Click(null, null);
                     });
 
-                    Thread.Sleep(8 * 1000);
-                    SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 8 * 1000);
                     Thread.Sleep(2 * 1000);
+                    SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 8 * 1000);
+                    Thread.Sleep(8 * 1000);
                     _appCtrl.Capital.GetOpenInterestAsync();
                     _appCtrl.Capital.UnlockOrder();
                     _appCtrl.Capital.SetOrderMaxQty();
                     _appCtrl.Capital.SetOrderMaxCount();
+
+                    Thread.Sleep(8 * 1000);
                     _appCtrl.Trigger.RecoverSetting();
                     _appCtrl.Strategy.RecoverSetting();
 

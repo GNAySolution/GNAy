@@ -382,10 +382,42 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _strategyAfterStopWin, value); }
         }
 
+        private int _winCloseQty;
+        [Column("收盤獲利減倉口數", "收獲量", WPFDisplayIndex = 32)]
+        public int WinCloseQty
+        {
+            get { return _winCloseQty; }
+            set { OnPropertyChanged(ref _winCloseQty, value); }
+        }
+
+        private int _winCloseSeconds;
+        [Column("收盤前幾秒獲利減倉", "收獲秒", WPFDisplayIndex = 33)]
+        public int WinCloseSeconds
+        {
+            get { return _winCloseSeconds; }
+            set { OnPropertyChanged(ref _winCloseSeconds, value); }
+        }
+
+        private int _lossCloseQty;
+        [Column("收盤損失減倉口數", "收損量", WPFDisplayIndex = 34)]
+        public int LossCloseQty
+        {
+            get { return _lossCloseQty; }
+            set { OnPropertyChanged(ref _lossCloseQty, value); }
+        }
+
+        private int _lossCloseSeconds;
+        [Column("收盤前幾秒損失減倉", "收損秒", WPFDisplayIndex = 35)]
+        public int LossCloseSeconds
+        {
+            get { return _lossCloseSeconds; }
+            set { OnPropertyChanged(ref _lossCloseSeconds, value); }
+        }
+
         //
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 32)]
+        [Column("註解", WPFDisplayIndex = 36)]
         public string Comment
         {
             get { return _comment; }
@@ -438,6 +470,10 @@ namespace GNAy.Capital.Models
             StrategyAfterStopLoss = string.Empty;
             TriggerAfterStopWin = string.Empty;
             StrategyAfterStopWin = string.Empty;
+            WinCloseQty = 0;
+            WinCloseSeconds = 0;
+            LossCloseQty = 0;
+            LossCloseSeconds = 0;
             //
             Comment = string.Empty;
         }
