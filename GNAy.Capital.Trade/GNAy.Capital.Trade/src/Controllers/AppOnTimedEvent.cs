@@ -10,8 +10,6 @@ namespace GNAy.Capital.Trade.Controllers
     public partial class AppController
     {
         public DateTime SignalTimeBG { get; private set; }
-        public DateTime SignalTimeTrigger { get; private set; }
-        public DateTime SignalTimeStrategy { get; private set; }
 
         private DateTime _lastTimeToSaveQuote;
 
@@ -27,6 +25,24 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
+                Strategy?.UpdateStatus(e.SignalTime);
+            }
+            catch (Exception ex)
+            {
+                LogException(e.SignalTime, ex, ex.StackTrace);
+            }
+
+            try
+            {
+                Trigger?.UpdateStatus(e.SignalTime);
+            }
+            catch (Exception ex)
+            {
+                LogException(e.SignalTime, ex, ex.StackTrace);
+            }
+
+            try
+            {
                 if (Settings.QuoteSaveInterval > 0 && (e.SignalTime - _lastTimeToSaveQuote).TotalSeconds >= Settings.QuoteSaveInterval && Capital != null && !string.IsNullOrWhiteSpace(Settings.QuoteFileClosePrefix))
                 {
                     _lastTimeToSaveQuote = e.SignalTime;
@@ -39,44 +55,6 @@ namespace GNAy.Capital.Trade.Controllers
             }
 
             _timerBG.Start();
-        }
-
-        private void OnTimedTrigger(Object source, ElapsedEventArgs e)
-        {
-            _timerTrigger.Stop();
-            SignalTimeTrigger = e.SignalTime;
-
-            try
-            {
-                Trigger.UpdateStatus(e.SignalTime);
-            }
-            catch (Exception ex)
-            {
-                LogException(e.SignalTime, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _timerTrigger.Start();
-            }
-        }
-
-        private void OnTimedStrategy(Object source, ElapsedEventArgs e)
-        {
-            _timerStrategy.Stop();
-            SignalTimeStrategy = e.SignalTime;
-
-            try
-            {
-                Strategy.UpdateStatus(e.SignalTime);
-            }
-            catch (Exception ex)
-            {
-                LogException(e.SignalTime, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _timerStrategy.Start();
-            }
         }
     }
 }

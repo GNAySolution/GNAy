@@ -1295,11 +1295,18 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     lock (_syncOrderLock)
                     {
-                        //送出期貨委託，無需倉位，預設為盤中，不可更改
-                        //SKReplyLib.OnNewData，當有回報將主動呼叫函式，並通知委託的狀態。(新格式 包含預約單回報)
-                        m_nCode = m_pSKOrder.SendFutureOrder(UserID, false, pFutureOrder, out orderMsg);
-                        apiMsg = LogAPIMessage(start, m_nCode, orderMsg);
+                        if (order.MarketType == Market.EType.Futures)
+                        {
+                            //送出期貨委託，無需倉位，預設為盤中，不可更改
+                            //SKReplyLib.OnNewData，當有回報將主動呼叫函式，並通知委託的狀態。(新格式 包含預約單回報)
+                            m_nCode = m_pSKOrder.SendFutureOrder(UserID, false, pFutureOrder, out orderMsg);
+                        }
+                        else if (order.MarketType == Market.EType.Option)
+                        {
+                            m_nCode = m_pSKOrder.SendOptionOrder(UserID, false, pFutureOrder, out orderMsg);
+                        }
 
+                        apiMsg = LogAPIMessage(start, m_nCode, orderMsg);
                         //Thread.Sleep(100);
                     }
                 }

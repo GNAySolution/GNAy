@@ -13,57 +13,64 @@ namespace GNAy.Capital.Models
     {
         public enum Enum : short
         {
-            [Description("限價")]
-            L, //0
-
             [Description("市價")]
-            M, //1
+            M, //0
 
             [Description("範圍市價")]
-            P, //2
+            P, //1
+
+            [Description("漲停價")]
+            H, //2
+
+            [Description("跌停價")]
+            L, //3
         }
 
-        public static readonly string L = string.Empty;
         public static readonly string M = Enum.M.ToString();
         public static readonly string P = Enum.P.ToString();
+        public static readonly string H = Enum.H.ToString();
+        public static readonly string L = Enum.L.ToString();
 
         public static ReadOnlyCollection<string> Description = new List<string>()
         {
-            Enum.L.GetDescription(),
             Enum.M.GetDescription(),
             Enum.P.GetDescription(),
+            Enum.H.GetDescription(),
+            Enum.L.GetDescription(),
         }.AsReadOnly();
 
-        public static (string, decimal) Parse(string orderPrice, decimal marketPrice, decimal reference, Market.EGroup mGroup)
+        private static (string, decimal) Parse(string orderPrice, decimal marketPrice, decimal reference)
+        {
+            decimal newPri = 0;
+
+            if (orderPrice.EndsWith("%"))
+            {
+                decimal offsetPct = decimal.Parse(orderPrice.Substring(1, orderPrice.Length - 2));
+                offsetPct /= 100;
+                newPri = marketPrice + reference * offsetPct;
+
+                return (newPri.ToString("0.00"), newPri);
+            }
+
+            decimal offset = decimal.Parse(orderPrice.Substring(1));
+            newPri = marketPrice + offset;
+
+            return (newPri.ToString("0.00"), newPri);
+        }
+
+        public static (string, decimal) Parse(string orderPrice, decimal marketPrice, decimal reference, decimal highPrice, decimal lowPrice)
         {
             if (orderPrice.StartsWith(M) || orderPrice.StartsWith(P))
             {
-                if (orderPrice.Length > 1)
-                {
-                    decimal newPri = 0;
-
-                    if (orderPrice.EndsWith("%"))
-                    {
-                        decimal offsetPct = decimal.Parse(orderPrice.Substring(1, orderPrice.Length - 2));
-                        offsetPct /= 100;
-
-                        string format = "0.00";
-
-                        if (mGroup == Market.EGroup.Futures)
-                        {
-                            format = "0";
-                        }
-
-                        newPri = marketPrice + reference * offsetPct;
-                        return (newPri.ToString(format), newPri);
-                    }
-
-                    decimal offset = decimal.Parse(orderPrice.Substring(1));
-                    newPri = marketPrice + offset;
-                    return (newPri.ToString("0.00"), newPri);
-                }
-
-                return (orderPrice, marketPrice);
+                return (orderPrice.Length > 1) ? Parse(orderPrice, marketPrice, reference) : (orderPrice, marketPrice);
+            }
+            else if (orderPrice.StartsWith(H))
+            {
+                return (orderPrice.Length > 1) ? Parse(orderPrice, highPrice, reference) : (highPrice.ToString("0.00"), highPrice);
+            }
+            else if (orderPrice.StartsWith(L))
+            {
+                return (orderPrice.Length > 1) ? Parse(orderPrice, lowPrice, reference) : (lowPrice.ToString("0.00"), lowPrice);
             }
 
             return (orderPrice, decimal.Parse(orderPrice));

@@ -16,7 +16,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="raw"></param>
         /// <param name="quote">通常是斷線重連時更新Index用</param>
         /// <returns></returns>
-        private QuoteData CreateOrUpdateQuote(SKSTOCKLONG raw, QuoteData quote = null)
+        public QuoteData CreateOrUpdateQuote(SKSTOCKLONG raw, QuoteData quote = null)
         {
             const string methodName = nameof(CreateOrUpdateQuote);
 

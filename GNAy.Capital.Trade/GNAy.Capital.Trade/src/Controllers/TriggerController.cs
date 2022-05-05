@@ -137,7 +137,7 @@ namespace GNAy.Capital.Trade.Controllers
                 StrategyData strategy = _appCtrl.Strategy[primary];
 
                 if (strategy != null && strategy.StatusEnum == StrategyStatus.Enum.Waiting)
-                {
+                {//TODO
                     _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
                     return;
                 }
@@ -174,7 +174,7 @@ namespace GNAy.Capital.Trade.Controllers
                 foreach (string primary in primariesAND)
                 {
                     string pk = $",{primary},";
-                    bool doStrategy = true;
+                    bool startStrategy = true;
 
                     foreach (TriggerData td in _triggerMap.Values)
                     {
@@ -182,14 +182,18 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
-                        else if (string.Format(",{0},", td.StrategyOpenAND).Contains(pk) && (td.StatusEnum == TriggerStatus.Enum.Waiting || td.StatusEnum == TriggerStatus.Enum.Monitoring))
+                        else if (!string.Format(",{0},", td.StrategyOpenAND).Contains(pk))
                         {
-                            doStrategy = false;
+                            continue;
+                        }
+                        else if (td.StatusEnum == TriggerStatus.Enum.Waiting || td.StatusEnum == TriggerStatus.Enum.Cancelled || td.StatusEnum == TriggerStatus.Enum.Monitoring)
+                        {
+                            startStrategy = false;
                             break;
                         }
                     }
 
-                    if (!doStrategy)
+                    if (!startStrategy)
                     {
                         _appCtrl.LogError(start, $"執行策略({primary})失敗|{trigger.ToLog()}", UniqueName);
                         continue;
@@ -209,11 +213,11 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            HashSet<string> primaries = new HashSet<string>(executed.Cancel.Split(','));
+            HashSet<string> cancelList = new HashSet<string>(executed.Cancel.Split(','));
 
-            foreach (string pk in primaries)
+            foreach (string cancel in cancelList)
             {
-                TriggerData trigger = this[pk];
+                TriggerData trigger = this[cancel];
 
                 if (trigger == null || trigger == executed)
                 {
@@ -771,7 +775,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 SpinWait.SpinUntil(() => _waitToAdd.Count <= 0);
-                Thread.Sleep(_appCtrl.Settings.TimerIntervalTrigger * 3);
+                Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
 
                 if (_triggerCollection.Count >= nextPK)
                 {

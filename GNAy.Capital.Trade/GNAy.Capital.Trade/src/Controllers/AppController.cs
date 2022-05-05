@@ -41,8 +41,6 @@ namespace GNAy.Capital.Trade.Controllers
         private ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
 
         private readonly System.Timers.Timer _timerBG;
-        private readonly System.Timers.Timer _timerTrigger;
-        private readonly System.Timers.Timer _timerStrategy;
 
         public AppController(MainWindow mainForm)
         {
@@ -86,8 +84,6 @@ namespace GNAy.Capital.Trade.Controllers
             _triggerColumnCollection = null;
 
             SignalTimeBG = DateTime.MinValue;
-            SignalTimeTrigger = DateTime.MinValue;
-            SignalTimeStrategy = DateTime.MinValue;
 
             _lastTimeToSaveQuote = DateTime.Now;
 
@@ -95,24 +91,6 @@ namespace GNAy.Capital.Trade.Controllers
             _timerBG.Elapsed += OnTimedEvent;
             _timerBG.AutoReset = true;
             _timerBG.Enabled = true;
-
-            _timerTrigger = new System.Timers.Timer(Settings.TimerIntervalTrigger);
-            Task.Factory.StartNew(() =>
-            {
-                SpinWait.SpinUntil(() => Trigger != null);
-                _timerTrigger.Elapsed += OnTimedTrigger;
-                _timerTrigger.AutoReset = true;
-                _timerTrigger.Enabled = true;
-            });
-
-            _timerStrategy = new System.Timers.Timer(Settings.TimerIntervalStrategy);
-            Task.Factory.StartNew(() =>
-            {
-                SpinWait.SpinUntil(() => Strategy != null);
-                _timerStrategy.Elapsed += OnTimedStrategy;
-                _timerStrategy.AutoReset = true;
-                _timerStrategy.Enabled = true;
-            });
         }
 
         protected AppController() : this(null)
@@ -402,7 +380,6 @@ namespace GNAy.Capital.Trade.Controllers
             try
             {
                 _timerBG.Enabled = false;
-                _timerTrigger.Enabled = false;
 
                 if (level == null || level == LogLevel.Trace)
                 {

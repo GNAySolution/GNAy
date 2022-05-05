@@ -30,14 +30,6 @@ namespace GNAy.Capital.Models
         /// </summary>
         public int TimerIntervalBackground { get; set; }
         /// <summary>
-        /// 檢查觸價，對效能要求較高，另開Timer獨立執行
-        /// </summary>
-        public int TimerIntervalTrigger { get; set; }
-        /// <summary>
-        /// 檢查策略，對效能要求較高，另開Timer獨立執行
-        /// </summary>
-        public int TimerIntervalStrategy { get; set; }
-        /// <summary>
         /// 監控UI
         /// </summary>
         public int TimerIntervalUI1 { get; set; }
@@ -140,7 +132,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.502.1";
+            Version = "0.22.505.1";
             Description = "測試用設定";
 
             ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -154,9 +146,7 @@ namespace GNAy.Capital.Models
 
             DataGridAppLogRowsMax = 1000;
 
-            TimerIntervalBackground = 900;
-            TimerIntervalTrigger = 30;
-            TimerIntervalStrategy = 30;
+            TimerIntervalBackground = 30;
             TimerIntervalUI1 = 200;
             TimerIntervalUI2 = 35 * 1000;
 
