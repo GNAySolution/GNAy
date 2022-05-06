@@ -15,13 +15,6 @@ namespace GNAy.Capital.Models
     public class OpenInterestData : NotifyPropertyChanged
     {
         public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(OpenInterestData).GetColumnAttrMapByProperty<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
-        public static readonly SortedDictionary<int, (ColumnAttribute, PropertyInfo)> ColumnGetters = typeof(OpenInterestData).GetColumnAttrMapByIndex<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
-        public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> ColumnSetters = typeof(OpenInterestData).GetColumnAttrMapByName<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
-        public static readonly string CSVColumnNames = string.Join(",", ColumnGetters.Values.Select(x => x.Item1.CSVName));
-
-        public readonly object SyncRoot;
-
-        public OpenInterestData Parent;
 
         private string _creator;
         [Column("建立者")]
@@ -72,15 +65,17 @@ namespace GNAy.Capital.Models
         public string MarketName => Market.NameDescription[(int)MarketType];
 
         private string _account;
-        [Column("下單帳號")]
+        [Column("下單帳號", WPFDisplayIndex = 3)]
         public string Account
         {
             get { return _account; }
             set { OnPropertyChanged(ref _account, value); }
         }
 
+        public QuoteData Quote;
+
         private string _symbol;
-        [Column("代碼", WPFDisplayIndex = 3)]
+        [Column("代碼", WPFDisplayIndex = 4)]
         public string Symbol
         {
             get { return _symbol; }
@@ -100,7 +95,7 @@ namespace GNAy.Capital.Models
             set { BS = (short)value; }
         }
 
-        [Column("買賣描述", "買賣", WPFDisplayIndex = 4)]
+        [Column("買賣描述", "買賣", WPFDisplayIndex = 5)]
         public string BSDes => OrderBS.Description[BS];
 
         private short _dayTrade;
@@ -116,7 +111,7 @@ namespace GNAy.Capital.Models
             set { DayTrade = (short)value; }
         }
 
-        [Column("當沖描述", "沖", WPFDisplayIndex = 5)]
+        [Column("當沖描述", "沖", WPFDisplayIndex = 6)]
         public string DayTradeDes => OrderDayTrade.Description[DayTrade];
 
         private short _position;
@@ -132,11 +127,19 @@ namespace GNAy.Capital.Models
             set { Position = (short)value; }
         }
 
-        [Column("新倉平倉描述", "新平", WPFDisplayIndex = 6)]
+        [Column("新倉平倉描述", "新平", WPFDisplayIndex = 7)]
         public string PositionDes => OrderPosition.Description[Position];
 
+        private decimal _marketPrice;
+        [Column("委託送出前的市場成交價", "市場價格", CSVStringFormat = "0.00", WPFDisplayIndex = 8, WPFStringFormat = "{0:0.00}")]
+        public decimal MarketPrice
+        {
+            get { return _marketPrice; }
+            set { OnPropertyChanged(ref _marketPrice, value); }
+        }
+
         private decimal _dealPrice;
-        [Column("成交均價", "成價", CSVStringFormat = "0.00", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00}")]
+        [Column("成交均價", CSVStringFormat = "0.00", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00}")]
         public decimal DealPrice
         {
             get { return _dealPrice; }
@@ -144,88 +147,43 @@ namespace GNAy.Capital.Models
         }
 
         private int _dealQty;
-        [Column("成交口數", "成量", WPFDisplayIndex = 8)]
+        [Column("成交口數", "成量", WPFDisplayIndex = 10)]
         public int DealQty
         {
             get { return _dealQty; }
             set { OnPropertyChanged(ref _dealQty, value); }
         }
 
+        private decimal _unclosedProfit;
+        [Column("未實現損益", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}")]
+        public decimal UnclosedProfit
+        {
+            get { return _unclosedProfit; }
+            set { OnPropertyChanged(ref _unclosedProfit, value); }
+        }
+
         public OpenInterestData([CallerMemberName] string memberName = "")
         {
-            SyncRoot = new object();
-            Parent = null;
             Creator = memberName;
             CreatedTime = DateTime.Now;
             Updater = string.Empty;
             UpdateTime = DateTime.MaxValue;
             MarketType = Market.EType.OverseaStock;
             Account = string.Empty;
+            Quote = null;
             Symbol = string.Empty;
             BSEnum = OrderBS.Enum.Buy;
             DayTradeEnum = OrderDayTrade.Enum.No;
             PositionEnum = OrderPosition.Enum.Open;
+            MarketPrice = 0;
             DealPrice = 0;
             DealQty = 0;
+            UnclosedProfit = 0;
         }
 
         public string ToLog()
         {
             return $"{MarketType},{Account},{Symbol},{BSEnum},{PositionEnum}";
-        }
-
-        public string ToCSVString()
-        {
-            string result = string.Join("\",\"", ColumnGetters.Values.Select(x => x.Item2.ValueToString(this, x.Item1.CSVStringFormat)));
-            return $"\"{result}\"";
-        }
-
-        public void ToCSVFile(string path, bool append = true)
-        {
-            bool exists = File.Exists(path);
-
-            using (StreamWriter sw = new StreamWriter(path, append, TextEncoding.UTF8WithoutBOM))
-            {
-                if (!append || !exists)
-                {
-                    sw.WriteLine(CSVColumnNames);
-                }
-
-                sw.WriteLine(ToCSVString());
-            }
-        }
-
-        public void SetValues(IList<string> columnNames, IList<string> cells)
-        {
-            for (int i = 0; i < columnNames.Count; ++i)
-            {
-                if (ColumnSetters.TryGetValue(columnNames[i], out (ColumnAttribute, PropertyInfo) value))
-                {
-                    value.Item2.SetValueFromString(this, cells[i], value.Item1.CSVStringFormat);
-                }
-            }
-        }
-
-        public static OpenInterestData Create(IList<string> columnNames, string lineCSV)
-        {
-            OpenInterestData data = new OpenInterestData();
-            data.SetValues(columnNames, lineCSV.SplitToCSV());
-            return data;
-        }
-
-        public static IEnumerable<OpenInterestData> ForeachQuoteFromCSVFile(string quotePath, List<string> columnNames)
-        {
-            foreach (string line in File.ReadLines(quotePath, TextEncoding.UTF8WithoutBOM))
-            {
-                if (columnNames.Count <= 0)
-                {
-                    columnNames.AddRange(line.Split(','));
-                    continue;
-                }
-
-                OpenInterestData data = Create(columnNames, line);
-                yield return data;
-            }
         }
     }
 }

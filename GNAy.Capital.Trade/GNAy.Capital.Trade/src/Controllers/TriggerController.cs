@@ -309,7 +309,7 @@ namespace GNAy.Capital.Trade.Controllers
                     HashSet<string> strategyAND = StrategyOpen(trigger, start);
                     //TODO: StrategyClose(trigger, start);
 
-                    if (string.IsNullOrWhiteSpace(trigger.StrategyOpenOR) || strategyAND.Count > 0)
+                    if (string.IsNullOrWhiteSpace(trigger.StrategyOpenAND) || strategyAND.Count > 0)
                     {
                         Cancel(trigger, start);
                     }

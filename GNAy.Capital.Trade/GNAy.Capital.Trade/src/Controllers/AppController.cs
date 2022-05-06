@@ -37,6 +37,7 @@ namespace GNAy.Capital.Trade.Controllers
         public CapitalController Capital { get; private set; }
         public TriggerController Trigger { get; private set; }
         public StrategyController Strategy { get; private set; }
+        public OpenInterestController OpenInterest { get; private set; }
 
         private ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
 
@@ -80,6 +81,7 @@ namespace GNAy.Capital.Trade.Controllers
             Capital = null;
             Trigger = null;
             Strategy = null;
+            OpenInterest = null;
 
             _triggerColumnCollection = null;
 
@@ -440,6 +442,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                     Strategy = new StrategyController(this);
                     MainForm.TextBoxStrategyPrimaryKey.Text = $"{Strategy.Count + 1}";
+
+                    OpenInterest = new OpenInterestController(this);
 
                     MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderReport)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
