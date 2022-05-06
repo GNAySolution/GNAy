@@ -178,7 +178,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             MarketCheck(strategy, strategy.Quote);
 
-            (string, decimal) orderPriceAfter = OrderPrice.Parse(strategy.OrderPriceBefore, strategy.Quote.DealPrice, strategy.Quote.Reference, strategy.Quote.HighPriceLimit, strategy.Quote.LowPriceLimit);
+            (string, decimal) orderPriceAfter = OrderPrice.Parse(strategy.OrderPriceBefore, strategy.Quote);
 
             if (readyToSend)
             {
@@ -189,7 +189,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!string.IsNullOrWhiteSpace(strategy.StopLossBefore))
             {
-                (string, decimal) stopLossPriceAfter = OrderPrice.Parse(strategy.StopLossBefore, strategy.Quote.DealPrice, strategy.Quote.Reference, strategy.Quote.HighPriceLimit, strategy.Quote.LowPriceLimit);
+                (string, decimal) stopLossPriceAfter = OrderPrice.Parse(strategy.StopLossBefore, strategy.Quote);
 
                 if (strategy.BSEnum == OrderBS.Enum.Buy)
                 {
@@ -223,7 +223,7 @@ namespace GNAy.Capital.Trade.Controllers
                     strategy.StopWinQty = int.Parse(cells[1]);
                 }
 
-                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(stopWinBefore, strategy.Quote.DealPrice, strategy.Quote.Reference, strategy.Quote.HighPriceLimit, strategy.Quote.LowPriceLimit);
+                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(stopWinBefore, strategy.Quote);
 
                 if (strategy.BSEnum == OrderBS.Enum.Buy)
                 {
@@ -363,7 +363,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             order.MarketPrice = order.Quote.DealPrice;
 
-            (string, decimal) orderPriceAfter = OrderPrice.Parse(order.OrderPriceBefore, order.Quote.DealPrice, order.Quote.Reference, order.Quote.HighPriceLimit, order.Quote.LowPriceLimit);
+            (string, decimal) orderPriceAfter = OrderPrice.Parse(order.OrderPriceBefore, order.Quote);
 
             order.OrderPriceAfter = orderPriceAfter.Item2;
             _appCtrl.LogTrace(start, $"委託價計算前={order.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
@@ -506,13 +506,14 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (strategy.StopWinData != null && strategy.StopWinData.DealQty == strategy.OrderQty)
+                else if (strategy.StopWinData != null && strategy.StopWinData.OrderQty == strategy.OrderQty)
                 {
                     strategy.StatusEnum = StrategyStatus.Enum.Finished;
                     return saveData;
                 }
                 else if (strategy.MoveStopWinData != null)
                 {
+                    strategy.StatusEnum = StrategyStatus.Enum.Finished;
                     return saveData;
                 }
                 else if (strategy.StatusEnum == StrategyStatus.Enum.Waiting)
@@ -948,18 +949,9 @@ namespace GNAy.Capital.Trade.Controllers
                             continue;
                         }
 
-                        //TODO
-                        strategy.StatusEnum = StrategyStatus.Enum.Waiting;
+                        strategy = strategy.Reset();
                         strategy.MarketType = _appCtrl.Capital.GetOrderAcc(strategy.FullAccount).MarketType;
                         strategy.Quote = _appCtrl.Capital.GetQuote(strategy.Symbol);
-                        strategy.MarketPrice = 0;
-                        strategy.OrderPriceAfter = 0;
-                        strategy.StopLossAfter = 0;
-                        strategy.StopWinPrice = 0;
-                        strategy.MoveStopWinPrice = 0;
-                        strategy.ClosedProfit = 0;
-                        strategy.UnclosedQty = 0;
-                        strategy.Comment = string.Empty;
                         strategy.Updater = methodName;
                         strategy.UpdateTime = DateTime.Now;
 

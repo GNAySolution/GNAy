@@ -136,7 +136,7 @@ namespace GNAy.Capital.Models
         public string PositionDes => OrderPosition.Description[Position];
 
         private decimal _dealPrice;
-        [Column("成交價格", "成價", CSVStringFormat = "0.00", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00}")]
+        [Column("成交均價", "成價", CSVStringFormat = "0.00", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00}")]
         public decimal DealPrice
         {
             get { return _dealPrice; }
@@ -149,22 +149,6 @@ namespace GNAy.Capital.Models
         {
             get { return _dealQty; }
             set { OnPropertyChanged(ref _dealQty, value); }
-        }
-
-        private string _dealReport;
-        [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 9)]
-        public string DealReport
-        {
-            get { return _dealReport; }
-            set { OnPropertyChanged(ref _dealReport, value); }
-        }
-
-        private int _unclosedQty;
-        [Column("未平倉口數", "未平量", WPFDisplayIndex = 10)]
-        public int UnclosedQty
-        {
-            get { return _unclosedQty; }
-            set { OnPropertyChanged(ref _unclosedQty, value); }
         }
 
         public OpenInterestData([CallerMemberName] string memberName = "")
@@ -183,8 +167,6 @@ namespace GNAy.Capital.Models
             PositionEnum = OrderPosition.Enum.Open;
             DealPrice = 0;
             DealQty = 0;
-            DealReport = string.Empty;
-            UnclosedQty = 0;
         }
 
         public string ToLog()

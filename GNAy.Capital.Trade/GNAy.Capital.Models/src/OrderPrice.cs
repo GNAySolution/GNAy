@@ -75,5 +75,10 @@ namespace GNAy.Capital.Models
 
             return (orderPrice, decimal.Parse(orderPrice));
         }
+
+        public static (string, decimal) Parse(string orderPrice, QuoteData quote)
+        {
+            return Parse(orderPrice, quote.DealPrice, quote.Reference, quote.HighPriceLimit, quote.LowPriceLimit);
+        }
     }
 }

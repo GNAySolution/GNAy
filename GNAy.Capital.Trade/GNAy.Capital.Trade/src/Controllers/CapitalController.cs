@@ -1255,6 +1255,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             DateTime start = _appCtrl.StartTrace($"{order?.ToLog()}", UniqueName);
 
+            StrategyData parent = order.Parent;
+
             try
             {
                 if (string.IsNullOrWhiteSpace(order.PrimaryKey))
@@ -1331,7 +1333,7 @@ namespace GNAy.Capital.Trade.Controllers
                     order.Updater = methodName;
                     order.UpdateTime = DateTime.Now;
 
-                    if (order.Parent == null)
+                    if (parent == null)
                     {
                         if (order.PositionEnum == OrderPosition.Enum.Open)
                         {
@@ -1340,64 +1342,64 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else
                     {
-                        switch (order.Parent.StatusEnum)
+                        switch (parent.StatusEnum)
                         {
                             case StrategyStatus.Enum.OrderSent:
-                                order.Parent.StatusEnum = StrategyStatus.Enum.DealReport;
+                                parent.StatusEnum = StrategyStatus.Enum.DealReport;
                                 break;
                             case StrategyStatus.Enum.StopLossSent:
-                                order.Parent.StatusEnum = StrategyStatus.Enum.StopLossDealReport;
+                                parent.StatusEnum = StrategyStatus.Enum.StopLossDealReport;
                                 break;
                             case StrategyStatus.Enum.StopWinSent:
-                                order.Parent.StatusEnum = StrategyStatus.Enum.StopWinDealReport;
+                                parent.StatusEnum = StrategyStatus.Enum.StopWinDealReport;
                                 break;
                             case StrategyStatus.Enum.MoveStopWinSent:
-                                order.Parent.StatusEnum = StrategyStatus.Enum.MoveStopWinDealReport;
+                                parent.StatusEnum = StrategyStatus.Enum.MoveStopWinDealReport;
                                 break;
                         }
 
-                        if (order == order.Parent.OrderData)
+                        if (order == parent.OrderData)
                         {
-                            order.ClosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.DealQty;
+                            order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty;
                             order.UnclosedQty = order.DealQty;
-                            order.UnclosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.UnclosedQty;
+                            order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty;
 
-                            order.Parent.ClosedProfit += order.ClosedProfit;
-                            order.Parent.UnclosedQty = order.UnclosedQty;
+                            parent.ClosedProfit += order.ClosedProfit;
+                            parent.UnclosedQty = order.UnclosedQty;
                         }
-                        else if (order == order.Parent.StopLossData || order == order.Parent.StopWinData)
+                        else if (order == parent.StopLossData || order == parent.StopWinData)
                         {
-                            order.ClosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.DealQty;
-                            order.UnclosedQty = order.Parent.OrderData.DealQty - order.DealQty;
-                            order.UnclosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.UnclosedQty;
+                            order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty;
+                            order.UnclosedQty = parent.OrderData.DealQty - order.DealQty;
+                            order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty;
 
-                            if (order.Parent.OrderData.BSEnum == OrderBS.Enum.Sell)
+                            if (parent.OrderData.BSEnum == OrderBS.Enum.Sell)
                             {
                                 order.ClosedProfit *= -1;
                                 order.UnclosedProfit *= -1;
                             }
 
-                            order.Parent.ClosedProfit += order.ClosedProfit;
-                            order.Parent.UnclosedQty = order.UnclosedQty;
+                            parent.ClosedProfit += order.ClosedProfit;
+                            parent.UnclosedQty = order.UnclosedQty;
                         }
-                        else if (order == order.Parent.MoveStopWinData)
+                        else if (order == parent.MoveStopWinData)
                         {
-                            order.ClosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.DealQty;
-                            order.UnclosedQty = order.Parent.OrderData.DealQty - order.DealQty - order.Parent.StopWinData.DealQty;
-                            order.UnclosedProfit = (order.DealPrice - order.Parent.OrderData.DealPrice) * order.UnclosedQty;
+                            order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty;
+                            order.UnclosedQty = parent.OrderData.DealQty - order.DealQty - parent.StopWinData.DealQty;
+                            order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty;
 
-                            if (order.Parent.OrderData.BSEnum == OrderBS.Enum.Sell)
+                            if (parent.OrderData.BSEnum == OrderBS.Enum.Sell)
                             {
                                 order.ClosedProfit *= -1;
                                 order.UnclosedProfit *= -1;
                             }
 
-                            order.Parent.ClosedProfit += order.ClosedProfit;
-                            order.Parent.UnclosedQty = order.UnclosedQty;
+                            parent.ClosedProfit += order.ClosedProfit;
+                            parent.UnclosedQty = order.UnclosedQty;
                         }
 
-                        order.Parent.Updater = methodName;
-                        order.Parent.UpdateTime = DateTime.Now;
+                        parent.Updater = methodName;
+                        parent.UpdateTime = DateTime.Now;
                     }
                 }
 
@@ -1415,26 +1417,26 @@ namespace GNAy.Capital.Trade.Controllers
             }
             finally
             {
-                if (order.Parent != null)
+                if (parent != null)
                 {
-                    switch (order.Parent.StatusEnum)
+                    switch (parent.StatusEnum)
                     {
                         case StrategyStatus.Enum.OrderSent:
-                            order.Parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.OrderReport : StrategyStatus.Enum.OrderError;
+                            parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.OrderReport : StrategyStatus.Enum.OrderError;
                             break;
                         case StrategyStatus.Enum.StopLossSent:
-                            order.Parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.StopLossOrderReport : StrategyStatus.Enum.StopLossError;
+                            parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.StopLossOrderReport : StrategyStatus.Enum.StopLossError;
                             break;
                         case StrategyStatus.Enum.StopWinSent:
-                            order.Parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.StopWinOrderReport : StrategyStatus.Enum.StopWinError;
+                            parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.StopWinOrderReport : StrategyStatus.Enum.StopWinError;
                             break;
                         case StrategyStatus.Enum.MoveStopWinSent:
-                            order.Parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.MoveStopWinOrderReport : StrategyStatus.Enum.MoveStopWinError;
+                            parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.MoveStopWinOrderReport : StrategyStatus.Enum.MoveStopWinError;
                             break;
                     }
 
-                    order.Parent.Updater = methodName;
-                    order.Parent.UpdateTime = DateTime.Now;
+                    parent.Updater = methodName;
+                    parent.UpdateTime = DateTime.Now;
                 }
 
                 _appCtrl.EndTrace(start, UniqueName);

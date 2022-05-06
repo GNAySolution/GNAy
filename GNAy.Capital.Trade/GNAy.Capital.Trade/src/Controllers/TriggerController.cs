@@ -135,14 +135,8 @@ namespace GNAy.Capital.Trade.Controllers
             try
             {
                 StrategyData strategy = _appCtrl.Strategy[primary];
-
-                if (strategy != null && strategy.StatusEnum == StrategyStatus.Enum.Waiting)
-                {//TODO
-                    _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
-                    return;
-                }
-
-                _appCtrl.LogError(start, $"執行策略({primary})失敗|{trigger.ToLog()}", UniqueName);
+                strategy = strategy.Reset();
+                _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
             }
             catch (Exception ex)
             {
@@ -155,7 +149,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void StrategyOpen(TriggerData trigger, DateTime start)
+        private HashSet<string> StrategyOpen(TriggerData trigger, DateTime start)
         {
             if (!string.IsNullOrWhiteSpace(trigger.StrategyOpenOR))
             {
@@ -166,6 +160,8 @@ namespace GNAy.Capital.Trade.Controllers
                     StrategyOpen(trigger, primary, start);
                 }
             }
+
+            HashSet<string> strategyAND = new HashSet<string>();
 
             if (!string.IsNullOrWhiteSpace(trigger.StrategyOpenAND))
             {
@@ -199,9 +195,12 @@ namespace GNAy.Capital.Trade.Controllers
                         continue;
                     }
 
+                    strategyAND.Add(primary);
                     StrategyOpen(trigger, primary, start);
                 }
             }
+
+            return strategyAND;
         }
 
         private void Cancel(TriggerData executed, DateTime start)
@@ -307,9 +306,13 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
 
                     saveData = true;
-                    StrategyOpen(trigger, start);
+                    HashSet<string> strategyAND = StrategyOpen(trigger, start);
                     //TODO: StrategyClose(trigger, start);
-                    Cancel(trigger, start);
+
+                    if (string.IsNullOrWhiteSpace(trigger.StrategyOpenOR) || strategyAND.Count > 0)
+                    {
+                        Cancel(trigger, start);
+                    }
                 }
                 else if (!matched.HasValue)
                 {

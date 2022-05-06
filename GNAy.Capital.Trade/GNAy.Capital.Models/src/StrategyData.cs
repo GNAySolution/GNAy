@@ -499,6 +499,42 @@ namespace GNAy.Capital.Models
             return this;
         }
 
+        public StrategyData Reset()
+        {
+            if (StatusEnum == StrategyStatus.Enum.Waiting ||
+                StatusEnum == StrategyStatus.Enum.Cancelled ||
+                StatusEnum == StrategyStatus.Enum.Finished ||
+                StatusEnum == StrategyStatus.Enum.OrderError ||
+                StatusEnum == StrategyStatus.Enum.StopLossSent ||
+                StatusEnum == StrategyStatus.Enum.StopLossOrderReport ||
+                StatusEnum == StrategyStatus.Enum.StopLossDealReport ||
+                StatusEnum == StrategyStatus.Enum.StopLossError ||
+                StatusEnum == StrategyStatus.Enum.StopWinError ||
+                StatusEnum == StrategyStatus.Enum.MoveStopWinDealReport ||
+                StatusEnum == StrategyStatus.Enum.MoveStopWinError)
+            { }
+            else
+            {
+                throw new NotSupportedException(ToLog());
+            }
+
+            StatusEnum = StrategyStatus.Enum.Waiting;
+            MarketPrice = 0;
+            OrderPriceAfter = 0;
+            OrderData = null;
+            StopLossAfter = 0;
+            StopLossData = null;
+            StopWinPrice = 0;
+            StopWinData = null;
+            MoveStopWinPrice = 0;
+            MoveStopWinData = null;
+            ClosedProfit = 0;
+            UnclosedQty = 0;
+            Comment = string.Empty;
+
+            return this;
+        }
+
         public StrategyData CreateOrder()
         {
             const string methodName = nameof(CreateOrder);
