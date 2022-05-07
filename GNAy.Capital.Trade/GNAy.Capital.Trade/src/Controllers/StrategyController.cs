@@ -99,11 +99,6 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void SaveDataAsync(ICollection<StrategyData> dataCollection, DirectoryInfo dir, string fileFormat)
-        {
-            Task.Factory.StartNew(() => SaveData(dataCollection, dir, fileFormat));
-        }
-
         private void MarketCheck(StrategyData data, QuoteData quote)
         {
             if (quote.MarketGroupEnum == Market.EGroup.TSE || quote.MarketGroupEnum == Market.EGroup.OTC || quote.MarketGroupEnum == Market.EGroup.Emerging)
@@ -673,7 +668,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (_waitToCancel.Count <= 0)
                     {
-                        SaveDataAsync(_strategyCollection, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
+                        SaveData(_strategyMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
                     }
                 }
                 else
@@ -711,7 +706,7 @@ namespace GNAy.Capital.Trade.Controllers
                     index = _strategyCollection.IndexOf(next);
                 }
 
-                _appCtrl.MainForm.InvokeRequired(delegate
+                _appCtrl.MainForm.InvokeSync(delegate
                 {
                     try
                     {
@@ -720,11 +715,6 @@ namespace GNAy.Capital.Trade.Controllers
                         if (toRemove != null)
                         {
                             _strategyCollection.Remove(toRemove);
-                        }
-
-                        if (_waitToAdd.Count <= 0)
-                        {
-                            SaveDataAsync(_strategyCollection, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
                         }
                     }
                     catch (Exception ex)
@@ -735,7 +725,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (_waitToAdd.Count <= 0)
                 {
-                    return;
+                    SaveData(_strategyMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
                 }
             }
 
@@ -760,7 +750,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (saveData)
             {
-                SaveData(_strategyCollection, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
+                SaveData(_strategyMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
             }
         }
 
@@ -817,7 +807,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             DateTime start = _appCtrl.StartTrace($"{order?.ToLog()}", UniqueName);
 
-            _appCtrl.MainForm.InvokeRequired(delegate
+            _appCtrl.MainForm.InvokeSync(delegate
             {
                 try
                 {
@@ -976,10 +966,7 @@ namespace GNAy.Capital.Trade.Controllers
                     nextPK = _strategyCollection.Count + 1;
                 }
 
-                _appCtrl.MainForm.InvokeRequired(delegate
-                {
-                    _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{nextPK}";
-                });
+                _appCtrl.MainForm.InvokeAsync(delegate { _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{nextPK}"; });
             }
             catch (Exception ex)
             {

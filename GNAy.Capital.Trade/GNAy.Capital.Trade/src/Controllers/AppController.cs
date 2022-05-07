@@ -110,7 +110,7 @@ namespace GNAy.Capital.Trade.Controllers
                 CallerMemberName = memberName,
             };
 
-            MainForm.InvokeRequired(delegate
+            MainForm.InvokeAsync(delegate
             {
                 try
                 {

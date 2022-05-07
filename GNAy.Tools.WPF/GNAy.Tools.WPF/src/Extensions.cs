@@ -18,48 +18,100 @@ namespace GNAy.Tools.WPF
     public static class Extensions
     {
         /// <summary>
-        /// https://stackoverflow.com/questions/5436349/what-happened-to-control-invokerequired-in-wpf
+        /// <para>https://stackoverflow.com/questions/5436349/what-happened-to-control-invokerequired-in-wpf</para>
+        /// <para>https://docs.microsoft.com/zh-tw/dotnet/api/system.windows.threading.dispatcher.invoke?view=windowsdesktop-6.0</para>
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="act"></param>
-        public static void InvokeRequired(this DispatcherObject obj, Action<object> act)
+        /// <param name="priority"></param>
+        public static void InvokeSync(this DispatcherObject obj, Action<object> act, DispatcherPriority priority = DispatcherPriority.Normal)
         {
             if (!obj.CheckAccess())
             {
-                obj.Dispatcher.Invoke(delegate { act(obj); });
+                obj.Dispatcher.Invoke(delegate { act(obj); }, priority);
                 return;
             }
 
             act(obj);
         }
 
-        public static void InvokeRequired<T>(this DispatcherObject obj, Action<object, T> act, T arg)
+        public static void InvokeSync<T>(this DispatcherObject obj, Action<object, T> act, T arg, DispatcherPriority priority = DispatcherPriority.Normal)
         {
             if (!obj.CheckAccess())
             {
-                obj.Dispatcher.Invoke(delegate { act(obj, arg); });
+                obj.Dispatcher.Invoke(delegate { act(obj, arg); }, priority);
                 return;
             }
 
             act(obj, arg);
         }
 
-        public static void InvokeRequired<T1, T2>(this DispatcherObject obj, Action<object, T1, T2> act, T1 arg1, T2 arg2)
+        public static void InvokeSync<T1, T2>(this DispatcherObject obj, Action<object, T1, T2> act, T1 arg1, T2 arg2, DispatcherPriority priority = DispatcherPriority.Normal)
         {
             if (!obj.CheckAccess())
             {
-                obj.Dispatcher.Invoke(delegate { act(obj, arg1, arg2); });
+                obj.Dispatcher.Invoke(delegate { act(obj, arg1, arg2); }, priority);
                 return;
             }
 
             act(obj, arg1, arg2);
         }
 
-        public static void InvokeRequired<T1, T2, T3>(this DispatcherObject obj, Action<object, T1, T2, T3> act, T1 arg1, T2 arg2, T3 arg3)
+        public static void InvokeSync<T1, T2, T3>(this DispatcherObject obj, Action<object, T1, T2, T3> act, T1 arg1, T2 arg2, T3 arg3, DispatcherPriority priority = DispatcherPriority.Normal)
         {
             if (!obj.CheckAccess())
             {
-                obj.Dispatcher.Invoke(delegate { act(obj, arg1, arg2, arg3); });
+                obj.Dispatcher.Invoke(delegate { act(obj, arg1, arg2, arg3); }, priority);
+                return;
+            }
+
+            act(obj, arg1, arg2, arg3);
+        }
+
+        /// <summary>
+        /// https://stackoverflow.com/questions/60759414/delegate-is-never-executed-while-invoked-via-dispatcher-begininvoke-with-context
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="act"></param>
+        /// <param name="priority"></param>
+        public static void InvokeAsync(this DispatcherObject obj, Action<object> act, DispatcherPriority priority = DispatcherPriority.Background)
+        {
+            if (!obj.CheckAccess())
+            {
+                obj.Dispatcher.BeginInvoke(new Action(() => act(obj)), priority);
+                return;
+            }
+
+            act(obj);
+        }
+
+        public static void InvokeAsync<T>(this DispatcherObject obj, Action<object, T> act, T arg, DispatcherPriority priority = DispatcherPriority.Background)
+        {
+            if (!obj.CheckAccess())
+            {
+                obj.Dispatcher.BeginInvoke(new Action(() => act(obj, arg)), priority);
+                return;
+            }
+
+            act(obj, arg);
+        }
+
+        public static void InvokeAsync<T1, T2>(this DispatcherObject obj, Action<object, T1, T2> act, T1 arg1, T2 arg2, DispatcherPriority priority = DispatcherPriority.Background)
+        {
+            if (!obj.CheckAccess())
+            {
+                obj.Dispatcher.BeginInvoke(new Action(() => act(obj, arg1, arg2)), priority);
+                return;
+            }
+
+            act(obj, arg1, arg2);
+        }
+
+        public static void InvokeAsync<T1, T2, T3>(this DispatcherObject obj, Action<object, T1, T2, T3> act, T1 arg1, T2 arg2, T3 arg3, DispatcherPriority priority = DispatcherPriority.Background)
+        {
+            if (!obj.CheckAccess())
+            {
+                obj.Dispatcher.BeginInvoke(new Action(() => act(obj, arg1, arg2, arg3)), priority);
                 return;
             }
 

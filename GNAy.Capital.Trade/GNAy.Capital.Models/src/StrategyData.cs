@@ -575,7 +575,7 @@ namespace GNAy.Capital.Models
             StrategyData order = new StrategyData()
             {
                 Parent = this,
-                PrimaryKey = $"{PrimaryKey}_{StrategyStatus.Enum.OrderSent}",
+                PrimaryKey = $"{PrimaryKey}_{DateTime.Now:HHmmss}_{StrategyStatus.Enum.OrderSent}",
                 MarketType = MarketType,
                 Branch = Branch,
                 Account = Account,
@@ -637,7 +637,7 @@ namespace GNAy.Capital.Models
             StrategyData order = new StrategyData()
             {
                 Parent = this,
-                PrimaryKey = $"{PrimaryKey}_{StrategyStatus.Enum.StopLossSent}",
+                PrimaryKey = $"{PrimaryKey}_{DateTime.Now:HHmmss}_{StrategyStatus.Enum.StopLossSent}",
                 MarketType = MarketType,
                 Branch = Branch,
                 Account = Account,
@@ -699,7 +699,7 @@ namespace GNAy.Capital.Models
             StrategyData order = new StrategyData()
             {
                 Parent = this,
-                PrimaryKey = $"{PrimaryKey}_{StrategyStatus.Enum.StopWinSent}",
+                PrimaryKey = $"{PrimaryKey}_{DateTime.Now:HHmmss}_{StrategyStatus.Enum.StopWinSent}",
                 MarketType = MarketType,
                 Branch = Branch,
                 Account = Account,

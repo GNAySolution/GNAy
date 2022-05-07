@@ -54,6 +54,14 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _updateTime, value, nameof(UpdateTime), nameof(UpdateDate)); }
         }
 
+        private string _strategy;
+        [Column("策略唯一鍵", "策略", WPFDisplayIndex = 2)]
+        public string Strategy
+        {
+            get { return _strategy; }
+            set { OnPropertyChanged(ref _strategy, value); }
+        }
+
         private Market.EType _marketType;
         [Column("市場", CSVIndex = -1)]
         public Market.EType MarketType
@@ -61,11 +69,11 @@ namespace GNAy.Capital.Models
             get { return _marketType; }
             set { OnPropertiesChanged(ref _marketType, value, nameof(MarketType), nameof(MarketName)); }
         }
-        [Column("市場", CSVIndex = -1, WPFDisplayIndex = 2)]
+        [Column("市場", CSVIndex = -1, WPFDisplayIndex = 3)]
         public string MarketName => Market.NameDescription[(int)MarketType];
 
         private string _account;
-        [Column("下單帳號", WPFDisplayIndex = 3)]
+        [Column("下單帳號", WPFDisplayIndex = 4)]
         public string Account
         {
             get { return _account; }
@@ -75,12 +83,14 @@ namespace GNAy.Capital.Models
         public QuoteData Quote;
 
         private string _symbol;
-        [Column("代碼", WPFDisplayIndex = 4)]
+        [Column("代碼", WPFDisplayIndex = 5)]
         public string Symbol
         {
             get { return _symbol; }
             set { OnPropertyChanged(ref _symbol, value); }
         }
+
+        public string PrimaryKey => $"{Account}_{Symbol}";
 
         private short _bs;
         [Column("買賣索引")]
@@ -95,7 +105,7 @@ namespace GNAy.Capital.Models
             set { BS = (short)value; }
         }
 
-        [Column("買賣描述", "買賣", WPFDisplayIndex = 5)]
+        [Column("買賣描述", "買賣", WPFDisplayIndex = 6)]
         public string BSDes => OrderBS.Description[BS];
 
         private short _dayTrade;
@@ -111,7 +121,7 @@ namespace GNAy.Capital.Models
             set { DayTrade = (short)value; }
         }
 
-        [Column("當沖描述", "沖", WPFDisplayIndex = 6)]
+        [Column("當沖描述", "沖", WPFDisplayIndex = 7)]
         public string DayTradeDes => OrderDayTrade.Description[DayTrade];
 
         private short _position;
@@ -127,11 +137,11 @@ namespace GNAy.Capital.Models
             set { Position = (short)value; }
         }
 
-        [Column("新倉平倉描述", "新平", WPFDisplayIndex = 7)]
+        [Column("新倉平倉描述", "新平", WPFDisplayIndex = 8)]
         public string PositionDes => OrderPosition.Description[Position];
 
         private decimal _marketPrice;
-        [Column("委託送出前的市場成交價", "市場價格", CSVStringFormat = "0.00", WPFDisplayIndex = 8, WPFStringFormat = "{0:0.00}")]
+        [Column("平倉前的市場價格", "市場價格", CSVStringFormat = "0.00", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00}")]
         public decimal MarketPrice
         {
             get { return _marketPrice; }
@@ -139,7 +149,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _dealPrice;
-        [Column("成交均價", CSVStringFormat = "0.00", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00}")]
+        [Column("成交均價", CSVStringFormat = "0.00", WPFDisplayIndex = 10, WPFStringFormat = "{0:0.00}")]
         public decimal DealPrice
         {
             get { return _dealPrice; }
@@ -147,7 +157,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _dealQty;
-        [Column("成交口數", "成量", WPFDisplayIndex = 10)]
+        [Column("成交口數", "成量", WPFDisplayIndex = 11)]
         public int DealQty
         {
             get { return _dealQty; }
@@ -155,7 +165,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _unclosedProfit;
-        [Column("未實現損益", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}")]
+        [Column("未實現損益", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 12, WPFStringFormat = "{0:0.00}")]
         public decimal UnclosedProfit
         {
             get { return _unclosedProfit; }
@@ -168,6 +178,7 @@ namespace GNAy.Capital.Models
             CreatedTime = DateTime.Now;
             Updater = string.Empty;
             UpdateTime = DateTime.MaxValue;
+            Strategy = string.Empty;
             MarketType = Market.EType.OverseaStock;
             Account = string.Empty;
             Quote = null;
@@ -183,7 +194,7 @@ namespace GNAy.Capital.Models
 
         public string ToLog()
         {
-            return $"{MarketType},{Account},{Symbol},{BSEnum},{PositionEnum}";
+            return $"{Strategy},{MarketType},{Account},{Symbol},{BSEnum},{PositionEnum}";
         }
     }
 }

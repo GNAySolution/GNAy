@@ -35,15 +35,16 @@ namespace GNAy.Capital.Trade.Controllers
                     MemberName = cells[5],
                 };
 
-                _appCtrl.MainForm.InvokeRequired(delegate
+                if (Market.CodeMap.TryGetValue(cells[0], out Market.EType marketType))
                 {
-                    if (Market.CodeMap.TryGetValue(cells[0], out Market.EType marketType))
+                    acc.MarketType = marketType;
+
+                    _appCtrl.MainForm.InvokeSync(delegate
                     {
-                        acc.MarketType = marketType;
                         _orderAccCollection.Add(acc);
                         _appCtrl.MainForm.ComboBoxOrderAccs.SelectedIndex = 0;
-                    }
-                });
+                    });
+                }
             }
             catch (Exception ex)
             {

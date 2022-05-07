@@ -48,17 +48,12 @@ namespace GNAy.Capital.Trade.Controllers
         private TriggerController() : this(null)
         { }
 
-        private void SaveData(ICollection<TriggerData> triggers)
+        private void SaveData()
         {
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                if (triggers == null)
-                {
-                    triggers = _triggerCollection.ToArray();
-                }
-
                 string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, string.Format("{0}.csv", DateTime.Now.ToString(_appCtrl.Settings.TriggerFileFormat)));
                 _appCtrl.LogTrace(start, path, UniqueName);
 
@@ -66,7 +61,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     sw.WriteLine(TriggerData.CSVColumnNames);
 
-                    foreach (TriggerData trigger in triggers)
+                    foreach (TriggerData trigger in _triggerMap.Values)
                     {
                         try
                         {
@@ -87,11 +82,6 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _appCtrl.EndTrace(start, UniqueName);
             }
-        }
-
-        private void SaveDataAsync()
-        {
-            Task.Factory.StartNew(() => SaveData(null));
         }
 
         public (bool, string) Restart(string primary)
@@ -356,7 +346,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (_waitToCancel.Count <= 0)
                     {
-                        SaveDataAsync();
+                        SaveData();
                     }
                 }
                 else
@@ -398,7 +388,7 @@ namespace GNAy.Capital.Trade.Controllers
                     index = _triggerCollection.IndexOf(next);
                 }
 
-                _appCtrl.MainForm.InvokeRequired(delegate
+                _appCtrl.MainForm.InvokeSync(delegate
                 {
                     try
                     {
@@ -407,11 +397,6 @@ namespace GNAy.Capital.Trade.Controllers
                         if (toRemove != null)
                         {
                             _triggerCollection.Remove(toRemove);
-                        }
-
-                        if (_waitToAdd.Count <= 0)
-                        {
-                            SaveDataAsync();
                         }
                     }
                     catch (Exception ex)
@@ -422,7 +407,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (_waitToAdd.Count <= 0)
                 {
-                    return;
+                    SaveData();
                 }
             }
 
@@ -446,7 +431,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (saveData)
             {
-                SaveData(_triggerCollection);
+                SaveData();
             }
         }
 
@@ -787,10 +772,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (!_triggerMap.ContainsKey($"{nextPK}"))
                 {
-                    _appCtrl.MainForm.InvokeRequired(delegate
-                    {
-                        _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{nextPK}";
-                    });
+                    _appCtrl.MainForm.InvokeAsync(delegate { _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{nextPK}"; });
                 }
             }
             catch (Exception ex)

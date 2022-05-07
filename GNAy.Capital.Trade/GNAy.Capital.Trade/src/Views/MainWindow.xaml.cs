@@ -213,9 +213,10 @@ namespace GNAy.Capital.Trade
                     Task.Factory.StartNew(() =>
                     {
                         Thread.Sleep(100);
-                        this.InvokeRequired(delegate
+                        this.InvokeAsync(delegate
                         {
                             tb.SelectAll();
+
                             if (_editableCBMap.TryGetValue(tb, out ComboBox cb))
                             {
                                 cb.IsDropDownOpen = true;
@@ -228,7 +229,7 @@ namespace GNAy.Capital.Trade
                     Task.Factory.StartNew(() =>
                     {
                         Thread.Sleep(100);
-                        this.InvokeRequired(delegate { pb.SelectAll(); });
+                        this.InvokeAsync(delegate { pb.SelectAll(); });
                     });
                 }
             }
@@ -391,7 +392,7 @@ namespace GNAy.Capital.Trade
                     Task.Factory.StartNew(() =>
                     {
                         Thread.Sleep(1 * 1000);
-                        this.InvokeRequired(delegate { Timer2_Tick(null, null); });
+                        this.InvokeAsync(delegate { Timer2_Tick(null, null); });
                     });
                 }
 
@@ -941,6 +942,10 @@ namespace GNAy.Capital.Trade
                 {
                     StatusBarItemCB1.Text = $"({DataGridOrderDetail.Columns.Count},{DataGridOrderDetail.Items.Count})";
                 }
+                else if (TabControlCB.SelectedIndex == 1 && DataGridOpenInterest.ItemsSource != null)
+                {
+                    StatusBarItemCB1.Text = $"({DataGridOpenInterest.Columns.Count},{DataGridOpenInterest.Items.Count})";
+                }
             }
             catch (Exception ex)
             {
@@ -1000,16 +1005,15 @@ namespace GNAy.Capital.Trade
                 {
                     if (_appCtrl.Capital != null)
                     {
-                        Thread.Sleep(1 * 1000);
                         _appCtrl.Capital.Disconnect();
                     }
 
                     Thread.Sleep(2 * 1000);
-                    this.InvokeRequired(delegate { ButtonLoginUser_Click(null, null); });
+                    this.InvokeSync(delegate { ButtonLoginUser_Click(null, null); });
 
-                    Thread.Sleep(4 * 1000);
+                    Thread.Sleep(2 * 1000);
                     SpinWait.SpinUntil(() => _appCtrl.Capital.LoginUserResult == 0 || (_appCtrl.Capital.LoginUserResult >= 600 && _appCtrl.Capital.LoginUserResult <= 699), 1 * 60 * 1000);
-                    this.InvokeRequired(delegate
+                    this.InvokeSync(delegate
                     {
                         ButtonLoginQuote_Click(null, null);
                         ButtonReadCertification_Click(null, null);
@@ -1030,16 +1034,17 @@ namespace GNAy.Capital.Trade
 
                         return _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY;
                     }, 1 * 60 * 1000);
+
                     if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
                     {
                         //TODO: Send alert mail.
                         _appCtrl.Capital.Disconnect();
-                        this.InvokeRequired(delegate { _timer2.Start(); }); //Retry to connect quote service.
+                        this.InvokeAsync(delegate { _timer2.Start(); }); //Retry to connect quote service.
                         return;
                     }
 
                     Thread.Sleep(2 * 1000);
-                    this.InvokeRequired(delegate
+                    this.InvokeSync(delegate
                     {
                         ButtonIsConnected_Click(null, null);
                         //ButtonPrintProductList_Click(null, null);
@@ -1049,9 +1054,9 @@ namespace GNAy.Capital.Trade
                     });
 
                     Thread.Sleep(2 * 1000);
-                    SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 8 * 1000);
-                    Thread.Sleep(8 * 1000);
-                    _appCtrl.Capital.GetOpenInterestAsync();
+                    SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 4 * 1000);
+                    Thread.Sleep(4 * 1000);
+                    _appCtrl.Capital.GetOpenInterestAsync(); //TODO
                     _appCtrl.Capital.UnlockOrder();
                     _appCtrl.Capital.SetOrderMaxQty();
                     _appCtrl.Capital.SetOrderMaxCount();
@@ -1061,7 +1066,7 @@ namespace GNAy.Capital.Trade
                     _appCtrl.Strategy.RecoverSetting();
 
                     Thread.Sleep(2 * 1000);
-                    this.InvokeRequired(delegate { _timer2.Start(); });
+                    this.InvokeAsync(delegate { _timer2.Start(); });
                 });
             }
             catch (Exception ex)
@@ -1567,25 +1572,22 @@ namespace GNAy.Capital.Trade
                 Task.Factory.StartNew(() =>
                 {
                     Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
+
                     if (_appCtrl.Trigger[primaryKey] == null)
                     {
                         return;
                     }
-
-                    this.InvokeRequired(delegate
+                    else if (pk < _appCtrl.Trigger.Count)
                     {
-                        if (pk < _appCtrl.Trigger.Count)
-                        {
-                            pk = _appCtrl.Trigger.Count;
-                        }
+                        pk = _appCtrl.Trigger.Count;
+                    }
 
-                        ++pk;
+                    ++pk;
 
-                        if (_appCtrl.Trigger[$"{pk}"] == null)
-                        {
-                            TextBoxTriggerPrimaryKey.Text = $"{pk}";
-                        }
-                    });
+                    if (_appCtrl.Trigger[$"{pk}"] == null)
+                    {
+                        this.InvokeAsync(delegate { TextBoxTriggerPrimaryKey.Text = $"{pk}"; });
+                    }
                 });
             }
             catch (Exception ex)
@@ -1815,25 +1817,22 @@ namespace GNAy.Capital.Trade
                 Task.Factory.StartNew(() =>
                 {
                     Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
+
                     if (_appCtrl.Strategy[strategy.PrimaryKey] == null)
                     {
                         return;
                     }
-
-                    this.InvokeRequired(delegate
+                    else if (pk < _appCtrl.Strategy.Count)
                     {
-                        if (pk < _appCtrl.Strategy.Count)
-                        {
-                            pk = _appCtrl.Strategy.Count;
-                        }
+                        pk = _appCtrl.Strategy.Count;
+                    }
 
-                        ++pk;
+                    ++pk;
 
-                        if (_appCtrl.Strategy[$"{pk}"] == null)
-                        {
-                            TextBoxStrategyPrimaryKey.Text = $"{pk}";
-                        }
-                    });
+                    if (_appCtrl.Strategy[$"{pk}"] == null)
+                    {
+                        this.InvokeAsync(delegate { TextBoxStrategyPrimaryKey.Text = $"{pk}"; });
+                    }
                 });
             }
             catch (Exception ex)
@@ -1944,25 +1943,22 @@ namespace GNAy.Capital.Trade
                 Task.Factory.StartNew(() =>
                 {
                     Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
+
                     if (_appCtrl.Strategy[strategy.PrimaryKey] == null)
                     {
                         return;
                     }
-
-                    this.InvokeRequired(delegate
+                    else if (pk < _appCtrl.Strategy.Count)
                     {
-                        if (pk < _appCtrl.Strategy.Count)
-                        {
-                            pk = _appCtrl.Strategy.Count;
-                        }
+                        pk = _appCtrl.Strategy.Count;
+                    }
 
-                        ++pk;
+                    ++pk;
 
-                        if (_appCtrl.Strategy[$"{pk}"] == null)
-                        {
-                            TextBoxStrategyPrimaryKey.Text = $"{pk}";
-                        }
-                    });
+                    if (_appCtrl.Strategy[$"{pk}"] == null)
+                    {
+                        this.InvokeAsync(delegate { TextBoxStrategyPrimaryKey.Text = $"{pk}"; });
+                    }
                 });
             }
             catch (Exception ex)

@@ -36,7 +36,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (nKind == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
             {
-                _appCtrl.MainForm.InvokeRequired(delegate
+                _appCtrl.MainForm.InvokeSync(delegate
                 {
                     _capitalProductRawMap.Clear();
                     _quoteIndexMap.Clear();

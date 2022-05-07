@@ -81,6 +81,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private readonly ObservableCollection<OrderAccData> _orderAccCollection;
         public int OrderAccCount => _orderAccCollection.Count;
+        public IReadOnlyList<OrderAccData> OrderAccCollection => _orderAccCollection;
 
         private readonly ObservableCollection<string> _buySell;
         private readonly ObservableCollection<string> _tradeTypes;
@@ -213,7 +214,7 @@ namespace GNAy.Capital.Trade.Controllers
                 CallerMemberName = memberName,
             };
 
-            _appCtrl.MainForm.InvokeRequired(delegate
+            _appCtrl.MainForm.InvokeAsync(delegate
             {
                 try
                 {
@@ -1261,7 +1262,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (string.IsNullOrWhiteSpace(order.PrimaryKey))
                 {
-                    order.PrimaryKey = $"{order.CreatedTime:HH:mm:ss.fff}_{StrategyStatus.Enum.OrderSent}";
+                    order.PrimaryKey = $"{order.CreatedTime:HHmmss}_{StrategyStatus.Enum.OrderSent}";
 
                     if (_appCtrl.Strategy[order.PrimaryKey] != null)
                     {

@@ -1170,6 +1170,14 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Binding="{Binding Updater}"/>
                                     <DataGridTextColumn Binding="{Binding UpdateTime}"/>
+                                    <DataGridTextColumn Binding="{Binding Strategy}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontWeight" Value="DemiBold"/>
+                                                <Setter Property="Foreground" Value="MediumBlue"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding MarketName}"/>
                                     <DataGridTextColumn Binding="{Binding Account}"/>
                                     <DataGridTextColumn Binding="{Binding Symbol}">
