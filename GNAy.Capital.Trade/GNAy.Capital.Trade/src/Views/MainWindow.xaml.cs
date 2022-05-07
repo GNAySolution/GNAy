@@ -1056,7 +1056,6 @@ namespace GNAy.Capital.Trade
                     Thread.Sleep(2 * 1000);
                     SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 4 * 1000);
                     Thread.Sleep(4 * 1000);
-                    _appCtrl.Capital.GetOpenInterestAsync(); //TODO
                     _appCtrl.Capital.UnlockOrder();
                     _appCtrl.Capital.SetOrderMaxQty();
                     _appCtrl.Capital.SetOrderMaxCount();
@@ -1455,7 +1454,7 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                _appCtrl.Capital.GetOpenInterestAsync(acc.FullAccount);
+                _appCtrl.Capital.GetOpenInterest(acc.FullAccount);
             }
             catch (Exception ex)
             {

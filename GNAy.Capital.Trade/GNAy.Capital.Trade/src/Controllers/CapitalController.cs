@@ -1207,47 +1207,31 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void GetOpenInterestAsync(string orderAcc = "", int format = 1)
+        public int GetOpenInterest(string orderAcc = "", int format = 1)
         {
-            Task.Factory.StartNew(() =>
+            DateTime start = _appCtrl.StartTrace($"orderAcc={orderAcc}|format={format}", UniqueName);
+
+            try
             {
-                DateTime start = _appCtrl.StartTrace($"orderAcc={orderAcc}|format={format}", UniqueName);
+                int m_nCode = m_pSKOrder.GetOpenInterestWithFormat(UserID, orderAcc, format); //查詢期貨未平倉－可指定回傳格式
 
-                try
+                if (m_nCode != 0)
                 {
-                    if (string.IsNullOrWhiteSpace(orderAcc))
-                    {
-                        foreach (OrderAccData acc in _orderAccCollection)
-                        {
-                            if (acc.MarketType != Market.EType.Futures)
-                            {
-                                continue;
-                            }
+                    LogAPIMessage(start, m_nCode);
+                }
 
-                            //nCode=1019|SK_ERROR_QUERY_IN_PROCESSING|GetOpenInterest_Format::1
-                            GetOpenInterestAsync(acc.FullAccount, format);
-                            Thread.Sleep(12 * 1000);
-                        }
-                    }
-                    else
-                    {
-                        int m_nCode = m_pSKOrder.GetOpenInterestWithFormat(UserID, orderAcc, format); //查詢期貨未平倉－可指定回傳格式
+                return m_nCode;
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
 
-                        if (m_nCode != 0)
-                        {
-                            LogAPIMessage(start, m_nCode);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _appCtrl.LogException(start, ex, ex.StackTrace);
-                }
-                finally
-                {
-                    _appCtrl.EndTrace(start, UniqueName);
-                }
-            });
+            return -1;
         }
 
         public void SendFutureOrder(StrategyData order)

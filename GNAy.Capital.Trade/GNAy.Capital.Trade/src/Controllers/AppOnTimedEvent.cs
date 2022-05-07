@@ -11,6 +11,7 @@ namespace GNAy.Capital.Trade.Controllers
     {
         public DateTime SignalTimeBG { get; private set; }
 
+        private int _secondsToQueryOpenInterest;
         private DateTime _lastTimeToSaveQuote;
 
         /// <summary>
@@ -18,10 +19,28 @@ namespace GNAy.Capital.Trade.Controllers
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        private void OnTimedEvent(Object source, ElapsedEventArgs e)
+        private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
             _timerBG.Stop();
             SignalTimeBG = e.SignalTime;
+
+            try
+            {
+                if (OpenInterest != null && (e.SignalTime - OpenInterest.QuerySent.Item1).TotalSeconds >= _secondsToQueryOpenInterest)
+                {
+                    OpenInterest.SendNextQuery(e.SignalTime);
+
+                    if (Capital.OrderAccCount > 0 && OpenInterest.QuerySent.Item4 != 0)
+                    {
+                        ++_secondsToQueryOpenInterest;
+                        LogTrace(e.SignalTime, $"_secondsToQueryOpenInterest={_secondsToQueryOpenInterest}", UniqueName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(e.SignalTime, ex, ex.StackTrace);
+            }
 
             try
             {

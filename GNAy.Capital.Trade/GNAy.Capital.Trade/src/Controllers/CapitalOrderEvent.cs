@@ -97,13 +97,10 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnOpenInterest(string bstrData)
         {
-            //完整： (含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,買方成交均價(二位小數),賣方未平倉,賣方當沖未平倉,賣方成交均價(二位小數), LOGIN_ID(V2.13.30新增)
-            //格式1：(含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,賣方未平倉,賣方當沖未平倉, LOGIN_ID(V2.13.30新增)
-            //格式2：(不含複式單，市場別：TM，可自行計算損益)市場別, 帳號, 商品, 買賣別, 未平倉部位, 當沖未平倉部位, 平均成本(三位小數), 一點價值, 單口手續費, 交易稅(萬分之X), LOGIN_ID(V2.13.30新增)
-            //TF,OrderAccount,MTX05,1,0,1652500,0,0,0,UserID
-
             _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
+
+            _appCtrl.OpenInterest.AddOrUpdateAsync(bstrData);
         }
 
         /// <summary>
