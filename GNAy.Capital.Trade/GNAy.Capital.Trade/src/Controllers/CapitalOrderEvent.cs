@@ -17,7 +17,8 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrAccountData"></param>
         private void m_OrderObj_OnAccount(string bstrLogInID, string bstrAccountData)
         {
-            DateTime start = _appCtrl.StartTrace($"bstrLogInID={bstrLogInID}|bstrAccountData={bstrAccountData}", UniqueName);
+            //DateTime start = _appCtrl.StartTrace($"bstrLogInID={bstrLogInID}|bstrAccountData={bstrAccountData}", UniqueName);
+            DateTime start = _appCtrl.StartTrace();
 
             AppendReply(bstrLogInID, bstrAccountData);
 
@@ -64,7 +65,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrMessage"></param>
         private void m_pSKOrder_OnAsyncOrder(int nThreaID, int nCode, string bstrMessage)
         {
-            _appCtrl.LogTrace($"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}", UniqueName);
+            //_appCtrl.LogTrace($"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}", UniqueName);
             AppendReply(string.Empty, $"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}");
         }
 
@@ -77,7 +78,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrOrderLinkedID"></param>
         private void m_pSKOrder_OnAsyncOrderOLID(int nThreaID, int nCode, string bstrMessage, string bstrOrderLinkedID)
         {
-            _appCtrl.LogTrace($"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}", UniqueName);
+            //_appCtrl.LogTrace($"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}", UniqueName);
             AppendReply(string.Empty, $"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}");
         }
 
@@ -87,7 +88,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnRealBalanceReport(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
         }
 
@@ -97,7 +98,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnOpenInterest(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
 
             _appCtrl.OpenInterest.AddOrUpdateAsync(bstrData);
@@ -109,7 +110,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnStopLossReport(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
         }
 
@@ -119,7 +120,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnFutureRights(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
         }
 
@@ -129,7 +130,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnRequestProfitReport(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
         }
 
@@ -139,7 +140,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnMarginPurchaseAmountLimit(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
         }
 
@@ -149,7 +150,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnBalanceQueryReport(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
         }
 
@@ -159,7 +160,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnTSStrategyReport(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
         }
 
@@ -169,7 +170,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnTSProfitLossGWReport(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
         }
 
@@ -179,7 +180,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnOFOpenInterestGW(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
         }
 
@@ -189,7 +190,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrData"></param>
         private void m_pSKOrder_OnTelnetTest(string bstrData)
         {
-            _appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
+            //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             AppendReply(string.Empty, bstrData);
         }
     }

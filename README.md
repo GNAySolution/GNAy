@@ -12,7 +12,7 @@
 * 使用群益API的前置條件，要先安裝憑證(CAP-*.pfx)，以及微軟Visual C++ 2010 Service Pack 1 MFC可轉散發套件安全性更新(vcredist_x64.exe)
 * https://docs.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
-###### GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22041713.jpg
+###### GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22050811.jpg
 * APP(開發中)操作介面示意圖
 - [x] 交易輔助APP，自定義台灣期貨、單隻腳選擇權，多樣化的觸價條件與停損停利策略
 - [x] 短期目標是幫助user快速做當沖或隔日沖

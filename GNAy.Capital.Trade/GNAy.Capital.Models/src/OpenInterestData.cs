@@ -90,8 +90,6 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _symbol, value); }
         }
 
-        public string PrimaryKey => $"{Account}_{Symbol}";
-
         private short _bs;
         [Column("買賣索引")]
         public short BS
@@ -123,6 +121,8 @@ namespace GNAy.Capital.Models
 
         [Column("當沖描述", "沖", WPFDisplayIndex = 7)]
         public string DayTradeDes => OrderDayTrade.Description[DayTrade];
+
+        public string PrimaryKey => $"{Account}_{Symbol}_{BSEnum}_{DayTradeEnum}";
 
         private short _position;
         [Column("新倉平倉索引")]

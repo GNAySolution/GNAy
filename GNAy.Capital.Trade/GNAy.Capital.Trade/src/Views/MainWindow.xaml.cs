@@ -99,6 +99,7 @@ namespace GNAy.Capital.Trade
 
             ButtonSetOrderMaxQty.IsEnabled = false;
             ButtonSetOrderMaxCount.IsEnabled = false;
+            ComboBoxOrderDayTrade.IsEnabled = false;
 
             _timer1 = new DispatcherTimer(DispatcherPriority.ContextIdle)
             {
@@ -1624,14 +1625,13 @@ namespace GNAy.Capital.Trade
                         else
                         {
                             _appCtrl.LogError(start, $"Trigger|觸價關聯報價欄位錯誤|column.Property.Name{column.Property.Name} != trigger.ColumnProperty{trigger.ColumnProperty}|{trigger.ToLog()}", UniqueName);
-                            ComboBoxTriggerColumn.SelectedIndex = -1;
-                            break;
                         }
                     }
-                }
-                if (ComboBoxTriggerColumn.SelectedIndex < 0)
-                {
-                    _appCtrl.LogError(start, $"Trigger|觸價關聯報價欄位錯誤|{trigger.ToLog()}", UniqueName);
+                    if (i == ComboBoxTriggerColumn.Items.Count - 1)
+                    {
+                        ComboBoxTriggerColumn.SelectedIndex = -1;
+                        _appCtrl.LogError(start, $"Trigger|觸價關聯報價欄位錯誤|{trigger.ToLog()}", UniqueName);
+                    }
                 }
 
                 TextBoxTriggerCancel.Text = trigger.Cancel;
@@ -1675,6 +1675,10 @@ namespace GNAy.Capital.Trade
                 TextBoxStrategyStopLoss.Text = strategy.StopLossBefore;
                 TextBoxStrategyStopWin.Text = strategy.StopWinBefore;
                 TextBoxStrategyMoveStopWin.Text = strategy.MoveStopWinBefore;
+                TextBoxTriggerAfterStopLoss.Text = strategy.TriggerAfterStopLoss;
+                TextBoxStrategyAfterStopLoss.Text = strategy.StrategyAfterStopLoss;
+                TextBoxTriggerAfterStopWin.Text = strategy.TriggerAfterStopWin;
+                TextBoxStrategyAfterStopWin.Text = strategy.StrategyAfterStopWin;
 
                 ComboBoxOrderAccs.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxOrderAccs.Items.Count; ++i)
@@ -1684,26 +1688,14 @@ namespace GNAy.Capital.Trade
                     {
                         break;
                     }
-                }
-                if (ComboBoxOrderAccs.SelectedIndex < 0)
-                {
-                    _appCtrl.LogError(start, $"Strategy|策略關聯帳號錯誤|{strategy.ToLog()}", UniqueName);
-                }
-
-                ComboBoxOrderProduct.SelectedIndex = -1;
-                for (int i = 0; i < ComboBoxOrderProduct.Items.Count; ++i)
-                {
-                    ComboBoxOrderProduct.SelectedIndex = i;
-                    if (ComboBoxOrderProduct.SelectedItem is string symbol && symbol == strategy.Symbol)
+                    if (i == ComboBoxOrderAccs.Items.Count - 1)
                     {
-                        break;
+                        ComboBoxOrderAccs.SelectedIndex = -1;
+                        _appCtrl.LogError(start, $"Strategy|策略關聯帳號錯誤|{strategy.ToLog()}", UniqueName);
                     }
                 }
-                if (ComboBoxOrderProduct.SelectedIndex < 0)
-                {
-                    _appCtrl.LogError(start, $"Strategy|策略關聯報價代碼錯誤|{strategy.ToLog()}", UniqueName);
-                }
 
+                ComboBoxOrderProduct.Text = strategy.Symbol;
                 ComboBoxOrderBuySell.SelectedIndex = strategy.BS;
                 ComboBoxOrderTradeType.SelectedIndex = strategy.TradeType;
                 ComboBoxOrderDayTrade.SelectedIndex = strategy.DayTrade;

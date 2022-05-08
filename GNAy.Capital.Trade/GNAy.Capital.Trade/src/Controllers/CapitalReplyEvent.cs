@@ -17,7 +17,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nConfirmCode"></param>
         private void SKReply_OnAnnouncement(string strUserID, string bstrMessage, out short nConfirmCode)
         {
-            _appCtrl.LogTrace($"strUserID={strUserID}|bstrMessage={bstrMessage}", UniqueName);
+            //_appCtrl.LogTrace($"strUserID={strUserID}|bstrMessage={bstrMessage}", UniqueName);
             AppendReply(strUserID, bstrMessage);
             nConfirmCode = -1;
         }
@@ -81,7 +81,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="strUserID"></param>
         private void OnComplete(string strUserID)
         {
-            _appCtrl.LogTrace($"strUserID={strUserID}", UniqueName);
+            //_appCtrl.LogTrace($"strUserID={strUserID}", UniqueName);
             AppendReply(strUserID, string.Empty);
         }
 
@@ -92,13 +92,13 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="strData"></param>
         private void OnNewData(string strUserID, string strData)
         {
-            _appCtrl.LogTrace($"strUserID={strUserID}|strData={strData}", UniqueName);
+            //_appCtrl.LogTrace($"strUserID={strUserID}|strData={strData}", UniqueName);
             AppendReply(strUserID, strData);
         }
 
         private void m_SKReplyLib_OnReportCount(string strUserID, int nCount)
         {
-            _appCtrl.LogTrace($"strUserID={strUserID}|nCount={nCount}", UniqueName);
+            //_appCtrl.LogTrace($"strUserID={strUserID}|nCount={nCount}", UniqueName);
             AppendReply(strUserID, $"{nCount}");
         }
 
@@ -114,7 +114,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrMarket"></param>
         private void OnClear(string bstrMarket)
         {
-            _appCtrl.LogTrace($"bstrMarket={bstrMarket}", UniqueName);
+            //_appCtrl.LogTrace($"bstrMarket={bstrMarket}", UniqueName);
             AppendReply(string.Empty, bstrMarket);
         }
 
@@ -124,7 +124,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="strUserID"></param>
         private void OnClearMessage(string strUserID)
         {
-            _appCtrl.LogTrace($"strUserID={strUserID}", UniqueName);
+            //_appCtrl.LogTrace($"strUserID={strUserID}", UniqueName);
             AppendReply(strUserID, string.Empty);
         }
     }
