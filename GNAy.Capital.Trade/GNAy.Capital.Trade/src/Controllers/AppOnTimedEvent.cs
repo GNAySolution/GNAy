@@ -26,14 +26,19 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (OpenInterest != null && (e.SignalTime - OpenInterest.QuerySent.Item1).TotalSeconds >= _secondsToQueryOpenInterest)
+                if (OpenInterest != null)
                 {
-                    OpenInterest.SendNextQuery(e.SignalTime);
+                    OpenInterest.UpdateStatus(e.SignalTime);
 
-                    if (Capital.OrderAccCount > 0 && OpenInterest.QuerySent.Item4 != 0)
+                    if ((e.SignalTime - OpenInterest.QuerySent.Item1).TotalSeconds >= _secondsToQueryOpenInterest)
                     {
-                        ++_secondsToQueryOpenInterest;
-                        LogTrace(e.SignalTime, $"_secondsToQueryOpenInterest={_secondsToQueryOpenInterest}", UniqueName);
+                        OpenInterest.SendNextQuery(e.SignalTime);
+
+                        if (Capital.OrderAccCount > 0 && OpenInterest.QuerySent.Item4 != 0)
+                        {
+                            ++_secondsToQueryOpenInterest;
+                            LogTrace(e.SignalTime, $"_secondsToQueryOpenInterest={_secondsToQueryOpenInterest}", UniqueName);
+                        }
                     }
                 }
             }

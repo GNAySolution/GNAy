@@ -194,7 +194,7 @@ namespace GNAy.Capital.Models
 
         public string ToLog()
         {
-            return $"{Strategy},{MarketType},{Account},{Symbol},{BSEnum},{PositionEnum}";
+            return $"{Strategy},{MarketType},{Account},{Symbol},{BSEnum},{DayTradeEnum},{PositionEnum},{DealPrice:0.00},{DealQty}";
         }
     }
 }

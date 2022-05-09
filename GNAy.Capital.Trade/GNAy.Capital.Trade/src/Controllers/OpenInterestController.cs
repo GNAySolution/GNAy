@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GNAy.Capital.Trade.Controllers
@@ -39,6 +40,187 @@ namespace GNAy.Capital.Trade.Controllers
 
         private OpenInterestController() : this(null)
         { }
+
+        public void UpdateStatus(DateTime start)
+        {
+            const string methodName = nameof(UpdateStatus);
+
+            try
+            {
+                for (int i = _dataCollection.Count - 1; i >= 0; --i)
+                {
+                    OpenInterestData data = _dataCollection[i];
+
+                    if (data.Quote == null || data.Quote.DealPrice == 0 || data.Quote.Simulate != QuoteData.RealTrade)
+                    {
+                        continue;
+                    }
+                    else if (data.PositionEnum == OrderPosition.Enum.Close)
+                    {
+                        if (data.UnclosedProfit != 0)
+                        {
+                            data.UnclosedProfit = 0;
+                            data.Updater = methodName;
+                            data.UpdateTime = DateTime.Now;
+
+                            _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
+                        }
+                        continue;
+                    }
+
+                    data.MarketPrice = data.Quote.DealPrice;
+                    data.UnclosedProfit = (data.MarketPrice - data.DealPrice) * data.DealQty * (data.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                    data.Updater = methodName;
+                    data.UpdateTime = DateTime.Now;
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+        }
+
+        private (bool, OpenInterestData) AddOrUpdate(string account, string symbol, OrderBS.Enum bs, OrderDayTrade.Enum dayTrade, string price, string quantity, DateTime start)
+        {
+            const string methodName = nameof(AddOrUpdate);
+
+            try
+            {
+                decimal pri = decimal.Parse(price) / 100;
+                int qty = int.Parse(quantity);
+
+                if (pri == 0 || qty <= 0)
+                {
+                    return (false, null);
+                }
+
+                OpenInterestData data = this[$"{account}_{symbol}_{bs}_{dayTrade}"];
+                bool addNew = data == null;
+
+                if (addNew)
+                {
+                    data = new OpenInterestData()
+                    {
+                        MarketType = _appCtrl.Capital.GetOrderAcc(account).MarketType,
+                        Account = account,
+                        Quote = _appCtrl.Capital.GetQuote(symbol),
+                        Symbol = symbol,
+                        BSEnum = bs,
+                        DayTradeEnum = dayTrade,
+                    };
+                }
+
+                data.PositionEnum = OrderPosition.Enum.Open;
+                data.DealPrice = pri;
+                data.DealQty = qty;
+                data.Updater = methodName;
+                data.UpdateTime = DateTime.Now;
+
+                if (!addNew)
+                {
+                    return (addNew, data);
+                }
+
+                _dataMap[data.PrimaryKey] = data;
+
+                List<OpenInterestData> list = _dataMap.Values.ToList();
+                int index = list.IndexOf(data);
+
+                if (index + 1 < list.Count)
+                {
+                    OpenInterestData next = list[index + 1];
+                    index = _dataCollection.IndexOf(next);
+                }
+
+                _appCtrl.MainForm.InvokeSync(delegate
+                {
+                    try
+                    {
+                        _dataCollection.Insert(index, data);
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
+                    finally
+                    {
+                        _appCtrl.EndTrace(start, UniqueName);
+                    }
+                });
+
+                return (addNew, data);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+
+            return (false, null);
+        }
+
+        public void AddOrUpdateAsync(string raw)
+        {
+            //完整： (含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,買方成交均價(二位小數),賣方未平倉,賣方當沖未平倉,賣方成交均價(二位小數), LOGIN_ID(V2.13.30新增)
+            //格式1：(含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,賣方未平倉,賣方當沖未平倉, LOGIN_ID(V2.13.30新增)
+            //格式2：(不含複式單，市場別：TM，可自行計算損益)市場別, 帳號, 商品, 買賣別, 未平倉部位, 當沖未平倉部位, 平均成本(三位小數), 一點價值, 單口手續費, 交易稅(萬分之X), LOGIN_ID(V2.13.30新增)
+            //TF,OrderAccount,MTX05,1,0,1652500,0,0,0,UserID
+
+            const string methodName = nameof(AddOrUpdate);
+
+            DateTime start = _appCtrl.StartTrace();
+
+            Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    if (raw.StartsWith("##"))
+                    {
+                        if (QuerySent.Item4 != 0)
+                        {
+                            return;
+                        }
+
+                        Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
+
+                        for (int i = _dataCollection.Count - 1; i >= 0; --i)
+                        {
+                            OpenInterestData data = _dataCollection[i];
+
+                            if (data.UpdateTime >= QuerySent.Item1 || data.Account != QuerySent.Item3 || data.PositionEnum == OrderPosition.Enum.Close)
+                            {
+                                continue;
+                            }
+
+                            data.PositionEnum = OrderPosition.Enum.Close;
+                            data.Updater = methodName;
+                            data.UpdateTime = DateTime.Now;
+
+                            _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
+                        }
+
+                        return;
+                    }
+
+                    string[] cells = raw.Split(',');
+
+                    if (cells.Length < 10)
+                    {
+                        throw new ArgumentException($"cells.Length{cells.Length} < 10|{raw}");
+                    }
+
+                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.No, cells[5], cells[3], start);
+                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.Yes, cells[5], cells[4], start);
+                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.No, cells[8], cells[6], start);
+                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.Yes, cells[8], cells[7], start);
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+            });
+
+            Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
+        }
 
         public (DateTime, int, string, int) SendNextQuery(DateTime start)
         {
@@ -88,120 +270,6 @@ namespace GNAy.Capital.Trade.Controllers
 
             QuerySent = (DateTime.Now, -1, string.Empty, -1);
             return QuerySent;
-        }
-
-        private (bool, OpenInterestData) AddOrUpdate(string account, string symbol, OrderBS.Enum bs, OrderDayTrade.Enum dayTrade, string price, string quantity, DateTime start)
-        {
-            const string methodName = nameof(AddOrUpdate);
-
-            try
-            {
-                decimal pri = decimal.Parse(price) / 100;
-                int qty = int.Parse(quantity);
-
-                if (pri == 0 || qty <= 0)
-                {
-                    return (false, null);
-                }
-
-                OpenInterestData data = this[$"{account}_{symbol}_{bs}_{dayTrade}"];
-                bool addNew = data == null;
-
-                if (addNew)
-                {
-                    data = new OpenInterestData()
-                    {
-                        MarketType = _appCtrl.Capital.GetOrderAcc(account).MarketType,
-                        Account = account,
-                        Quote = _appCtrl.Capital.GetQuote(symbol),
-                        Symbol = symbol,
-                        BSEnum = bs,
-                    };
-                }
-
-                data.DealPrice = pri;
-                data.DealQty = qty;
-                data.Updater = methodName;
-                data.UpdateTime = DateTime.Now;
-
-                if (!addNew)
-                {
-                    return (addNew, data);
-                }
-
-                _appCtrl.MainForm.InvokeSync(delegate
-                {
-                    _dataMap[data.PrimaryKey] = data;
-
-                    List<OpenInterestData> list = _dataMap.Values.ToList();
-                    int index = list.IndexOf(data);
-
-                    if (index + 1 < list.Count)
-                    {
-                        OpenInterestData next = list[index + 1];
-                        index = _dataCollection.IndexOf(next);
-                    }
-
-                    try
-                    {
-                        _dataCollection.Insert(index, data);
-                    }
-                    catch (Exception ex)
-                    {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
-                    }
-                    finally
-                    {
-                        _appCtrl.EndTrace(start, UniqueName);
-                    }
-                });
-
-                return (addNew, data);
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-
-            return (false, null);
-        }
-
-        public void AddOrUpdateAsync(string raw)
-        {
-            //完整： (含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,買方成交均價(二位小數),賣方未平倉,賣方當沖未平倉,賣方成交均價(二位小數), LOGIN_ID(V2.13.30新增)
-            //格式1：(含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,賣方未平倉,賣方當沖未平倉, LOGIN_ID(V2.13.30新增)
-            //格式2：(不含複式單，市場別：TM，可自行計算損益)市場別, 帳號, 商品, 買賣別, 未平倉部位, 當沖未平倉部位, 平均成本(三位小數), 一點價值, 單口手續費, 交易稅(萬分之X), LOGIN_ID(V2.13.30新增)
-            //TF,OrderAccount,MTX05,1,0,1652500,0,0,0,UserID
-
-            DateTime start = _appCtrl.StartTrace();
-
-            Task.Factory.StartNew(() =>
-            {
-                try
-                {
-                    if (raw.StartsWith("##"))
-                    {
-                        //TODO: refresh
-                        return;
-                    }
-
-                    string[] cells = raw.Split(',');
-
-                    if (cells.Length < 10)
-                    {
-                        throw new ArgumentException($"cells.Length{cells.Length} < 10|{raw}");
-                    }
-
-                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.No, cells[5], cells[3], start);
-                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.Yes, cells[5], cells[4], start);
-                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.No, cells[8], cells[6], start);
-                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.Yes, cells[8], cells[7], start);
-                }
-                catch (Exception ex)
-                {
-                    _appCtrl.LogException(start, ex, ex.StackTrace);
-                }
-            });
         }
     }
 }

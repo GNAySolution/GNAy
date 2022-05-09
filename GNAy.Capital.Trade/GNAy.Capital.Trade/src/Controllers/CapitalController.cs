@@ -1354,30 +1354,18 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                         else if (order == parent.StopLossData || order == parent.StopWinData)
                         {
-                            order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty;
+                            order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
                             order.UnclosedQty = parent.OrderData.DealQty - order.DealQty;
-                            order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty;
-
-                            if (parent.OrderData.BSEnum == OrderBS.Enum.Sell)
-                            {
-                                order.ClosedProfit *= -1;
-                                order.UnclosedProfit *= -1;
-                            }
+                            order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
 
                             parent.ClosedProfit += order.ClosedProfit;
                             parent.UnclosedQty = order.UnclosedQty;
                         }
                         else if (order == parent.MoveStopWinData)
                         {
-                            order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty;
+                            order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
                             order.UnclosedQty = parent.OrderData.DealQty - order.DealQty - parent.StopWinData.DealQty;
-                            order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty;
-
-                            if (parent.OrderData.BSEnum == OrderBS.Enum.Sell)
-                            {
-                                order.ClosedProfit *= -1;
-                                order.UnclosedProfit *= -1;
-                            }
+                            order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
 
                             parent.ClosedProfit += order.ClosedProfit;
                             parent.UnclosedQty = order.UnclosedQty;
