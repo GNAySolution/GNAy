@@ -396,14 +396,8 @@ namespace GNAy.Capital.Trade.Controllers
             try
             {
                 StrategyData strategy = _appCtrl.Strategy[primary];
-
-                if (strategy != null && strategy.StatusEnum == StrategyStatus.Enum.Waiting)
-                {
-                    _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
-                    return;
-                }
-
-                _appCtrl.LogError(start, $"執行策略({primary})失敗|{data.ToLog()}", UniqueName);
+                strategy = strategy.Reset();
+                _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
             }
             catch (Exception ex)
             {

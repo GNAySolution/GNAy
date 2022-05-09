@@ -22,14 +22,13 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
-        private readonly ConcurrentQueue<string> _waitToCancel;
         private readonly ConcurrentQueue<TriggerData> _waitToAdd;
 
-        private readonly SortedDictionary<string, TriggerData> _triggerMap;
-        private readonly ObservableCollection<TriggerData> _triggerCollection;
-
-        public int Count => _triggerMap.Count;
-        public TriggerData this[string key] => _triggerMap.TryGetValue(key, out TriggerData data)? data :null;
+        private readonly SortedDictionary<string, TriggerData> _dataMap;
+        private readonly ObservableCollection<TriggerData> _dataCollection;
+        public int Count => _dataCollection.Count;
+        public TriggerData this[string key] => _dataMap.TryGetValue(key, out TriggerData data) ? data : null;
+        public IReadOnlyList<TriggerData> DataCollection => _dataCollection;
 
         public TriggerController(AppController appCtrl)
         {
@@ -37,12 +36,11 @@ namespace GNAy.Capital.Trade.Controllers
             UniqueName = nameof(TriggerController).Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
-            _waitToCancel = new ConcurrentQueue<string>();
             _waitToAdd = new ConcurrentQueue<TriggerData>();
 
-            _triggerMap = new SortedDictionary<string, TriggerData>();
+            _dataMap = new SortedDictionary<string, TriggerData>();
             _appCtrl.MainForm.DataGridTriggerRule.SetHeadersByBindings(TriggerData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
-            _triggerCollection = _appCtrl.MainForm.DataGridTriggerRule.SetAndGetItemsSource<TriggerData>();
+            _dataCollection = _appCtrl.MainForm.DataGridTriggerRule.SetAndGetItemsSource<TriggerData>();
         }
 
         private TriggerController() : this(null)
@@ -61,11 +59,11 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     sw.WriteLine(TriggerData.CSVColumnNames);
 
-                    foreach (TriggerData trigger in _triggerMap.Values)
+                    foreach (TriggerData data in _dataMap.Values)
                     {
                         try
                         {
-                            sw.WriteLine(trigger.ToCSVString());
+                            sw.WriteLine(data.ToCSVString());
                         }
                         catch (Exception ex)
                         {
@@ -86,52 +84,56 @@ namespace GNAy.Capital.Trade.Controllers
 
         public (bool, string) Restart(string primary)
         {
-            TriggerData trigger = this[primary];
+            const string methodName = nameof(Restart);
 
-            if (trigger == null)
+            TriggerData data = this[primary];
+
+            if (data == null)
             {
                 return (false, $"重啟觸價({primary})失敗");
             }
 
-            lock (trigger.SyncRoot)
+            lock (data.SyncRoot)
             {
-                if (trigger.StatusEnum == TriggerStatus.Enum.Waiting || trigger.StatusEnum == TriggerStatus.Enum.Monitoring)
+                if (data.StatusEnum == TriggerStatus.Enum.Waiting || data.StatusEnum == TriggerStatus.Enum.Monitoring)
                 {
                     return (true, string.Empty);
                 }
 
-                decimal columnValue = trigger.GetColumnValue(trigger.Quote1);
-                decimal targetValue = trigger.GetTargetValue();
-                bool? matched = trigger.IsMatchedRule(columnValue, targetValue);
+                decimal columnValue = data.GetColumnValue(data.Quote1);
+                decimal targetValue = data.GetTargetValue();
+                bool? matched = data.IsMatchedRule(columnValue, targetValue);
 
                 if (matched.HasValue && matched.Value)
                 {
-                    return (false, $"觸價條件({columnValue:0.00####} {trigger.Rule} {targetValue:0.00####})已滿足，重啟觸價({primary})失敗");
+                    return (false, $"觸價條件({columnValue:0.00####} {data.Rule} {targetValue:0.00####})已滿足，重啟觸價({primary})失敗");
                 }
                 else if (!matched.HasValue)
                 {
                     return (false, $"重啟觸價({primary})失敗");
                 }
 
-                trigger.Comment = $"重啟";
-                trigger.StatusEnum = TriggerStatus.Enum.Waiting;
+                data.StatusEnum = TriggerStatus.Enum.Waiting;
+                data.Comment = $"重啟";
+                data.Updater = methodName;
+                data.UpdateTime = DateTime.Now;
             }
 
             return (true, string.Empty);
         }
 
-        private void StrategyOpen(TriggerData trigger, string primary, DateTime start)
+        private void StrategyOpen(TriggerData data, string strategyPK, DateTime start)
         {
             try
             {
-                StrategyData strategy = _appCtrl.Strategy[primary];
+                StrategyData strategy = _appCtrl.Strategy[strategyPK];
                 strategy = strategy.Reset();
                 _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
             }
             catch (Exception ex)
             {
                 _appCtrl.LogException(start, ex, ex.StackTrace);
-                _appCtrl.LogError(start, $"執行策略({primary})失敗|{trigger.ToLog()}", UniqueName);
+                _appCtrl.LogError(start, $"執行策略({strategyPK})失敗|{data.ToLog()}", UniqueName);
             }
             finally
             {
@@ -139,32 +141,32 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private HashSet<string> StrategyOpen(TriggerData trigger, DateTime start)
+        private HashSet<string> StrategyOpen(TriggerData data, DateTime start)
         {
-            if (!string.IsNullOrWhiteSpace(trigger.StrategyOpenOR))
+            if (!string.IsNullOrWhiteSpace(data.StrategyOpenOR))
             {
-                HashSet<string> primariesOR = new HashSet<string>(trigger.StrategyOpenOR.Split(','));
+                HashSet<string> primariesOR = new HashSet<string>(data.StrategyOpenOR.Split(','));
 
                 foreach (string primary in primariesOR)
                 {
-                    StrategyOpen(trigger, primary, start);
+                    StrategyOpen(data, primary, start);
                 }
             }
 
             HashSet<string> strategyAND = new HashSet<string>();
 
-            if (!string.IsNullOrWhiteSpace(trigger.StrategyOpenAND))
+            if (!string.IsNullOrWhiteSpace(data.StrategyOpenAND))
             {
-                HashSet<string> primariesAND = new HashSet<string>(trigger.StrategyOpenAND.Split(','));
+                HashSet<string> primariesAND = new HashSet<string>(data.StrategyOpenAND.Split(','));
 
                 foreach (string primary in primariesAND)
                 {
                     string pk = $",{primary},";
                     bool startStrategy = true;
 
-                    foreach (TriggerData td in _triggerMap.Values)
+                    foreach (TriggerData td in _dataMap.Values)
                     {
-                        if (td == trigger)
+                        if (td == data)
                         {
                             continue;
                         }
@@ -181,12 +183,11 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (!startStrategy)
                     {
-                        _appCtrl.LogError(start, $"執行策略({primary})失敗|{trigger.ToLog()}", UniqueName);
                         continue;
                     }
 
                     strategyAND.Add(primary);
-                    StrategyOpen(trigger, primary, start);
+                    StrategyOpen(data, primary, start);
                 }
             }
 
@@ -206,36 +207,36 @@ namespace GNAy.Capital.Trade.Controllers
 
             foreach (string cancel in cancelList)
             {
-                TriggerData trigger = this[cancel];
+                TriggerData data = this[cancel];
 
-                if (trigger == null || trigger == executed)
+                if (data == null || data == executed)
                 {
                     continue;
                 }
 
-                lock (trigger.SyncRoot)
+                lock (data.SyncRoot)
                 {
-                    if (trigger.StatusEnum == TriggerStatus.Enum.Cancelled || trigger.StatusEnum == TriggerStatus.Enum.Executed)
+                    if (data.StatusEnum == TriggerStatus.Enum.Cancelled || data.StatusEnum == TriggerStatus.Enum.Executed)
                     {
                         continue;
                     }
 
-                    trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
-                    trigger.Comment = executed.ToLog();
-                    trigger.Updater = methodName;
-                    trigger.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
+                    data.StatusEnum = TriggerStatus.Enum.Cancelled;
+                    data.Comment = executed.ToLog();
+                    data.Updater = methodName;
+                    data.UpdateTime = DateTime.Now;
+                    _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                 }
             }
         }
 
-        private bool UpdateStatus(TriggerData trigger, QuoteData quote, DateTime start)
+        private bool UpdateStatus(TriggerData data, QuoteData quote, DateTime start)
         {
             const string methodName = nameof(UpdateStatus);
 
             bool saveData = false;
 
-            lock (trigger.SyncRoot)
+            lock (data.SyncRoot)
             {
                 if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
                 {
@@ -245,70 +246,70 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (trigger.StatusEnum == TriggerStatus.Enum.Cancelled || trigger.StatusEnum == TriggerStatus.Enum.Executed)
+                else if (data.StatusEnum == TriggerStatus.Enum.Cancelled || data.StatusEnum == TriggerStatus.Enum.Executed)
                 {
                     return saveData;
                 }
-                else if (trigger.StatusEnum != TriggerStatus.Enum.Executed && trigger.EndTime.HasValue && trigger.EndTime.Value <= DateTime.Now)
+                else if (data.StatusEnum != TriggerStatus.Enum.Executed && data.EndTime.HasValue && data.EndTime.Value <= DateTime.Now)
                 {
-                    trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
-                    trigger.Comment = "觸價逾時，監控取消";
-                    trigger.Updater = methodName;
-                    trigger.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
+                    data.StatusEnum = TriggerStatus.Enum.Cancelled;
+                    data.Comment = "觸價逾時，監控取消";
+                    data.Updater = methodName;
+                    data.UpdateTime = DateTime.Now;
+                    _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                     saveData = true;
                     return saveData;
                 }
-                else if (trigger.StatusEnum != TriggerStatus.Enum.Executed && trigger.StartTime.HasValue && trigger.StartTime.Value >= _appCtrl.Capital.MarketCloseTime)
+                else if (data.StatusEnum != TriggerStatus.Enum.Executed && data.StartTime.HasValue && data.StartTime.Value >= _appCtrl.Capital.MarketCloseTime)
                 {
-                    trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
-                    trigger.Comment = "不同盤別，暫停監控";
-                    trigger.Updater = methodName;
-                    trigger.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
+                    data.StatusEnum = TriggerStatus.Enum.Cancelled;
+                    data.Comment = "不同盤別，暫停監控";
+                    data.Updater = methodName;
+                    data.UpdateTime = DateTime.Now;
+                    _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                     saveData = true;
                     return saveData;
                 }
-                else if (trigger.StatusEnum == TriggerStatus.Enum.Waiting && (!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now))
+                else if (data.StatusEnum == TriggerStatus.Enum.Waiting && (!data.StartTime.HasValue || data.StartTime.Value <= DateTime.Now))
                 {
-                    string des = trigger.StatusDes;
-                    trigger.StatusEnum = TriggerStatus.Enum.Monitoring;
-                    _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{des} -> {trigger.StatusDes}", UniqueName);
+                    string des = data.StatusDes;
+                    data.StatusEnum = TriggerStatus.Enum.Monitoring;
+                    _appCtrl.LogTrace(start, $"{data.ToLog()}|{des} -> {data.StatusDes}", UniqueName);
                     saveData = true;
                 }
-                else if (trigger.StatusEnum == TriggerStatus.Enum.Monitoring)
+                else if (data.StatusEnum == TriggerStatus.Enum.Monitoring)
                 { }
                 else
                 {
                     return saveData;
                 }
 
-                trigger.ColumnValue = trigger.GetColumnValue(quote);
-                trigger.TargetValue = trigger.GetTargetValue();
-                trigger.Updater = methodName;
-                trigger.UpdateTime = DateTime.Now;
+                data.ColumnValue = data.GetColumnValue(quote);
+                data.TargetValue = data.GetTargetValue();
+                data.Updater = methodName;
+                data.UpdateTime = DateTime.Now;
 
-                bool? matched = trigger.IsMatchedRule(trigger.ColumnValue, trigger.TargetValue);
+                bool? matched = data.IsMatchedRule(data.ColumnValue, data.TargetValue);
 
                 if (matched.HasValue && matched.Value)
                 {
-                    trigger.StatusEnum = TriggerStatus.Enum.Executed;
-                    _appCtrl.LogTrace(start, $"{trigger.ToLog()}|{trigger.ColumnValue} {trigger.Rule} {trigger.TargetValue}", UniqueName);
+                    data.StatusEnum = TriggerStatus.Enum.Executed;
+                    _appCtrl.LogTrace(start, $"{data.ToLog()}|{data.ColumnValue} {data.Rule} {data.TargetValue}", UniqueName);
 
                     saveData = true;
-                    HashSet<string> strategyAND = StrategyOpen(trigger, start);
-                    //TODO: StrategyClose(trigger, start);
+                    HashSet<string> strategyAND = StrategyOpen(data, start);
+                    //TODO: StrategyClose(data, start);
 
-                    if (string.IsNullOrWhiteSpace(trigger.StrategyOpenAND) || strategyAND.Count > 0)
+                    if (string.IsNullOrWhiteSpace(data.StrategyOpenAND) || strategyAND.Count > 0)
                     {
-                        Cancel(trigger, start);
+                        Cancel(data, start);
                     }
                 }
                 else if (!matched.HasValue)
                 {
-                    trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
-                    trigger.Comment = $"條件({trigger.Rule})錯誤，必須是大於小於等於";
-                    _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
+                    data.StatusEnum = TriggerStatus.Enum.Cancelled;
+                    data.Comment = $"條件({data.Rule})錯誤，必須是大於小於等於";
+                    _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                     saveData = true;
                     return saveData;
                 }
@@ -323,80 +324,48 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="start"></param>
         public void UpdateStatus(DateTime start)
         {
-            while (_waitToCancel.Count > 0)
-            {
-                _waitToCancel.TryDequeue(out string primaryKey);
-
-                if (_triggerMap.TryGetValue(primaryKey, out TriggerData trigger))
-                {
-                    if (trigger.StatusEnum == TriggerStatus.Enum.Cancelled)
-                    {
-                        _appCtrl.LogError(start, trigger.ToLog(), UniqueName);
-                    }
-                    else if (trigger.StatusEnum == TriggerStatus.Enum.Executed)
-                    {
-                        _appCtrl.LogError(start, $"已觸發無法取消|{trigger.ToLog()}", UniqueName);
-                    }
-                    else
-                    {
-                        trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
-                        trigger.Comment = $"手動取消";
-                        _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
-                    }
-
-                    if (_waitToCancel.Count <= 0)
-                    {
-                        SaveData();
-                    }
-                }
-                else
-                {
-                    _appCtrl.LogError(start, $"查無此唯一鍵|{primaryKey}", UniqueName);
-                }
-            }
-
             while (_waitToAdd.Count > 0)
             {
-                _waitToAdd.TryDequeue(out TriggerData trigger);
+                _waitToAdd.TryDequeue(out TriggerData data);
 
                 TriggerData toRemove = null;
 
-                if (!_triggerMap.TryGetValue(trigger.PrimaryKey, out TriggerData _old))
+                if (!_dataMap.TryGetValue(data.PrimaryKey, out TriggerData _old))
                 {
-                    _appCtrl.LogTrace(start, $"新增設定|{trigger.ToLog()}", UniqueName);
+                    _appCtrl.LogTrace(start, $"新增設定|{data.ToLog()}", UniqueName);
                 }
                 else if (_old.StatusEnum == TriggerStatus.Enum.Executed)
                 {
-                    _appCtrl.LogWarn(start, $"舊設定已觸發，將新增設定|{trigger.ToLog()}", UniqueName);
-                    _triggerMap.Remove(trigger.PrimaryKey);
+                    _appCtrl.LogWarn(start, $"舊設定已觸發，將新增設定|{data.ToLog()}", UniqueName);
+                    _dataMap.Remove(data.PrimaryKey);
                 }
                 else
                 {
-                    _appCtrl.LogWarn(start, $"舊設定未觸發，將進行重置|{trigger.ToLog()}", UniqueName);
-                    _triggerMap.Remove(trigger.PrimaryKey);
+                    _appCtrl.LogWarn(start, $"舊設定未觸發，將進行重置|{data.ToLog()}", UniqueName);
+                    _dataMap.Remove(data.PrimaryKey);
                     toRemove = _old;
                 }
 
-                _triggerMap.Add(trigger.PrimaryKey, trigger);
+                _dataMap.Add(data.PrimaryKey, data);
 
-                List<TriggerData> list = _triggerMap.Values.ToList();
-                int index = list.IndexOf(trigger);
+                List<TriggerData> list = _dataMap.Values.ToList();
+                int index = list.IndexOf(data);
 
                 if (index + 1 < list.Count)
                 {
                     TriggerData next = list[index + 1];
-                    index = _triggerCollection.IndexOf(next);
+                    index = _dataCollection.IndexOf(next);
                 }
 
                 _appCtrl.MainForm.InvokeSync(delegate
                 {
                     try
                     {
-                        _triggerCollection.Insert(index, trigger);
+                        _dataCollection.Insert(index, data);
 
                         if (toRemove != null)
                         {
-                            _triggerCollection.Remove(toRemove);
+                            _dataCollection.Remove(toRemove);
                         }
                     }
                     catch (Exception ex)
@@ -413,12 +382,13 @@ namespace GNAy.Capital.Trade.Controllers
 
             bool saveData = false;
 
-            foreach (KeyValuePair<string, TriggerData> pair in _triggerMap)
-            //Parallel.ForEach(_triggerMap, pair =>
+            for (int i = _dataCollection.Count - 1; i >= 0; --i)
             {
+                TriggerData data = _dataCollection[i];
+
                 try
                 {
-                    if (UpdateStatus(pair.Value, pair.Value.Quote1, start))
+                    if (UpdateStatus(data, data.Quote1, start))
                     {
                         saveData = true;
                     }
@@ -433,6 +403,56 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 SaveData();
             }
+        }
+
+        public bool Cancel(string primaryKey)
+        {
+            const string methodName = nameof(Cancel);
+
+            DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
+
+            try
+            {
+                TriggerData data = this[primaryKey.Replace(" ", string.Empty)];
+
+                if (data == null)
+                {
+                    throw new ArgumentNullException($"查無此唯一鍵|{primaryKey}");
+                }
+
+                lock (data.SyncRoot)
+                {
+                    if (data.StatusEnum == TriggerStatus.Enum.Executed)
+                    {
+                        throw new ArgumentException($"已觸發無法取消|{data.ToLog()}");
+                    }
+                    else if (data.StatusEnum == TriggerStatus.Enum.Cancelled)
+                    {
+                        _appCtrl.LogTrace(start, $"已經取消|{data.ToLog()}", UniqueName);
+                        return true;
+                    }
+
+                    data.StatusEnum = TriggerStatus.Enum.Cancelled;
+                    data.Comment = $"手動取消";
+                    data.Updater = methodName;
+                    data.UpdateTime = DateTime.Now;
+                    _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
+
+                    Task.Factory.StartNew(() => SaveData());
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+
+            return false;
         }
 
         private string ToHHmmss(string time)
@@ -525,65 +545,47 @@ namespace GNAy.Capital.Trade.Controllers
             return (false, null, null);
         }
 
-        public void Cancel(string primaryKey)
-        {
-            DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
-
-            try
-            {
-                _waitToCancel.Enqueue(primaryKey.Replace(" ", string.Empty));
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
-        }
-
-        public void AddRule(TriggerData trigger, string timeDuration)
+        public void AddRule(TriggerData data, string timeDuration)
         {
             const string methodName = nameof(AddRule);
 
-            DateTime start = _appCtrl.StartTrace($"{trigger?.ToLog()}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
 
             try
             {
                 if (_appCtrl.Config.TriggerFolder == null)
                 {
-                    throw new ArgumentNullException($"未設定觸價資料夾(Settings.TriggerFolderPath)，無法建立觸價資料|{trigger.ToLog()}");
+                    throw new ArgumentNullException($"未設定觸價資料夾(Settings.TriggerFolderPath)，無法建立觸價資料|{data.ToLog()}");
                 }
 
-                trigger = trigger.Trim();
+                data = data.Trim();
 
-                if (string.IsNullOrWhiteSpace(trigger.PrimaryKey))
+                if (string.IsNullOrWhiteSpace(data.PrimaryKey))
                 {
-                    throw new ArgumentException($"未設定唯一鍵|{trigger.ToLog()}");
+                    throw new ArgumentException($"未設定唯一鍵|{data.ToLog()}");
                 }
-                else if (string.IsNullOrWhiteSpace(trigger.Rule))
+                else if (string.IsNullOrWhiteSpace(data.Rule))
                 {
-                    throw new ArgumentException($"string.IsNullOrWhiteSpace(trigger.Rule)|{trigger.ToLog()}");
+                    throw new ArgumentException($"string.IsNullOrWhiteSpace(data.Rule)|{data.ToLog()}");
                 }
-                else if (string.IsNullOrWhiteSpace(trigger.Symbol1))
+                else if (string.IsNullOrWhiteSpace(data.Symbol1))
                 {
-                    throw new ArgumentException($"string.IsNullOrWhiteSpace(trigger.Symbol1)|{trigger.ToLog()}");
+                    throw new ArgumentException($"string.IsNullOrWhiteSpace(data.Symbol1)|{data.ToLog()}");
                 }
 
-                trigger.Quote1 = _appCtrl.Capital.GetQuote(trigger.Symbol1);
+                data.Quote1 = _appCtrl.Capital.GetQuote(data.Symbol1);
 
-                if (!string.IsNullOrWhiteSpace(trigger.Symbol2))
+                if (!string.IsNullOrWhiteSpace(data.Symbol2))
                 {
-                    if (trigger.Symbol2 == trigger.Symbol1)
+                    if (data.Symbol2 == data.Symbol1)
                     {
-                        throw new ArgumentException($"trigger.Symbol2({trigger.Symbol2}) == trigger.Symbol1({trigger.Symbol1})|{trigger.ToLog()}");
+                        throw new ArgumentException($"data.Symbol2({data.Symbol2}) == data.Symbol1({data.Symbol1})|{data.ToLog()}");
                     }
 
-                    trigger.Quote2 = _appCtrl.Capital.GetQuote(trigger.Symbol2);
+                    data.Quote2 = _appCtrl.Capital.GetQuote(data.Symbol2);
                 }
 
-                string rule = trigger.Rule;
+                string rule = data.Rule;
                 string bodyValue = string.Empty;
 
                 if (rule.StartsWith(TriggerData.IsGreaterThanOrEqualTo))
@@ -613,60 +615,60 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else
                 {
-                    throw new ArgumentException($"條件({rule})錯誤，開頭必須是大於小於等於|{trigger.ToLog()}");
+                    throw new ArgumentException($"條件({rule})錯誤，開頭必須是大於小於等於|{data.ToLog()}");
                 }
 
                 if (!string.IsNullOrWhiteSpace(bodyValue))
                 {
-                    trigger.Rule = rule;
+                    data.Rule = rule;
 
                     if (bodyValue.Length >= 2 && char.IsLetter(bodyValue[0]) && bodyValue[1] == '2')
                     {
                         if (decimal.TryParse(bodyValue.Substring(2), out decimal offset) && offset >= 0)
                         {
-                            trigger.Symbol2Setting = $"+{offset:0.00####}";
+                            data.Symbol2Setting = $"+{offset:0.00####}";
                         }
                         else if (offset < 0)
                         {
-                            trigger.Symbol2Setting = $"{offset:0.00####}";
+                            data.Symbol2Setting = $"{offset:0.00####}";
                         }
                         else
                         {
-                            trigger.Symbol2Setting = "+0.00";
+                            data.Symbol2Setting = "+0.00";
                         }
                     }
                     else if (decimal.TryParse(bodyValue, out decimal value))
                     {
-                        trigger.TargetValue = value;
+                        data.TargetValue = value;
                     }
                     else
                     {
-                        throw new ArgumentException($"條件錯誤，無法解析({bodyValue})|{trigger.ToLog()}");
+                        throw new ArgumentException($"條件錯誤，無法解析({bodyValue})|{data.ToLog()}");
                     }
                 }
 
-                if (trigger.TargetValue == 0 && trigger.Quote2 == null)
+                if (data.TargetValue == 0 && data.Quote2 == null)
                 {
-                    throw new ArgumentException($"條件錯誤，目標值(TargetValue)不可為0|{trigger.ToLog()}");
+                    throw new ArgumentException($"條件錯誤，目標值(TargetValue)不可為0|{data.ToLog()}");
                 }
 
                 if (!string.IsNullOrWhiteSpace(timeDuration))
                 {
-                    (bool, DateTime?, DateTime?) parseResult = TimeParse(trigger.Quote1, start, timeDuration.Split('~'));
+                    (bool, DateTime?, DateTime?) parseResult = TimeParse(data.Quote1, start, timeDuration.Split('~'));
 
                     if (!parseResult.Item1)
                     {
                         return;
                     }
 
-                    trigger.StartTime = parseResult.Item2;
-                    trigger.EndTime = parseResult.Item3;
+                    data.StartTime = parseResult.Item2;
+                    data.EndTime = parseResult.Item3;
                 }
 
-                trigger.Updater = methodName;
-                trigger.UpdateTime = DateTime.Now;
+                data.Updater = methodName;
+                data.UpdateTime = DateTime.Now;
 
-                _waitToAdd.Enqueue(trigger);
+                _waitToAdd.Enqueue(data);
             }
             catch (Exception ex)
             {
@@ -686,7 +688,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (_triggerMap.Count > 0)
+                if (_dataMap.Count > 0)
                 {
                     return;
                 }
@@ -710,51 +712,51 @@ namespace GNAy.Capital.Trade.Controllers
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;
 
-                foreach (TriggerData data in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
+                foreach (TriggerData td in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
                 {
                     try
                     {
-                        TriggerData trigger = data.Trim();
+                        TriggerData data = td.Trim();
 
-                        if (string.IsNullOrWhiteSpace(trigger.PrimaryKey))
+                        if (string.IsNullOrWhiteSpace(data.PrimaryKey))
                         {
                             continue;
                         }
 
-                        trigger.StatusEnum = TriggerStatus.Enum.Waiting;
-                        trigger.Quote1 = _appCtrl.Capital.GetQuote(trigger.Symbol1);
-                        trigger.Quote2 = _appCtrl.Capital.GetQuote(trigger.Symbol2);
-                        trigger.ColumnValue = 0;
-                        trigger.Comment = string.Empty;
+                        data.StatusEnum = TriggerStatus.Enum.Waiting;
+                        data.Quote1 = _appCtrl.Capital.GetQuote(data.Symbol1);
+                        data.Quote2 = _appCtrl.Capital.GetQuote(data.Symbol2);
+                        data.ColumnValue = 0;
+                        data.Comment = string.Empty;
 
-                        string st = trigger.StartTime.HasValue ? trigger.StartTime.Value.ToString("HHmmss") : string.Empty;
-                        string et = trigger.EndTime.HasValue ? trigger.EndTime.Value.ToString("HHmmss") : string.Empty;
-                        (bool, DateTime?, DateTime?) parseResult = TimeParse(trigger.Quote1, start, st, et);
+                        string st = data.StartTime.HasValue ? data.StartTime.Value.ToString("HHmmss") : string.Empty;
+                        string et = data.EndTime.HasValue ? data.EndTime.Value.ToString("HHmmss") : string.Empty;
+                        (bool, DateTime?, DateTime?) parseResult = TimeParse(data.Quote1, start, st, et);
 
                         if (!parseResult.Item1)
                         {
                             continue;
                         }
 
-                        trigger.StartTime = parseResult.Item2;
-                        trigger.EndTime = parseResult.Item3;
+                        data.StartTime = parseResult.Item2;
+                        data.EndTime = parseResult.Item3;
 
-                        if ((!trigger.StartTime.HasValue || trigger.StartTime.Value <= DateTime.Now) && !_appCtrl.Capital.LoadedOnTime)
+                        if ((!data.StartTime.HasValue || data.StartTime.Value <= DateTime.Now) && !_appCtrl.Capital.LoadedOnTime)
                         {
-                            trigger.StatusEnum = TriggerStatus.Enum.Cancelled;
-                            trigger.Comment = "沒有在開盤前執行登入動作，不執行此監控";
-                            _appCtrl.LogError(start, trigger.ToLog(), UniqueName);
+                            data.StatusEnum = TriggerStatus.Enum.Cancelled;
+                            data.Comment = "沒有在開盤前執行登入動作，不執行此監控";
+                            _appCtrl.LogError(start, data.ToLog(), UniqueName);
                         }
 
-                        trigger.Updater = methodName;
-                        trigger.UpdateTime = DateTime.Now;
+                        data.Updater = methodName;
+                        data.UpdateTime = DateTime.Now;
 
-                        if (decimal.TryParse(trigger.PrimaryKey, out decimal _pk) && _pk > nextPK)
+                        if (decimal.TryParse(data.PrimaryKey, out decimal _pk) && _pk > nextPK)
                         {
                             nextPK = _pk + 1;
                         }
 
-                        AddRule(trigger, string.Empty);
+                        AddRule(data, string.Empty);
                     }
                     catch (Exception ex)
                     {
@@ -765,12 +767,12 @@ namespace GNAy.Capital.Trade.Controllers
                 SpinWait.SpinUntil(() => _waitToAdd.Count <= 0);
                 Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
 
-                if (_triggerCollection.Count >= nextPK)
+                if (_dataCollection.Count >= nextPK)
                 {
-                    nextPK = _triggerCollection.Count + 1;
+                    nextPK = _dataCollection.Count + 1;
                 }
 
-                if (!_triggerMap.ContainsKey($"{nextPK}"))
+                if (!_dataMap.ContainsKey($"{nextPK}"))
                 {
                     _appCtrl.MainForm.InvokeAsync(delegate { _appCtrl.MainForm.TextBoxTriggerPrimaryKey.Text = $"{nextPK}"; });
                 }
