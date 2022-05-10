@@ -127,86 +127,79 @@ namespace GNAy.Capital.Trade.Controllers
         {
             const string methodName = nameof(UpdateStatus);
 
-            try
+            while (_waitToAdd.Count > 0)
             {
-                while (_waitToAdd.Count > 0)
-                {
-                    _waitToAdd.TryDequeue(out string raw);
+                _waitToAdd.TryDequeue(out string raw);
 
-                    if (raw.StartsWith("##"))
+                if (raw.StartsWith("##"))
+                {
+                    if (QuerySent.Item4 != 0)
                     {
-                        if (QuerySent.Item4 != 0)
+                        continue;
+                    }
+
+                    for (int i = _dataCollection.Count - 1; i >= 0; --i)
+                    {
+                        OpenInterestData data = _dataCollection[i];
+
+                        if (data.UpdateTime >= QuerySent.Item1 || data.Account != QuerySent.Item3 || data.PositionEnum == OrderPosition.Enum.Close)
                         {
                             continue;
                         }
 
-                        for (int i = _dataCollection.Count - 1; i >= 0; --i)
-                        {
-                            OpenInterestData data = _dataCollection[i];
+                        data.PositionEnum = OrderPosition.Enum.Close;
+                        data.UnclosedProfit = 0;
+                        data.Updater = methodName;
+                        data.UpdateTime = DateTime.Now;
 
-                            if (data.UpdateTime >= QuerySent.Item1 || data.Account != QuerySent.Item3 || data.PositionEnum == OrderPosition.Enum.Close)
-                            {
-                                continue;
-                            }
-
-                            data.PositionEnum = OrderPosition.Enum.Close;
-                            data.UnclosedProfit = 0;
-                            data.Updater = methodName;
-                            data.UpdateTime = DateTime.Now;
-
-                            _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
-                        }
-
-                        continue;
+                        _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                     }
 
-                    string[] cells = raw.Split(',');
-
-                    if (cells.Length < 10)
-                    {
-                        throw new ArgumentException($"cells.Length{cells.Length} < 10|{raw}");
-                    }
-
-                    //完整： (含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,買方成交均價(二位小數),賣方未平倉,賣方當沖未平倉,賣方成交均價(二位小數), LOGIN_ID(V2.13.30新增)
-                    //格式1：(含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,賣方未平倉,賣方當沖未平倉, LOGIN_ID(V2.13.30新增)
-                    //格式2：(不含複式單，市場別：TM，可自行計算損益)市場別, 帳號, 商品, 買賣別, 未平倉部位, 當沖未平倉部位, 平均成本(三位小數), 一點價值, 單口手續費, 交易稅(萬分之X), LOGIN_ID(V2.13.30新增)
-                    //TF,OrderAccount,MTX05,1,0,1652500,0,0,0,UserID
-                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.No, cells[5], cells[3], start);
-                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.Yes, cells[5], cells[4], start);
-                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.No, cells[8], cells[6], start);
-                    AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.Yes, cells[8], cells[7], start);
+                    continue;
                 }
 
-                for (int i = _dataCollection.Count - 1; i >= 0; --i)
+                string[] cells = raw.Split(',');
+
+                if (cells.Length < 10)
                 {
-                    OpenInterestData data = _dataCollection[i];
-
-                    if (data.Quote == null || data.Quote.DealPrice == 0 || data.Quote.Simulate != QuoteData.RealTrade)
-                    {
-                        continue;
-                    }
-                    else if (data.PositionEnum == OrderPosition.Enum.Close)
-                    {
-                        if (data.UnclosedProfit != 0)
-                        {
-                            data.UnclosedProfit = 0;
-                            data.Updater = methodName;
-                            data.UpdateTime = DateTime.Now;
-
-                            _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
-                        }
-                        continue;
-                    }
-
-                    data.MarketPrice = data.Quote.DealPrice;
-                    data.UnclosedProfit = (data.MarketPrice - data.DealPrice) * data.DealQty * (data.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
-                    data.Updater = methodName;
-                    //data.UpdateTime = DateTime.Now;
+                    throw new ArgumentException($"cells.Length{cells.Length} < 10|{raw}");
                 }
+
+                //完整： (含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,買方成交均價(二位小數),賣方未平倉,賣方當沖未平倉,賣方成交均價(二位小數), LOGIN_ID(V2.13.30新增)
+                //格式1：(含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,賣方未平倉,賣方當沖未平倉, LOGIN_ID(V2.13.30新增)
+                //格式2：(不含複式單，市場別：TM，可自行計算損益)市場別, 帳號, 商品, 買賣別, 未平倉部位, 當沖未平倉部位, 平均成本(三位小數), 一點價值, 單口手續費, 交易稅(萬分之X), LOGIN_ID(V2.13.30新增)
+                //TF,OrderAccount,MTX05,1,0,1652500,0,0,0,UserID
+                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.No, cells[5], cells[3], start);
+                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.Yes, cells[5], cells[4], start);
+                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.No, cells[8], cells[6], start);
+                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.Yes, cells[8], cells[7], start);
             }
-            catch (Exception ex)
+
+            for (int i = _dataCollection.Count - 1; i >= 0; --i)
             {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
+                OpenInterestData data = _dataCollection[i];
+
+                if (data.Quote == null || data.Quote.DealPrice == 0 || data.Quote.Simulate != QuoteData.RealTrade)
+                {
+                    continue;
+                }
+                else if (data.PositionEnum == OrderPosition.Enum.Close)
+                {
+                    if (data.UnclosedProfit != 0)
+                    {
+                        data.UnclosedProfit = 0;
+                        data.Updater = methodName;
+                        data.UpdateTime = DateTime.Now;
+
+                        _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
+                    }
+                    continue;
+                }
+
+                data.MarketPrice = data.Quote.DealPrice;
+                data.UnclosedProfit = (data.MarketPrice - data.DealPrice) * data.DealQty * (data.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                data.Updater = methodName;
+                //data.UpdateTime = DateTime.Now;
             }
         }
 

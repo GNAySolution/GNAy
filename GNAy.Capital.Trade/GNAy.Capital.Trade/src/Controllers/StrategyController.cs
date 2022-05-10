@@ -241,9 +241,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
 
             if (strategy.StopWinQty == 0)
-            {
-                //滿足條件但不減倉
-            }
+            { } //滿足條件但不減倉
             else if (strategy.StopWinQty > 0)
             {
                 throw new ArgumentException($"停利減倉口數({strategy.StopWinQty})應為負值或0|{strategy.ToLog()}");
@@ -265,34 +263,23 @@ namespace GNAy.Capital.Trade.Controllers
                     strategy.MoveStopWinQty = int.Parse(cells[1]);
                 }
 
-                //(string, decimal) moveStopWinPriceAfter = OrderPrice.Parse(moveStopWinPriceBefore, quote.DealPrice, quote.Reference, qGroup);
+                strategy.MoveStopWinOffset = decimal.Parse(moveStopWinBefore);
 
-                //if (strategy.BSEnum == OrderBS.Enum.Buy)
-                //{
-                //    if (moveStopWinPriceAfter.Item2 <= orderPriceAfter.Item2)
-                //    {
-                //        throw new ArgumentException($"移動停利價({moveStopWinPriceAfter.Item2}) <= 委託價({orderPriceAfter.Item2})");
-                //    }
-                //}
-                //else if (strategy.BSEnum == OrderBS.Enum.Sell)
-                //{
-                //    if (moveStopWinPriceAfter.Item2 >= orderPriceAfter.Item2)
-                //    {
-                //        throw new ArgumentException($"移動停利價({moveStopWinPriceAfter.Item2}) >= 委託價({orderPriceAfter.Item2})");
-                //    }
-                //}
-
-                //if (readyToSend)
-                //{
-                //    strategy.MoveStopWinPrice = moveStopWinPriceAfter.Item1;
-                //    _appCtrl.LogTrace(start, $"移動停利價格計算前={moveStopWinPriceBefore}|計算後={moveStopWinPriceAfter.Item1}", UniqueName);
-                //}
+                if (strategy.BSEnum == OrderBS.Enum.Buy)
+                {
+                    if (strategy.MoveStopWinOffset >= 0)
+                    {
+                        throw new ArgumentException($"移動停利位移({strategy.MoveStopWinOffset}) >= 0|{strategy.ToLog()}");
+                    }
+                }
+                else if (strategy.MoveStopWinOffset <= 0)
+                {
+                    throw new ArgumentException($"移動停利位移({strategy.MoveStopWinOffset}) <= 0|{strategy.ToLog()}");
+                }
             }
 
             if (strategy.MoveStopWinQty == 0)
-            {
-                //滿足條件但不減倉
-            }
+            { } //滿足條件但不減倉
             else if (strategy.MoveStopWinQty > 0)
             {
                 throw new ArgumentException($"移動停利減倉口數({strategy.MoveStopWinQty})應為負值或0|{strategy.ToLog()}");
@@ -435,11 +422,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void AfterStopWin(StrategyData data, DateTime start)
         {
-            if (string.IsNullOrWhiteSpace(data.MoveStopWinBefore))
-            { }
-            else if (!decimal.TryParse(data.MoveStopWinBefore, out decimal offset) || offset == 0)
-            { }
-            else if (data.MoveStopWinQty == 0)
+            if (data.MoveStopWinQty == 0)
             { }
             else
             {
@@ -510,18 +493,28 @@ namespace GNAy.Capital.Trade.Controllers
                     strategy.MarketPrice = quote.DealPrice;
                     return saveData;
                 }
-                else
+
+                strategy.MarketPrice = quote.DealPrice;
+
+                if (strategy.OrderData != null)
                 {
-                    strategy.MarketPrice = quote.DealPrice;
-
-                    if (strategy.OrderData != null)
-                    {
-                        strategy.UnclosedProfit = (strategy.MarketPrice - strategy.OrderData.DealPrice) * strategy.UnclosedQty * (strategy.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
-                    }
-
-                    strategy.Updater = methodName;
-                    strategy.UpdateTime = DateTime.Now;
+                    strategy.UnclosedProfit = (strategy.MarketPrice - strategy.OrderData.DealPrice) * strategy.UnclosedQty * (strategy.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
                 }
+
+                if (strategy.BSEnum == OrderBS.Enum.Buy)
+                {
+                    if (strategy.MoveStopWinPrice < strategy.MarketPrice)
+                    {
+                        strategy.MoveStopWinPrice = strategy.MarketPrice;
+                    }
+                }
+                else if ((strategy.MoveStopWinPrice > strategy.MarketPrice || strategy.MoveStopWinPrice == 0) && strategy.MarketPrice != 0)
+                {
+                    strategy.MoveStopWinPrice = strategy.MarketPrice;
+                }
+
+                strategy.Updater = methodName;
+                strategy.UpdateTime = DateTime.Now;
 
                 if (strategy.StatusEnum == StrategyStatus.Enum.OrderSent || strategy.StatusEnum == StrategyStatus.Enum.OrderReport || strategy.StatusEnum == StrategyStatus.Enum.DealReport)
                 {
@@ -551,9 +544,7 @@ namespace GNAy.Capital.Trade.Controllers
                             strategy.StatusEnum = StrategyStatus.Enum.StopWinSent;
 
                             if (strategy.StopWinQty == 0)
-                            {
-                                //滿足條件但不減倉
-                            }
+                            { } //滿足條件但不減倉
                             else
                             {
                                 _appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
@@ -587,9 +578,7 @@ namespace GNAy.Capital.Trade.Controllers
                             strategy.StatusEnum = StrategyStatus.Enum.StopWinSent;
 
                             if (strategy.StopWinQty == 0)
-                            {
-                                //滿足條件但不減倉
-                            }
+                            { } //滿足條件但不減倉
                             else
                             {
                                 _appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);

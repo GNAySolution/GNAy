@@ -1209,7 +1209,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int GetOpenInterest(string orderAcc = "", int format = 1)
         {
-            DateTime start = _appCtrl.StartTrace($"orderAcc={orderAcc}|format={format}", UniqueName);
+            DateTime start = _appCtrl.StartTrace();
 
             try
             {
@@ -1217,18 +1217,14 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (m_nCode != 0)
                 {
-                    LogAPIMessage(start, m_nCode);
+                    LogAPIMessage(start, m_nCode, $"orderAcc={orderAcc}|format={format}");
                 }
 
                 return m_nCode;
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
+                _appCtrl.LogException(start, ex, $"orderAcc={orderAcc}|format={format}|{ex.StackTrace}");
             }
 
             return -1;

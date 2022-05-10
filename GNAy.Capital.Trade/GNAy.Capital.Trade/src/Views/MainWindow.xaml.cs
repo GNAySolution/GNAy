@@ -1112,22 +1112,22 @@ namespace GNAy.Capital.Trade
                     DataGridAPIReply.Columns[APIReplyData.PropertyMap[nameof(APIReplyData.UserID)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
                     DataGridAPIReply.Columns[APIReplyData.PropertyMap[nameof(APIReplyData.Message)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
 
-                    DataGridAppLog.Columns[AppLogInDataGrid.PropertyMap[nameof(AppLogInDataGrid.Message)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridAppLog.Columns[AppLogInDataGrid.PropertyMap[nameof(AppLogInDataGrid.Message)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
 
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol1)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnName)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnProperty)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.TargetValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol2)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol1)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnName)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnProperty)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.TargetValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol2)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
 
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
 
                     DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
                 }
                 else
                 {
@@ -1137,22 +1137,22 @@ namespace GNAy.Capital.Trade
                     DataGridAPIReply.Columns[APIReplyData.PropertyMap[nameof(APIReplyData.UserID)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridAPIReply.Columns[APIReplyData.PropertyMap[nameof(APIReplyData.Message)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
 
-                    DataGridAppLog.Columns[AppLogInDataGrid.PropertyMap[nameof(AppLogInDataGrid.Message)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridAppLog.Columns[AppLogInDataGrid.PropertyMap[nameof(AppLogInDataGrid.Message)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
 
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol1)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnName)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnProperty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.TargetValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol2)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol1)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnName)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnProperty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.TargetValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol2)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
 
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
 
                     DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                 }
             }
             catch (Exception ex)

@@ -276,6 +276,13 @@ namespace GNAy.Capital.Models
             get { return _moveStopWinPrice; }
             set { OnPropertiesChanged(ref _moveStopWinPrice, value, nameof(MoveStopWinPrice), nameof(MoveStopWinAfter)); }
         }
+        private decimal _moveStopWinOffset;
+        [Column("移動停利位移", CSVStringFormat = "0.00")]
+        public decimal MoveStopWinOffset
+        {
+            get { return _moveStopWinOffset; }
+            set { OnPropertiesChanged(ref _moveStopWinOffset, value, nameof(MoveStopWinOffset), nameof(MoveStopWinAfter)); }
+        }
         private int _moveStopWinQty;
         [Column("移動停利減倉")]
         public int MoveStopWinQty
@@ -284,7 +291,7 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWinAfter)); }
         }
         [Column("移動停利觸發", "移利觸發", CSVIndex = -1, WPFDisplayIndex = 20)]
-        public string MoveStopWinAfter => MoveStopWinPrice == 0 ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinQty})";
+        public string MoveStopWinAfter => MoveStopWinPrice == 0 ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinOffset})({MoveStopWinQty})";
 
         public StrategyData MoveStopWinData;
 
@@ -457,6 +464,7 @@ namespace GNAy.Capital.Models
             StopWinData = null;
             MoveStopWinBefore = string.Empty;
             MoveStopWinPrice = 0;
+            MoveStopWinOffset = 0;
             MoveStopWinQty = 0;
             MoveStopWinData = null;
             OrderReport = string.Empty;
