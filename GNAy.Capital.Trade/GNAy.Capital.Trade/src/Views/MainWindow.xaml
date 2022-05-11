@@ -514,8 +514,8 @@
                 </ComboBox>
                 <Label Content="大於小於等於數值" HorizontalAlignment="Left" Margin="466,8,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxTriggerRuleValue" Text=">=P2+1" ToolTip="系統會自動補上等於" HorizontalAlignment="Left" Margin="466,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="觸價後取消監控" HorizontalAlignment="Left" Margin="591,8,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxTriggerCancel" Text="觸價後取消監控" ToolTip="觸價後取消其他觸價監控" HorizontalAlignment="Left" Margin="591,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxTriggerCancel" Text="觸價後取消觸價" ToolTip="觸價後取消其他觸價監控" HorizontalAlignment="Left" Margin="591,18,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxTriggerStart" Text="觸價後啟動觸價" ToolTip="觸價後啟動其他觸價監控" HorizontalAlignment="Left" Margin="591,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxTriggerStrategyOpenOR" Text="單一觸價即執行新倉" ToolTip="滿足單一條件即執行策略新倉" HorizontalAlignment="Left" Margin="716,18,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxTriggerStrategyOpenAND" Text="全部觸價再執行新倉" ToolTip="滿足全部條件再執行策略新倉" HorizontalAlignment="Left" Margin="716,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxTriggerStrategyCloseOR" Text="單一觸價即執行平倉" ToolTip="滿足單一條件即執行策略平倉" HorizontalAlignment="Left" Margin="841,18,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
@@ -633,6 +633,7 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding Cancel}"/>
+                                    <DataGridTextColumn Binding="{Binding Start}"/>
                                     <DataGridTextColumn Binding="{Binding StrategyOpenOR}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">

@@ -36,8 +36,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                         if (Capital.OrderAccCount > 0 && OpenInterest.QuerySent.Item4 != 0)
                         {
-                            ++_secondsToQueryOpenInterest;
-                            LogTrace(e.SignalTime, $"_secondsToQueryOpenInterest={_secondsToQueryOpenInterest}", UniqueName);
+                            _secondsToQueryOpenInterest += 2;
+                            LogWarn(e.SignalTime, $"_secondsToQueryOpenInterest={_secondsToQueryOpenInterest}", UniqueName);
                         }
                     }
                 }

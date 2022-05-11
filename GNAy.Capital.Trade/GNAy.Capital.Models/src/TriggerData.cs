@@ -177,15 +177,23 @@ namespace GNAy.Capital.Models
         public QuoteData Quote2;
 
         private string _cancel;
-        [Column("觸價後取消其他觸價監控", "觸價後取消", WPFDisplayIndex = 12)]
+        [Column("觸價後取消其他觸價監控", "後取消觸價", WPFDisplayIndex = 12)]
         public string Cancel
         {
             get { return _cancel; }
             set { OnPropertyChanged(ref _cancel, value); }
         }
 
+        private string _start;
+        [Column("觸價後啟動其他觸價監控", "後啟動觸價", WPFDisplayIndex = 13)]
+        public string Start
+        {
+            get { return _start; }
+            set { OnPropertyChanged(ref _start, value); }
+        }
+
         private string _strategyOpenOR;
-        [Column("滿足單一條件即執行策略新倉", "策略新倉OR", WPFDisplayIndex = 13)]
+        [Column("滿足單一條件即執行策略新倉", "策略新倉OR", WPFDisplayIndex = 14)]
         public string StrategyOpenOR
         {
             get { return _strategyOpenOR; }
@@ -193,7 +201,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyOpenAND;
-        [Column("滿足全部條件再執行策略新倉", "策略新倉AND", WPFDisplayIndex = 14)]
+        [Column("滿足全部條件再執行策略新倉", "策略新倉AND", WPFDisplayIndex = 15)]
         public string StrategyOpenAND
         {
             get { return _strategyOpenAND; }
@@ -201,7 +209,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyCloseOR;
-        [Column("滿足單一條件即執行策略平倉", "策略平倉OR", WPFDisplayIndex = 15)]
+        [Column("滿足單一條件即執行策略平倉", "策略平倉OR", WPFDisplayIndex = 16)]
         public string StrategyCloseOR
         {
             get { return _strategyCloseOR; }
@@ -209,7 +217,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyCloseAND;
-        [Column("滿足全部條件再執行策略平倉", "策略平倉AND", WPFDisplayIndex = 16)]
+        [Column("滿足全部條件再執行策略平倉", "策略平倉AND", WPFDisplayIndex = 17)]
         public string StrategyCloseAND
         {
             get { return _strategyCloseAND; }
@@ -217,7 +225,7 @@ namespace GNAy.Capital.Models
         }
 
         private DateTime? _startTime;
-        [Column("監控開始", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 17, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("監控開始", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 18, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
         public DateTime? StartTime
         {
             get { return _startTime; }
@@ -225,7 +233,7 @@ namespace GNAy.Capital.Models
         }
 
         private DateTime? _endTime;
-        [Column("監控結束", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 18, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("監控結束", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 19, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
         public DateTime? EndTime
         {
             get { return _endTime; }
@@ -233,7 +241,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 19)]
+        [Column("註解", WPFDisplayIndex = 20)]
         public string Comment
         {
             get { return _comment; }
@@ -260,6 +268,7 @@ namespace GNAy.Capital.Models
             Symbol2 = string.Empty;
             Quote2 = null;
             Cancel = string.Empty;
+            Start = string.Empty;
             StrategyOpenOR = string.Empty;
             StrategyOpenAND = string.Empty;
             StrategyCloseOR = string.Empty;
@@ -280,6 +289,7 @@ namespace GNAy.Capital.Models
             Symbol2Setting = Symbol2Setting.Replace(" ", string.Empty);
             Symbol2 = Symbol2.Replace(" ", string.Empty);
             Cancel = Cancel.Replace(" ", string.Empty);
+            Start = Start.Replace(" ", string.Empty);
             StrategyOpenOR = StrategyOpenOR.Replace(" ", string.Empty);
             StrategyOpenAND = StrategyOpenAND.Replace(" ", string.Empty);
             StrategyCloseOR = StrategyCloseOR.Replace(" ", string.Empty);
@@ -334,7 +344,7 @@ namespace GNAy.Capital.Models
 
         public string ToLog()
         {
-            return $"{StatusDes},{PrimaryKey},{Symbol1},{Symbol2},{ColumnProperty}({ColumnName}),{Cancel},{Comment}";
+            return $"{StatusDes},{PrimaryKey},{Symbol1},{Symbol2},{ColumnProperty}({ColumnName}),{Cancel},{Start},{Comment}";
         }
 
         public string ToCSVString()

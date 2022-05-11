@@ -1,6 +1,7 @@
 ﻿using GNAy.Capital.Models;
 using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
+using NLog;
 using SKCOMLib;
 using System;
 using System.Collections.Concurrent;
@@ -356,15 +357,15 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                (bool, string) result = _appCtrl.Trigger.Restart(primary);
+                (LogLevel, string) result = _appCtrl.Trigger.Restart(primary);
 
-                if (result.Item1)
+                if (result.Item1 == LogLevel.Trace)
                 {
                     _appCtrl.LogTrace(start, $"重啟觸價({primary})|{data.ToLog()}", UniqueName);
                 }
                 else
                 {
-                    _appCtrl.LogError(start, $"{result.Item2}|{data.ToLog()}", UniqueName);
+                    _appCtrl.Log(result.Item1, $"{result.Item2}|{data.ToLog()}", UniqueName, DateTime.Now - start);
                 }
             }
             catch (Exception ex)
@@ -522,7 +523,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (strategy.BSEnum == OrderBS.Enum.Buy)
                     {
-                        if (quote.DealPrice <= strategy.StopLossAfter)
+                        if (strategy.MarketPrice <= strategy.StopLossAfter)
                         {
                             StrategyData stopLossOrder = strategy.CreateStopLossOrder();
 
@@ -537,7 +538,7 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             AfterStopLoss(strategy, start);
                         }
-                        else if (quote.DealPrice >= strategy.StopWinPrice && strategy.StopWinQty <= 0)
+                        else if (strategy.MarketPrice >= strategy.StopWinPrice && strategy.StopWinQty <= 0)
                         {
                             StrategyData stopWinOrder = strategy.CreateStopWinOrder();
 
@@ -556,7 +557,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else if (strategy.BSEnum == OrderBS.Enum.Sell)
                     {
-                        if (quote.DealPrice >= strategy.StopLossAfter)
+                        if (strategy.MarketPrice >= strategy.StopLossAfter)
                         {
                             StrategyData stopLossOrder = strategy.CreateStopLossOrder();
 
@@ -571,7 +572,7 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             AfterStopLoss(strategy, start);
                         }
-                        else if (quote.DealPrice <= strategy.StopWinPrice && strategy.StopWinQty <= 0)
+                        else if (strategy.MarketPrice <= strategy.StopWinPrice && strategy.StopWinQty <= 0)
                         {
                             StrategyData stopWinOrder = strategy.CreateStopWinOrder();
 
@@ -587,6 +588,22 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             AfterStopWin(strategy, start);
                         }
+                    }
+                }
+                else if (strategy.MoveStopWinQty < 0 && strategy.MoveStopWinData == null && strategy.StopWinData != null && strategy.StopWinData.OrderQty < strategy.OrderQty)
+                {
+                    if (strategy.BSEnum == OrderBS.Enum.Buy)
+                    {
+                        if (strategy.MarketPrice <= strategy.MoveStopWinPrice + strategy.MoveStopWinOffset)
+                        {
+                            StrategyData moveStopWinOrder = strategy.CreateMoveStopWinOrder();
+                            _appCtrl.LogTrace(start, moveStopWinOrder.ToLog(), UniqueName);
+                        }
+                    }
+                    else if (strategy.MarketPrice >= strategy.MoveStopWinPrice + strategy.MoveStopWinOffset)
+                    {
+                        StrategyData moveStopWinOrder = strategy.CreateMoveStopWinOrder();
+                        _appCtrl.LogTrace(start, moveStopWinOrder.ToLog(), UniqueName);
                     }
                 }
                 //else if (strategy.StatusEnum == StrategyStatus.Enum.StopWinDealReport)

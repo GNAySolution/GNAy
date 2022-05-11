@@ -1,6 +1,7 @@
 ﻿using GNAy.Capital.Models;
 using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
+using NLog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -82,7 +83,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public (bool, string) Restart(string primary)
+        public (LogLevel, string) Restart(string primary)
         {
             const string methodName = nameof(Restart);
 
@@ -90,14 +91,14 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (data == null)
             {
-                return (false, $"重啟觸價({primary})失敗");
+                return (LogLevel.Error, $"重啟觸價({primary})失敗");
             }
 
             lock (data.SyncRoot)
             {
                 if (data.StatusEnum == TriggerStatus.Enum.Waiting || data.StatusEnum == TriggerStatus.Enum.Monitoring)
                 {
-                    return (true, string.Empty);
+                    return (LogLevel.Trace, string.Empty);
                 }
 
                 decimal columnValue = data.GetColumnValue(data.Quote1);
@@ -106,11 +107,11 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (matched.HasValue && matched.Value)
                 {
-                    return (false, $"觸價條件({columnValue:0.00####} {data.Rule} {targetValue:0.00####})已滿足，重啟觸價({primary})失敗");
+                    return (LogLevel.Warn, $"觸價條件({columnValue:0.00####} {data.Rule} {targetValue:0.00####})已滿足，重啟觸價({primary})失敗");
                 }
                 else if (!matched.HasValue)
                 {
-                    return (false, $"重啟觸價({primary})失敗");
+                    return (LogLevel.Error, $"重啟觸價({primary})失敗");
                 }
 
                 data.StatusEnum = TriggerStatus.Enum.Waiting;
@@ -119,7 +120,7 @@ namespace GNAy.Capital.Trade.Controllers
                 data.UpdateTime = DateTime.Now;
             }
 
-            return (true, string.Empty);
+            return (LogLevel.Trace, string.Empty);
         }
 
         private void StrategyOpen(TriggerData data, string strategyPK, DateTime start)

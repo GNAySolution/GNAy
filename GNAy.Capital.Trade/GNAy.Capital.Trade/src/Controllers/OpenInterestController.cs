@@ -162,7 +162,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (cells.Length < 10)
                 {
-                    throw new ArgumentException($"cells.Length{cells.Length} < 10|{raw}");
+                    throw new ArgumentException($"cells.Length({cells.Length}) < 10|{raw}");
                 }
 
                 //完整： (含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,買方成交均價(二位小數),賣方未平倉,賣方當沖未平倉,賣方成交均價(二位小數), LOGIN_ID(V2.13.30新增)

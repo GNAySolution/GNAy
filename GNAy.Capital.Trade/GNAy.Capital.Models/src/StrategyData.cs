@@ -291,7 +291,7 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWinAfter)); }
         }
         [Column("移動停利觸發", "移利觸發", CSVIndex = -1, WPFDisplayIndex = 20)]
-        public string MoveStopWinAfter => MoveStopWinPrice == 0 ? string.Empty : $"{MoveStopWinPrice} ({MoveStopWinOffset})({MoveStopWinQty})";
+        public string MoveStopWinAfter => MoveStopWinPrice == 0 ? string.Empty : MoveStopWinOffset < 0 ? $"{MoveStopWinPrice} ({MoveStopWinOffset})({MoveStopWinQty})" : $"{MoveStopWinPrice} (+{MoveStopWinOffset})({MoveStopWinQty})";
 
         public StrategyData MoveStopWinData;
 
@@ -535,6 +535,7 @@ namespace GNAy.Capital.Models
             StopWinPrice = 0;
             StopWinData = null;
             MoveStopWinPrice = 0;
+            MoveStopWinOffset = 0;
             MoveStopWinData = null;
             ClosedProfit = 0;
             UnclosedQty = 0;
@@ -551,10 +552,10 @@ namespace GNAy.Capital.Models
             {
                 throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
             }
-            //else if (StatusEnum != StrategyStatus.Enum.Waiting)
-            //{
-            //    throw new ArgumentException($"{StatusEnum} != StrategyStatus.Enum.Waiting|{ToLog()}");
-            //}
+            else if (OrderData != null)
+            {
+                throw new ArgumentException($"OrderData != null|{OrderData.ToLog()}");
+            }
             else if (string.IsNullOrWhiteSpace(PrimaryKey))
             {
                 throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
@@ -613,10 +614,10 @@ namespace GNAy.Capital.Models
             {
                 throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
             }
-            //else if (StatusEnum != StrategyStatus.Enum.DealReport)
-            //{
-            //    throw new ArgumentException($"{StatusEnum} != StrategyStatus.Enum.DealReport|{ToLog()}");
-            //}
+            else if (StopLossData != null)
+            {
+                throw new ArgumentException($"StopLossData != null|{StopLossData.ToLog()}");
+            }
             else if (string.IsNullOrWhiteSpace(PrimaryKey))
             {
                 throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
@@ -675,10 +676,10 @@ namespace GNAy.Capital.Models
             {
                 throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
             }
-            //else if (StatusEnum != StrategyStatus.Enum.DealReport)
-            //{
-            //    throw new ArgumentException($"{StatusEnum} != StrategyStatus.Enum.DealReport|{ToLog()}");
-            //}
+            else if (StopWinData != null)
+            {
+                throw new ArgumentException($"StopWinData != null|{StopWinData.ToLog()}");
+            }
             else if (string.IsNullOrWhiteSpace(PrimaryKey))
             {
                 throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
@@ -725,6 +726,68 @@ namespace GNAy.Capital.Models
             };
 
             StopWinData = order;
+
+            return order;
+        }
+
+        public StrategyData CreateMoveStopWinOrder()
+        {
+            const string methodName = nameof(CreateMoveStopWinOrder);
+
+            if (Parent != null)
+            {
+                throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
+            }
+            else if (MoveStopWinData != null)
+            {
+                throw new ArgumentException($"MoveStopWinData != null|{MoveStopWinData.ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(PrimaryKey))
+            {
+                throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Branch))
+            {
+                throw new ArgumentException($"未設定分公司|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Account))
+            {
+                throw new ArgumentException($"未設定下單帳號|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Symbol))
+            {
+                throw new ArgumentException($"未設定代碼|{ToLog()}");
+            }
+            else if (PositionEnum == OrderPosition.Enum.Close)
+            {
+                throw new ArgumentException($"PositionEnum == OrderPosition.Enum.Close|{ToLog()}");
+            }
+            else if (OrderQty <= 0)
+            {
+                throw new ArgumentException($"委託口數({OrderQty}) <= 0|{ToLog()}");
+            }
+
+            StrategyData order = new StrategyData()
+            {
+                Parent = this,
+                PrimaryKey = $"{PrimaryKey}_{DateTime.Now:HHmmss}_{StrategyStatus.Enum.MoveStopWinSent}",
+                MarketType = MarketType,
+                Branch = Branch,
+                Account = Account,
+                Quote = Quote,
+                Symbol = Symbol,
+                BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
+                TradeType = TradeType,
+                DayTrade = DayTrade,
+                PositionEnum = OrderPosition.Enum.Close,
+                OrderPriceBefore = OrderPrice.P,
+                OrderPriceAfter = 0,
+                OrderQty = Math.Abs(MoveStopWinQty),
+                Updater = methodName,
+                UpdateTime = DateTime.Now,
+            };
+
+            MoveStopWinData = order;
 
             return order;
         }

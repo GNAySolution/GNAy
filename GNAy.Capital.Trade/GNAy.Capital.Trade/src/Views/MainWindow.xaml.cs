@@ -1128,6 +1128,8 @@ namespace GNAy.Capital.Trade
                     DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
                     //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
                     //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+
+                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
                 }
                 else
                 {
@@ -1153,6 +1155,8 @@ namespace GNAy.Capital.Trade
                     DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+
+                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                 }
             }
             catch (Exception ex)
@@ -1552,6 +1556,7 @@ namespace GNAy.Capital.Trade
                     Symbol2 = ComboBoxTriggerProduct2.Text.Split(',')[0],
                     Rule = TextBoxTriggerRuleValue.Text,
                     Cancel = TextBoxTriggerCancel.Text,
+                    Start = TextBoxTriggerStart.Text,
                     StrategyOpenOR = TextBoxTriggerStrategyOpenOR.Text,
                     StrategyOpenAND = TextBoxTriggerStrategyOpenAND.Text,
                     StrategyCloseOR = TextBoxTriggerStrategyCloseOR.Text,
@@ -1634,9 +1639,10 @@ namespace GNAy.Capital.Trade
                     }
                 }
 
-                TextBoxTriggerCancel.Text = trigger.Cancel;
                 TextBoxTriggerPrimaryKey.Text = trigger.PrimaryKey;
                 TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00####}";
+                TextBoxTriggerCancel.Text = trigger.Cancel;
+                TextBoxTriggerStart.Text = trigger.Start;
                 TextBoxTriggerStrategyOpenOR.Text = trigger.StrategyOpenOR;
                 TextBoxTriggerStrategyOpenAND.Text = trigger.StrategyOpenAND;
                 TextBoxTriggerStrategyCloseOR.Text = trigger.StrategyCloseOR;
