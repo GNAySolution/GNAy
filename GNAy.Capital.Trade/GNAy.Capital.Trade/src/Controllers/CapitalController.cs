@@ -1290,7 +1290,8 @@ namespace GNAy.Capital.Trade.Controllers
                         }
 
                         apiMsg = LogAPIMessage(start, m_nCode, orderMsg);
-                        //Thread.Sleep(100);
+
+                        Thread.Sleep(100);
                     }
                 }
                 else

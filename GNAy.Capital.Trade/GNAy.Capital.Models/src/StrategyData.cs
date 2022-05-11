@@ -258,7 +258,7 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _stopWinQty, value, nameof(StopWinQty), nameof(StopWinAfter)); }
         }
         [Column("停利觸發", CSVIndex = -1, WPFDisplayIndex = 18)]
-        public string StopWinAfter => StopWinPrice == 0 ? string.Empty : $"{StopWinPrice} ({StopWinQty})";
+        public string StopWinAfter => StopWinPrice == 0 ? string.Empty : $"{StopWinPrice:0.00} ({StopWinQty})";
 
         public StrategyData StopWinData;
 
@@ -291,7 +291,7 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWinAfter)); }
         }
         [Column("移動停利觸發", "移利觸發", CSVIndex = -1, WPFDisplayIndex = 20)]
-        public string MoveStopWinAfter => MoveStopWinPrice == 0 ? string.Empty : MoveStopWinOffset < 0 ? $"{MoveStopWinPrice} ({MoveStopWinOffset})({MoveStopWinQty})" : $"{MoveStopWinPrice} (+{MoveStopWinOffset})({MoveStopWinQty})";
+        public string MoveStopWinAfter => MoveStopWinPrice == 0 ? string.Empty : MoveStopWinOffset < 0 ? $"{MoveStopWinPrice:0.00} ({MoveStopWinOffset:0.00})({MoveStopWinQty})" : $"{MoveStopWinPrice:0.00} (+{MoveStopWinOffset:0.00})({MoveStopWinQty})";
 
         public StrategyData MoveStopWinData;
 

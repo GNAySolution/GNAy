@@ -195,9 +195,9 @@ namespace GNAy.Capital.Trade.Controllers
             return strategyAND;
         }
 
-        private void Cancel(TriggerData executed, DateTime start)
+        private void CancelAfterExecuted(TriggerData executed, DateTime start)
         {
-            const string methodName = nameof(Cancel);
+            const string methodName = nameof(CancelAfterExecuted);
 
             if (string.IsNullOrWhiteSpace(executed.Cancel))
             {
@@ -229,6 +229,90 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                 }
             }
+        }
+
+        private void StartAfterExecuted(TriggerData executed)
+        {
+            if (string.IsNullOrWhiteSpace(executed.Start))
+            {
+                return;
+            }
+
+            HashSet<string> startList = new HashSet<string>(executed.Start.Split(','));
+
+            foreach (string pk in startList)
+            {
+                Restart(pk);
+            }
+        }
+
+        private bool Cancel(TriggerData data, DateTime start)
+        {
+            const string methodName = nameof(Cancel);
+
+            try
+            {
+                lock (data.SyncRoot)
+                {
+                    if (data.StatusEnum == TriggerStatus.Enum.Executed)
+                    {
+                        throw new ArgumentException($"已觸發無法取消|{data.ToLog()}");
+                    }
+                    else if (data.StatusEnum == TriggerStatus.Enum.Cancelled)
+                    {
+                        _appCtrl.LogTrace(start, $"已經取消|{data.ToLog()}", UniqueName);
+                        return true;
+                    }
+
+                    data.StatusEnum = TriggerStatus.Enum.Cancelled;
+                    data.Comment = $"手動取消";
+                    data.Updater = methodName;
+                    data.UpdateTime = DateTime.Now;
+                    _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+
+            return false;
+        }
+
+        public bool Cancel(string primaryKey)
+        {
+            DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
+
+            try
+            {
+                TriggerData data = this[primaryKey.Replace(" ", string.Empty)];
+
+                if (data == null)
+                {
+                    throw new ArgumentNullException($"查無此唯一鍵|{primaryKey}");
+                }
+                else if (Cancel(data, start))
+                {
+                    Task.Factory.StartNew(() => SaveData());
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+
+            return false;
         }
 
         private bool UpdateStatus(TriggerData data, QuoteData quote, DateTime start)
@@ -303,8 +387,10 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (string.IsNullOrWhiteSpace(data.StrategyOpenAND) || strategyAND.Count > 0)
                     {
-                        Cancel(data, start);
+                        CancelAfterExecuted(data, start);
                     }
+
+                    StartAfterExecuted(data);
                 }
                 else if (!matched.HasValue)
                 {
@@ -377,6 +463,26 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (_waitToAdd.Count <= 0)
                 {
+                    for (int i = _dataCollection.Count - 1; i >= 0; --i)
+                    {
+                        data = _dataCollection[i];
+
+                        if (string.IsNullOrWhiteSpace(data.Start))
+                        {
+                            continue;
+                        }
+
+                        HashSet<string> cancelList = new HashSet<string>(data.Start.Split(','));
+
+                        foreach (string pk in cancelList)
+                        {
+                            if (_dataMap.TryGetValue(pk, out TriggerData td))
+                            {
+                                Cancel(td, start);
+                            }
+                        }
+                    }
+
                     SaveData();
                 }
             }
@@ -404,56 +510,6 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 SaveData();
             }
-        }
-
-        public bool Cancel(string primaryKey)
-        {
-            const string methodName = nameof(Cancel);
-
-            DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
-
-            try
-            {
-                TriggerData data = this[primaryKey.Replace(" ", string.Empty)];
-
-                if (data == null)
-                {
-                    throw new ArgumentNullException($"查無此唯一鍵|{primaryKey}");
-                }
-
-                lock (data.SyncRoot)
-                {
-                    if (data.StatusEnum == TriggerStatus.Enum.Executed)
-                    {
-                        throw new ArgumentException($"已觸發無法取消|{data.ToLog()}");
-                    }
-                    else if (data.StatusEnum == TriggerStatus.Enum.Cancelled)
-                    {
-                        _appCtrl.LogTrace(start, $"已經取消|{data.ToLog()}", UniqueName);
-                        return true;
-                    }
-
-                    data.StatusEnum = TriggerStatus.Enum.Cancelled;
-                    data.Comment = $"手動取消";
-                    data.Updater = methodName;
-                    data.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
-
-                    Task.Factory.StartNew(() => SaveData());
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
-
-            return false;
         }
 
         private string ToHHmmss(string time)

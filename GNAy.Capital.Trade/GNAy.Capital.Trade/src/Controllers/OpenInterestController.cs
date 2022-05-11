@@ -209,6 +209,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
+                if (raw.IndexOf("NO DATA", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return;
+                }
+
                 _waitToAdd.Enqueue(raw);
             }
             catch (Exception ex)
