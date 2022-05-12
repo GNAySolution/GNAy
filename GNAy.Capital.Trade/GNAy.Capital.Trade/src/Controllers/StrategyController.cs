@@ -345,11 +345,16 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void AfterStopWin(StrategyData data, DateTime start)
+        private void AfterStopWin(StrategyData data, bool isMoveStopWin, DateTime start)
         {
-            if (data.MoveStopWinQty == 0)
-            { }
-            else
+            if (isMoveStopWin)
+            {
+                if (data.MoveStopWinQty == 0)
+                {
+                    return;
+                }
+            }
+            else if (data.MoveStopWinQty != 0)
             {
                 return;
             }
@@ -476,7 +481,7 @@ namespace GNAy.Capital.Trade.Controllers
                             }
 
                             saveData = true;
-                            AfterStopWin(strategy, start);
+                            AfterStopWin(strategy, false, start);
                         }
                     }
                     else if (strategy.BSEnum == OrderBS.Enum.Sell)
@@ -510,11 +515,11 @@ namespace GNAy.Capital.Trade.Controllers
                             }
 
                             saveData = true;
-                            AfterStopWin(strategy, start);
+                            AfterStopWin(strategy, false, start);
                         }
                     }
                 }
-                else if (strategy.MoveStopWinQty < 0 && strategy.MoveStopWinData == null && strategy.StopWinData != null && strategy.StopWinData.OrderQty < strategy.OrderQty)
+                else if (strategy.MoveStopWinQty <= 0 && strategy.MoveStopWinData == null && strategy.StopWinData != null && strategy.StopWinData.OrderQty < strategy.OrderQty)
                 {
                     if (strategy.BSEnum == OrderBS.Enum.Buy)
                     {
@@ -524,7 +529,15 @@ namespace GNAy.Capital.Trade.Controllers
 
                             strategy.StatusEnum = StrategyStatus.Enum.MoveStopWinSent;
 
-                            _appCtrl.LogTrace(start, moveStopWinOrder.ToLog(), UniqueName);
+                            if (strategy.MoveStopWinQty == 0)
+                            { } //滿足條件但不減倉
+                            else
+                            {
+                                _appCtrl.Capital.SendFutureOrderAsync(moveStopWinOrder);
+                            }
+
+                            saveData = true;
+                            AfterStopWin(strategy, true, start);
                         }
                     }
                     else if (strategy.MarketPrice >= strategy.MoveStopWinPrice + strategy.MoveStopWinOffset)
@@ -533,23 +546,17 @@ namespace GNAy.Capital.Trade.Controllers
 
                         strategy.StatusEnum = StrategyStatus.Enum.MoveStopWinSent;
 
-                        _appCtrl.LogTrace(start, moveStopWinOrder.ToLog(), UniqueName);
+                        if (strategy.MoveStopWinQty == 0)
+                        { } //滿足條件但不減倉
+                        else
+                        {
+                            _appCtrl.Capital.SendFutureOrderAsync(moveStopWinOrder);
+                        }
+
+                        saveData = true;
+                        AfterStopWin(strategy, true, start);
                     }
                 }
-                //else if (strategy.StatusEnum == StrategyStatus.Enum.StopWinDealReport)
-                //{
-                    //TODO: if (strategy.BSEnum == OrderBS.Enum.Buy)
-                    //{
-                    //    if (quote.DealPrice <= decimal.Parse(strategy.StopLoss))
-                    //    {
-                    //        //
-                    //    }
-                    //}
-                    //else if (quote.DealPrice >= decimal.Parse(strategy.StopLoss))
-                    //{
-                    //    //
-                    //}
-                //}
             }
 
             return saveData;

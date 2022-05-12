@@ -1334,9 +1334,9 @@ namespace GNAy.Capital.Trade.Controllers
 
                         if (order == parent.OrderData)
                         {
-                            order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty;
+                            order.ClosedProfit = 0;
                             order.UnclosedQty = order.DealQty;
-                            order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty;
+                            order.UnclosedProfit = 0;
 
                             parent.ClosedProfit += order.ClosedProfit;
                             parent.UnclosedQty = order.UnclosedQty;

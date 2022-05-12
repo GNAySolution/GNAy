@@ -164,7 +164,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _unclosedProfit;
-        [Column("未實現損益", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 12, WPFStringFormat = "{0:0.00}")]
+        [Column("未實現損益估計", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 12, WPFStringFormat = "{0:0.00}")]
         public decimal UnclosedProfit
         {
             get { return _unclosedProfit; }

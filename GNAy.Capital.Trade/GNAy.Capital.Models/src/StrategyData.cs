@@ -328,7 +328,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _closedProfit;
-        [Column("已實現損益", "已損益", CSVStringFormat = "0.00", WPFDisplayIndex = 25, WPFStringFormat = "{0:0.00}")]
+        [Column("已實現損益估計", "已損益", CSVStringFormat = "0.00", WPFDisplayIndex = 25, WPFStringFormat = "{0:0.00}")]
         public decimal ClosedProfit
         {
             get { return _closedProfit; }
@@ -350,7 +350,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _unclosedProfit;
-        [Column("未實現損益", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 27, WPFStringFormat = "{0:0.00}")]
+        [Column("未實現損益估計", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 27, WPFStringFormat = "{0:0.00}")]
         public decimal UnclosedProfit
         {
             get { return _unclosedProfit; }
