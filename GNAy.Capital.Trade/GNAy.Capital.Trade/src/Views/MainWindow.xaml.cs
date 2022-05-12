@@ -939,6 +939,11 @@ namespace GNAy.Capital.Trade
                     StatusBarItemBB3.Text = _appCtrl.Strategy.Notice;
                 }
 
+                if (_appCtrl.OrderDetail != null)
+                {
+                    StatusBarItemCB3.Text = _appCtrl.OrderDetail.Notice;
+                }
+
                 if (TabControlCB.SelectedIndex == 0 && DataGridOrderDetail.ItemsSource != null)
                 {
                     StatusBarItemCB1.Text = $"({DataGridOrderDetail.Columns.Count},{DataGridOrderDetail.Items.Count})";
@@ -959,6 +964,7 @@ namespace GNAy.Capital.Trade
             _timer2.Stop();
 
             DateTime start = _appCtrl.StartTrace();
+
             int reConnect = 0;
 
             try

@@ -36,6 +36,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public CapitalController Capital { get; private set; }
         public TriggerController Trigger { get; private set; }
+        public OrderDetailController OrderDetail { get; private set; }
         public StrategyController Strategy { get; private set; }
         public OpenInterestController OpenInterest { get; private set; }
 
@@ -80,6 +81,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             Capital = null;
             Trigger = null;
+            OrderDetail = null;
             Strategy = null;
             OpenInterest = null;
 
@@ -377,7 +379,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void Exit(string msg = "", LogLevel level = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
-            DateTime start = StartTrace();
+            DateTime start = StartTrace(msg, UniqueName);
             int exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseErrorValue;
 
             try
@@ -440,6 +442,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                     Trigger = new TriggerController(this);
                     MainForm.TextBoxTriggerPrimaryKey.Text = $"{Trigger.Count + 1}";
+
+                    OrderDetail = new OrderDetailController(this);
 
                     Strategy = new StrategyController(this);
                     MainForm.TextBoxStrategyPrimaryKey.Text = $"{Strategy.Count + 1}";

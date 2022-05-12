@@ -1248,22 +1248,14 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         throw new ArgumentException($"_appCtrl.Strategy[{order.PrimaryKey}] != null|{order.ToLog()}");
                     }
-                    else if (_appCtrl.Strategy.GetOrderDetail(order.PrimaryKey) != null)
-                    {
-                        throw new ArgumentException($"_appCtrl.Strategy.GetOrderDetail({order.PrimaryKey}) != null|{order.ToLog()}");
-                    }
                 }
                 else if (_appCtrl.Strategy[order.PrimaryKey] == order)
                 {
                     throw new ArgumentException($"_appCtrl.Strategy[{order.PrimaryKey}] == order|{order.ToLog()}");
                 }
-                else if (_appCtrl.Strategy.GetOrderDetail(order.PrimaryKey) != null)
-                {
-                    throw new ArgumentException($"_appCtrl.Strategy.GetOrderDetail({order.PrimaryKey}) != null|{order.ToLog()}");
-                }
 
-                _appCtrl.Strategy.AddOrder(order);
-                _appCtrl.Strategy.OrderCheck(order, start);
+                _appCtrl.OrderDetail.Add(order);
+                _appCtrl.OrderDetail.Check(order, start);
 
                 FUTUREORDER pFutureOrder = CreateCaptialFutureOrder(order);
 
@@ -1272,7 +1264,7 @@ namespace GNAy.Capital.Trade.Controllers
                 (LogLevel, string) apiMsg = (LogLevel.Trace, orderMsg);
 
                 order.StatusEnum = StrategyStatus.Enum.OrderSent;
-                _appCtrl.Strategy.SaveData(_appCtrl.Strategy.OrderDetailCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
+                _appCtrl.Strategy.SaveData(_appCtrl.OrderDetail.DataCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
 
                 if (_appCtrl.Settings.SendRealOrder)
                 {
@@ -1373,7 +1365,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                 }
 
-                _appCtrl.Strategy.SaveData(_appCtrl.Strategy.OrderDetailCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
+                _appCtrl.Strategy.SaveData(_appCtrl.OrderDetail.DataCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
             }
             catch (Exception ex)
             {

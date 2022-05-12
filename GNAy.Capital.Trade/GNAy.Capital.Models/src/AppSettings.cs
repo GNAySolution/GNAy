@@ -132,7 +132,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.505.1";
+            Version = "0.22.512.1";
             Description = "測試用設定";
 
             ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -146,7 +146,7 @@ namespace GNAy.Capital.Models
 
             DataGridAppLogRowsMax = 1000;
 
-            TimerIntervalBackground = 30;
+            TimerIntervalBackground = 10;
             TimerIntervalUI1 = 200;
             TimerIntervalUI2 = 35 * 1000;
 

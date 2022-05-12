@@ -291,15 +291,14 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                TriggerData data = this[primaryKey.Replace(" ", string.Empty)];
-
-                if (data == null)
+                if (!_dataMap.TryGetValue(primaryKey.Replace(" ", string.Empty), out TriggerData data))
                 {
                     throw new ArgumentNullException($"查無此唯一鍵|{primaryKey}");
                 }
                 else if (Cancel(data, start))
                 {
                     Task.Factory.StartNew(() => SaveData());
+
                     return true;
                 }
             }
@@ -491,10 +490,10 @@ namespace GNAy.Capital.Trade.Controllers
 
             for (int i = _dataCollection.Count - 1; i >= 0; --i)
             {
-                TriggerData data = _dataCollection[i];
-
                 try
                 {
+                    TriggerData data = _dataCollection[i];
+
                     if (UpdateStatus(data, data.Quote1, start))
                     {
                         saveData = true;

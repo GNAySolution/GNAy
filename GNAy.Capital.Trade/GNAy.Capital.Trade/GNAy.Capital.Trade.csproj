@@ -86,6 +86,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\Controllers\OpenInterestController.cs" />
+    <Compile Include="src\Controllers\OrderDetailController.cs" />
     <Compile Include="src\Controllers\StrategyController.cs" />
     <Compile Include="src\Controllers\TriggerController.cs" />
     <Compile Include="src\Controllers\CapitalHelper.cs" />

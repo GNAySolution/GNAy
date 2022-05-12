@@ -50,7 +50,6 @@
     <Compile Include="src\OpenInterestData.cs" />
     <Compile Include="src\StrategyStatus.cs" />
     <Compile Include="src\StrategyData.cs" />
-    <Compile Include="src\StrategyStartPrinciple.cs" />
     <Compile Include="src\OrderDayTrade.cs" />
     <Compile Include="src\OrderPosition.cs" />
     <Compile Include="src\OrderTradeType.cs" />
