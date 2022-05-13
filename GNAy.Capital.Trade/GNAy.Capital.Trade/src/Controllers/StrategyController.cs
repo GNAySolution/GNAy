@@ -168,6 +168,16 @@ namespace GNAy.Capital.Trade.Controllers
 
             MarketCheck(strategy, strategy.Quote);
 
+            if (strategy.WinCloseTime == DateTime.MinValue && strategy.WinCloseSeconds > 0)
+            {
+                strategy.WinCloseTime = _appCtrl.Capital.MarketCloseTime.AddSeconds(-strategy.WinCloseSeconds);
+            }
+
+            if (strategy.LossCloseTime == DateTime.MinValue && strategy.LossCloseSeconds > 0)
+            {
+                strategy.LossCloseTime = _appCtrl.Capital.MarketCloseTime.AddSeconds(-strategy.LossCloseSeconds);
+            }
+
             (string, decimal) orderPriceAfter = OrderPrice.Parse(strategy.OrderPriceBefore, strategy.Quote);
 
             if (readyToSend)
@@ -433,6 +443,8 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 strategy.MarketPrice = quote.DealPrice;
+                strategy.Updater = methodName;
+                strategy.UpdateTime = DateTime.Now;
 
                 if (strategy.OrderData != null)
                 {
@@ -451,8 +463,26 @@ namespace GNAy.Capital.Trade.Controllers
                     strategy.MoveStopWinPrice = strategy.MarketPrice;
                 }
 
-                strategy.Updater = methodName;
-                strategy.UpdateTime = DateTime.Now;
+                if (strategy.UnclosedQty > 0)
+                {
+                    if (strategy.UnclosedProfit > 0 && strategy.WinCloseSeconds > 0 && DateTime.Now >= strategy.WinCloseTime && DateTime.Now < _appCtrl.Capital.MarketCloseTime)
+                    {
+                        //StrategyData stopWinOrder = strategy.CreateStopWinOrder();
+
+                        strategy.StatusEnum = StrategyStatus.Enum.StopWinSent;
+
+                        //
+
+                        //_appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
+
+                        saveData = true;
+                        return saveData;
+                    }
+                    else if (strategy.UnclosedProfit <= 0 && strategy.LossCloseSeconds > 0 && DateTime.Now >= strategy.LossCloseTime && DateTime.Now < _appCtrl.Capital.MarketCloseTime)
+                    {
+                        //
+                    }
+                }
 
                 if (strategy.StatusEnum == StrategyStatus.Enum.OrderSent || strategy.StatusEnum == StrategyStatus.Enum.OrderReport || strategy.StatusEnum == StrategyStatus.Enum.DealReport)
                 {
@@ -492,39 +522,36 @@ namespace GNAy.Capital.Trade.Controllers
                             AfterStopWin(strategy, false, start);
                         }
                     }
-                    else if (strategy.BSEnum == OrderBS.Enum.Sell)
+                    else if (strategy.MarketPrice >= strategy.StopLossAfter) //strategy.BSEnum == OrderBS.Enum.Sell
                     {
-                        if (strategy.MarketPrice >= strategy.StopLossAfter)
+                        StrategyData stopLossOrder = strategy.CreateStopLossOrder();
+
+                        if (orderSent.DealQty > 0)
                         {
-                            StrategyData stopLossOrder = strategy.CreateStopLossOrder();
-
-                            if (orderSent.DealQty > 0)
-                            {
-                                stopLossOrder.OrderQty = orderSent.DealQty;
-                            }
-
-                            strategy.StatusEnum = StrategyStatus.Enum.StopLossSent;
-                            _appCtrl.Capital.SendFutureOrderAsync(stopLossOrder);
-
-                            saveData = true;
-                            AfterStopLoss(strategy, start);
+                            stopLossOrder.OrderQty = orderSent.DealQty;
                         }
-                        else if (strategy.MarketPrice <= strategy.StopWinPrice && strategy.StopWinQty <= 0)
+
+                        strategy.StatusEnum = StrategyStatus.Enum.StopLossSent;
+                        _appCtrl.Capital.SendFutureOrderAsync(stopLossOrder);
+
+                        saveData = true;
+                        AfterStopLoss(strategy, start);
+                    }
+                    else if (strategy.MarketPrice <= strategy.StopWinPrice && strategy.StopWinQty <= 0)
+                    {
+                        StrategyData stopWinOrder = strategy.CreateStopWinOrder();
+
+                        strategy.StatusEnum = StrategyStatus.Enum.StopWinSent;
+
+                        if (strategy.StopWinQty == 0)
+                        { } //滿足條件但不減倉
+                        else
                         {
-                            StrategyData stopWinOrder = strategy.CreateStopWinOrder();
-
-                            strategy.StatusEnum = StrategyStatus.Enum.StopWinSent;
-
-                            if (strategy.StopWinQty == 0)
-                            { } //滿足條件但不減倉
-                            else
-                            {
-                                _appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
-                            }
-
-                            saveData = true;
-                            AfterStopWin(strategy, false, start);
+                            _appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
                         }
+
+                        saveData = true;
+                        AfterStopWin(strategy, false, start);
                     }
                 }
                 else if (strategy.MoveStopWinQty <= 0 && strategy.MoveStopWinData == null && strategy.StopWinData != null && strategy.StopWinData.OrderQty < strategy.OrderQty)

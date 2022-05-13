@@ -400,11 +400,18 @@ namespace GNAy.Capital.Models
         }
 
         private int _winCloseSeconds;
-        [Column("收盤前幾秒獲利減倉", "收獲秒", WPFDisplayIndex = 33)]
+        [Column("收盤前幾秒獲利減倉")]
         public int WinCloseSeconds
         {
             get { return _winCloseSeconds; }
             set { OnPropertyChanged(ref _winCloseSeconds, value); }
+        }
+        private DateTime _winCloseTime;
+        [Column("收盤獲利減倉時間", "收獲時間", CSVIndex = -1, WPFDisplayIndex = 33, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        public DateTime WinCloseTime
+        {
+            get { return _winCloseTime; }
+            set { OnPropertyChanged(ref _winCloseTime, value); }
         }
 
         private int _lossCloseQty;
@@ -416,11 +423,18 @@ namespace GNAy.Capital.Models
         }
 
         private int _lossCloseSeconds;
-        [Column("收盤前幾秒損失減倉", "收損秒", WPFDisplayIndex = 35)]
+        [Column("收盤前幾秒損失減倉")]
         public int LossCloseSeconds
         {
             get { return _lossCloseSeconds; }
             set { OnPropertyChanged(ref _lossCloseSeconds, value); }
+        }
+        private DateTime _lossCloseTime;
+        [Column("收盤損失減倉時間", "收損時間", CSVIndex = -1, WPFDisplayIndex = 35, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        public DateTime LossCloseTime
+        {
+            get { return _lossCloseTime; }
+            set { OnPropertyChanged(ref _lossCloseTime, value); }
         }
 
         //
@@ -482,8 +496,10 @@ namespace GNAy.Capital.Models
             StrategyAfterStopWin = string.Empty;
             WinCloseQty = 0;
             WinCloseSeconds = 0;
+            WinCloseTime = DateTime.MinValue;
             LossCloseQty = 0;
             LossCloseSeconds = 0;
+            LossCloseTime = DateTime.MinValue;
             //
             Comment = string.Empty;
         }
