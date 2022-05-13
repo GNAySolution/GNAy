@@ -1805,10 +1805,48 @@ namespace GNAy.Capital.Trade
                     MoveStopWinBefore = TextBoxStrategyMoveStopWin.Text,
                     TriggerAfterStopLoss = TextBoxTriggerAfterStopLoss.Text,
                     StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
+                    TriggerAfterStopWin = TextBoxTriggerAfterStopWin.Text,
+                    StrategyAfterStopWin = TextBoxStrategyAfterStopWin.Text,
                     //TODO
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
+
+                if (!string.IsNullOrWhiteSpace(TextBoxStrategyWinClose.Text))
+                {
+                    string[] winClose = TextBoxStrategyWinClose.Text.Split(',');
+                    foreach (string cell in winClose)
+                    {
+                        string lower = cell.ToLower();
+
+                        if (lower.Contains("secs") || lower.Contains("seconds") || lower.Contains("sec") || lower.Contains("second"))
+                        {
+                            string secs = lower.Replace("secs", string.Empty).Replace("seconds", string.Empty).Replace("sec", string.Empty).Replace("second", string.Empty);
+                            strategy.WinCloseSeconds = int.Parse(secs);
+                            continue;
+                        }
+
+                        strategy.WinCloseQty = int.Parse(cell);
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(TextBoxStrategyLossClose.Text))
+                {
+                    string[] lossClose = TextBoxStrategyLossClose.Text.Split(',');
+                    foreach (string cell in lossClose)
+                    {
+                        string lower = cell.ToLower();
+
+                        if (lower.Contains("secs") || lower.Contains("seconds") || lower.Contains("sec") || lower.Contains("second"))
+                        {
+                            string secs = lower.Replace("secs", string.Empty).Replace("seconds", string.Empty).Replace("sec", string.Empty).Replace("second", string.Empty);
+                            strategy.LossCloseSeconds = int.Parse(secs);
+                            continue;
+                        }
+
+                        strategy.LossCloseQty = int.Parse(cell);
+                    }
+                }
 
                 _appCtrl.Strategy.AddRule(strategy);
 
@@ -1931,10 +1969,48 @@ namespace GNAy.Capital.Trade
                     MoveStopWinBefore = TextBoxStrategyMoveStopWin.Text,
                     TriggerAfterStopLoss = TextBoxTriggerAfterStopLoss.Text,
                     StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
+                    TriggerAfterStopWin = TextBoxTriggerAfterStopWin.Text,
+                    StrategyAfterStopWin = TextBoxStrategyAfterStopWin.Text,
                     //TODO
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
+
+                if (!string.IsNullOrWhiteSpace(TextBoxStrategyWinClose.Text))
+                {
+                    string[] winClose = TextBoxStrategyWinClose.Text.Split(',');
+                    foreach (string cell in winClose)
+                    {
+                        string lower = cell.ToLower();
+
+                        if (lower.Contains("secs") || lower.Contains("seconds") || lower.Contains("sec") || lower.Contains("second"))
+                        {
+                            string secs = lower.Replace("secs", string.Empty).Replace("seconds", string.Empty).Replace("sec", string.Empty).Replace("second", string.Empty);
+                            strategy.WinCloseSeconds = int.Parse(secs);
+                            continue;
+                        }
+
+                        strategy.WinCloseQty = int.Parse(cell);
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(TextBoxStrategyLossClose.Text))
+                {
+                    string[] lossClose = TextBoxStrategyLossClose.Text.Split(',');
+                    foreach (string cell in lossClose)
+                    {
+                        string lower = cell.ToLower();
+
+                        if (lower.Contains("secs") || lower.Contains("seconds") || lower.Contains("sec") || lower.Contains("second"))
+                        {
+                            string secs = lower.Replace("secs", string.Empty).Replace("seconds", string.Empty).Replace("sec", string.Empty).Replace("second", string.Empty);
+                            strategy.LossCloseSeconds = int.Parse(secs);
+                            continue;
+                        }
+
+                        strategy.LossCloseQty = int.Parse(cell);
+                    }
+                }
 
                 _appCtrl.Strategy.StartFutureStartegyAsync(strategy);
 

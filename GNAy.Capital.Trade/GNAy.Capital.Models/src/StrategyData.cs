@@ -66,7 +66,7 @@ namespace GNAy.Capital.Models
         public int Status
         {
             get { return _status; }
-            set { OnPropertiesChanged(ref _status, value, nameof(Status), nameof(StatusDes)); }
+            set { OnPropertiesChanged(ref _status, value, nameof(Status), nameof(StatusDes), nameof(StopLossAfterStr), nameof(StopWinAfter), nameof(MoveStopWinAfter)); }
         }
         public StrategyStatus.Enum StatusEnum
         {
@@ -227,12 +227,14 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _stopLossBefore, value); }
         }
         private decimal _stopLossAfter;
-        [Column("停損觸發", CSVStringFormat = "0.00", WPFDisplayIndex = 16, WPFStringFormat = "{0:0.00}")]
+        [Column("停損觸發", CSVStringFormat = "0.00")]
         public decimal StopLossAfter
         {
             get { return _stopLossAfter; }
-            set { OnPropertyChanged(ref _stopLossAfter, value); }
+            set { OnPropertiesChanged(ref _stopLossAfter, value, nameof(StopLossAfter), nameof(StopLossAfterStr)); }
         }
+        [Column("停損觸發", CSVIndex = -1, WPFDisplayIndex = 16)]
+        public string StopLossAfterStr => StopLossAfter == 0 ? string.Empty : StopLossData == null ? $"*{StopLossAfter:0.00}" : $"{StopLossAfter:0.00}";
 
         public StrategyData StopLossData;
 
@@ -258,7 +260,7 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _stopWinQty, value, nameof(StopWinQty), nameof(StopWinAfter)); }
         }
         [Column("停利觸發", CSVIndex = -1, WPFDisplayIndex = 18)]
-        public string StopWinAfter => StopWinPrice == 0 ? string.Empty : $"{StopWinPrice:0.00} ({StopWinQty})";
+        public string StopWinAfter => StopWinPrice == 0 ? string.Empty : StopWinData == null ? $"*{StopWinPrice:0.00} ({StopWinQty})" : $"{StopWinPrice:0.00} ({StopWinQty})";
 
         public StrategyData StopWinData;
 
@@ -291,7 +293,7 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWinAfter)); }
         }
         [Column("移動停利觸發", "移利觸發", CSVIndex = -1, WPFDisplayIndex = 20)]
-        public string MoveStopWinAfter => MoveStopWinPrice == 0 ? string.Empty : MoveStopWinOffset < 0 ? $"{MoveStopWinPrice:0.00} ({MoveStopWinOffset:0.00})({MoveStopWinQty})" : $"{MoveStopWinPrice:0.00} (+{MoveStopWinOffset:0.00})({MoveStopWinQty})";
+        public string MoveStopWinAfter => MoveStopWinPrice == 0 || MoveStopWinOffset == 0 ? string.Empty : MoveStopWinData == null ? $"*{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})" : $"{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})";
 
         public StrategyData MoveStopWinData;
 

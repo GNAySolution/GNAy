@@ -132,6 +132,14 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 throw new ArgumentException($"_appCtrl.OrderDetail[{strategy.PrimaryKey}] != null|{strategy.ToLog()}");
             }
+            else if (strategy.WinCloseSeconds < 0)
+            {
+                throw new ArgumentException($"strategy.WinCloseSeconds({strategy.WinCloseSeconds}) < 0|{strategy.ToLog()}");
+            }
+            else if (strategy.LossCloseSeconds < 0)
+            {
+                throw new ArgumentException($"strategy.LossCloseSeconds({strategy.LossCloseSeconds}) < 0|{strategy.ToLog()}");
+            }
             else if (strategy.Quote != null && strategy.Quote.Symbol != strategy.Symbol)
             {
                 throw new ArgumentException($"策略關聯報價代碼錯誤|{strategy.Quote.Symbol} != {strategy.Symbol}|{strategy.ToLog()}");
@@ -457,7 +465,7 @@ namespace GNAy.Capital.Trade.Controllers
                             StrategyData stopLossOrder = strategy.CreateStopLossOrder();
 
                             if (orderSent.DealQty > 0)
-                            {
+                            { //TODO
                                 stopLossOrder.OrderQty = orderSent.DealQty;
                             }
 
