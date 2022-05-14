@@ -132,7 +132,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.512.1";
+            Version = "0.22.514.1";
             Description = "測試用設定";
 
             ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -180,7 +180,7 @@ namespace GNAy.Capital.Models
             QuoteSaveInterval = 45;
 
             OrderMaxQty = 50;
-            OrderMaxCount = 10;
+            OrderMaxCount = 50;
 
             TriggerFolderPath = "TriggerData";
             TriggerFileFormat = "MMdd_HHmm";

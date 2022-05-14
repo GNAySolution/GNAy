@@ -168,14 +168,17 @@ namespace GNAy.Capital.Trade.Controllers
 
             MarketCheck(strategy, strategy.Quote);
 
-            if (strategy.WinCloseTime == DateTime.MinValue && strategy.WinCloseSeconds > 0)
+            if (_appCtrl.Capital.MarketCloseTime != DateTime.MinValue)
             {
-                strategy.WinCloseTime = _appCtrl.Capital.MarketCloseTime.AddSeconds(-strategy.WinCloseSeconds);
-            }
+                if (strategy.WinCloseTime == DateTime.MinValue && strategy.WinCloseSeconds > 0)
+                {
+                    strategy.WinCloseTime = _appCtrl.Capital.MarketCloseTime.AddSeconds(-strategy.WinCloseSeconds);
+                }
 
-            if (strategy.LossCloseTime == DateTime.MinValue && strategy.LossCloseSeconds > 0)
-            {
-                strategy.LossCloseTime = _appCtrl.Capital.MarketCloseTime.AddSeconds(-strategy.LossCloseSeconds);
+                if (strategy.LossCloseTime == DateTime.MinValue && strategy.LossCloseSeconds > 0)
+                {
+                    strategy.LossCloseTime = _appCtrl.Capital.MarketCloseTime.AddSeconds(-strategy.LossCloseSeconds);
+                }
             }
 
             (string, decimal) orderPriceAfter = OrderPrice.Parse(strategy.OrderPriceBefore, strategy.Quote);
@@ -293,6 +296,97 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 throw new ArgumentException($"移動停利減倉口數({strategy.MoveStopWinQty}) + 停利減倉口數({strategy.StopWinQty}) > 委託口數({strategy.OrderQty})|{strategy.ToLog()}");
             }
+        }
+
+        private bool Stop(StrategyData strategy, int qty, string comment, DateTime start)
+        {
+            const string methodName = nameof(Stop);
+
+            try
+            {
+                if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled)
+                {
+                    throw new ArgumentException(strategy.ToLog());
+                }
+                else if (strategy.StatusEnum == StrategyStatus.Enum.Waiting || strategy.StatusEnum == StrategyStatus.Enum.OrderError || strategy.StopLossData != null || strategy.MarketClosingData != null || strategy.UnclosedQty <= 0)
+                {
+                    strategy.StatusEnum = StrategyStatus.Enum.Cancelled;
+                    strategy.Comment = comment;
+                    strategy.Updater = methodName;
+                    strategy.UpdateTime = DateTime.Now;
+
+                    return true;
+                }
+
+                StrategyData marketClosingOrder = strategy.CreateMarketClosingOrder();
+                marketClosingOrder.OrderQty = (strategy.UnclosedProfit > 0) ? strategy.WinCloseQty : strategy.LossCloseQty;
+
+                if (marketClosingOrder.OrderQty > 0) //負值減倉正值留倉
+                {
+                    marketClosingOrder.OrderQty = strategy.UnclosedQty - marketClosingOrder.OrderQty;
+                }
+                //else if (marketClosingOrder.OrderQty < 0)
+                //{ }
+
+                if (marketClosingOrder.OrderQty <= 0 || marketClosingOrder.OrderQty > strategy.UnclosedQty)
+                {
+                    marketClosingOrder.OrderQty = strategy.UnclosedQty;
+                }
+
+                strategy.StatusEnum = StrategyStatus.Enum.MarketClosingSent;
+                strategy.Comment = comment;
+                strategy.Updater = methodName;
+                strategy.UpdateTime = DateTime.Now;
+
+                _appCtrl.Capital.SendTWOrderAsync(marketClosingOrder);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+                Notice = ex.Message;
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+
+            return false;
+        }
+
+        public bool Stop(string primaryKey, int qty = 0)
+        {
+            DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}|qty={qty}", UniqueName);
+
+            try
+            {
+                if (!_dataMap.TryGetValue(primaryKey.Replace(" ", string.Empty), out StrategyData strategy))
+                {
+                    throw new ArgumentNullException($"查無此唯一鍵|{primaryKey}");
+                }
+
+                lock (strategy.SyncRoot)
+                {
+                    if (Stop(strategy, qty, "手動停止", start))
+                    {
+                        Task.Factory.StartNew(() => SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat));
+
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+                Notice = ex.Message;
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+
+            return false;
         }
 
         private void StartTrigger(StrategyData data, string primary, DateTime start)
@@ -418,22 +512,16 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled || strategy.StatusEnum == StrategyStatus.Enum.Finished || strategy.StatusEnum == StrategyStatus.Enum.OrderError)
+                else if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled || strategy.StatusEnum == StrategyStatus.Enum.OrderError)
                 {
                     return saveData;
                 }
-                else if (strategy.StopLossData != null)
+                else if (strategy.StopLossData != null || strategy.MarketClosingData != null)
                 {
                     return saveData;
                 }
-                else if (strategy.StopWinData != null && strategy.StopWinData.OrderQty == strategy.OrderQty)
+                else if (strategy.UnclosedQty <= 0)
                 {
-                    strategy.StatusEnum = StrategyStatus.Enum.Finished;
-                    return saveData;
-                }
-                else if (strategy.MoveStopWinData != null)
-                {
-                    strategy.StatusEnum = StrategyStatus.Enum.Finished;
                     return saveData;
                 }
                 else if (strategy.StatusEnum == StrategyStatus.Enum.Waiting)
@@ -467,20 +555,17 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (strategy.UnclosedProfit > 0 && strategy.WinCloseSeconds > 0 && DateTime.Now >= strategy.WinCloseTime && DateTime.Now < _appCtrl.Capital.MarketCloseTime)
                     {
-                        //StrategyData stopWinOrder = strategy.CreateStopWinOrder();
-
-                        strategy.StatusEnum = StrategyStatus.Enum.StopWinSent;
-
-                        //
-
-                        //_appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
+                        Stop(strategy, strategy.WinCloseQty, "收盤獲利減倉", start);
 
                         saveData = true;
                         return saveData;
                     }
                     else if (strategy.UnclosedProfit <= 0 && strategy.LossCloseSeconds > 0 && DateTime.Now >= strategy.LossCloseTime && DateTime.Now < _appCtrl.Capital.MarketCloseTime)
                     {
-                        //
+                        Stop(strategy, strategy.LossCloseQty, "收盤損失減倉", start);
+
+                        saveData = true;
+                        return saveData;
                     }
                 }
 
@@ -500,7 +585,7 @@ namespace GNAy.Capital.Trade.Controllers
                             }
 
                             strategy.StatusEnum = StrategyStatus.Enum.StopLossSent;
-                            _appCtrl.Capital.SendFutureOrderAsync(stopLossOrder);
+                            _appCtrl.Capital.SendTWOrderAsync(stopLossOrder);
 
                             saveData = true;
                             AfterStopLoss(strategy, start);
@@ -515,7 +600,7 @@ namespace GNAy.Capital.Trade.Controllers
                             { } //滿足條件但不減倉
                             else
                             {
-                                _appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
+                                _appCtrl.Capital.SendTWOrderAsync(stopWinOrder);
                             }
 
                             saveData = true;
@@ -532,7 +617,7 @@ namespace GNAy.Capital.Trade.Controllers
                         }
 
                         strategy.StatusEnum = StrategyStatus.Enum.StopLossSent;
-                        _appCtrl.Capital.SendFutureOrderAsync(stopLossOrder);
+                        _appCtrl.Capital.SendTWOrderAsync(stopLossOrder);
 
                         saveData = true;
                         AfterStopLoss(strategy, start);
@@ -547,7 +632,7 @@ namespace GNAy.Capital.Trade.Controllers
                         { } //滿足條件但不減倉
                         else
                         {
-                            _appCtrl.Capital.SendFutureOrderAsync(stopWinOrder);
+                            _appCtrl.Capital.SendTWOrderAsync(stopWinOrder);
                         }
 
                         saveData = true;
@@ -568,7 +653,7 @@ namespace GNAy.Capital.Trade.Controllers
                             { } //滿足條件但不減倉
                             else
                             {
-                                _appCtrl.Capital.SendFutureOrderAsync(moveStopWinOrder);
+                                _appCtrl.Capital.SendTWOrderAsync(moveStopWinOrder);
                             }
 
                             saveData = true;
@@ -585,7 +670,7 @@ namespace GNAy.Capital.Trade.Controllers
                         { } //滿足條件但不減倉
                         else
                         {
-                            _appCtrl.Capital.SendFutureOrderAsync(moveStopWinOrder);
+                            _appCtrl.Capital.SendTWOrderAsync(moveStopWinOrder);
                         }
 
                         saveData = true;
@@ -680,58 +765,6 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public bool Cancel(string primaryKey)
-        {
-            DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
-
-            try
-            {
-                if (!_dataMap.TryGetValue(primaryKey.Replace(" ", string.Empty), out StrategyData strategy))
-                {
-                    throw new ArgumentNullException($"查無此唯一鍵|{primaryKey}");
-                }
-
-                lock (strategy.SyncRoot)
-                {
-                    if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled)
-                    {
-                        throw new ArgumentException(strategy.ToLog());
-                    }
-                    else if (strategy.StatusEnum == StrategyStatus.Enum.Finished ||
-                        strategy.StatusEnum == StrategyStatus.Enum.OrderError ||
-                        strategy.StatusEnum == StrategyStatus.Enum.StopLossSent ||
-                        strategy.StatusEnum == StrategyStatus.Enum.StopLossOrderReport ||
-                        strategy.StatusEnum == StrategyStatus.Enum.StopLossDealReport ||
-                        strategy.StatusEnum == StrategyStatus.Enum.StopLossError ||
-                        strategy.StatusEnum == StrategyStatus.Enum.StopWinError ||
-                        strategy.StatusEnum == StrategyStatus.Enum.MoveStopWinDealReport ||
-                        strategy.StatusEnum == StrategyStatus.Enum.MoveStopWinError)
-                    {
-                        throw new ArgumentException($"已停止無法取消|{strategy.ToLog()}");
-                    }
-
-                    strategy.StatusEnum = StrategyStatus.Enum.Cancelled;
-                    strategy.Comment = $"手動取消";
-                    _appCtrl.LogTrace(start, strategy.ToLog(), UniqueName);
-                }
-
-                Task.Factory.StartNew(() => SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat));
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-                Notice = ex.Message;
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
-
-            return false;
-        }
-
         private void AddOrUpdateRule(StrategyData strategy)
         {
             if (_appCtrl.Config.StrategyFolder == null)
@@ -793,40 +826,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             StrategyData order = strategy.CreateOrder();
             strategy.StatusEnum = StrategyStatus.Enum.OrderSent;
-            _appCtrl.Capital.SendFutureOrderAsync(order);
-        }
-
-        public void StartFutureStartegyAsync(StrategyData strategy)
-        {
-            const string methodName = nameof(StartFutureStartegyAsync);
-
-            DateTime start = _appCtrl.StartTrace($"{strategy?.ToLog()}", UniqueName);
-
-            Task.Factory.StartNew(() =>
-            {
-                try
-                {
-                    ParentCheck(strategy, true, start);
-                    AddOrUpdateRule(strategy);
-
-                    Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
-                    StartNow(strategy.PrimaryKey);
-                }
-                catch (Exception ex)
-                {
-                    _appCtrl.LogException(start, ex, ex.StackTrace);
-                    Notice = ex.Message;
-
-                    strategy.StatusEnum = StrategyStatus.Enum.OrderError;
-                    strategy.OrderReport = ex.Message;
-                    strategy.Updater = methodName;
-                    strategy.UpdateTime = DateTime.Now;
-                }
-                finally
-                {
-                    _appCtrl.EndTrace(start, UniqueName);
-                }
-            });
+            _appCtrl.Capital.SendTWOrderAsync(order);
         }
 
         public void RecoverSetting(FileInfo fileStrategy = null, FileInfo fileSentOrder = null)

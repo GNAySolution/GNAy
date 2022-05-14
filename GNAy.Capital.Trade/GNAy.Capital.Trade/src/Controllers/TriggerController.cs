@@ -246,30 +246,27 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private bool Cancel(TriggerData data, DateTime start)
+        private bool Cancel(TriggerData data, string comment, DateTime start)
         {
             const string methodName = nameof(Cancel);
 
             try
             {
-                lock (data.SyncRoot)
+                if (data.StatusEnum == TriggerStatus.Enum.Executed)
                 {
-                    if (data.StatusEnum == TriggerStatus.Enum.Executed)
-                    {
-                        throw new ArgumentException($"已觸發無法取消|{data.ToLog()}");
-                    }
-                    else if (data.StatusEnum == TriggerStatus.Enum.Cancelled)
-                    {
-                        _appCtrl.LogTrace(start, $"已經取消|{data.ToLog()}", UniqueName);
-                        return true;
-                    }
-
-                    data.StatusEnum = TriggerStatus.Enum.Cancelled;
-                    data.Comment = $"手動取消";
-                    data.Updater = methodName;
-                    data.UpdateTime = DateTime.Now;
-                    _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
+                    throw new ArgumentException($"已觸發無法取消|{data.ToLog()}");
                 }
+                else if (data.StatusEnum == TriggerStatus.Enum.Cancelled)
+                {
+                    _appCtrl.LogTrace(start, $"已經取消|{data.ToLog()}", UniqueName);
+                    return true;
+                }
+
+                data.StatusEnum = TriggerStatus.Enum.Cancelled;
+                data.Comment = comment;
+                data.Updater = methodName;
+                data.UpdateTime = DateTime.Now;
+                _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
 
                 return true;
             }
@@ -295,11 +292,15 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     throw new ArgumentNullException($"查無此唯一鍵|{primaryKey}");
                 }
-                else if (Cancel(data, start))
-                {
-                    Task.Factory.StartNew(() => SaveData());
 
-                    return true;
+                lock (data.SyncRoot)
+                {
+                    if (Cancel(data, "手動取消", start))
+                    {
+                        Task.Factory.StartNew(() => SaveData());
+
+                        return true;
+                    }
                 }
             }
             catch (Exception ex)
@@ -475,9 +476,12 @@ namespace GNAy.Capital.Trade.Controllers
 
                         foreach (string pk in cancelList)
                         {
-                            if (_dataMap.TryGetValue(pk, out TriggerData td))
+                            if (_dataMap.TryGetValue(pk, out TriggerData td) && td.StatusEnum != TriggerStatus.Enum.Executed && td.StatusEnum != TriggerStatus.Enum.Cancelled)
                             {
-                                Cancel(td, start);
+                                lock (td.SyncRoot)
+                                {
+                                    Cancel(td, $"等{data.PrimaryKey}觸價後再啟動", start);
+                                }
                             }
                         }
                     }

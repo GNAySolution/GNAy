@@ -437,6 +437,8 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _lossCloseTime, value); }
         }
 
+        public StrategyData MarketClosingData;
+
         //
 
         private string _comment;
@@ -500,6 +502,7 @@ namespace GNAy.Capital.Models
             LossCloseQty = 0;
             LossCloseSeconds = 0;
             LossCloseTime = DateTime.MinValue;
+            MarketClosingData = null;
             //
             Comment = string.Empty;
         }
@@ -527,22 +530,20 @@ namespace GNAy.Capital.Models
 
         public StrategyData Reset()
         {
-            if (StatusEnum == StrategyStatus.Enum.Waiting ||
-                StatusEnum == StrategyStatus.Enum.Cancelled ||
-                StatusEnum == StrategyStatus.Enum.Finished ||
-                StatusEnum == StrategyStatus.Enum.OrderError ||
-                StatusEnum == StrategyStatus.Enum.StopLossSent ||
-                StatusEnum == StrategyStatus.Enum.StopLossOrderReport ||
-                StatusEnum == StrategyStatus.Enum.StopLossDealReport ||
-                StatusEnum == StrategyStatus.Enum.StopLossError ||
-                StatusEnum == StrategyStatus.Enum.StopWinError ||
-                StatusEnum == StrategyStatus.Enum.MoveStopWinDealReport ||
-                StatusEnum == StrategyStatus.Enum.MoveStopWinError)
-            { }
-            else
-            {
-                throw new NotSupportedException(ToLog());
-            }
+            //if (UnclosedQty <= 0)
+            //{ }
+            //else if (StatusEnum == StrategyStatus.Enum.Waiting ||
+            //    StatusEnum == StrategyStatus.Enum.Cancelled ||
+            //    StatusEnum == StrategyStatus.Enum.OrderError ||
+            //    StatusEnum == StrategyStatus.Enum.StopLossSent ||
+            //    StatusEnum == StrategyStatus.Enum.StopLossOrderReport ||
+            //    StatusEnum == StrategyStatus.Enum.StopLossDealReport ||
+            //    StatusEnum == StrategyStatus.Enum.StopLossError)
+            //{ }
+            //else
+            //{
+            //    throw new NotSupportedException(ToLog());
+            //}
 
             StatusEnum = StrategyStatus.Enum.Waiting;
             MarketPrice = 0;
@@ -557,6 +558,7 @@ namespace GNAy.Capital.Models
             MoveStopWinData = null;
             ClosedProfit = 0;
             UnclosedQty = 0;
+            MarketClosingData = null;
             Comment = string.Empty;
 
             return this;
@@ -806,6 +808,68 @@ namespace GNAy.Capital.Models
             };
 
             MoveStopWinData = order;
+
+            return order;
+        }
+
+        public StrategyData CreateMarketClosingOrder()
+        {
+            const string methodName = nameof(CreateMarketClosingOrder);
+
+            if (Parent != null)
+            {
+                throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
+            }
+            else if (MarketClosingData != null)
+            {
+                throw new ArgumentException($"MarketClosingData != null|{MarketClosingData.ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(PrimaryKey))
+            {
+                throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Branch))
+            {
+                throw new ArgumentException($"未設定分公司|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Account))
+            {
+                throw new ArgumentException($"未設定下單帳號|{ToLog()}");
+            }
+            else if (string.IsNullOrWhiteSpace(Symbol))
+            {
+                throw new ArgumentException($"未設定代碼|{ToLog()}");
+            }
+            else if (PositionEnum == OrderPosition.Enum.Close)
+            {
+                throw new ArgumentException($"PositionEnum == OrderPosition.Enum.Close|{ToLog()}");
+            }
+            else if (OrderQty <= 0)
+            {
+                throw new ArgumentException($"委託口數({OrderQty}) <= 0|{ToLog()}");
+            }
+
+            StrategyData order = new StrategyData()
+            {
+                Parent = this,
+                PrimaryKey = $"{PrimaryKey}_{DateTime.Now:HHmmss}_{StrategyStatus.Enum.MarketClosingSent}",
+                MarketType = MarketType,
+                Branch = Branch,
+                Account = Account,
+                Quote = Quote,
+                Symbol = Symbol,
+                BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
+                TradeType = TradeType,
+                DayTrade = DayTrade,
+                PositionEnum = OrderPosition.Enum.Close,
+                OrderPriceBefore = OrderPrice.P,
+                OrderPriceAfter = 0,
+                OrderQty = 0,
+                Updater = methodName,
+                UpdateTime = DateTime.Now,
+            };
+
+            MarketClosingData = order;
 
             return order;
         }

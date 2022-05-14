@@ -1743,7 +1743,7 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonCancelStrategy_Click(object sender, RoutedEventArgs e)
+        private void ButtonStopStrategy_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 
@@ -1757,7 +1757,7 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                _appCtrl.Strategy.Cancel(TextBoxStrategyPrimaryKey.Text);
+                _appCtrl.Strategy.Stop(TextBoxStrategyPrimaryKey.Text);
             }
             catch (Exception ex)
             {
@@ -1886,9 +1886,9 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonSendFutureOrder_Click(object sender, RoutedEventArgs e)
+        private void ButtonSendTWOrder_Click(object sender, RoutedEventArgs e)
         {
-            const string methodName = nameof(ButtonSendFutureOrder_Click);
+            const string methodName = nameof(ButtonSendTWOrder_Click);
 
             DateTime start = _appCtrl.StartTrace();
 
@@ -1912,7 +1912,7 @@ namespace GNAy.Capital.Trade
                     UpdateTime = DateTime.Now,
                 };
 
-                _appCtrl.Capital.SendFutureOrderAsync(order);
+                _appCtrl.Capital.SendTWOrderAsync(order);
             }
             catch (Exception ex)
             {
@@ -1924,10 +1924,8 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonStartFutureStartegyNow_Click(object sender, RoutedEventArgs e)
+        private void ButtonStartStartegyNow_Click(object sender, RoutedEventArgs e)
         {
-            const string methodName = nameof(ButtonStartFutureStartegyNow_Click);
-
             DateTime start = _appCtrl.StartTrace();
 
             try
@@ -1949,70 +1947,22 @@ namespace GNAy.Capital.Trade
                     }
                 }
 
-                OrderAccData acc = (OrderAccData)ComboBoxOrderAccs.SelectedItem;
+                ButtonSaveStrategyRule_Click(null, null);
 
-                strategy = new StrategyData()
-                {
-                    PrimaryKey = TextBoxStrategyPrimaryKey.Text,
-                    MarketType = acc.MarketType,
-                    Branch = acc.Branch,
-                    Account = acc.Account,
-                    Symbol = ComboBoxOrderProduct.Text.Split(',')[0],
-                    BS = (short)ComboBoxOrderBuySell.SelectedIndex,
-                    TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
-                    DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
-                    Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
-                    OrderPriceBefore = TextBoxOrderPrice.Text,
-                    OrderQty = int.Parse(TextBoxOrderQuantity.Text),
-                    StopLossBefore = TextBoxStrategyStopLoss.Text,
-                    StopWinBefore = TextBoxStrategyStopWin.Text,
-                    MoveStopWinBefore = TextBoxStrategyMoveStopWin.Text,
-                    TriggerAfterStopLoss = TextBoxTriggerAfterStopLoss.Text,
-                    StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
-                    TriggerAfterStopWin = TextBoxTriggerAfterStopWin.Text,
-                    StrategyAfterStopWin = TextBoxStrategyAfterStopWin.Text,
-                    //TODO
-                    Updater = methodName,
-                    UpdateTime = DateTime.Now,
-                };
+                string primaryKey = TextBoxStrategyPrimaryKey.Text.Replace(" ", string.Empty);
 
-                if (!string.IsNullOrWhiteSpace(TextBoxStrategyWinClose.Text))
+                Task.Factory.StartNew(() =>
                 {
-                    string[] winClose = TextBoxStrategyWinClose.Text.Split(',');
-                    foreach (string cell in winClose)
+                    try
                     {
-                        string lower = cell.ToLower();
-
-                        if (lower.Contains("secs") || lower.Contains("seconds") || lower.Contains("sec") || lower.Contains("second"))
-                        {
-                            string secs = lower.Replace("secs", string.Empty).Replace("seconds", string.Empty).Replace("sec", string.Empty).Replace("second", string.Empty);
-                            strategy.WinCloseSeconds = int.Parse(secs);
-                            continue;
-                        }
-
-                        strategy.WinCloseQty = int.Parse(cell);
+                        Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
+                        _appCtrl.Strategy.StartNow(primaryKey);
                     }
-                }
-
-                if (!string.IsNullOrWhiteSpace(TextBoxStrategyLossClose.Text))
-                {
-                    string[] lossClose = TextBoxStrategyLossClose.Text.Split(',');
-                    foreach (string cell in lossClose)
+                    catch (Exception ex)
                     {
-                        string lower = cell.ToLower();
-
-                        if (lower.Contains("secs") || lower.Contains("seconds") || lower.Contains("sec") || lower.Contains("second"))
-                        {
-                            string secs = lower.Replace("secs", string.Empty).Replace("seconds", string.Empty).Replace("sec", string.Empty).Replace("second", string.Empty);
-                            strategy.LossCloseSeconds = int.Parse(secs);
-                            continue;
-                        }
-
-                        strategy.LossCloseQty = int.Parse(cell);
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
                     }
-                }
-
-                _appCtrl.Strategy.StartFutureStartegyAsync(strategy);
+                });
 
                 if (!decimal.TryParse(TextBoxStrategyPrimaryKey.Text.Replace(" ", string.Empty), out decimal pk))
                 {
@@ -2023,7 +1973,7 @@ namespace GNAy.Capital.Trade
                 {
                     Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
 
-                    if (_appCtrl.Strategy[strategy.PrimaryKey] == null)
+                    if (_appCtrl.Strategy[primaryKey] == null)
                     {
                         return;
                     }

@@ -1230,9 +1230,9 @@ namespace GNAy.Capital.Trade.Controllers
             return -1;
         }
 
-        public void SendFutureOrder(StrategyData order)
+        public void SendTWOrder(StrategyData order)
         {
-            const string methodName = nameof(SendFutureOrder);
+            const string methodName = nameof(SendTWOrder);
 
             DateTime start = _appCtrl.StartTrace($"{order?.ToLog()}", UniqueName);
 
@@ -1330,6 +1330,9 @@ namespace GNAy.Capital.Trade.Controllers
                             case StrategyStatus.Enum.MoveStopWinSent:
                                 parent.StatusEnum = StrategyStatus.Enum.MoveStopWinDealReport;
                                 break;
+                            case StrategyStatus.Enum.MarketClosingSent:
+                                parent.StatusEnum = StrategyStatus.Enum.MarketClosingDealReport;
+                                break;
                         }
 
                         if (order == parent.OrderData)
@@ -1341,19 +1344,10 @@ namespace GNAy.Capital.Trade.Controllers
                             parent.ClosedProfit += order.ClosedProfit;
                             parent.UnclosedQty = order.UnclosedQty;
                         }
-                        else if (order == parent.StopLossData || order == parent.StopWinData)
+                        else if (order == parent.StopLossData || order == parent.StopWinData || order == parent.MoveStopWinData || order == parent.MarketClosingData)
                         {
                             order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
-                            order.UnclosedQty = parent.OrderData.DealQty - order.DealQty;
-                            order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
-
-                            parent.ClosedProfit += order.ClosedProfit;
-                            parent.UnclosedQty = order.UnclosedQty;
-                        }
-                        else if (order == parent.MoveStopWinData)
-                        {
-                            order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
-                            order.UnclosedQty = parent.OrderData.DealQty - order.DealQty - parent.StopWinData.DealQty;
+                            order.UnclosedQty = parent.UnclosedQty - order.DealQty;
                             order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
 
                             parent.ClosedProfit += order.ClosedProfit;
@@ -1395,6 +1389,9 @@ namespace GNAy.Capital.Trade.Controllers
                         case StrategyStatus.Enum.MoveStopWinSent:
                             parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.MoveStopWinOrderReport : StrategyStatus.Enum.MoveStopWinError;
                             break;
+                        case StrategyStatus.Enum.MarketClosingSent:
+                            parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.MarketClosingOrderReport : StrategyStatus.Enum.MarketClosingError;
+                            break;
                     }
 
                     parent.Updater = methodName;
@@ -1405,9 +1402,9 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void SendFutureOrderAsync(StrategyData order)
+        public void SendTWOrderAsync(StrategyData order)
         {
-            Task.Factory.StartNew(() => SendFutureOrder(order));
+            Task.Factory.StartNew(() => SendTWOrder(order));
         }
 
         public void CancelOrderBySeqNo(OrderAccData acc, string seqNo)

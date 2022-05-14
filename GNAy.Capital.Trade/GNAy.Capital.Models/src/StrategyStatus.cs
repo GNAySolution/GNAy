@@ -22,63 +22,71 @@ namespace GNAy.Capital.Models
             [Description("已取消")]
             Cancelled, //1
 
-            [Description("已完成")]
-            Finished, //2,
-
             [Description("委託送出")]
-            OrderSent, //3
+            OrderSent, //2
 
             [Description("委託回報")]
-            OrderReport, //4
+            OrderReport, //3
 
             [Description("委託成交")]
-            DealReport, //5
+            DealReport, //4
 
             [Description("委託錯誤")]
-            OrderError, //6
+            OrderError, //5
 
             [Description("停損送出")]
-            StopLossSent, //7,
+            StopLossSent, //6,
 
             [Description("停損回報")]
-            StopLossOrderReport, //8,
+            StopLossOrderReport, //7,
 
             [Description("停損成交")]
-            StopLossDealReport, //9,
+            StopLossDealReport, //8,
 
             [Description("停損錯誤")]
-            StopLossError, //10,
+            StopLossError, //9,
 
             [Description("停利送出")]
-            StopWinSent, //11,
+            StopWinSent, //10,
 
             [Description("停利回報")]
-            StopWinOrderReport, //12,
+            StopWinOrderReport, //11,
 
             [Description("停利成交")]
-            StopWinDealReport, //13,
+            StopWinDealReport, //12,
 
             [Description("停利錯誤")]
-            StopWinError, //14,
+            StopWinError, //13,
 
             [Description("移動停利送出")]
-            MoveStopWinSent, //15,
+            MoveStopWinSent, //14,
 
             [Description("移動停利回報")]
-            MoveStopWinOrderReport, //16,
+            MoveStopWinOrderReport, //15,
 
             [Description("移動停利成交")]
-            MoveStopWinDealReport, //17,
+            MoveStopWinDealReport, //16,
 
             [Description("移動停利錯誤")]
-            MoveStopWinError, //18,
+            MoveStopWinError, //17,
+
+            [Description("收盤送出")]
+            MarketClosingSent, //18,
+
+            [Description("收盤回報")]
+            MarketClosingOrderReport, //19,
+
+            [Description("收盤成交")]
+            MarketClosingDealReport, //20,
+
+            [Description("收盤錯誤")]
+            MarketClosingError, //21,
         }
 
         public static ReadOnlyCollection<string> Description = new List<string>()
         {
             Enum.Waiting.GetDescription(),
             Enum.Cancelled.GetDescription(),
-            Enum.Finished.GetDescription(),
             //
             Enum.OrderSent.GetDescription(),
             Enum.OrderReport.GetDescription(),
@@ -99,6 +107,11 @@ namespace GNAy.Capital.Models
             Enum.MoveStopWinOrderReport.GetDescription(),
             Enum.MoveStopWinDealReport.GetDescription(),
             Enum.MoveStopWinError.GetDescription(),
+            //
+            Enum.MarketClosingSent.GetDescription(),
+            Enum.MarketClosingOrderReport.GetDescription(),
+            Enum.MarketClosingDealReport.GetDescription(),
+            Enum.MarketClosingError.GetDescription(),
         }.AsReadOnly();
     }
 }
