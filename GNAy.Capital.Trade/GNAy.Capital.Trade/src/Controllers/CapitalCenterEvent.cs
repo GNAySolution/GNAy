@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GNAy.Capital.Trade.Controllers
 {
-    public partial class CapitalController
+    public partial class CapitalCenterController
     {
         /// <summary>
         /// 當有公告將主動呼叫函式，並通知公告類訊息
@@ -38,7 +38,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nErrorCode"></param>
         private void OnConnect(string strUserID, int nErrorCode)
         {
-            (LogLevel, string) apiMsg = LogAPIMessage(QuoteStatus, $"strUserID={strUserID}");
+            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"strUserID={strUserID}");
             AppendReply(strUserID, apiMsg.Item2);
         }
 
@@ -49,7 +49,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nErrorCode"></param>
         private void OnDisconnect(string strUserID, int nErrorCode)
         {
-            (LogLevel, string) apiMsg = LogAPIMessage(QuoteStatus, $"strUserID={strUserID}");
+            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"strUserID={strUserID}");
             AppendReply(strUserID, apiMsg.Item2);
         }
 
@@ -60,7 +60,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nCode"></param>
         private void OnSolaceReplyConnection(string strUserID, int nCode)
         {
-            (LogLevel, string) apiMsg = LogAPIMessage(QuoteStatus, $"strUserID={strUserID}");
+            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"strUserID={strUserID}");
             AppendReply(strUserID, apiMsg.Item2);
         }
 
@@ -71,7 +71,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nErrorCode"></param>
         private void OnSolaceReplyDisconnect(string strUserID, int nErrorCode)
         {
-            (LogLevel, string) apiMsg = LogAPIMessage(QuoteStatus, $"strUserID={strUserID}");
+            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"strUserID={strUserID}");
             AppendReply(strUserID, apiMsg.Item2);
         }
 

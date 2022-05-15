@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GNAy.Capital.Trade.Controllers
 {
-    public partial class CapitalController
+    public partial class CapitalQuoteController
     {
         /// <summary>
         /// 
@@ -16,9 +16,9 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="raw"></param>
         /// <param name="quote">通常是斷線重連時更新Index用</param>
         /// <returns></returns>
-        public QuoteData CreateOrUpdateQuote(SKSTOCKLONG raw, QuoteData quote = null)
+        public QuoteData CreateOrUpdate(SKSTOCKLONG raw, QuoteData quote = null)
         {
-            const string methodName = nameof(CreateOrUpdateQuote);
+            const string methodName = nameof(CreateOrUpdate);
 
             if (quote == null)
             {
@@ -52,11 +52,11 @@ namespace GNAy.Capital.Trade.Controllers
             return quote;
         }
 
-        private QuoteData CreateQuote(SKSTOCKLONG raw, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
+        private QuoteData Create(SKSTOCKLONG raw, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
         {
-            const string methodName = nameof(CreateQuote);
+            const string methodName = nameof(Create);
 
-            QuoteData quote = CreateOrUpdateQuote(raw);
+            QuoteData quote = CreateOrUpdate(raw);
 
             quote.Count = nPtr;
             quote.TradeDateRaw = nDate;
@@ -74,12 +74,12 @@ namespace GNAy.Capital.Trade.Controllers
             return quote;
         }
 
-        private bool UpdateQuote(SKSTOCKLONG raw)
+        private bool Update(SKSTOCKLONG raw)
         {
-            const string methodName = nameof(UpdateQuote);
+            const string methodName = nameof(Update);
 
             //https://stackoverflow.com/questions/628761/convert-a-character-digit-to-the-corresponding-integer-in-c
-            if (!_quoteIndexMap.TryGetValue((raw.bstrMarketNo[0] - '0') * 1000000 + raw.nStockIdx, out QuoteData quote))
+            if (!_dataIndexMap.TryGetValue((raw.bstrMarketNo[0] - '0') * 1000000 + raw.nStockIdx, out QuoteData quote))
             {
                 _appCtrl.LogError($"!_quoteIndexMap.TryGetValue((raw.bstrMarketNo[0] - '0') * 1000000 + raw.nStockIdx, out QuoteData quote)|bstrMarketNo={raw.bstrMarketNo}|nStockIdx={raw.nStockIdx}", UniqueName);
                 return false;
@@ -160,16 +160,16 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            QuoteLastUpdated = quote;
+            LastData = quote;
 
             if (IsAMMarket && (raw.nSimulate != QuoteData.RealTrade || firstTick) && quote.MarketGroupEnum == Market.EGroup.Futures && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
-                SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
+                SaveData(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
 
-                if (_capitalProductRawMap.TryGetValue(quote.PrimaryKey, out SKSTOCKLONG productInfo))
+                if (_dataRawMap.TryGetValue(quote.PrimaryKey, out SKSTOCKLONG productInfo))
                 {
-                    QuoteData qRaw = CreateOrUpdateQuote(productInfo);
+                    QuoteData qRaw = CreateOrUpdate(productInfo);
 
                     qRaw.DealPrice = raw.nClose / (decimal)Math.Pow(10, raw.sDecimal);
                     qRaw.DealQty = raw.nTickQty;
@@ -196,7 +196,7 @@ namespace GNAy.Capital.Trade.Controllers
                     qRaw.UpdateTime = DateTime.Now;
 
                     symbol = string.IsNullOrWhiteSpace(qRaw.Symbol) ? $"{qRaw.MarketGroup}_{qRaw.Index}" : qRaw.Symbol;
-                    SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_RAW_", string.Empty, qRaw);
+                    SaveData(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_RAW_", string.Empty, qRaw);
                 }
             }
 
@@ -242,19 +242,19 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            QuoteLastUpdated = quote;
+            LastData = quote;
 
             if (!string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileRecoverPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
-                SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_", string.Empty, quote);
+                SaveData(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_", string.Empty, quote);
 
-                if (_capitalProductRawMap.TryGetValue(quote.PrimaryKey, out SKSTOCKLONG productInfo))
+                if (_dataRawMap.TryGetValue(quote.PrimaryKey, out SKSTOCKLONG productInfo))
                 {
-                    QuoteData qRaw = CreateQuote(productInfo, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
+                    QuoteData qRaw = Create(productInfo, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
 
                     symbol = string.IsNullOrWhiteSpace(qRaw.Symbol) ? $"{qRaw.MarketGroup}_{qRaw.Index}" : qRaw.Symbol;
-                    SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_RAW_", string.Empty, qRaw);
+                    SaveData(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileRecoverPrefix}{symbol}_RAW_", string.Empty, qRaw);
                 }
             }
         }
@@ -304,38 +304,21 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            QuoteLastUpdated = quote;
+            LastData = quote;
 
             if (IsAMMarket && (nSimulate != QuoteData.RealTrade || firstTick) && quote.MarketGroupEnum == Market.EGroup.Futures && !string.IsNullOrWhiteSpace(_appCtrl.Settings.QuoteFileOpenPrefix))
             {
                 string symbol = string.IsNullOrWhiteSpace(quote.Symbol) ? $"{quote.MarketGroup}_{quote.Index}" : quote.Symbol;
-                SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
+                SaveData(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_", string.Empty, quote);
 
-                if (_capitalProductRawMap.TryGetValue(quote.PrimaryKey, out SKSTOCKLONG productInfo))
+                if (_dataRawMap.TryGetValue(quote.PrimaryKey, out SKSTOCKLONG productInfo))
                 {
-                    QuoteData qRaw = CreateQuote(productInfo, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
+                    QuoteData qRaw = Create(productInfo, nPtr, nDate, lTimehms, lTimemillismicros, nBid, nAsk, nClose, nQty, nSimulate);
 
                     symbol = string.IsNullOrWhiteSpace(qRaw.Symbol) ? $"{qRaw.MarketGroup}_{qRaw.Index}" : qRaw.Symbol;
-                    SaveQuotes(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_RAW_", string.Empty, qRaw);
+                    SaveData(_appCtrl.Config.QuoteFolder, true, $"{_appCtrl.Settings.QuoteFileOpenPrefix}{symbol}_RAW_", string.Empty, qRaw);
                 }
             }
-        }
-
-        private FUTUREORDER CreateCaptialFutureOrder(StrategyData order)
-        {
-            FUTUREORDER pFutureOrder = new FUTUREORDER()
-            {
-                bstrFullAccount = order.FullAccount,
-                bstrStockNo = order.Symbol,
-                sBuySell = order.BS,
-                sTradeType = order.TradeType,
-                sDayTrade = order.DayTrade,
-                sNewClose = order.Position,
-                bstrPrice = (order.OrderPriceBefore == OrderPrice.M || order.OrderPriceBefore == OrderPrice.P) ? order.OrderPriceBefore : order.OrderPriceAfter.ToString("0.00"),
-                nQty = order.OrderQty,
-            };
-
-            return pFutureOrder;
         }
     }
 }

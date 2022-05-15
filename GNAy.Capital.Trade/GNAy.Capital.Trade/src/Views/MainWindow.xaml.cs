@@ -456,7 +456,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                if (_appCtrl.Capital == null)
+                if (_appCtrl.CAPQuote == null)
                 {
                     return;
                 }
@@ -469,7 +469,7 @@ namespace GNAy.Capital.Trade
                         return;
                     }
 
-                    (int, SKCOMLib.SKSTOCKLONG) product = _appCtrl.Capital.GetProductInfo(cells[0], start);
+                    (int, SKCOMLib.SKSTOCKLONG) product = _appCtrl.CAPQuote.GetProductInfo(cells[0], start);
 
                     if (product.Item1 != 0)
                     {
@@ -904,18 +904,18 @@ namespace GNAy.Capital.Trade
                     StatusBarItemCA1.Text = $"({DataGridAppLog.Columns.Count},{DataGridAppLog.Items.Count})";
                 }
 
-                if (_appCtrl.Capital != null)
+                if (_appCtrl.CAPQuote != null)
                 {
-                    elapsed = (start - _appCtrl.Capital.QuoteLastUpdated.UpdateTime).ToString("mm':'ss'.'fff");
+                    elapsed = (start - _appCtrl.CAPQuote.LastData.UpdateTime).ToString("mm':'ss'.'fff");
                     StatusBarItemAA2.Text = $"{StatusBarItemAA2.Text}|{elapsed}";
 
-                    StatusBarItemBA3.Text = $"{_appCtrl.Capital.UserIDTimer.Item1:mm:ss}|{_appCtrl.Capital.UserIDTimer.Item2}";
-                    StatusBarItemBA4.Text = _appCtrl.Capital.QuoteTimer;
-                    StatusBarItemCA4.Text = $"{_appCtrl.Capital.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.Capital.MarketCloseTime:MM/dd HH:mm}";
+                    StatusBarItemBA3.Text = $"{_appCtrl.CAPCenter.UserIDTimer.Item1:mm:ss}|{_appCtrl.CAPCenter.UserIDTimer.Item2}";
+                    StatusBarItemBA4.Text = _appCtrl.CAPQuote.Timer;
+                    StatusBarItemCA4.Text = $"{_appCtrl.CAPQuote.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.CAPQuote.MarketCloseTime:MM/dd HH:mm}";
 
-                    StatusBarItemAB5.Text = _appCtrl.Capital.QuoteStatusStr;
-                    StatusBarItemAB3.Text = $"{_appCtrl.Capital.QuoteLastUpdated.Name}|{_appCtrl.Capital.QuoteLastUpdated.UpdateTime:mm:ss.fff}|{_appCtrl.Capital.QuoteLastUpdated.Updater}";
-                    StatusBarItemCB3.Text = _appCtrl.Capital.OrderNotice;
+                    StatusBarItemAB5.Text = _appCtrl.CAPQuote.StatusStr;
+                    StatusBarItemAB3.Text = $"{_appCtrl.CAPQuote.LastData.Name}|{_appCtrl.CAPQuote.LastData.UpdateTime:mm:ss.fff}|{_appCtrl.CAPQuote.LastData.Updater}";
+                    StatusBarItemCB3.Text = _appCtrl.CAPOrder.Notice;
                 }
 
                 StatusBarItemCA3.Text = $"BG={_appCtrl.SignalTimeBG:ss.fff}";
@@ -983,22 +983,22 @@ namespace GNAy.Capital.Trade
                     }
                 }
 
-                if (_appCtrl.Config.AutoRun && _appCtrl.Capital == null)
+                if (_appCtrl.Config.AutoRun && _appCtrl.CAPQuote == null)
                 {
                     reConnect = 1 + StatusCode.BaseTraceValue;
                 }
-                else if (_appCtrl.Capital != null && (_appCtrl.Capital.QuoteStatus == StatusCode.SK_WARNING_PRECHECK_RESULT_FAIL ||
-                    _appCtrl.Capital.QuoteStatus == StatusCode.SK_WARNING_PRECHECK_RESULT_EMPTY ||
-                    _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_DISCONNECT ||
-                    _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK ||
-                    _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL ||
-                    _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR))
+                else if (_appCtrl.CAPQuote != null && (_appCtrl.CAPQuote.Status == StatusCode.SK_WARNING_PRECHECK_RESULT_FAIL ||
+                    _appCtrl.CAPQuote.Status == StatusCode.SK_WARNING_PRECHECK_RESULT_EMPTY ||
+                    _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_DISCONNECT ||
+                    _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK ||
+                    _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL ||
+                    _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR))
                 {
-                    reConnect = _appCtrl.Capital.QuoteStatus + StatusCode.BaseErrorValue;
+                    reConnect = _appCtrl.CAPQuote.Status + StatusCode.BaseErrorValue;
                 }
-                else if (_appCtrl.Capital != null && _appCtrl.Capital.QuoteStatus > StatusCode.BaseTraceValue)
+                else if (_appCtrl.CAPQuote != null && _appCtrl.CAPQuote.Status > StatusCode.BaseTraceValue)
                 {
-                    reConnect = _appCtrl.Capital.QuoteStatus;
+                    reConnect = _appCtrl.CAPQuote.Status;
                 }
 
                 if (reConnect == 0)
@@ -1010,16 +1010,16 @@ namespace GNAy.Capital.Trade
                 _appCtrl.Log(reConnect, $"Retry to connect quote service.|reConnect={reConnect}", UniqueName, DateTime.Now - start);
                 Task.Factory.StartNew(() =>
                 {
-                    if (_appCtrl.Capital != null)
+                    if (_appCtrl.CAPQuote != null)
                     {
-                        _appCtrl.Capital.Disconnect();
+                        _appCtrl.CAPQuote.Disconnect();
                     }
 
                     Thread.Sleep(2 * 1000);
                     this.InvokeSync(delegate { ButtonLoginUser_Click(null, null); });
 
                     Thread.Sleep(2 * 1000);
-                    SpinWait.SpinUntil(() => _appCtrl.Capital.LoginUserResult == 0 || (_appCtrl.Capital.LoginUserResult >= 600 && _appCtrl.Capital.LoginUserResult <= 699), 1 * 60 * 1000);
+                    SpinWait.SpinUntil(() => _appCtrl.CAPCenter.LoginUserResult == 0 || (_appCtrl.CAPCenter.LoginUserResult >= 600 && _appCtrl.CAPCenter.LoginUserResult <= 699), 1 * 60 * 1000);
                     this.InvokeSync(delegate
                     {
                         ButtonLoginQuote_Click(null, null);
@@ -1029,23 +1029,23 @@ namespace GNAy.Capital.Trade
                     Thread.Sleep(4 * 1000);
                     SpinWait.SpinUntil(() =>
                     {
-                        if (_appCtrl.Capital.QuoteStatus == StatusCode.SK_WARNING_PRECHECK_RESULT_FAIL ||
-                            _appCtrl.Capital.QuoteStatus == StatusCode.SK_WARNING_PRECHECK_RESULT_EMPTY ||
-                            _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_DISCONNECT ||
-                            _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK ||
-                            _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL ||
-                            _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR)
+                        if (_appCtrl.CAPQuote.Status == StatusCode.SK_WARNING_PRECHECK_RESULT_FAIL ||
+                            _appCtrl.CAPQuote.Status == StatusCode.SK_WARNING_PRECHECK_RESULT_EMPTY ||
+                            _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_DISCONNECT ||
+                            _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK ||
+                            _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL ||
+                            _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR)
                         {
                             return LoopResult.Break;
                         }
 
-                        return _appCtrl.Capital.QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY;
+                        return _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY;
                     }, 1 * 60 * 1000);
 
-                    if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
+                    if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
                     {
                         //TODO: Send alert mail.
-                        _appCtrl.Capital.Disconnect();
+                        _appCtrl.CAPQuote.Disconnect();
                         this.InvokeAsync(delegate { _timer2.Start(); }); //Retry to connect quote service.
                         return;
                     }
@@ -1061,11 +1061,11 @@ namespace GNAy.Capital.Trade
                     });
 
                     Thread.Sleep(2 * 1000);
-                    SpinWait.SpinUntil(() => _appCtrl.Capital.OrderAccCount > 0, 4 * 1000);
+                    SpinWait.SpinUntil(() => _appCtrl.CAPOrder.Count > 0, 4 * 1000);
                     Thread.Sleep(4 * 1000);
-                    _appCtrl.Capital.UnlockOrder();
-                    _appCtrl.Capital.SetOrderMaxQty();
-                    _appCtrl.Capital.SetOrderMaxCount();
+                    _appCtrl.CAPOrder.Unlock();
+                    _appCtrl.CAPOrder.SetMaxQty();
+                    _appCtrl.CAPOrder.SetMaxCount();
 
                     Thread.Sleep(8 * 1000);
                     _appCtrl.Trigger.RecoverSetting();
@@ -1202,7 +1202,7 @@ namespace GNAy.Capital.Trade
                 }
 
                 _appCtrl.InitialCapital();
-                _appCtrl.Capital.LoginUser(TextBoxUserID.Text, DWPBox.Password);
+                _appCtrl.CAPCenter.LoginUser(TextBoxUserID.Text, DWPBox.Password);
             }
             catch (Exception ex)
             {
@@ -1220,7 +1220,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.LoginQuoteAsync(DWPBox.Password);
+                _appCtrl.CAPQuote.LoginAsync(DWPBox.Password);
             }
             catch (Exception ex)
             {
@@ -1238,7 +1238,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                (LogLevel, string) apiMsg = _appCtrl.Capital.IsConnected();
+                (LogLevel, string) apiMsg = _appCtrl.CAPQuote.IsConnected();
                 StatusBarItemAB4.Text = apiMsg.Item1 == LogLevel.Trace ? apiMsg.Item2 : $"{apiMsg.Item1}|{apiMsg.Item2}";
             }
             catch (Exception ex)
@@ -1257,7 +1257,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.Disconnect();
+                _appCtrl.CAPQuote.Disconnect();
             }
             catch (Exception ex)
             {
@@ -1275,7 +1275,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.PrintProductList();
+                _appCtrl.CAPQuote.PrintProductList();
             }
             catch (Exception ex)
             {
@@ -1293,8 +1293,8 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.GetProductInfo();
-                StatusBarItemAB2.Text = $"Sub={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}|QuoteFile={_appCtrl.Capital.QuoteFileNameBase}";
+                _appCtrl.CAPQuote.GetProductInfo();
+                StatusBarItemAB2.Text = $"Sub={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}|QuoteFile={_appCtrl.CAPQuote.FileNameBase}";
             }
             catch (Exception ex)
             {
@@ -1312,14 +1312,13 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.SubQuotesAsync();
-                _appCtrl.SetTriggerRule();
+                _appCtrl.CAPQuote.SubscribeAsync();
 
-                ComboBoxTriggerProduct1.SetAndGetItemsSource(_appCtrl.Capital.QuoteCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                ComboBoxTriggerProduct1.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
                 ComboBoxTriggerProduct1.Text = "2330";
-                ComboBoxTriggerProduct2.SetAndGetItemsSource(_appCtrl.Capital.QuoteCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                ComboBoxTriggerProduct2.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
                 ComboBoxTriggerProduct2.Text = "2330";
-                ComboBoxOrderProduct.SetAndGetItemsSource(_appCtrl.Capital.QuoteCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                ComboBoxOrderProduct.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
                 ComboBoxOrderProduct.Text = "2330";
             }
             catch (Exception ex)
@@ -1338,7 +1337,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.RecoverQuotesAsync(TextBoxRecoverQuotes.Text);
+                _appCtrl.CAPQuote.RecoverDataAsync(TextBoxRecoverQuotes.Text);
             }
             catch (Exception ex)
             {
@@ -1356,7 +1355,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.RequestKLine();
+                _appCtrl.CAPQuote.RequestKLine();
             }
             catch (Exception ex)
             {
@@ -1370,7 +1369,7 @@ namespace GNAy.Capital.Trade
 
         private void ButtonSaveQuotesTest_Click(object sender, RoutedEventArgs e)
         {
-            if (_appCtrl.Capital == null)
+            if (_appCtrl.CAPCenter == null)
             {
                 return;
             }
@@ -1386,7 +1385,7 @@ namespace GNAy.Capital.Trade
                 DirectoryInfo folder = new DirectoryInfo(TextBoxQuoteFolderTest.Text);
                 folder.Create();
                 folder.Refresh();
-                _appCtrl.Capital.SaveQuotesAsync(folder);
+                _appCtrl.CAPQuote.SaveDataAsync(folder);
             }
             catch (Exception ex)
             {
@@ -1404,7 +1403,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.ReadCertification();
+                _appCtrl.CAPOrder.ReadCertification();
             }
             catch (Exception ex)
             {
@@ -1422,7 +1421,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.GetOrderAccs();
+                _appCtrl.CAPOrder.GetAccounts();
             }
             catch (Exception ex)
             {
@@ -1440,7 +1439,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.UnlockOrder();
+                _appCtrl.CAPOrder.Unlock();
             }
             catch (Exception ex)
             {
@@ -1465,7 +1464,7 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                _appCtrl.Capital.GetOpenInterest(acc.FullAccount);
+                _appCtrl.CAPOrder.GetOpenInterest(acc.FullAccount);
             }
             catch (Exception ex)
             {
@@ -1483,7 +1482,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.SetOrderMaxQty();
+                _appCtrl.CAPOrder.SetMaxQty();
             }
             catch (Exception ex)
             {
@@ -1501,7 +1500,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.SetOrderMaxCount();
+                _appCtrl.CAPOrder.SetMaxCount();
             }
             catch (Exception ex)
             {
@@ -1912,7 +1911,7 @@ namespace GNAy.Capital.Trade
                     UpdateTime = DateTime.Now,
                 };
 
-                _appCtrl.Capital.SendTWOrderAsync(order);
+                _appCtrl.CAPOrder.SendTWAsync(order);
             }
             catch (Exception ex)
             {
@@ -2006,7 +2005,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Capital.CancelOrderBySeqNo((OrderAccData)ComboBoxOrderAccs.SelectedItem, ComboBoxOrderSeqNo.Text);
+                _appCtrl.CAPOrder.CancelBySeqNo((OrderAccData)ComboBoxOrderAccs.SelectedItem, ComboBoxOrderSeqNo.Text);
             }
             catch (Exception ex)
             {

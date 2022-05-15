@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GNAy.Capital.Trade.Controllers
 {
-    public partial class CapitalController
+    public partial class CapitalQuoteController
     {
         /// <summary>
         /// 接收連線狀態
@@ -29,18 +29,19 @@ namespace GNAy.Capital.Trade.Controllers
             //3022 SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL Solace底層連線錯誤
             //3026 SK_SUBJECT_CONNECTION_SGX_API_READY SGX API專線建立完成
             //3033 SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR Solace Sessio down錯誤
-            QuoteStatus = nKind;
+            Status = nKind;
 
-            LogAPIMessage(nKind);
-            LogAPIMessage(nCode);
+            _appCtrl.CAPCenter.LogAPIMessage(nKind);
+            _appCtrl.CAPCenter.LogAPIMessage(nCode);
 
             if (nKind == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
             {
                 _appCtrl.MainForm.InvokeSync(delegate
                 {
-                    _capitalProductRawMap.Clear();
-                    _quoteIndexMap.Clear();
-                    QuoteFileNameBase = string.Empty;
+                    _dataRawMap.Clear();
+                    _dataIndexMap.Clear();
+                    _dataSymbolMap.Clear();
+                    FileNameBase = string.Empty;
                 });
             }
         }
@@ -63,7 +64,7 @@ namespace GNAy.Capital.Trade.Controllers
                 //根據市場別編號與系統所編的索引代碼，取回商品報價的及商品相關資訊
                 m_SKQuoteLib.SKQuoteLib_GetStockByIndexLONG(sMarketNo, nStockIdx, ref pSKStockLONG);
 
-                UpdateQuote(pSKStockLONG);
+                Update(pSKStockLONG);
             }
             catch (Exception ex)
             {
@@ -93,11 +94,11 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 QuoteData quote = null;
 
-                if (_quoteIndexMap.TryGetValue(sMarketNo * 1000000 + nStockIdx, out QuoteData qd))
+                if (_dataIndexMap.TryGetValue(sMarketNo * 1000000 + nStockIdx, out QuoteData qd))
                 {
                     (int, SKSTOCKLONG) product = GetProductInfo(qd.Symbol, DateTime.Now);
 
-                    quote = product.Item1 == 0 ? CreateOrUpdateQuote(product.Item2) : new QuoteData()
+                    quote = product.Item1 == 0 ? CreateOrUpdate(product.Item2) : new QuoteData()
                     {
                         MarketGroup = sMarketNo,
                         Index = nStockIdx,
@@ -140,7 +141,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (!_quoteIndexMap.TryGetValue(sMarketNo * 1000000 + nStockIdx, out QuoteData quote))
+                if (!_dataIndexMap.TryGetValue(sMarketNo * 1000000 + nStockIdx, out QuoteData quote))
                 {
                     _appCtrl.LogError($"!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote)|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}", UniqueName);
                     return;
@@ -215,13 +216,13 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nTotal"></param>
         private void OnNotifyServerTime(short sHour, short sMinute, short sSecond, int nTotal)
         {
-            QuoteTimer = $"{sHour}:{sMinute}:{sSecond} ({nTotal})";
+            Timer = $"{sHour}:{sMinute}:{sSecond} ({nTotal})";
 
             try
             {
                 int sec = sSecond % 10;
 
-                if (QuoteStatus == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY && sec >= 0 && sec < 5)
+                if (Status == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY && sec >= 0 && sec < 5)
                 {
                     //要求報價主機傳送目前時間。
                     //注意：為避免收盤後無報價資料傳送，導致連線被防火牆切斷，目前solace固定每五秒會自動更新時間，請固定每十五秒呼叫此函式，確保連線正常
@@ -229,7 +230,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (m_nCode != 0)
                     {
-                        LogAPIMessage(m_nCode);
+                        _appCtrl.CAPCenter.LogAPIMessage(m_nCode);
                     }
                 }
             }

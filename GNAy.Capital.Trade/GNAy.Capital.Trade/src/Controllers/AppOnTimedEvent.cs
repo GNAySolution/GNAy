@@ -34,7 +34,7 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         OpenInterest.SendNextQuery(e.SignalTime);
 
-                        if (Capital.OrderAccCount > 0 && OpenInterest.QuerySent.Item4 != 0)
+                        if (CAPOrder.Count > 0 && OpenInterest.QuerySent.Item4 != 0)
                         {
                             _secondsToQueryOpenInterest += 2;
                             LogWarn(e.SignalTime, $"_secondsToQueryOpenInterest={_secondsToQueryOpenInterest}", UniqueName);
@@ -67,10 +67,10 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (Settings.QuoteSaveInterval > 0 && (e.SignalTime - _lastTimeToSaveQuote).TotalSeconds >= Settings.QuoteSaveInterval && Capital != null && !string.IsNullOrWhiteSpace(Settings.QuoteFileClosePrefix))
+                if (Settings.QuoteSaveInterval > 0 && (e.SignalTime - _lastTimeToSaveQuote).TotalSeconds >= Settings.QuoteSaveInterval && CAPQuote != null && !string.IsNullOrWhiteSpace(Settings.QuoteFileClosePrefix))
                 {
                     _lastTimeToSaveQuote = e.SignalTime;
-                    Capital.SaveQuotes(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
+                    CAPQuote.SaveData(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
                 }
             }
             catch (Exception ex)

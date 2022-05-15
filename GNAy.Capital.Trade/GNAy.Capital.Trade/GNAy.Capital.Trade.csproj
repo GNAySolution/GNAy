@@ -72,10 +72,12 @@
       <Link>src\Tools\Extensions.cs</Link>
     </Compile>
     <Compile Include="src\Controllers\AppOnTimedEvent.cs" />
+    <Compile Include="src\Controllers\CapitalOrderController.cs" />
     <Compile Include="src\Controllers\CapitalOrderEvent.cs" />
-    <Compile Include="src\Controllers\CapitalReplyEvent.cs" />
+    <Compile Include="src\Controllers\CapitalQuoteController.cs" />
+    <Compile Include="src\Controllers\CapitalCenterEvent.cs" />
     <Compile Include="src\Controllers\CapitalQuoteEvent.cs" />
-    <Compile Include="src\Controllers\CapitalController.cs" />
+    <Compile Include="src\Controllers\CapitalCenterController.cs" />
     <Compile Include="src\Controllers\AppController.cs" />
     <Page Include="src\Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -89,7 +91,7 @@
     <Compile Include="src\Controllers\OrderDetailController.cs" />
     <Compile Include="src\Controllers\StrategyController.cs" />
     <Compile Include="src\Controllers\TriggerController.cs" />
-    <Compile Include="src\Controllers\CapitalHelper.cs" />
+    <Compile Include="src\Controllers\CapitalQuoteHelper.cs" />
     <Compile Include="src\Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

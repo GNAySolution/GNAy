@@ -31,6 +31,8 @@ namespace GNAy.Capital.Trade.Controllers
         public TriggerData this[string key] => _dataMap.TryGetValue(key, out TriggerData data) ? data : null;
         public IReadOnlyList<TriggerData> DataCollection => _dataCollection;
 
+        private ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
+
         public TriggerController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
@@ -42,6 +44,12 @@ namespace GNAy.Capital.Trade.Controllers
             _dataMap = new SortedDictionary<string, TriggerData>();
             _appCtrl.MainForm.DataGridTriggerRule.SetHeadersByBindings(TriggerData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _dataCollection = _appCtrl.MainForm.DataGridTriggerRule.SetAndGetItemsSource<TriggerData>();
+
+            _triggerColumnCollection = _appCtrl.MainForm.ComboBoxTriggerColumn.SetAndGetItemsSource<TradeColumnTrigger>();
+            foreach (TradeColumnTrigger column in TriggerData.QuoteColumnTriggerMap.Values)
+            {
+                _triggerColumnCollection.Add(column);
+            }
         }
 
         private TriggerController() : this(null)
@@ -323,7 +331,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             lock (data.SyncRoot)
             {
-                if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
+                if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
                 {
                     return saveData;
                 }
@@ -345,7 +353,7 @@ namespace GNAy.Capital.Trade.Controllers
                     saveData = true;
                     return saveData;
                 }
-                else if (data.StatusEnum != TriggerStatus.Enum.Executed && data.StartTime.HasValue && data.StartTime.Value >= _appCtrl.Capital.MarketCloseTime)
+                else if (data.StatusEnum != TriggerStatus.Enum.Executed && data.StartTime.HasValue && data.StartTime.Value >= _appCtrl.CAPQuote.MarketCloseTime)
                 {
                     data.StatusEnum = TriggerStatus.Enum.Cancelled;
                     data.Comment = "不同盤別，暫停監控";
@@ -633,7 +641,7 @@ namespace GNAy.Capital.Trade.Controllers
                     throw new ArgumentException($"string.IsNullOrWhiteSpace(data.Symbol1)|{data.ToLog()}");
                 }
 
-                data.Quote1 = _appCtrl.Capital.GetQuote(data.Symbol1);
+                data.Quote1 = _appCtrl.CAPQuote[data.Symbol1];
 
                 if (!string.IsNullOrWhiteSpace(data.Symbol2))
                 {
@@ -642,7 +650,7 @@ namespace GNAy.Capital.Trade.Controllers
                         throw new ArgumentException($"data.Symbol2({data.Symbol2}) == data.Symbol1({data.Symbol1})|{data.ToLog()}");
                     }
 
-                    data.Quote2 = _appCtrl.Capital.GetQuote(data.Symbol2);
+                    data.Quote2 = _appCtrl.CAPQuote[data.Symbol2];
                 }
 
                 string rule = data.Rule;
@@ -784,8 +792,8 @@ namespace GNAy.Capital.Trade.Controllers
                         }
 
                         data.StatusEnum = TriggerStatus.Enum.Waiting;
-                        data.Quote1 = _appCtrl.Capital.GetQuote(data.Symbol1);
-                        data.Quote2 = _appCtrl.Capital.GetQuote(data.Symbol2);
+                        data.Quote1 = _appCtrl.CAPQuote[data.Symbol1];
+                        data.Quote2 = _appCtrl.CAPQuote[data.Symbol2];
                         data.ColumnValue = 0;
                         data.Comment = string.Empty;
 
@@ -801,7 +809,7 @@ namespace GNAy.Capital.Trade.Controllers
                         data.StartTime = parseResult.Item2;
                         data.EndTime = parseResult.Item3;
 
-                        if ((!data.StartTime.HasValue || data.StartTime.Value <= DateTime.Now) && !_appCtrl.Capital.LoadedOnTime)
+                        if ((!data.StartTime.HasValue || data.StartTime.Value <= DateTime.Now) && !_appCtrl.CAPQuote.LoadedOnTime)
                         {
                             data.StatusEnum = TriggerStatus.Enum.Cancelled;
                             data.Comment = "沒有在開盤前執行登入動作，不執行此監控";

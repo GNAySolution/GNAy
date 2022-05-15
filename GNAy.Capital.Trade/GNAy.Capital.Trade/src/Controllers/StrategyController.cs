@@ -146,12 +146,12 @@ namespace GNAy.Capital.Trade.Controllers
             }
             else if (strategy.Quote == null)
             {
-                strategy.Quote = _appCtrl.Capital.GetQuote(strategy.Symbol);
+                strategy.Quote = _appCtrl.CAPQuote[strategy.Symbol];
             }
 
             if (strategy.Quote == null)
             {
-                (int, SKSTOCKLONG) product = _appCtrl.Capital.GetProductInfo(strategy.Symbol, start);
+                (int, SKSTOCKLONG) product = _appCtrl.CAPQuote.GetProductInfo(strategy.Symbol, start);
 
                 if (product.Item1 != 0)
                 {
@@ -162,22 +162,22 @@ namespace GNAy.Capital.Trade.Controllers
                     throw new ArgumentException($"商品 {strategy.Symbol} 無訂閱報價，無法進行策略監控|{strategy.ToLog()}");
                 }
 
-                MarketCheck(strategy, _appCtrl.Capital.CreateOrUpdateQuote(product.Item2));
+                MarketCheck(strategy, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
                 return;
             }
 
             MarketCheck(strategy, strategy.Quote);
 
-            if (_appCtrl.Capital.MarketCloseTime != DateTime.MinValue)
+            if (_appCtrl.CAPQuote.MarketCloseTime != DateTime.MinValue)
             {
                 if (strategy.WinCloseTime == DateTime.MinValue && strategy.WinCloseSeconds > 0)
                 {
-                    strategy.WinCloseTime = _appCtrl.Capital.MarketCloseTime.AddSeconds(-strategy.WinCloseSeconds);
+                    strategy.WinCloseTime = _appCtrl.CAPQuote.MarketCloseTime.AddSeconds(-strategy.WinCloseSeconds);
                 }
 
                 if (strategy.LossCloseTime == DateTime.MinValue && strategy.LossCloseSeconds > 0)
                 {
-                    strategy.LossCloseTime = _appCtrl.Capital.MarketCloseTime.AddSeconds(-strategy.LossCloseSeconds);
+                    strategy.LossCloseTime = _appCtrl.CAPQuote.MarketCloseTime.AddSeconds(-strategy.LossCloseSeconds);
                 }
             }
 
@@ -338,7 +338,7 @@ namespace GNAy.Capital.Trade.Controllers
                 strategy.Updater = methodName;
                 strategy.UpdateTime = DateTime.Now;
 
-                _appCtrl.Capital.SendTWOrderAsync(marketClosingOrder);
+                _appCtrl.CAPOrder.SendTWAsync(marketClosingOrder);
 
                 return true;
             }
@@ -500,7 +500,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             lock (strategy.SyncRoot)
             {
-                if (_appCtrl.Capital.QuoteStatus != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
+                if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
                 {
                     return saveData;
                 }
@@ -553,14 +553,14 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (strategy.UnclosedQty > 0)
                 {
-                    if (strategy.UnclosedProfit > 0 && strategy.WinCloseSeconds > 0 && DateTime.Now >= strategy.WinCloseTime && DateTime.Now < _appCtrl.Capital.MarketCloseTime)
+                    if (strategy.UnclosedProfit > 0 && strategy.WinCloseSeconds > 0 && DateTime.Now >= strategy.WinCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
                     {
                         Stop(strategy, strategy.WinCloseQty, "收盤獲利減倉", start);
 
                         saveData = true;
                         return saveData;
                     }
-                    else if (strategy.UnclosedProfit <= 0 && strategy.LossCloseSeconds > 0 && DateTime.Now >= strategy.LossCloseTime && DateTime.Now < _appCtrl.Capital.MarketCloseTime)
+                    else if (strategy.UnclosedProfit <= 0 && strategy.LossCloseSeconds > 0 && DateTime.Now >= strategy.LossCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
                     {
                         Stop(strategy, strategy.LossCloseQty, "收盤損失減倉", start);
 
@@ -585,7 +585,7 @@ namespace GNAy.Capital.Trade.Controllers
                             }
 
                             strategy.StatusEnum = StrategyStatus.Enum.StopLossSent;
-                            _appCtrl.Capital.SendTWOrderAsync(stopLossOrder);
+                            _appCtrl.CAPOrder.SendTWAsync(stopLossOrder);
 
                             saveData = true;
                             AfterStopLoss(strategy, start);
@@ -600,7 +600,7 @@ namespace GNAy.Capital.Trade.Controllers
                             { } //滿足條件但不減倉
                             else
                             {
-                                _appCtrl.Capital.SendTWOrderAsync(stopWinOrder);
+                                _appCtrl.CAPOrder.SendTWAsync(stopWinOrder);
                             }
 
                             saveData = true;
@@ -617,7 +617,7 @@ namespace GNAy.Capital.Trade.Controllers
                         }
 
                         strategy.StatusEnum = StrategyStatus.Enum.StopLossSent;
-                        _appCtrl.Capital.SendTWOrderAsync(stopLossOrder);
+                        _appCtrl.CAPOrder.SendTWAsync(stopLossOrder);
 
                         saveData = true;
                         AfterStopLoss(strategy, start);
@@ -632,7 +632,7 @@ namespace GNAy.Capital.Trade.Controllers
                         { } //滿足條件但不減倉
                         else
                         {
-                            _appCtrl.Capital.SendTWOrderAsync(stopWinOrder);
+                            _appCtrl.CAPOrder.SendTWAsync(stopWinOrder);
                         }
 
                         saveData = true;
@@ -653,7 +653,7 @@ namespace GNAy.Capital.Trade.Controllers
                             { } //滿足條件但不減倉
                             else
                             {
-                                _appCtrl.Capital.SendTWOrderAsync(moveStopWinOrder);
+                                _appCtrl.CAPOrder.SendTWAsync(moveStopWinOrder);
                             }
 
                             saveData = true;
@@ -670,7 +670,7 @@ namespace GNAy.Capital.Trade.Controllers
                         { } //滿足條件但不減倉
                         else
                         {
-                            _appCtrl.Capital.SendTWOrderAsync(moveStopWinOrder);
+                            _appCtrl.CAPOrder.SendTWAsync(moveStopWinOrder);
                         }
 
                         saveData = true;
@@ -826,7 +826,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             StrategyData order = strategy.CreateOrder();
             strategy.StatusEnum = StrategyStatus.Enum.OrderSent;
-            _appCtrl.Capital.SendTWOrderAsync(order);
+            _appCtrl.CAPOrder.SendTWAsync(order);
         }
 
         public void RecoverSetting(FileInfo fileStrategy = null, FileInfo fileSentOrder = null)
@@ -873,8 +873,8 @@ namespace GNAy.Capital.Trade.Controllers
                         }
 
                         strategy = strategy.Reset();
-                        strategy.MarketType = _appCtrl.Capital.GetOrderAcc(strategy.FullAccount).MarketType;
-                        strategy.Quote = _appCtrl.Capital.GetQuote(strategy.Symbol);
+                        strategy.MarketType = _appCtrl.CAPOrder[strategy.FullAccount].MarketType;
+                        strategy.Quote = _appCtrl.CAPQuote[strategy.Symbol];
                         strategy.Updater = methodName;
                         strategy.UpdateTime = DateTime.Now;
 

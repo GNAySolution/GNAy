@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GNAy.Capital.Trade.Controllers
 {
-    public partial class CapitalController
+    public partial class CapitalOrderController
     {
         /// <summary>
         /// 帳號資訊。透過呼叫GetUserAccount後，帳號資訊由該事件回傳
@@ -20,7 +20,7 @@ namespace GNAy.Capital.Trade.Controllers
             //DateTime start = _appCtrl.StartTrace($"bstrLogInID={bstrLogInID}|bstrAccountData={bstrAccountData}", UniqueName);
             DateTime start = _appCtrl.StartTrace();
 
-            AppendReply(bstrLogInID, bstrAccountData);
+            _appCtrl.CAPCenter.AppendReply(bstrLogInID, bstrAccountData);
 
             try
             {
@@ -42,7 +42,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     _appCtrl.MainForm.InvokeSync(delegate
                     {
-                        _orderAccCollection.Add(acc);
+                        _dataCollection.Add(acc);
                         _appCtrl.MainForm.ComboBoxOrderAccs.SelectedIndex = 0;
                     });
                 }
@@ -66,7 +66,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnAsyncOrder(int nThreaID, int nCode, string bstrMessage)
         {
             //_appCtrl.LogTrace($"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}", UniqueName);
-            AppendReply(string.Empty, $"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}");
+            _appCtrl.CAPCenter.AppendReply(string.Empty, $"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}");
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnAsyncOrderOLID(int nThreaID, int nCode, string bstrMessage, string bstrOrderLinkedID)
         {
             //_appCtrl.LogTrace($"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}", UniqueName);
-            AppendReply(string.Empty, $"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}");
+            _appCtrl.CAPCenter.AppendReply(string.Empty, $"nThreaID={nThreaID}|nCode={nCode}|bstrMessage={bstrMessage}|bstrOrderLinkedID={bstrOrderLinkedID}");
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnRealBalanceReport(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnOpenInterest(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
 
             _appCtrl.OpenInterest.AddOrUpdateAsync(bstrData);
         }
@@ -111,7 +111,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnStopLossReport(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnFutureRights(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnRequestProfitReport(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnMarginPurchaseAmountLimit(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnBalanceQueryReport(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnTSStrategyReport(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnTSProfitLossGWReport(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnOFOpenInterestGW(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnTelnetTest(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            AppendReply(string.Empty, bstrData);
+            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
         }
     }
 }

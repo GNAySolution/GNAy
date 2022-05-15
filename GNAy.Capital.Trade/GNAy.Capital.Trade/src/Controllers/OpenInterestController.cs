@@ -66,9 +66,9 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     data = new OpenInterestData()
                     {
-                        MarketType = _appCtrl.Capital.GetOrderAcc(account).MarketType,
+                        MarketType = _appCtrl.CAPOrder[account].MarketType,
                         Account = account,
-                        Quote = _appCtrl.Capital.GetQuote(symbol),
+                        Quote = _appCtrl.CAPQuote[symbol],
                         Symbol = symbol,
                         BSEnum = bs,
                         DayTradeEnum = dayTrade,
@@ -226,39 +226,39 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                if (_appCtrl.Capital == null)
+                if (_appCtrl.CAPCenter == null)
                 {
                     return QuerySent;
                 }
-                else if (_appCtrl.Capital.OrderAccCount <= 0)
+                else if (_appCtrl.CAPOrder.Count <= 0)
                 {
                     return QuerySent;
                 }
 
-                for (int i = QuerySent.Item2 + 1; i < _appCtrl.Capital.OrderAccCollection.Count; ++i)
+                for (int i = QuerySent.Item2 + 1; i < _appCtrl.CAPOrder.DataCollection.Count; ++i)
                 {
-                    OrderAccData acc = _appCtrl.Capital.OrderAccCollection[i];
+                    OrderAccData acc = _appCtrl.CAPOrder.DataCollection[i];
 
                     if (acc.MarketType != Market.EType.Futures)
                     {
                         continue;
                     }
 
-                    int result = _appCtrl.Capital.GetOpenInterest(acc.FullAccount);
+                    int result = _appCtrl.CAPOrder.GetOpenInterest(acc.FullAccount);
                     QuerySent = (DateTime.Now, i, acc.FullAccount, result);
                     return QuerySent;
                 }
 
-                for (int i = 0; i < _appCtrl.Capital.OrderAccCollection.Count; ++i)
+                for (int i = 0; i < _appCtrl.CAPOrder.DataCollection.Count; ++i)
                 {
-                    OrderAccData acc = _appCtrl.Capital.OrderAccCollection[i];
+                    OrderAccData acc = _appCtrl.CAPOrder.DataCollection[i];
 
                     if (acc.MarketType != Market.EType.Futures)
                     {
                         continue;
                     }
 
-                    int result = _appCtrl.Capital.GetOpenInterest(acc.FullAccount);
+                    int result = _appCtrl.CAPOrder.GetOpenInterest(acc.FullAccount);
                     QuerySent = (DateTime.Now, i, acc.FullAccount, result);
                     return QuerySent;
                 }

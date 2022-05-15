@@ -14,7 +14,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 
 namespace GNAy.Capital.Trade.Controllers
 {
@@ -34,13 +33,13 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly AppConfig Config;
         public AppSettings Settings => Config.Settings;
 
-        public CapitalController Capital { get; private set; }
+        public CapitalCenterController CAPCenter { get; private set; }
+        public CapitalQuoteController CAPQuote { get; private set; }
         public TriggerController Trigger { get; private set; }
+        public CapitalOrderController CAPOrder { get; private set; }
+        public OpenInterestController OpenInterest { get; private set; }
         public OrderDetailController OrderDetail { get; private set; }
         public StrategyController Strategy { get; private set; }
-        public OpenInterestController OpenInterest { get; private set; }
-
-        private ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
 
         private readonly System.Timers.Timer _timerBG;
 
@@ -79,13 +78,13 @@ namespace GNAy.Capital.Trade.Controllers
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
-            Capital = null;
+            CAPCenter = null;
+            CAPQuote = null;
             Trigger = null;
+            CAPOrder = null;
             OrderDetail = null;
             Strategy = null;
             OpenInterest = null;
-
-            _triggerColumnCollection = null;
 
             SignalTimeBG = DateTime.MinValue;
 
@@ -405,13 +404,13 @@ namespace GNAy.Capital.Trade.Controllers
 
                 Log(level, string.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"exitCode={exitCode}|{msg}", UniqueName, null, lineNumber, memberName);
 
-                if (Capital != null)
+                if (CAPQuote != null)
                 {
                     if (!string.IsNullOrWhiteSpace(Settings.QuoteFileClosePrefix))
                     {
-                        Capital.SaveQuotes(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
+                        CAPQuote.SaveData(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
                     }
-                    Capital.Disconnect();
+                    CAPQuote.Disconnect();
                 }
 
                 //TODO: Send info mail.
@@ -436,19 +435,20 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (Capital == null)
+                if (CAPCenter == null)
                 {
-                    Capital = new CapitalController(this);
+                    CAPCenter = new CapitalCenterController(this);
+                    CAPQuote = new CapitalQuoteController(this);
 
                     Trigger = new TriggerController(this);
                     MainForm.TextBoxTriggerPrimaryKey.Text = $"{Trigger.Count + 1}";
 
+                    CAPOrder = new CapitalOrderController(this);
+                    OpenInterest = new OpenInterestController(this);
                     OrderDetail = new OrderDetailController(this);
 
                     Strategy = new StrategyController(this);
                     MainForm.TextBoxStrategyPrimaryKey.Text = $"{Strategy.Count + 1}";
-
-                    OpenInterest = new OpenInterestController(this);
 
                     MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderReport)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
@@ -469,36 +469,6 @@ namespace GNAy.Capital.Trade.Controllers
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.WinCloseTime)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.LossCloseQty)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.LossCloseTime)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                EndTrace(start, UniqueName);
-            }
-
-            return false;
-        }
-
-        public bool SetTriggerRule()
-        {
-            DateTime start = StartTrace();
-
-            try
-            {
-                if (_triggerColumnCollection == null || _triggerColumnCollection.Count <= 0)
-                {
-                    _triggerColumnCollection = MainForm.ComboBoxTriggerColumn.SetAndGetItemsSource<TradeColumnTrigger>();
-
-                    foreach (TradeColumnTrigger column in TriggerData.QuoteColumnTriggerMap.Values)
-                    {
-                        _triggerColumnCollection.Add(column);
-                    }
                 }
 
                 return true;

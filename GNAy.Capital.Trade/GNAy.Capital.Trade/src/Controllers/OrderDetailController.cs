@@ -76,19 +76,19 @@ namespace GNAy.Capital.Trade.Controllers
             }
             else if (order.Quote == null)
             {
-                order.Quote = _appCtrl.Capital.GetQuote(order.Symbol);
+                order.Quote = _appCtrl.CAPQuote[order.Symbol];
             }
 
             if (order.Quote == null)
             {
-                (int, SKSTOCKLONG) product = _appCtrl.Capital.GetProductInfo(order.Symbol, start);
+                (int, SKSTOCKLONG) product = _appCtrl.CAPQuote.GetProductInfo(order.Symbol, start);
 
                 if (product.Item1 != 0)
                 {
                     throw new ArgumentException($"order.Symbol={order.Symbol}|{order.ToLog()}");
                 }
 
-                _appCtrl.Strategy.MarketCheck(order, _appCtrl.Capital.CreateOrUpdateQuote(product.Item2));
+                _appCtrl.Strategy.MarketCheck(order, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
                 return;
             }
 
