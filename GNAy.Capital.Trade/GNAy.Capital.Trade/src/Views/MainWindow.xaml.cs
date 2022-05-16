@@ -1712,7 +1712,7 @@ namespace GNAy.Capital.Trade
                 ComboBoxOrderDayTrade.SelectedIndex = strategy.DayTrade;
                 ComboBoxOrderPositionKind.SelectedIndex = strategy.Position;
                 TextBoxOrderPrice.Text = strategy.OrderPriceBefore;
-                TextBoxOrderQuantity.Text = $"{strategy.OrderQty}";
+                TextBoxOrderQty.Text = $"{strategy.OrderQty}";
             }
             catch (Exception ex)
             {
@@ -1798,7 +1798,7 @@ namespace GNAy.Capital.Trade
                     DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
                     Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
                     OrderPriceBefore = TextBoxOrderPrice.Text,
-                    OrderQty = int.Parse(TextBoxOrderQuantity.Text),
+                    OrderQty = int.Parse(TextBoxOrderQty.Text),
                     StopLossBefore = TextBoxStrategyStopLoss.Text,
                     StopWinBefore = TextBoxStrategyStopWin.Text,
                     MoveStopWinBefore = TextBoxStrategyMoveStopWin.Text,
@@ -1906,7 +1906,7 @@ namespace GNAy.Capital.Trade
                     DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
                     Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
                     OrderPriceBefore = TextBoxOrderPrice.Text,
-                    OrderQty = int.Parse(TextBoxOrderQuantity.Text),
+                    OrderQty = int.Parse(TextBoxOrderQty.Text),
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };

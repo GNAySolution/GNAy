@@ -45,6 +45,52 @@ namespace GNAy.Capital.Trade.Controllers
         private OpenInterestController() : this(null)
         { }
 
+        private void CheckStrategy(OpenInterestData data, DateTime start)
+        {
+            try
+            {
+                if (!_appCtrl.Settings.SendRealOrder)
+                {
+                    return;
+                }
+
+                StrategyData strategy = _appCtrl.Strategy.DataCollection.FirstOrDefault(x =>
+                    x.StatusEnum != StrategyStatus.Enum.Waiting &&
+                    x.StatusEnum != StrategyStatus.Enum.Cancelled &&
+                    x.StatusEnum != StrategyStatus.Enum.OrderError &&
+                    x.FullAccount == data.Account &&
+                    x.Symbol == data.Symbol &&
+                    x.BSEnum == data.BSEnum &&
+                    x.DayTradeEnum == data.DayTradeEnum);
+
+                if (strategy == null)
+                {
+                    return;
+                }
+
+                data.Strategy = strategy.PrimaryKey;
+
+                if (data.PositionEnum == OrderPosition.Enum.Close)
+                {
+                    if (strategy.OrderData != null && strategy.UnclosedQty != 0)
+                    {
+                        _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{strategy.UnclosedQty} != 0|{strategy.ToLog()}", UniqueName);
+                        strategy.UnclosedQty = 0;
+                    }
+                    return;
+                }
+                else if (strategy.UnclosedQty > data.Quantity)
+                {
+                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{strategy.UnclosedQty} > 庫存{data.Quantity}|{strategy.ToLog()}", UniqueName);
+                    strategy.UnclosedQty = data.Quantity;
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+        }
+
         private (bool, OpenInterestData) AddOrUpdate(string account, string symbol, OrderBS.Enum bs, OrderDayTrade.Enum dayTrade, string price, string quantity, DateTime start)
         {
             const string methodName = nameof(AddOrUpdate);
@@ -76,10 +122,12 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 data.PositionEnum = OrderPosition.Enum.Open;
-                data.DealPrice = pri;
-                data.DealQty = qty;
+                data.AveragePrice = pri;
+                data.Quantity = qty;
                 data.Updater = methodName;
                 data.UpdateTime = DateTime.Now;
+
+                CheckStrategy(data, start);
 
                 if (!addNew)
                 {
@@ -197,7 +245,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 data.MarketPrice = data.Quote.DealPrice;
-                data.UnclosedProfit = (data.MarketPrice - data.DealPrice) * data.DealQty * (data.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                data.UnclosedProfit = (data.MarketPrice - data.AveragePrice) * data.Quantity * (data.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
                 data.Updater = methodName;
                 //data.UpdateTime = DateTime.Now;
             }

@@ -210,7 +210,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _orderQty;
-        [Column("委託口數", "委量", WPFDisplayIndex = 14)]
+        [Column("委託量", "委量", WPFDisplayIndex = 14)]
         public int OrderQty
         {
             get { return _orderQty; }
@@ -314,7 +314,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _dealQty;
-        [Column("成交口數", "成量", WPFDisplayIndex = 23)]
+        [Column("成交量", "成量", WPFDisplayIndex = 23)]
         public int DealQty
         {
             get { return _dealQty; }
@@ -338,7 +338,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _unclosedQty;
-        [Column("未平倉口數", "未平量", WPFDisplayIndex = 26)]
+        [Column("未平倉量", "未平量", WPFDisplayIndex = 26)]
         public int UnclosedQty
         {
             get { return _unclosedQty; }
@@ -392,7 +392,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _winCloseQty;
-        [Column("收盤獲利減倉口數", "收獲量", WPFDisplayIndex = 32)]
+        [Column("收盤獲利減倉量", "收獲量", WPFDisplayIndex = 32)]
         public int WinCloseQty
         {
             get { return _winCloseQty; }
@@ -415,7 +415,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _lossCloseQty;
-        [Column("收盤損失減倉口數", "收損量", WPFDisplayIndex = 34)]
+        [Column("收盤損失減倉量", "收損量", WPFDisplayIndex = 34)]
         public int LossCloseQty
         {
             get { return _lossCloseQty; }
@@ -598,7 +598,7 @@ namespace GNAy.Capital.Models
             }
             else if (OrderQty <= 0)
             {
-                throw new ArgumentException($"委託口數({OrderQty}) <= 0|{ToLog()}");
+                throw new ArgumentException($"委託量({OrderQty}) <= 0|{ToLog()}");
             }
 
             StrategyData order = new StrategyData()
@@ -660,7 +660,7 @@ namespace GNAy.Capital.Models
             }
             else if (OrderQty <= 0)
             {
-                throw new ArgumentException($"委託口數({OrderQty}) <= 0|{ToLog()}");
+                throw new ArgumentException($"委託量({OrderQty}) <= 0|{ToLog()}");
             }
 
             StrategyData order = new StrategyData()
@@ -722,7 +722,7 @@ namespace GNAy.Capital.Models
             }
             else if (OrderQty <= 0)
             {
-                throw new ArgumentException($"委託口數({OrderQty}) <= 0|{ToLog()}");
+                throw new ArgumentException($"委託量({OrderQty}) <= 0|{ToLog()}");
             }
 
             StrategyData order = new StrategyData()
@@ -784,7 +784,7 @@ namespace GNAy.Capital.Models
             }
             else if (OrderQty <= 0)
             {
-                throw new ArgumentException($"委託口數({OrderQty}) <= 0|{ToLog()}");
+                throw new ArgumentException($"委託量({OrderQty}) <= 0|{ToLog()}");
             }
 
             StrategyData order = new StrategyData()
@@ -846,7 +846,7 @@ namespace GNAy.Capital.Models
             }
             else if (OrderQty <= 0)
             {
-                throw new ArgumentException($"委託口數({OrderQty}) <= 0|{ToLog()}");
+                throw new ArgumentException($"委託量({OrderQty}) <= 0|{ToLog()}");
             }
 
             StrategyData order = new StrategyData()

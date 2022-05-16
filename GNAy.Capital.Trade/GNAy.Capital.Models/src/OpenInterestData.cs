@@ -147,20 +147,20 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _marketPrice, value); }
         }
 
-        private decimal _dealPrice;
+        private decimal _averagePrice;
         [Column("成交均價", CSVStringFormat = "0.00", WPFDisplayIndex = 10, WPFStringFormat = "{0:0.00}")]
-        public decimal DealPrice
+        public decimal AveragePrice
         {
-            get { return _dealPrice; }
-            set { OnPropertyChanged(ref _dealPrice, value); }
+            get { return _averagePrice; }
+            set { OnPropertyChanged(ref _averagePrice, value); }
         }
 
-        private int _dealQty;
-        [Column("成交口數", "成量", WPFDisplayIndex = 11)]
-        public int DealQty
+        private int _quantity;
+        [Column("成交量", "成量", WPFDisplayIndex = 11)]
+        public int Quantity
         {
-            get { return _dealQty; }
-            set { OnPropertyChanged(ref _dealQty, value); }
+            get { return _quantity; }
+            set { OnPropertyChanged(ref _quantity, value); }
         }
 
         private decimal _unclosedProfit;
@@ -186,14 +186,14 @@ namespace GNAy.Capital.Models
             DayTradeEnum = OrderDayTrade.Enum.No;
             PositionEnum = OrderPosition.Enum.Open;
             MarketPrice = 0;
-            DealPrice = 0;
-            DealQty = 0;
+            AveragePrice = 0;
+            Quantity = 0;
             UnclosedProfit = 0;
         }
 
         public string ToLog()
         {
-            return $"{Strategy},{MarketType},{Account},{Symbol},{BSEnum},{DayTradeEnum},{PositionEnum},{DealPrice:0.00},{DealQty}";
+            return $"{Strategy},{MarketType},{Account},{Symbol},{BSEnum},{DayTradeEnum},{PositionEnum},{AveragePrice:0.00},{Quantity}";
         }
     }
 }

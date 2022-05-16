@@ -1,7 +1,7 @@
 # GNAy
 * Yang的專案開發紀錄
 * 儲存庫裡的程式碼都是自己寫或參考網路上的，參考都有在註解內附上連結，表示感謝
-* 專案技術細節整理放在Blog
+* 技術細節整理放在Blog
 * https://gnaysolution.blogspot.com/
 
 ## GNAy.Capital.Trade.csproj
