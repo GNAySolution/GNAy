@@ -615,8 +615,6 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void AddRule(TriggerData data, string timeDuration)
         {
-            const string methodName = nameof(AddRule);
-
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
 
             try
@@ -733,9 +731,6 @@ namespace GNAy.Capital.Trade.Controllers
                     data.EndTime = parseResult.Item3;
                 }
 
-                data.Updater = methodName;
-                data.UpdateTime = DateTime.Now;
-
                 _waitToAdd.Enqueue(data);
             }
             catch (Exception ex)
@@ -815,9 +810,6 @@ namespace GNAy.Capital.Trade.Controllers
                             data.Comment = "沒有在開盤前執行登入動作，不執行此監控";
                             _appCtrl.LogError(start, data.ToLog(), UniqueName);
                         }
-
-                        data.Updater = methodName;
-                        data.UpdateTime = DateTime.Now;
 
                         if (decimal.TryParse(data.PrimaryKey, out decimal _pk) && _pk > nextPK)
                         {

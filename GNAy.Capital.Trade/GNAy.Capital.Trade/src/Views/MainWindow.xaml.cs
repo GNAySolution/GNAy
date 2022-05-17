@@ -1911,7 +1911,7 @@ namespace GNAy.Capital.Trade
                     UpdateTime = DateTime.Now,
                 };
 
-                _appCtrl.CAPOrder.SendTWAsync(order);
+                _appCtrl.CAPOrder.SendAsync(order);
             }
             catch (Exception ex)
             {

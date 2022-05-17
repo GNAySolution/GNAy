@@ -312,13 +312,92 @@ namespace GNAy.Capital.Trade.Controllers
             return pFutureOrder;
         }
 
-        public void SendTW(StrategyData order)
+        private (LogLevel, string) Send(StrategyData order, DateTime start)
         {
-            const string methodName = nameof(SendTW);
+            int m_nCode = 0;
+            string orderResult = $"_appCtrl.Settings.SendRealOrder={_appCtrl.Settings.SendRealOrder}"; //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
+
+            if (!_appCtrl.Settings.SendRealOrder)
+            {
+                return (LogLevel.Trace, orderResult);
+            }
+
+            lock (_syncOrderLock)
+            {
+                if (order.MarketType == Market.EType.Futures)
+                {
+                    if (order.TradeTypeEnum == OrderTradeType.Enum.IOC)
+                    {
+                        int succeededCnt = 0;
+
+                        for (int i = 0; i < order.OrderQty * 4; ++i)
+                        {
+                            //送出期貨委託，無需倉位，預設為盤中，不可更改
+                            //SKReplyLib.OnNewData，當有回報將主動呼叫函式，並通知委託的狀態。(新格式 包含預約單回報)
+                            FUTUREORDER capOrder = CreateCaptialFutures(order);
+                            capOrder.nQty = 1;
+                            string orderMsg = string.Empty;
+                            m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
+                            orderResult = orderMsg;
+
+                            Thread.Sleep(50);
+
+                            if (m_nCode == 0)
+                            {
+                                ++succeededCnt;
+
+                                if (succeededCnt >= order.OrderQty)
+                                {
+                                    return (LogLevel.Trace, orderResult);
+                                }
+                            }
+                            else
+                            {
+                                (LogLevel, string) output = _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderResult);
+
+                                if (i == order.OrderQty * 4 - 1)
+                                {
+                                    _appCtrl.LogError(start, $"委託部份失敗|succeededCnt={succeededCnt}|failed={order.OrderQty - succeededCnt}|{order.ToLog()}", UniqueName);
+
+                                    return output;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        FUTUREORDER capOrder = CreateCaptialFutures(order);
+                        string orderMsg = string.Empty;
+                        m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
+                        orderResult = orderMsg;
+
+                        Thread.Sleep(50);
+                    }
+                }
+                else if (order.MarketType == Market.EType.Option)
+                {
+                    FUTUREORDER capOrder = CreateCaptialFutures(order);
+                    string orderMsg = string.Empty;
+                    m_nCode = m_pSKOrder.SendOptionOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
+                    orderResult = orderMsg;
+
+                    Thread.Sleep(50);
+                }
+            }
+
+            if (m_nCode == 0)
+            {
+                return (LogLevel.Trace, orderResult);
+            }
+
+            return _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderResult);
+        }
+
+        public void Send(StrategyData order)
+        {
+            const string methodName = nameof(Send);
 
             DateTime start = _appCtrl.StartTrace($"{order?.ToLog()}", UniqueName);
-
-            StrategyData parent = order.Parent;
 
             try
             {
@@ -339,107 +418,17 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.OrderDetail.Add(order);
                 _appCtrl.OrderDetail.Check(order, start);
 
-                FUTUREORDER pFutureOrder = CreateCaptialFutures(order);
-
-                string orderMsg = $"_appCtrl.Settings.SendRealOrder={_appCtrl.Settings.SendRealOrder}"; //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
-                int m_nCode = 0;
-                (LogLevel, string) apiMsg = (LogLevel.Trace, orderMsg);
-
                 order.StatusEnum = StrategyStatus.Enum.OrderSent;
                 _appCtrl.Strategy.SaveData(_appCtrl.OrderDetail.DataCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
 
-                if (_appCtrl.Settings.SendRealOrder)
-                {
-                    lock (_syncOrderLock)
-                    {
-                        if (order.MarketType == Market.EType.Futures)
-                        {
-                            //送出期貨委託，無需倉位，預設為盤中，不可更改
-                            //SKReplyLib.OnNewData，當有回報將主動呼叫函式，並通知委託的狀態。(新格式 包含預約單回報)
-                            m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, pFutureOrder, out orderMsg);
-                        }
-                        else if (order.MarketType == Market.EType.Option)
-                        {
-                            m_nCode = m_pSKOrder.SendOptionOrder(_appCtrl.CAPCenter.UserID, false, pFutureOrder, out orderMsg);
-                        }
+                (LogLevel, string) result = Send(order, start);
 
-                        apiMsg = _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderMsg);
+                Notice = result.Item2;
 
-                        Thread.Sleep(100);
-                    }
-                }
-                else
-                {
-                    _appCtrl.Log(apiMsg.Item1, $"m_nCode={m_nCode}|{orderMsg}", UniqueName, DateTime.Now - start);
-                }
-
-                Notice = orderMsg;
-
-                order.StatusEnum = m_nCode == 0 ? StrategyStatus.Enum.OrderReport : StrategyStatus.Enum.OrderError;
-                order.OrderReport = orderMsg;
+                order.StatusEnum = result.Item1 == LogLevel.Trace ? StrategyStatus.Enum.OrderReport : StrategyStatus.Enum.OrderError;
+                order.OrderReport = result.Item2;
                 order.Updater = methodName;
                 order.UpdateTime = DateTime.Now;
-
-                if (!_appCtrl.Settings.SendRealOrder)
-                {
-                    order.StatusEnum = StrategyStatus.Enum.DealReport;
-                    order.DealPrice = order.OrderPriceAfter;
-                    order.DealQty = order.OrderQty;
-                    order.DealReport = order.OrderReport;
-                    order.Updater = methodName;
-                    order.UpdateTime = DateTime.Now;
-
-                    if (parent == null)
-                    {
-                        if (order.PositionEnum == OrderPosition.Enum.Open)
-                        {
-                            order.UnclosedQty = order.DealQty;
-                        }
-                    }
-                    else
-                    {
-                        switch (parent.StatusEnum)
-                        {
-                            case StrategyStatus.Enum.OrderSent:
-                                parent.StatusEnum = StrategyStatus.Enum.DealReport;
-                                break;
-                            case StrategyStatus.Enum.StopLossSent:
-                                parent.StatusEnum = StrategyStatus.Enum.StopLossDealReport;
-                                break;
-                            case StrategyStatus.Enum.StopWinSent:
-                                parent.StatusEnum = StrategyStatus.Enum.StopWinDealReport;
-                                break;
-                            case StrategyStatus.Enum.MoveStopWinSent:
-                                parent.StatusEnum = StrategyStatus.Enum.MoveStopWinDealReport;
-                                break;
-                            case StrategyStatus.Enum.MarketClosingSent:
-                                parent.StatusEnum = StrategyStatus.Enum.MarketClosingDealReport;
-                                break;
-                        }
-
-                        if (order == parent.OrderData)
-                        {
-                            order.ClosedProfit = 0;
-                            order.UnclosedQty = order.DealQty;
-                            order.UnclosedProfit = 0;
-
-                            parent.ClosedProfit += order.ClosedProfit;
-                            parent.UnclosedQty = order.UnclosedQty;
-                        }
-                        else if (order == parent.StopLossData || order == parent.StopWinData || order == parent.MoveStopWinData || order == parent.MarketClosingData)
-                        {
-                            order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
-                            order.UnclosedQty = parent.UnclosedQty - order.DealQty;
-                            order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
-
-                            parent.ClosedProfit += order.ClosedProfit;
-                            parent.UnclosedQty = order.UnclosedQty;
-                        }
-
-                        parent.Updater = methodName;
-                        parent.UpdateTime = DateTime.Now;
-                    }
-                }
 
                 _appCtrl.Strategy.SaveData(_appCtrl.OrderDetail.DataCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
             }
@@ -455,6 +444,8 @@ namespace GNAy.Capital.Trade.Controllers
             }
             finally
             {
+                StrategyData parent = order.Parent;
+
                 if (parent != null)
                 {
                     switch (parent.StatusEnum)
@@ -484,9 +475,9 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void SendTWAsync(StrategyData order)
+        public void SendAsync(StrategyData order)
         {
-            Task.Factory.StartNew(() => SendTW(order));
+            Task.Factory.StartNew(() => Send(order));
         }
 
         public void CancelBySeqNo(OrderAccData acc, string seqNo)

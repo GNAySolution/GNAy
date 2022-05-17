@@ -126,7 +126,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
             else if (strategy.OrderQty <= 0)
             {
-                throw new ArgumentException($"委託口數({strategy.OrderQty}) <= 0|{strategy.ToLog()}");
+                throw new ArgumentException($"委託量({strategy.OrderQty}) <= 0|{strategy.ToLog()}");
             }
             else if (_appCtrl.OrderDetail[strategy.PrimaryKey] != null)
             {
@@ -163,6 +163,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 MarketCheck(strategy, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
+
                 return;
             }
 
@@ -252,11 +253,11 @@ namespace GNAy.Capital.Trade.Controllers
             { } //滿足條件但不減倉
             else if (strategy.StopWinQty > 0)
             {
-                throw new ArgumentException($"停利減倉口數({strategy.StopWinQty})應為負值或0|{strategy.ToLog()}");
+                throw new ArgumentException($"停利減倉量({strategy.StopWinQty})應為負值或0|{strategy.ToLog()}");
             }
             else if (strategy.OrderQty + strategy.StopWinQty < 0)
             {
-                throw new ArgumentException($"停利減倉口數({strategy.StopWinQty}) > 委託口數({strategy.OrderQty})|{strategy.ToLog()}");
+                throw new ArgumentException($"停利減倉量({strategy.StopWinQty}) > 委託量({strategy.OrderQty})|{strategy.ToLog()}");
             }
 
             if (!string.IsNullOrWhiteSpace(strategy.MoveStopWinBefore))
@@ -290,11 +291,11 @@ namespace GNAy.Capital.Trade.Controllers
             { } //滿足條件但不減倉
             else if (strategy.MoveStopWinQty > 0)
             {
-                throw new ArgumentException($"移動停利減倉口數({strategy.MoveStopWinQty})應為負值或0|{strategy.ToLog()}");
+                throw new ArgumentException($"移動停利減倉量({strategy.MoveStopWinQty})應為負值或0|{strategy.ToLog()}");
             }
             else if (strategy.OrderQty + strategy.StopWinQty + strategy.MoveStopWinQty < 0)
             {
-                throw new ArgumentException($"移動停利減倉口數({strategy.MoveStopWinQty}) + 停利減倉口數({strategy.StopWinQty}) > 委託口數({strategy.OrderQty})|{strategy.ToLog()}");
+                throw new ArgumentException($"移動停利減倉量({strategy.MoveStopWinQty}) + 停利減倉量({strategy.StopWinQty}) > 委託量({strategy.OrderQty})|{strategy.ToLog()}");
             }
         }
 
@@ -325,8 +326,6 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     marketClosingOrder.OrderQty = strategy.UnclosedQty - marketClosingOrder.OrderQty;
                 }
-                //else if (marketClosingOrder.OrderQty < 0)
-                //{ }
 
                 if (marketClosingOrder.OrderQty <= 0 || marketClosingOrder.OrderQty > strategy.UnclosedQty)
                 {
@@ -338,7 +337,7 @@ namespace GNAy.Capital.Trade.Controllers
                 strategy.Updater = methodName;
                 strategy.UpdateTime = DateTime.Now;
 
-                _appCtrl.CAPOrder.SendTWAsync(marketClosingOrder);
+                _appCtrl.CAPOrder.SendAsync(marketClosingOrder);
 
                 return true;
             }
@@ -571,21 +570,14 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (strategy.StatusEnum == StrategyStatus.Enum.OrderSent || strategy.StatusEnum == StrategyStatus.Enum.OrderReport || strategy.StatusEnum == StrategyStatus.Enum.DealReport)
                 {
-                    StrategyData orderSent = strategy.OrderData;
-
                     if (strategy.BSEnum == OrderBS.Enum.Buy)
                     {
                         if (strategy.MarketPrice <= strategy.StopLossAfter)
                         {
                             StrategyData stopLossOrder = strategy.CreateStopLossOrder();
 
-                            if (orderSent.DealQty > 0)
-                            { //TODO
-                                stopLossOrder.OrderQty = orderSent.DealQty;
-                            }
-
                             strategy.StatusEnum = StrategyStatus.Enum.StopLossSent;
-                            _appCtrl.CAPOrder.SendTWAsync(stopLossOrder);
+                            _appCtrl.CAPOrder.SendAsync(stopLossOrder);
 
                             saveData = true;
                             AfterStopLoss(strategy, start);
@@ -600,7 +592,7 @@ namespace GNAy.Capital.Trade.Controllers
                             { } //滿足條件但不減倉
                             else
                             {
-                                _appCtrl.CAPOrder.SendTWAsync(stopWinOrder);
+                                _appCtrl.CAPOrder.SendAsync(stopWinOrder);
                             }
 
                             saveData = true;
@@ -611,13 +603,8 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         StrategyData stopLossOrder = strategy.CreateStopLossOrder();
 
-                        if (orderSent.DealQty > 0)
-                        {
-                            stopLossOrder.OrderQty = orderSent.DealQty;
-                        }
-
                         strategy.StatusEnum = StrategyStatus.Enum.StopLossSent;
-                        _appCtrl.CAPOrder.SendTWAsync(stopLossOrder);
+                        _appCtrl.CAPOrder.SendAsync(stopLossOrder);
 
                         saveData = true;
                         AfterStopLoss(strategy, start);
@@ -632,7 +619,7 @@ namespace GNAy.Capital.Trade.Controllers
                         { } //滿足條件但不減倉
                         else
                         {
-                            _appCtrl.CAPOrder.SendTWAsync(stopWinOrder);
+                            _appCtrl.CAPOrder.SendAsync(stopWinOrder);
                         }
 
                         saveData = true;
@@ -653,7 +640,7 @@ namespace GNAy.Capital.Trade.Controllers
                             { } //滿足條件但不減倉
                             else
                             {
-                                _appCtrl.CAPOrder.SendTWAsync(moveStopWinOrder);
+                                _appCtrl.CAPOrder.SendAsync(moveStopWinOrder);
                             }
 
                             saveData = true;
@@ -670,7 +657,7 @@ namespace GNAy.Capital.Trade.Controllers
                         { } //滿足條件但不減倉
                         else
                         {
-                            _appCtrl.CAPOrder.SendTWAsync(moveStopWinOrder);
+                            _appCtrl.CAPOrder.SendAsync(moveStopWinOrder);
                         }
 
                         saveData = true;
@@ -826,7 +813,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             StrategyData order = strategy.CreateOrder();
             strategy.StatusEnum = StrategyStatus.Enum.OrderSent;
-            _appCtrl.CAPOrder.SendTWAsync(order);
+            _appCtrl.CAPOrder.SendAsync(order);
         }
 
         public void RecoverSetting(FileInfo fileStrategy = null, FileInfo fileSentOrder = null)

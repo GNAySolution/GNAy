@@ -168,14 +168,24 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else if (!_appCtrl.Config.IsHoliday(start))
                     {
-                        MarketStartTime = _appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM];
-                        MarketCloseTime = _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].AddDays(1);
+                        if (CreatedTime.Hour < 5)
+                        {
+                            MarketStartTime = _appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM].AddDays(-1);
+                            MarketCloseTime = _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM];
+                        }
+                        else
+                        {
+                            MarketStartTime = _appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM];
+                            MarketCloseTime = _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].AddDays(1);
+                        }
                     }
 
                     if (!LoadedOnTime)
                     {
                         _appCtrl.LogWarn(start, $"沒有在開盤前執行登入動作", UniqueName);
                     }
+
+                    _appCtrl.LogTrace(start, $"MarketStartTime={MarketStartTime:MM/dd HH:mm}|MarketCloseTime={MarketCloseTime:MM/dd HH:mm}", UniqueName);
                 }
                 catch (Exception ex)
                 {

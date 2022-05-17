@@ -281,7 +281,7 @@ namespace GNAy.Capital.Models
         private TriggerData() : this(null, null)
         { }
 
-        public TriggerData Trim()
+        public TriggerData Trim([CallerMemberName] string memberName = "")
         {
             PrimaryKey = PrimaryKey.Replace(" ", string.Empty);
             Symbol1 = Symbol1.Replace(" ", string.Empty);
@@ -295,6 +295,9 @@ namespace GNAy.Capital.Models
             StrategyCloseOR = StrategyCloseOR.Replace(" ", string.Empty);
             StrategyCloseAND = StrategyCloseAND.Replace(" ", string.Empty);
             Comment = Comment.Replace(" ", string.Empty);
+
+            Updater = memberName;
+            UpdateTime = DateTime.Now;
 
             return this;
         }

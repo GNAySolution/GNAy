@@ -507,7 +507,7 @@ namespace GNAy.Capital.Models
             Comment = string.Empty;
         }
 
-        public StrategyData Trim()
+        public StrategyData Trim([CallerMemberName] string memberName = "")
         {
             PrimaryKey = PrimaryKey.Replace(" ", string.Empty);
             Branch = Branch.Replace(" ", string.Empty);
@@ -524,6 +524,9 @@ namespace GNAy.Capital.Models
             TriggerAfterStopWin = TriggerAfterStopWin.Replace(" ", string.Empty);
             StrategyAfterStopWin = StrategyAfterStopWin.Replace(" ", string.Empty);
             Comment = Comment.Replace(" ", string.Empty);
+
+            Updater = memberName;
+            UpdateTime = DateTime.Now;
 
             return this;
         }
@@ -673,7 +676,7 @@ namespace GNAy.Capital.Models
                 Quote = Quote,
                 Symbol = Symbol,
                 BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
-                TradeType = TradeType,
+                TradeTypeEnum = OrderTradeType.Enum.IOC,
                 DayTrade = DayTrade,
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPriceBefore = OrderPrice.P,
@@ -735,7 +738,7 @@ namespace GNAy.Capital.Models
                 Quote = Quote,
                 Symbol = Symbol,
                 BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
-                TradeType = TradeType,
+                TradeTypeEnum = OrderTradeType.Enum.IOC,
                 DayTrade = DayTrade,
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPriceBefore = OrderPrice.P,
@@ -797,7 +800,7 @@ namespace GNAy.Capital.Models
                 Quote = Quote,
                 Symbol = Symbol,
                 BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
-                TradeType = TradeType,
+                TradeTypeEnum = OrderTradeType.Enum.IOC,
                 DayTrade = DayTrade,
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPriceBefore = OrderPrice.P,
@@ -859,7 +862,7 @@ namespace GNAy.Capital.Models
                 Quote = Quote,
                 Symbol = Symbol,
                 BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
-                TradeType = TradeType,
+                TradeTypeEnum = OrderTradeType.Enum.IOC,
                 DayTrade = DayTrade,
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPriceBefore = OrderPrice.P,
