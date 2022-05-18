@@ -745,8 +745,6 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void RecoverSetting(FileInfo file = null)
         {
-            const string methodName = nameof(RecoverSetting);
-
             DateTime start = _appCtrl.StartTrace($"{file?.FullName}", UniqueName);
 
             try

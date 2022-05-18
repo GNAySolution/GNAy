@@ -511,7 +511,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled || strategy.StatusEnum == StrategyStatus.Enum.OrderError)
+                else if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled)
                 {
                     return saveData;
                 }
@@ -568,7 +568,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                 }
 
-                if (strategy.StatusEnum == StrategyStatus.Enum.OrderSent || strategy.StatusEnum == StrategyStatus.Enum.OrderReport || strategy.StatusEnum == StrategyStatus.Enum.DealReport)
+                if (strategy.StatusEnum == StrategyStatus.Enum.OrderSent || strategy.StatusEnum == StrategyStatus.Enum.OrderReport || strategy.StatusEnum == StrategyStatus.Enum.DealReport || strategy.StatusEnum == StrategyStatus.Enum.OrderError)
                 {
                     if (strategy.BSEnum == OrderBS.Enum.Buy)
                     {

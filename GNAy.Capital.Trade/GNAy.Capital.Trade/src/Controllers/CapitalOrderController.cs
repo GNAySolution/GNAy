@@ -312,85 +312,72 @@ namespace GNAy.Capital.Trade.Controllers
             return pFutureOrder;
         }
 
-        private (LogLevel, string) Send(StrategyData order, DateTime start)
+        private (LogLevel, string) SendFutures(StrategyData order, DateTime start)
         {
             int m_nCode = 0;
-            string orderResult = $"_appCtrl.Settings.SendRealOrder={_appCtrl.Settings.SendRealOrder}"; //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
+            string orderResult = string.Empty;
 
-            if (!_appCtrl.Settings.SendRealOrder)
+            if (order.TradeTypeEnum == OrderTradeType.Enum.ROD)
             {
-                return (LogLevel.Trace, orderResult);
+                //送出期貨委託，無需倉位，預設為盤中，不可更改
+                //SKReplyLib.OnNewData，當有回報將主動呼叫函式，並通知委託的狀態。(新格式 包含預約單回報)
+                FUTUREORDER capOrder = CreateCaptialFutures(order);
+                string orderMsg = string.Empty;
+                m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
+                orderResult = orderMsg;
+
+                Thread.Sleep(50);
+
+                return m_nCode == 0 ? (LogLevel.Trace, orderResult) : _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderResult);
             }
 
-            lock (_syncOrderLock)
+            int succeededCnt = 0;
+            (LogLevel, string) output = (LogLevel.Error, orderResult);
+
+            for (int i = 0; i < order.OrderQty * 4; ++i)
             {
-                if (order.MarketType == Market.EType.Futures)
+                FUTUREORDER capOrder = CreateCaptialFutures(order);
+                capOrder.nQty = 1;
+                string orderMsg = string.Empty;
+                m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
+                orderResult = orderMsg;
+
+                Thread.Sleep(50);
+
+                if (m_nCode == 0)
                 {
-                    if (order.TradeTypeEnum == OrderTradeType.Enum.IOC)
+                    ++succeededCnt;
+
+                    if (succeededCnt >= order.OrderQty)
                     {
-                        int succeededCnt = 0;
-
-                        for (int i = 0; i < order.OrderQty * 4; ++i)
-                        {
-                            //送出期貨委託，無需倉位，預設為盤中，不可更改
-                            //SKReplyLib.OnNewData，當有回報將主動呼叫函式，並通知委託的狀態。(新格式 包含預約單回報)
-                            FUTUREORDER capOrder = CreateCaptialFutures(order);
-                            capOrder.nQty = 1;
-                            string orderMsg = string.Empty;
-                            m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
-                            orderResult = orderMsg;
-
-                            Thread.Sleep(50);
-
-                            if (m_nCode == 0)
-                            {
-                                ++succeededCnt;
-
-                                if (succeededCnt >= order.OrderQty)
-                                {
-                                    return (LogLevel.Trace, orderResult);
-                                }
-                            }
-                            else
-                            {
-                                (LogLevel, string) output = _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderResult);
-
-                                if (i == order.OrderQty * 4 - 1)
-                                {
-                                    _appCtrl.LogError(start, $"委託部份失敗|succeededCnt={succeededCnt}|failed={order.OrderQty - succeededCnt}|{order.ToLog()}", UniqueName);
-
-                                    return output;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        FUTUREORDER capOrder = CreateCaptialFutures(order);
-                        string orderMsg = string.Empty;
-                        m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
-                        orderResult = orderMsg;
-
-                        Thread.Sleep(50);
+                        return (LogLevel.Trace, orderResult);
                     }
                 }
-                else if (order.MarketType == Market.EType.Option)
+                else
                 {
-                    FUTUREORDER capOrder = CreateCaptialFutures(order);
-                    string orderMsg = string.Empty;
-                    m_nCode = m_pSKOrder.SendOptionOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
-                    orderResult = orderMsg;
+                    output = _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderResult);
 
-                    Thread.Sleep(50);
+                    if (i == order.OrderQty * 4 - 1)
+                    {
+                        _appCtrl.LogError(start, $"委託部份失敗|succeededCnt={succeededCnt}|failed={order.OrderQty - succeededCnt}|{order.ToLog()}", UniqueName);
+
+                        return output;
+                    }
                 }
             }
 
-            if (m_nCode == 0)
-            {
-                return (LogLevel.Trace, orderResult);
-            }
+            return output;
+        }
 
-            return _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderResult);
+        private (LogLevel, string) SendOption(StrategyData order, DateTime start)
+        {
+            FUTUREORDER capOrder = CreateCaptialFutures(order);
+            string orderMsg = string.Empty;
+            int m_nCode = m_pSKOrder.SendOptionOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
+
+            Thread.Sleep(50);
+
+            return m_nCode == 0 ? (LogLevel.Trace, orderMsg) : _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderMsg);
         }
 
         public void Send(StrategyData order)
@@ -421,12 +408,30 @@ namespace GNAy.Capital.Trade.Controllers
                 order.StatusEnum = StrategyStatus.Enum.OrderSent;
                 _appCtrl.Strategy.SaveData(_appCtrl.OrderDetail.DataCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
 
-                (LogLevel, string) result = Send(order, start);
+                (LogLevel, string) orderResult = (LogLevel.Trace, $"_appCtrl.Settings.SendRealOrder={_appCtrl.Settings.SendRealOrder}"); //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
 
-                Notice = result.Item2;
+                if (_appCtrl.Settings.SendRealOrder)
+                {
+                    lock (_syncOrderLock)
+                    {
+                        switch (order.MarketType)
+                        {
+                            case Market.EType.Futures:
+                                orderResult = SendFutures(order, start);
+                                break;
+                            case Market.EType.Option:
+                                orderResult = SendOption(order, start);
+                                break;
+                            default:
+                                throw new NotSupportedException(order.ToLog());
+                        }
+                    }
+                }
 
-                order.StatusEnum = result.Item1 == LogLevel.Trace ? StrategyStatus.Enum.OrderReport : StrategyStatus.Enum.OrderError;
-                order.OrderReport = result.Item2;
+                Notice = orderResult.Item2;
+
+                order.StatusEnum = orderResult.Item1 == LogLevel.Trace ? StrategyStatus.Enum.OrderReport : StrategyStatus.Enum.OrderError;
+                order.OrderReport = orderResult.Item2;
                 order.Updater = methodName;
                 order.UpdateTime = DateTime.Now;
 
