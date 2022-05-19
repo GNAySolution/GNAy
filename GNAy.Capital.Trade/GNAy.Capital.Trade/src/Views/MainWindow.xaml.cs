@@ -48,14 +48,15 @@ namespace GNAy.Capital.Trade
             _appCtrl = new AppController(this);
 
             //https://www.796t.com/post/MWV3bG0=.html
-            FileVersionInfo version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+            FileInfo assemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);
+            FileVersionInfo version = FileVersionInfo.GetVersionInfo(assemblyFile.FullName);
 
             Title = $"{version.Comments} ({version.FileVersion})";
             if (version.FileMajorPart <= 0 || version.FilePrivatePart % 2 == 1)
             {
                 Title = $"{Title}(BETA)";
             }
-            Title = $"{Title} ({version.ProductName})({version.LegalCopyright}) (PID:{_appCtrl.ProcessID})({_appCtrl.Settings.Description})";
+            Title = $"{Title} ({version.ProductName})({version.LegalCopyright}) ({assemblyFile.Directory.Name}\\{assemblyFile.Name})({_appCtrl.Settings.Description})";
             if (Debugger.IsAttached)
             {
                 Title = $"{Title}(附加偵錯)";
@@ -142,6 +143,17 @@ namespace GNAy.Capital.Trade
         /// <param name="e"></param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            string caption = $"確定關閉？";
+            string messageBoxText = $"確定關閉？";
+
+            MessageBoxResult result = MessageBox.Show(messageBoxText, caption, MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+
+            if (result != MessageBoxResult.OK)
+            {
+                e.Cancel = true;
+                return;
+            }
+
             _timer1.Stop();
             _timer2.Stop();
             _appCtrl.Exit();
@@ -1644,8 +1656,16 @@ namespace GNAy.Capital.Trade
                     }
                 }
 
+                if (string.IsNullOrWhiteSpace(ComboBoxTriggerProduct2.Text))
+                {
+                    TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00####}";
+                }
+                else
+                {
+                    TextBoxTriggerRuleValue.Text = $"{trigger.Rule}P2{trigger.Symbol2Setting}";
+                }
+
                 TextBoxTriggerPrimaryKey.Text = trigger.PrimaryKey;
-                TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00####}";
                 TextBoxTriggerCancel.Text = trigger.Cancel;
                 TextBoxTriggerStart.Text = trigger.Start;
                 TextBoxTriggerStrategyOpenOR.Text = trigger.StrategyOpenOR;
@@ -1690,6 +1710,8 @@ namespace GNAy.Capital.Trade
                 TextBoxStrategyAfterStopLoss.Text = strategy.StrategyAfterStopLoss;
                 TextBoxTriggerAfterStopWin.Text = strategy.TriggerAfterStopWin;
                 TextBoxStrategyAfterStopWin.Text = strategy.StrategyAfterStopWin;
+                TextBoxStrategyWinClose.Text = $"{strategy.WinCloseQty},{strategy.WinCloseSeconds}secs";
+                TextBoxStrategyLossClose.Text = $"{strategy.LossCloseQty},{strategy.LossCloseSeconds}secs";
 
                 ComboBoxOrderAccs.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxOrderAccs.Items.Count; ++i)
@@ -1806,7 +1828,6 @@ namespace GNAy.Capital.Trade
                     StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
                     TriggerAfterStopWin = TextBoxTriggerAfterStopWin.Text,
                     StrategyAfterStopWin = TextBoxStrategyAfterStopWin.Text,
-                    //TODO
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };

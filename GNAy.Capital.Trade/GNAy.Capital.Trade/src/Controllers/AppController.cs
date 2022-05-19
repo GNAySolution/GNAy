@@ -73,7 +73,10 @@ namespace GNAy.Capital.Trade.Controllers
                 Settings.TriggerFileFormat = newSetting.TriggerFileFormat;
             }
 
-            ps.PriorityClass = (ProcessPriorityClass)Settings.ProcessPriority;
+            if (!Debugger.IsAttached)
+            {
+                ps.PriorityClass = (ProcessPriorityClass)Settings.ProcessPriority;
+            }
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;

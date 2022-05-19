@@ -539,10 +539,8 @@
                 <TextBox x:Name="TextBoxStrategyAfterStopWin" Text="停利後執行策略" ToolTip="停利後接續執行策略" HorizontalAlignment="Left" Margin="591,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="收盤獲利減倉或CD單" HorizontalAlignment="Left" Margin="716,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyWinClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <TextBox x:Name="TextBoxNextStrategyAfterWin" Text="下一盤接續執行策略" ToolTip="下一個盤別接續執行策略" HorizontalAlignment="Left" Margin="716,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="收盤損失減倉" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyLossClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <TextBox x:Name="TextBoxNextStrategyAfterLoss" Text="下一盤接續執行策略" ToolTip="下一個盤別接續執行策略" HorizontalAlignment="Left" Margin="841,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">

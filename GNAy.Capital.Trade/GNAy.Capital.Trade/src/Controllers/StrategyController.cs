@@ -320,7 +320,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 StrategyData marketClosingOrder = strategy.CreateMarketClosingOrder();
-                marketClosingOrder.OrderQty = (strategy.UnclosedProfit > 0) ? strategy.WinCloseQty : strategy.LossCloseQty;
+                marketClosingOrder.OrderQty = qty;
 
                 if (marketClosingOrder.OrderQty > 0) //負值減倉正值留倉
                 {
