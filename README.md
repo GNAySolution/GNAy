@@ -38,10 +38,10 @@
 * https://www.taifex.com.tw/cht/3/dlFutDailyMarketView
 
 ###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/TriggerData/0404_1830.csv
-* 觸價範例，此設定容易賠錢，只是方便測試停損停利等各項功能
+* 觸價範例，此設定容易賠錢，只是方便測試停損停利等各項功能，請勿在正式環境使用
 
 ###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/StrategyData/0504_1442.csv
-* 策略範例，此設定容易賠錢，只是方便測試停損停利等各項功能
+* 策略範例，此設定容易賠錢，只是方便測試停損停利等各項功能，請勿在正式環境使用
 
 ## GNAy.Capital.Models.csproj
 * 策略交易框架，相關模型、資料、設定
