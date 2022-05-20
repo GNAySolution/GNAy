@@ -530,13 +530,9 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 strategy.MarketPrice = quote.DealPrice;
+                strategy.UnclosedProfit = (strategy.MarketPrice - strategy.DealPrice) * strategy.UnclosedQty * (strategy.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
                 strategy.Updater = methodName;
                 strategy.UpdateTime = DateTime.Now;
-
-                if (strategy.OrderData != null)
-                {
-                    strategy.UnclosedProfit = (strategy.MarketPrice - strategy.OrderData.DealPrice) * strategy.UnclosedQty * (strategy.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
-                }
 
                 if (strategy.BSEnum == OrderBS.Enum.Buy)
                 {

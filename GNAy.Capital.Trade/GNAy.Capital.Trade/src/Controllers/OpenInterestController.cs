@@ -53,6 +53,10 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return;
                 }
+                else if (_appCtrl.Strategy == null)
+                {
+                    return;
+                }
 
                 StrategyData strategy = _appCtrl.Strategy.DataCollection.FirstOrDefault(x =>
                     x.StatusEnum != StrategyStatus.Enum.Waiting &&
@@ -61,7 +65,9 @@ namespace GNAy.Capital.Trade.Controllers
                     x.FullAccount == data.Account &&
                     x.Symbol == data.Symbol &&
                     x.BSEnum == data.BSEnum &&
-                    x.DayTradeEnum == data.DayTradeEnum);
+                    x.DayTradeEnum == data.DayTradeEnum &&
+                    x.OrderData != null &&
+                    x.UnclosedQty != 0);
 
                 if (strategy == null)
                 {
@@ -72,17 +78,18 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (data.PositionEnum == OrderPosition.Enum.Close)
                 {
-                    if (strategy.OrderData != null && strategy.UnclosedQty != 0)
-                    {
-                        _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{strategy.UnclosedQty} != 0|{strategy.ToLog()}", UniqueName);
-                        strategy.UnclosedQty = 0;
-                    }
-                    return;
+                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{strategy.UnclosedQty} != 0|{strategy.ToLog()}", UniqueName);
+                    strategy.UnclosedQty = 0;
                 }
                 else if (strategy.UnclosedQty > data.Quantity)
                 {
                     _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{strategy.UnclosedQty} > 庫存{data.Quantity}|{strategy.ToLog()}", UniqueName);
                     strategy.UnclosedQty = data.Quantity;
+                }
+                else if (strategy.UnclosedQty == data.Quantity && strategy.DealPrice != data.AveragePrice)
+                {
+                    _appCtrl.LogTrace(start, $"成交均價校正{strategy.UnclosedQty} != {data.Quantity}|{strategy.ToLog()}", UniqueName);
+                    strategy.DealPrice = data.AveragePrice;
                 }
             }
             catch (Exception ex)

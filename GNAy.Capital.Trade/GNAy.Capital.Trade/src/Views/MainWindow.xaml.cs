@@ -1706,10 +1706,10 @@ namespace GNAy.Capital.Trade
                 TextBoxStrategyStopLoss.Text = strategy.StopLossBefore;
                 TextBoxStrategyStopWin.Text = strategy.StopWinBefore;
                 TextBoxStrategyMoveStopWin.Text = strategy.MoveStopWinBefore;
-                TextBoxTriggerAfterStopLoss.Text = strategy.TriggerAfterStopLoss;
-                TextBoxStrategyAfterStopLoss.Text = strategy.StrategyAfterStopLoss;
-                TextBoxTriggerAfterStopWin.Text = strategy.TriggerAfterStopWin;
-                TextBoxStrategyAfterStopWin.Text = strategy.StrategyAfterStopWin;
+                TextBoxStartTriggerAfterStopLoss.Text = strategy.TriggerAfterStopLoss;
+                TextBoxStartStrategyAfterStopLoss.Text = strategy.StrategyAfterStopLoss;
+                TextBoxStartTriggerAfterStopWin.Text = strategy.TriggerAfterStopWin;
+                TextBoxStartStrategyAfterStopWin.Text = strategy.StrategyAfterStopWin;
                 TextBoxStrategyWinClose.Text = $"{strategy.WinCloseQty},{strategy.WinCloseSeconds}secs";
                 TextBoxStrategyLossClose.Text = $"{strategy.LossCloseQty},{strategy.LossCloseSeconds}secs";
 
@@ -1824,10 +1824,12 @@ namespace GNAy.Capital.Trade
                     StopLossBefore = TextBoxStrategyStopLoss.Text,
                     StopWinBefore = TextBoxStrategyStopWin.Text,
                     MoveStopWinBefore = TextBoxStrategyMoveStopWin.Text,
-                    TriggerAfterStopLoss = TextBoxTriggerAfterStopLoss.Text,
-                    StrategyAfterStopLoss = TextBoxStrategyAfterStopLoss.Text,
-                    TriggerAfterStopWin = TextBoxTriggerAfterStopWin.Text,
-                    StrategyAfterStopWin = TextBoxStrategyAfterStopWin.Text,
+                    TriggerAfterStopLoss = TextBoxStartTriggerAfterStopLoss.Text,
+                    StrategyAfterStopLoss = TextBoxStartStrategyAfterStopLoss.Text,
+                    TriggerAfterStopWin = TextBoxStartTriggerAfterStopWin.Text,
+                    StrategyAfterStopWin = TextBoxStartStrategyAfterStopWin.Text,
+                    //TODO: TextBoxCancelTriggerAfterStopWin
+                    //TextBoxCancelStrategyAfterStopWin
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };

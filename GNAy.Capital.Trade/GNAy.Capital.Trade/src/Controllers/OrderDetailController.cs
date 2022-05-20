@@ -137,14 +137,15 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (order == parent.OrderData)
                 {
+                    parent.DealPrice = order.DealPrice;
                     parent.ClosedProfit += order.ClosedProfit;
                     parent.UnclosedQty = order.UnclosedQty;
                 }
                 else if (order == parent.StopLossData || order == parent.StopWinData || order == parent.MoveStopWinData || order == parent.MarketClosingData)
                 {
-                    order.ClosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.DealQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                    order.ClosedProfit = (order.DealPrice - parent.DealPrice) * order.DealQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
                     order.UnclosedQty = parent.UnclosedQty - order.DealQty;
-                    order.UnclosedProfit = (order.DealPrice - parent.OrderData.DealPrice) * order.UnclosedQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                    order.UnclosedProfit = (order.DealPrice - parent.DealPrice) * order.UnclosedQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
 
                     parent.ClosedProfit += order.ClosedProfit;
                     parent.UnclosedQty = order.UnclosedQty;
