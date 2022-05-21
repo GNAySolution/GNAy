@@ -464,10 +464,10 @@ namespace GNAy.Capital.Trade.Controllers
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinAfter)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.MoveStopWinBefore)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.MoveStopWinAfter)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.TriggerAfterStopLoss)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StrategyAfterStopLoss)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.TriggerAfterStopWin)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StrategyAfterStopWin)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StartTriggerAfterStopLoss)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StartStrategyAfterStopLoss)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StartTriggerAfterStopWin)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StartStrategyAfterStopWin)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.WinCloseQty)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.WinCloseTime)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.LossCloseQty)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;

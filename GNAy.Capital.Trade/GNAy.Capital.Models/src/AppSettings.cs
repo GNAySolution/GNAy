@@ -130,9 +130,14 @@ namespace GNAy.Capital.Models
         /// </summary>
         public bool LiveMode { get; set; }
 
+        /// <summary>
+        /// 程式啟動後，利用庫存判斷要啟動的策略
+        /// </summary>
+        public bool StartFromOpenInterest { get; set; }
+
         public AppSettings()
         {
-            Version = "0.22.517.1";
+            Version = "0.22.521.1";
             Description = "測試用設定";
 
             ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -193,6 +198,8 @@ namespace GNAy.Capital.Models
 
             SendRealOrder = false;
             LiveMode = false;
+
+            StartFromOpenInterest = true;
         }
     }
 }

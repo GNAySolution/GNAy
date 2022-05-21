@@ -112,230 +112,232 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void ParentCheck(StrategyData strategy, bool readyToSend, DateTime start)
+        private void ParentCheck(StrategyData data, bool readyToSend, DateTime start)
         {
-            strategy = strategy.Trim();
+            data = data.Trim();
 
-            if (string.IsNullOrWhiteSpace(strategy.PrimaryKey))
+            if (string.IsNullOrWhiteSpace(data.PrimaryKey))
             {
-                throw new ArgumentException($"未設定唯一鍵|{strategy.ToLog()}");
+                throw new ArgumentException($"未設定唯一鍵|{data.ToLog()}");
             }
-            else if (strategy.Parent != null)
+            else if (data.Parent != null)
             {
-                throw new ArgumentException($"strategy.Parent != null|{strategy.Parent.ToLog()}");
+                throw new ArgumentException($"data.Parent != null|{data.Parent.ToLog()}");
             }
-            else if (strategy.OrderQty <= 0)
+            else if (data.OrderQty <= 0)
             {
-                throw new ArgumentException($"委託量({strategy.OrderQty}) <= 0|{strategy.ToLog()}");
+                throw new ArgumentException($"委託量({data.OrderQty}) <= 0|{data.ToLog()}");
             }
-            else if (_appCtrl.OrderDetail[strategy.PrimaryKey] != null)
+            else if (_appCtrl.OrderDetail[data.PrimaryKey] != null)
             {
-                throw new ArgumentException($"_appCtrl.OrderDetail[{strategy.PrimaryKey}] != null|{strategy.ToLog()}");
+                throw new ArgumentException($"_appCtrl.OrderDetail[{data.PrimaryKey}] != null|{data.ToLog()}");
             }
-            else if (strategy.WinCloseSeconds < 0)
+            else if (data.WinCloseSeconds < 0)
             {
-                throw new ArgumentException($"strategy.WinCloseSeconds({strategy.WinCloseSeconds}) < 0|{strategy.ToLog()}");
+                throw new ArgumentException($"data.WinCloseSeconds({data.WinCloseSeconds}) < 0|{data.ToLog()}");
             }
-            else if (strategy.LossCloseSeconds < 0)
+            else if (data.LossCloseSeconds < 0)
             {
-                throw new ArgumentException($"strategy.LossCloseSeconds({strategy.LossCloseSeconds}) < 0|{strategy.ToLog()}");
+                throw new ArgumentException($"data.LossCloseSeconds({data.LossCloseSeconds}) < 0|{data.ToLog()}");
             }
-            else if (strategy.Quote != null && strategy.Quote.Symbol != strategy.Symbol)
+            else if (data.Quote != null && data.Quote.Symbol != data.Symbol)
             {
-                throw new ArgumentException($"策略關聯報價代碼錯誤|{strategy.Quote.Symbol} != {strategy.Symbol}|{strategy.ToLog()}");
+                throw new ArgumentException($"策略關聯報價代碼錯誤|{data.Quote.Symbol} != {data.Symbol}|{data.ToLog()}");
             }
-            else if (strategy.Quote == null)
+            else if (data.Quote == null)
             {
-                strategy.Quote = _appCtrl.CAPQuote[strategy.Symbol];
+                data.Quote = _appCtrl.CAPQuote[data.Symbol];
             }
 
-            if (strategy.Quote == null)
+            if (data.Quote == null)
             {
-                (int, SKSTOCKLONG) product = _appCtrl.CAPQuote.GetProductInfo(strategy.Symbol, start);
+                (int, SKSTOCKLONG) product = _appCtrl.CAPQuote.GetProductInfo(data.Symbol, start);
 
                 if (product.Item1 != 0)
                 {
-                    throw new ArgumentException($"strategy.Symbol={strategy.Symbol}|{strategy.ToLog()}");
+                    throw new ArgumentException($"data.Symbol={data.Symbol}|{data.ToLog()}");
                 }
-                else if (!string.IsNullOrWhiteSpace(strategy.StopLossBefore) || !string.IsNullOrWhiteSpace(strategy.StopWinBefore) || !string.IsNullOrWhiteSpace(strategy.MoveStopWinBefore))
+                else if (!string.IsNullOrWhiteSpace(data.StopLossBefore) || !string.IsNullOrWhiteSpace(data.StopWinBefore) || !string.IsNullOrWhiteSpace(data.MoveStopWinBefore))
                 {
-                    throw new ArgumentException($"商品 {strategy.Symbol} 無訂閱報價，無法進行策略監控|{strategy.ToLog()}");
+                    throw new ArgumentException($"商品 {data.Symbol} 無訂閱報價，無法進行策略監控|{data.ToLog()}");
                 }
 
-                MarketCheck(strategy, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
+                MarketCheck(data, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
 
                 return;
             }
 
-            MarketCheck(strategy, strategy.Quote);
+            MarketCheck(data, data.Quote);
 
             if (_appCtrl.CAPQuote.MarketCloseTime != DateTime.MinValue)
             {
-                if (strategy.WinCloseTime == DateTime.MinValue && strategy.WinCloseSeconds > 0)
+                if (data.WinCloseTime == DateTime.MinValue && data.WinCloseSeconds > 0)
                 {
-                    strategy.WinCloseTime = _appCtrl.CAPQuote.MarketCloseTime.AddSeconds(-strategy.WinCloseSeconds);
+                    data.WinCloseTime = _appCtrl.CAPQuote.MarketCloseTime.AddSeconds(-data.WinCloseSeconds);
                 }
 
-                if (strategy.LossCloseTime == DateTime.MinValue && strategy.LossCloseSeconds > 0)
+                if (data.LossCloseTime == DateTime.MinValue && data.LossCloseSeconds > 0)
                 {
-                    strategy.LossCloseTime = _appCtrl.CAPQuote.MarketCloseTime.AddSeconds(-strategy.LossCloseSeconds);
+                    data.LossCloseTime = _appCtrl.CAPQuote.MarketCloseTime.AddSeconds(-data.LossCloseSeconds);
                 }
             }
 
-            (string, decimal) orderPriceAfter = OrderPrice.Parse(strategy.OrderPriceBefore, strategy.Quote);
+            (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote);
 
             if (readyToSend)
             {
-                strategy.OrderPriceAfter = orderPriceAfter.Item2;
-                _appCtrl.LogTrace(start, $"委託價計算前={strategy.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
-                Notice = $"委託價計算前={strategy.OrderPriceBefore}|計算後={orderPriceAfter.Item1}";
+                data.OrderPriceAfter = orderPriceAfter.Item2;
+                _appCtrl.LogTrace(start, $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
+                Notice = $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}";
             }
 
-            if (!string.IsNullOrWhiteSpace(strategy.StopLossBefore))
+            if (!string.IsNullOrWhiteSpace(data.StopLossBefore))
             {
-                (string, decimal) stopLossPriceAfter = OrderPrice.Parse(strategy.StopLossBefore, strategy.Quote);
+                (string, decimal) stopLossPriceAfter = OrderPrice.Parse(data.StopLossBefore, data.Quote);
 
-                if (strategy.BSEnum == OrderBS.Enum.Buy)
+                if (data.BSEnum == OrderBS.Enum.Buy)
                 {
                     if (stopLossPriceAfter.Item2 >= orderPriceAfter.Item2)
                     {
-                        throw new ArgumentException($"停損價({stopLossPriceAfter.Item2}) >= 委託價({orderPriceAfter.Item2})|{strategy.ToLog()}");
+                        throw new ArgumentException($"停損價({stopLossPriceAfter.Item2}) >= 委託價({orderPriceAfter.Item2})|{data.ToLog()}");
                     }
                 }
                 else if (stopLossPriceAfter.Item2 <= orderPriceAfter.Item2)
                 {
-                    throw new ArgumentException($"停損價({stopLossPriceAfter.Item2}) <= 委託價({orderPriceAfter.Item2})|{strategy.ToLog()}");
+                    throw new ArgumentException($"停損價({stopLossPriceAfter.Item2}) <= 委託價({orderPriceAfter.Item2})|{data.ToLog()}");
                 }
 
                 if (readyToSend)
                 {
-                    strategy.StopLossAfter = stopLossPriceAfter.Item2;
-                    _appCtrl.LogTrace(start, $"停損價計算前={strategy.StopLossBefore}|計算後={stopLossPriceAfter.Item1}", UniqueName);
-                    Notice = $"停損價計算前={strategy.StopLossBefore}|計算後={stopLossPriceAfter.Item1}";
+                    data.StopLossAfter = stopLossPriceAfter.Item2;
+                    _appCtrl.LogTrace(start, $"停損價計算前={data.StopLossBefore}|計算後={stopLossPriceAfter.Item1}", UniqueName);
+                    Notice = $"停損價計算前={data.StopLossBefore}|計算後={stopLossPriceAfter.Item1}";
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(strategy.StopWinBefore))
+            if (!string.IsNullOrWhiteSpace(data.StopWinBefore))
             {
-                string stopWinBefore = strategy.StopWinBefore;
+                string stopWinBefore = data.StopWinBefore;
 
                 if (stopWinBefore.Contains("(") || stopWinBefore.Contains(","))
                 {
                     string[] cells = stopWinBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                     stopWinBefore = cells[0];
-                    strategy.StopWinQty = int.Parse(cells[1]);
+                    data.StopWinQty = int.Parse(cells[1]);
                 }
 
-                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(stopWinBefore, strategy.Quote);
+                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(stopWinBefore, data.Quote);
 
-                if (strategy.BSEnum == OrderBS.Enum.Buy)
+                if (data.BSEnum == OrderBS.Enum.Buy)
                 {
                     if (stopWinPriceAfter.Item2 <= orderPriceAfter.Item2)
                     {
-                        throw new ArgumentException($"停利價({stopWinPriceAfter.Item2}) <= 委託價({orderPriceAfter.Item2})|{strategy.ToLog()}");
+                        throw new ArgumentException($"停利價({stopWinPriceAfter.Item2}) <= 委託價({orderPriceAfter.Item2})|{data.ToLog()}");
                     }
                 }
                 else if (stopWinPriceAfter.Item2 >= orderPriceAfter.Item2)
                 {
-                    throw new ArgumentException($"停利價({stopWinPriceAfter.Item2}) >= 委託價({orderPriceAfter.Item2})|{strategy.ToLog()}");
+                    throw new ArgumentException($"停利價({stopWinPriceAfter.Item2}) >= 委託價({orderPriceAfter.Item2})|{data.ToLog()}");
                 }
 
                 if (readyToSend)
                 {
-                    strategy.StopWinPrice = stopWinPriceAfter.Item2;
+                    data.StopWinPrice = stopWinPriceAfter.Item2;
                     _appCtrl.LogTrace(start, $"停利價計算前={stopWinBefore}|計算後={stopWinPriceAfter.Item1}", UniqueName);
                     Notice = $"停利價計算前={stopWinBefore}|計算後={stopWinPriceAfter.Item1}";
                 }
             }
 
-            if (strategy.StopWinQty == 0)
+            if (data.StopWinQty == 0)
             { } //滿足條件但不減倉
-            else if (strategy.StopWinQty > 0)
+            else if (data.StopWinQty > 0)
             {
-                throw new ArgumentException($"停利減倉量({strategy.StopWinQty})應為負值或0|{strategy.ToLog()}");
+                throw new ArgumentException($"停利減倉量({data.StopWinQty})應為負值或0|{data.ToLog()}");
             }
-            else if (strategy.OrderQty + strategy.StopWinQty < 0)
+            else if (data.OrderQty + data.StopWinQty < 0)
             {
-                throw new ArgumentException($"停利減倉量({strategy.StopWinQty}) > 委託量({strategy.OrderQty})|{strategy.ToLog()}");
+                throw new ArgumentException($"停利減倉量({data.StopWinQty}) > 委託量({data.OrderQty})|{data.ToLog()}");
             }
 
-            if (!string.IsNullOrWhiteSpace(strategy.MoveStopWinBefore))
+            if (!string.IsNullOrWhiteSpace(data.MoveStopWinBefore))
             {
-                string moveStopWinBefore = strategy.MoveStopWinBefore;
+                string moveStopWinBefore = data.MoveStopWinBefore;
 
                 if (moveStopWinBefore.Contains("(") || moveStopWinBefore.Contains(","))
                 {
                     string[] cells = moveStopWinBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                     moveStopWinBefore = cells[0];
-                    strategy.MoveStopWinQty = int.Parse(cells[1]);
+                    data.MoveStopWinQty = int.Parse(cells[1]);
                 }
 
-                strategy.MoveStopWinOffset = decimal.Parse(moveStopWinBefore);
+                data.MoveStopWinOffset = decimal.Parse(moveStopWinBefore);
 
-                if (strategy.BSEnum == OrderBS.Enum.Buy)
+                if (data.BSEnum == OrderBS.Enum.Buy)
                 {
-                    if (strategy.MoveStopWinOffset >= 0)
+                    if (data.MoveStopWinOffset >= 0)
                     {
-                        throw new ArgumentException($"移動停利位移({strategy.MoveStopWinOffset}) >= 0|{strategy.ToLog()}");
+                        throw new ArgumentException($"移動停利位移({data.MoveStopWinOffset}) >= 0|{data.ToLog()}");
                     }
                 }
-                else if (strategy.MoveStopWinOffset <= 0)
+                else if (data.MoveStopWinOffset <= 0)
                 {
-                    throw new ArgumentException($"移動停利位移({strategy.MoveStopWinOffset}) <= 0|{strategy.ToLog()}");
+                    throw new ArgumentException($"移動停利位移({data.MoveStopWinOffset}) <= 0|{data.ToLog()}");
                 }
             }
 
-            if (strategy.MoveStopWinQty == 0)
+            if (data.MoveStopWinQty == 0)
             { } //滿足條件但不減倉
-            else if (strategy.MoveStopWinQty > 0)
+            else if (data.MoveStopWinQty > 0)
             {
-                throw new ArgumentException($"移動停利減倉量({strategy.MoveStopWinQty})應為負值或0|{strategy.ToLog()}");
+                throw new ArgumentException($"移動停利減倉量({data.MoveStopWinQty})應為負值或0|{data.ToLog()}");
             }
-            else if (strategy.OrderQty + strategy.StopWinQty + strategy.MoveStopWinQty < 0)
+            else if (data.OrderQty + data.StopWinQty + data.MoveStopWinQty < 0)
             {
-                throw new ArgumentException($"移動停利減倉量({strategy.MoveStopWinQty}) + 停利減倉量({strategy.StopWinQty}) > 委託量({strategy.OrderQty})|{strategy.ToLog()}");
+                throw new ArgumentException($"移動停利減倉量({data.MoveStopWinQty}) + 停利減倉量({data.StopWinQty}) > 委託量({data.OrderQty})|{data.ToLog()}");
             }
         }
 
-        private bool Stop(StrategyData strategy, int qty, string comment, DateTime start)
+        private bool Stop(StrategyData data, int qty, string comment, DateTime start)
         {
             const string methodName = nameof(Stop);
 
             try
             {
-                if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled)
+                if (data.StatusEnum == StrategyStatus.Enum.Cancelled)
                 {
-                    throw new ArgumentException(strategy.ToLog());
+                    _appCtrl.LogTrace(start, $"已經取消|{data.ToLog()}", UniqueName);
+
+                    return true;
                 }
-                else if (strategy.StatusEnum == StrategyStatus.Enum.Waiting || strategy.StatusEnum == StrategyStatus.Enum.OrderError || strategy.StopLossData != null || strategy.MarketClosingData != null || strategy.UnclosedQty <= 0)
+                else if (data.StatusEnum == StrategyStatus.Enum.Waiting || data.StatusEnum == StrategyStatus.Enum.OrderError || data.StopLossData != null || data.MarketClosingData != null || data.UnclosedQty <= 0)
                 {
-                    strategy.StatusEnum = StrategyStatus.Enum.Cancelled;
-                    strategy.Comment = comment;
-                    strategy.Updater = methodName;
-                    strategy.UpdateTime = DateTime.Now;
+                    data.StatusEnum = StrategyStatus.Enum.Cancelled;
+                    data.Comment = comment;
+                    data.Updater = methodName;
+                    data.UpdateTime = DateTime.Now;
 
                     return true;
                 }
 
-                StrategyData marketClosingOrder = strategy.CreateMarketClosingOrder();
+                StrategyData marketClosingOrder = data.CreateMarketClosingOrder();
                 marketClosingOrder.OrderQty = qty;
 
                 if (marketClosingOrder.OrderQty > 0) //負值減倉正值留倉
                 {
-                    marketClosingOrder.OrderQty = strategy.UnclosedQty - marketClosingOrder.OrderQty;
+                    marketClosingOrder.OrderQty = data.UnclosedQty - marketClosingOrder.OrderQty;
                 }
 
-                if (marketClosingOrder.OrderQty <= 0 || marketClosingOrder.OrderQty > strategy.UnclosedQty)
+                if (marketClosingOrder.OrderQty <= 0 || marketClosingOrder.OrderQty > data.UnclosedQty)
                 {
-                    marketClosingOrder.OrderQty = strategy.UnclosedQty;
+                    marketClosingOrder.OrderQty = data.UnclosedQty;
                 }
 
-                strategy.StatusEnum = StrategyStatus.Enum.MarketClosingSent;
-                strategy.Comment = comment;
-                strategy.Updater = methodName;
-                strategy.UpdateTime = DateTime.Now;
+                data.StatusEnum = StrategyStatus.Enum.MarketClosingSent;
+                data.Comment = comment;
+                data.Updater = methodName;
+                data.UpdateTime = DateTime.Now;
 
                 _appCtrl.CAPOrder.SendAsync(marketClosingOrder);
 
@@ -354,20 +356,20 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        public bool Stop(string primaryKey, int qty = 0)
+        public bool Stop(string primaryKey, int qty = 0, string comment = "手動停止")
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}|qty={qty}", UniqueName);
 
             try
             {
-                if (!_dataMap.TryGetValue(primaryKey.Replace(" ", string.Empty), out StrategyData strategy))
+                if (!_dataMap.TryGetValue(primaryKey.Replace(" ", string.Empty), out StrategyData data))
                 {
                     throw new ArgumentNullException($"查無此唯一鍵|{primaryKey}");
                 }
 
-                lock (strategy.SyncRoot)
+                lock (data.SyncRoot)
                 {
-                    if (Stop(strategy, qty, "手動停止", start))
+                    if (Stop(data, qty, comment, start))
                     {
                         Task.Factory.StartNew(() => SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat));
 
@@ -418,9 +420,9 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                StrategyData strategy = _appCtrl.Strategy[primary];
-                strategy = strategy.Reset();
-                _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
+                StrategyData target = _appCtrl.Strategy[primary];
+                target = target.Reset();
+                _appCtrl.Strategy.StartNow(target.PrimaryKey);
             }
             catch (Exception ex)
             {
@@ -435,9 +437,9 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void AfterStopLoss(StrategyData data, DateTime start)
         {
-            if (!string.IsNullOrWhiteSpace(data.TriggerAfterStopLoss))
+            if (!string.IsNullOrWhiteSpace(data.StartTriggerAfterStopLoss))
             {
-                HashSet<string> triggers = new HashSet<string>(data.TriggerAfterStopLoss.Split(','));
+                HashSet<string> triggers = new HashSet<string>(data.StartTriggerAfterStopLoss.Split(','));
 
                 foreach (string primary in triggers)
                 {
@@ -445,9 +447,9 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(data.StrategyAfterStopLoss))
+            if (!string.IsNullOrWhiteSpace(data.StartStrategyAfterStopLoss))
             {
-                HashSet<string> strategise = new HashSet<string>(data.StrategyAfterStopLoss.Split(','));
+                HashSet<string> strategise = new HashSet<string>(data.StartStrategyAfterStopLoss.Split(','));
 
                 foreach (string primary in strategise)
                 {
@@ -470,9 +472,29 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(data.TriggerAfterStopWin))
+            if (!string.IsNullOrWhiteSpace(data.StopTriggerAfterStopWin))
             {
-                HashSet<string> triggers = new HashSet<string>(data.TriggerAfterStopWin.Split(','));
+                HashSet<string> triggers = new HashSet<string>(data.StopTriggerAfterStopWin.Split(','));
+
+                foreach (string primary in triggers)
+                {
+                    _appCtrl.Trigger.Cancel(primary, "策略取消");
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.StopStrategyAfterStopWin))
+            {
+                HashSet<string> strategise = new HashSet<string>(data.StopStrategyAfterStopWin.Split(','));
+
+                foreach (string primary in strategise)
+                {
+                    Stop(primary, 0, "策略停止");
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.StartTriggerAfterStopWin))
+            {
+                HashSet<string> triggers = new HashSet<string>(data.StartTriggerAfterStopWin.Split(','));
 
                 foreach (string primary in triggers)
                 {
@@ -480,9 +502,9 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(data.StrategyAfterStopWin))
+            if (!string.IsNullOrWhiteSpace(data.StartStrategyAfterStopWin))
             {
-                HashSet<string> strategise = new HashSet<string>(data.StrategyAfterStopWin.Split(','));
+                HashSet<string> strategise = new HashSet<string>(data.StartStrategyAfterStopWin.Split(','));
 
                 foreach (string primary in strategise)
                 {
@@ -491,13 +513,13 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private bool UpdateStatus(StrategyData strategy, QuoteData quote, DateTime start)
+        private bool UpdateStatus(StrategyData data, QuoteData quote, DateTime start)
         {
             const string methodName = nameof(UpdateStatus);
 
             bool saveData = false;
 
-            lock (strategy.SyncRoot)
+            lock (data.SyncRoot)
             {
                 if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
                 {
@@ -511,80 +533,80 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (strategy.StatusEnum == StrategyStatus.Enum.Cancelled)
+                else if (data.StatusEnum == StrategyStatus.Enum.Cancelled)
                 {
                     return saveData;
                 }
-                else if (strategy.StopLossData != null || strategy.MarketClosingData != null)
+                else if (data.StopLossData != null || data.MarketClosingData != null)
                 {
                     return saveData;
                 }
-                else if (strategy.UnclosedQty <= 0)
+                else if (data.UnclosedQty <= 0)
                 {
                     return saveData;
                 }
-                else if (strategy.StatusEnum == StrategyStatus.Enum.Waiting)
+                else if (data.StatusEnum == StrategyStatus.Enum.Waiting)
                 {
-                    strategy.MarketPrice = quote.DealPrice;
+                    data.MarketPrice = quote.DealPrice;
                     return saveData;
                 }
 
-                strategy.MarketPrice = quote.DealPrice;
-                strategy.UnclosedProfit = (strategy.MarketPrice - strategy.DealPrice) * strategy.UnclosedQty * (strategy.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
-                strategy.Updater = methodName;
-                strategy.UpdateTime = DateTime.Now;
+                data.MarketPrice = quote.DealPrice;
+                data.UnclosedProfit = (data.MarketPrice - data.DealPrice) * data.UnclosedQty * (data.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                data.Updater = methodName;
+                data.UpdateTime = DateTime.Now;
 
-                if (strategy.BSEnum == OrderBS.Enum.Buy)
+                if (data.BSEnum == OrderBS.Enum.Buy)
                 {
-                    if (strategy.MoveStopWinPrice < strategy.MarketPrice)
+                    if (data.MoveStopWinPrice < data.MarketPrice)
                     {
-                        strategy.MoveStopWinPrice = strategy.MarketPrice;
+                        data.MoveStopWinPrice = data.MarketPrice;
                     }
                 }
-                else if ((strategy.MoveStopWinPrice > strategy.MarketPrice || strategy.MoveStopWinPrice == 0) && strategy.MarketPrice != 0)
+                else if ((data.MoveStopWinPrice > data.MarketPrice || data.MoveStopWinPrice == 0) && data.MarketPrice != 0)
                 {
-                    strategy.MoveStopWinPrice = strategy.MarketPrice;
+                    data.MoveStopWinPrice = data.MarketPrice;
                 }
 
-                if (strategy.UnclosedQty > 0)
+                if (data.UnclosedQty > 0)
                 {
-                    if (strategy.UnclosedProfit > 0 && strategy.WinCloseSeconds > 0 && DateTime.Now >= strategy.WinCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
+                    if (data.UnclosedProfit > 0 && data.WinCloseSeconds > 0 && DateTime.Now >= data.WinCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
                     {
-                        Stop(strategy, strategy.WinCloseQty, "收盤獲利減倉", start);
+                        Stop(data, data.WinCloseQty, "收盤獲利減倉", start);
 
                         saveData = true;
                         return saveData;
                     }
-                    else if (strategy.UnclosedProfit <= 0 && strategy.LossCloseSeconds > 0 && DateTime.Now >= strategy.LossCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
+                    else if (data.UnclosedProfit <= 0 && data.LossCloseSeconds > 0 && DateTime.Now >= data.LossCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
                     {
-                        Stop(strategy, strategy.LossCloseQty, "收盤損失減倉", start);
+                        Stop(data, data.LossCloseQty, "收盤損失減倉", start);
 
                         saveData = true;
                         return saveData;
                     }
                 }
 
-                if (strategy.StatusEnum == StrategyStatus.Enum.OrderSent || strategy.StatusEnum == StrategyStatus.Enum.OrderReport || strategy.StatusEnum == StrategyStatus.Enum.DealReport || strategy.StatusEnum == StrategyStatus.Enum.OrderError)
+                if (data.StatusEnum == StrategyStatus.Enum.OrderSent || data.StatusEnum == StrategyStatus.Enum.OrderReport || data.StatusEnum == StrategyStatus.Enum.DealReport || data.StatusEnum == StrategyStatus.Enum.OrderError)
                 {
-                    if (strategy.BSEnum == OrderBS.Enum.Buy)
+                    if (data.BSEnum == OrderBS.Enum.Buy)
                     {
-                        if (strategy.MarketPrice <= strategy.StopLossAfter)
+                        if (data.MarketPrice <= data.StopLossAfter)
                         {
-                            StrategyData stopLossOrder = strategy.CreateStopLossOrder();
+                            StrategyData stopLossOrder = data.CreateStopLossOrder();
 
-                            strategy.StatusEnum = StrategyStatus.Enum.StopLossSent;
+                            data.StatusEnum = StrategyStatus.Enum.StopLossSent;
                             _appCtrl.CAPOrder.SendAsync(stopLossOrder);
 
                             saveData = true;
-                            AfterStopLoss(strategy, start);
+                            AfterStopLoss(data, start);
                         }
-                        else if (strategy.MarketPrice >= strategy.StopWinPrice && strategy.StopWinQty <= 0)
+                        else if (data.MarketPrice >= data.StopWinPrice && data.StopWinQty <= 0)
                         {
-                            StrategyData stopWinOrder = strategy.CreateStopWinOrder();
+                            StrategyData stopWinOrder = data.CreateStopWinOrder();
 
-                            strategy.StatusEnum = StrategyStatus.Enum.StopWinSent;
+                            data.StatusEnum = StrategyStatus.Enum.StopWinSent;
 
-                            if (strategy.StopWinQty == 0)
+                            if (data.StopWinQty == 0)
                             { } //滿足條件但不減倉
                             else
                             {
@@ -592,26 +614,26 @@ namespace GNAy.Capital.Trade.Controllers
                             }
 
                             saveData = true;
-                            AfterStopWin(strategy, false, start);
+                            AfterStopWin(data, false, start);
                         }
                     }
-                    else if (strategy.MarketPrice >= strategy.StopLossAfter) //strategy.BSEnum == OrderBS.Enum.Sell
+                    else if (data.MarketPrice >= data.StopLossAfter) //data.BSEnum == OrderBS.Enum.Sell
                     {
-                        StrategyData stopLossOrder = strategy.CreateStopLossOrder();
+                        StrategyData stopLossOrder = data.CreateStopLossOrder();
 
-                        strategy.StatusEnum = StrategyStatus.Enum.StopLossSent;
+                        data.StatusEnum = StrategyStatus.Enum.StopLossSent;
                         _appCtrl.CAPOrder.SendAsync(stopLossOrder);
 
                         saveData = true;
-                        AfterStopLoss(strategy, start);
+                        AfterStopLoss(data, start);
                     }
-                    else if (strategy.MarketPrice <= strategy.StopWinPrice && strategy.StopWinQty <= 0)
+                    else if (data.MarketPrice <= data.StopWinPrice && data.StopWinQty <= 0)
                     {
-                        StrategyData stopWinOrder = strategy.CreateStopWinOrder();
+                        StrategyData stopWinOrder = data.CreateStopWinOrder();
 
-                        strategy.StatusEnum = StrategyStatus.Enum.StopWinSent;
+                        data.StatusEnum = StrategyStatus.Enum.StopWinSent;
 
-                        if (strategy.StopWinQty == 0)
+                        if (data.StopWinQty == 0)
                         { } //滿足條件但不減倉
                         else
                         {
@@ -619,20 +641,20 @@ namespace GNAy.Capital.Trade.Controllers
                         }
 
                         saveData = true;
-                        AfterStopWin(strategy, false, start);
+                        AfterStopWin(data, false, start);
                     }
                 }
-                else if (strategy.MoveStopWinQty <= 0 && strategy.MoveStopWinData == null && strategy.StopWinData != null && strategy.StopWinData.OrderQty < strategy.OrderQty)
+                else if (data.MoveStopWinQty <= 0 && data.MoveStopWinData == null && data.StopWinData != null && data.StopWinData.OrderQty < data.OrderQty)
                 {
-                    if (strategy.BSEnum == OrderBS.Enum.Buy)
+                    if (data.BSEnum == OrderBS.Enum.Buy)
                     {
-                        if (strategy.MarketPrice <= strategy.MoveStopWinPrice + strategy.MoveStopWinOffset)
+                        if (data.MarketPrice <= data.MoveStopWinPrice + data.MoveStopWinOffset)
                         {
-                            StrategyData moveStopWinOrder = strategy.CreateMoveStopWinOrder();
+                            StrategyData moveStopWinOrder = data.CreateMoveStopWinOrder();
 
-                            strategy.StatusEnum = StrategyStatus.Enum.MoveStopWinSent;
+                            data.StatusEnum = StrategyStatus.Enum.MoveStopWinSent;
 
-                            if (strategy.MoveStopWinQty == 0)
+                            if (data.MoveStopWinQty == 0)
                             { } //滿足條件但不減倉
                             else
                             {
@@ -640,16 +662,16 @@ namespace GNAy.Capital.Trade.Controllers
                             }
 
                             saveData = true;
-                            AfterStopWin(strategy, true, start);
+                            AfterStopWin(data, true, start);
                         }
                     }
-                    else if (strategy.MarketPrice >= strategy.MoveStopWinPrice + strategy.MoveStopWinOffset)
+                    else if (data.MarketPrice >= data.MoveStopWinPrice + data.MoveStopWinOffset)
                     {
-                        StrategyData moveStopWinOrder = strategy.CreateMoveStopWinOrder();
+                        StrategyData moveStopWinOrder = data.CreateMoveStopWinOrder();
 
-                        strategy.StatusEnum = StrategyStatus.Enum.MoveStopWinSent;
+                        data.StatusEnum = StrategyStatus.Enum.MoveStopWinSent;
 
-                        if (strategy.MoveStopWinQty == 0)
+                        if (data.MoveStopWinQty == 0)
                         { } //滿足條件但不減倉
                         else
                         {
@@ -657,7 +679,7 @@ namespace GNAy.Capital.Trade.Controllers
                         }
 
                         saveData = true;
-                        AfterStopWin(strategy, true, start);
+                        AfterStopWin(data, true, start);
                     }
                 }
             }
@@ -673,25 +695,25 @@ namespace GNAy.Capital.Trade.Controllers
         {
             while (_waitToAdd.Count > 0)
             {
-                _waitToAdd.TryDequeue(out StrategyData strategy);
+                _waitToAdd.TryDequeue(out StrategyData data);
 
                 StrategyData toRemove = null;
 
-                if (!_dataMap.TryGetValue(strategy.PrimaryKey, out StrategyData _old))
+                if (!_dataMap.TryGetValue(data.PrimaryKey, out StrategyData _old))
                 {
-                    _appCtrl.LogTrace(start, $"新增設定|{strategy.ToLog()}", UniqueName);
+                    _appCtrl.LogTrace(start, $"新增設定|{data.ToLog()}", UniqueName);
                 }
                 else
                 {
-                    _appCtrl.LogWarn(start, $"重置設定|{strategy.ToLog()}", UniqueName);
-                    _dataMap.Remove(strategy.PrimaryKey);
+                    _appCtrl.LogWarn(start, $"重置設定|{data.ToLog()}", UniqueName);
+                    _dataMap.Remove(data.PrimaryKey);
                     toRemove = _old;
                 }
 
-                _dataMap.Add(strategy.PrimaryKey, strategy);
+                _dataMap.Add(data.PrimaryKey, data);
 
                 List<StrategyData> list = _dataMap.Values.ToList();
-                int index = list.IndexOf(strategy);
+                int index = list.IndexOf(data);
 
                 if (index + 1 < list.Count)
                 {
@@ -703,7 +725,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     try
                     {
-                        _dataCollection.Insert(index, strategy);
+                        _dataCollection.Insert(index, data);
 
                         if (toRemove != null)
                         {
@@ -748,40 +770,40 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void AddOrUpdateRule(StrategyData strategy)
+        private void AddOrUpdateRule(StrategyData data)
         {
             if (_appCtrl.Config.StrategyFolder == null)
             {
-                throw new ArgumentNullException($"未設定策略資料夾(Settings.StrategyFolderPath)，無法建立策略|{strategy.ToLog()}");
+                throw new ArgumentNullException($"未設定策略資料夾(Settings.StrategyFolderPath)，無法建立策略|{data.ToLog()}");
             }
-            else if (string.IsNullOrWhiteSpace(strategy.PrimaryKey))
+            else if (string.IsNullOrWhiteSpace(data.PrimaryKey))
             {
-                throw new ArgumentException($"未設定唯一鍵|{strategy.ToLog()}");
+                throw new ArgumentException($"未設定唯一鍵|{data.ToLog()}");
             }
-            //else if (_dataMap.ContainsKey(strategy.PrimaryKey))
+            //else if (_dataMap.ContainsKey(data.PrimaryKey))
             //{
-            //    throw new ArgumentException($"_dataMap.ContainsKey({strategy.PrimaryKey})|{strategy.ToLog()}");
+            //    throw new ArgumentException($"_dataMap.ContainsKey({data.PrimaryKey})|{data.ToLog()}");
             //}
-            //else if (strategy.StatusEnum != StrategyStatus.Enum.Waiting)
+            //else if (data.StatusEnum != StrategyStatus.Enum.Waiting)
             //{
-            //    throw new ArgumentException($"{strategy.StatusEnum} != StrategyStatus.Enum.Waiting|{strategy.ToLog()}");
+            //    throw new ArgumentException($"{data.StatusEnum} != StrategyStatus.Enum.Waiting|{data.ToLog()}");
             //}
-            else if (_dataMap.TryGetValue(strategy.PrimaryKey, out StrategyData _old) && _old.StatusEnum != StrategyStatus.Enum.Waiting)
+            else if (_dataMap.TryGetValue(data.PrimaryKey, out StrategyData _old) && _old.StatusEnum != StrategyStatus.Enum.Waiting)
             {
                 throw new ArgumentException($"舊設定已啟動或取消，無法更新|{_old.StatusEnum} != StrategyStatus.Enum.Waiting|{_old.ToLog()}");
             }
 
-            _waitToAdd.Enqueue(strategy);
+            _waitToAdd.Enqueue(data);
         }
 
-        public void AddRule(StrategyData strategy)
+        public void AddRule(StrategyData data)
         {
-            DateTime start = _appCtrl.StartTrace($"{strategy?.ToLog()}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
 
             try
             {
-                ParentCheck(strategy, false, start);
-                AddOrUpdateRule(strategy);
+                ParentCheck(data, false, start);
+                AddOrUpdateRule(data);
             }
             catch (Exception ex)
             {
@@ -798,17 +820,17 @@ namespace GNAy.Capital.Trade.Controllers
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
 
-            StrategyData strategy = this[primaryKey.Replace(" ", string.Empty)];
+            StrategyData data = this[primaryKey.Replace(" ", string.Empty)];
 
-            if (strategy.StatusEnum != StrategyStatus.Enum.Waiting)
+            if (data.StatusEnum != StrategyStatus.Enum.Waiting)
             {
-                throw new ArgumentException($"{strategy.StatusEnum} != StrategyStatus.Enum.Waiting|{strategy.ToLog()}");
+                throw new ArgumentException($"{data.StatusEnum} != StrategyStatus.Enum.Waiting|{data.ToLog()}");
             }
 
-            ParentCheck(strategy, true, start);
+            ParentCheck(data, true, start);
 
-            StrategyData order = strategy.CreateOrder();
-            strategy.StatusEnum = StrategyStatus.Enum.OrderSent;
+            StrategyData order = data.CreateOrder();
+            data.StatusEnum = StrategyStatus.Enum.OrderSent;
             _appCtrl.CAPOrder.SendAsync(order);
         }
 
@@ -844,29 +866,29 @@ namespace GNAy.Capital.Trade.Controllers
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;
 
-                foreach (StrategyData data in StrategyData.ForeachQuoteFromCSVFile(fileStrategy.FullName, columnNames))
+                foreach (StrategyData sd in StrategyData.ForeachQuoteFromCSVFile(fileStrategy.FullName, columnNames))
                 {
                     try
                     {
-                        StrategyData strategy = data.Trim();
+                        StrategyData data = sd.Trim();
 
-                        if (string.IsNullOrWhiteSpace(strategy.PrimaryKey))
+                        if (string.IsNullOrWhiteSpace(data.PrimaryKey))
                         {
                             continue;
                         }
 
-                        strategy = strategy.Reset();
-                        strategy.MarketType = _appCtrl.CAPOrder[strategy.FullAccount].MarketType;
-                        strategy.Quote = _appCtrl.CAPQuote[strategy.Symbol];
-                        strategy.Updater = methodName;
-                        strategy.UpdateTime = DateTime.Now;
+                        data = data.Reset();
+                        data.MarketType = _appCtrl.CAPOrder[data.FullAccount].MarketType;
+                        data.Quote = _appCtrl.CAPQuote[data.Symbol];
+                        data.Updater = methodName;
+                        data.UpdateTime = DateTime.Now;
 
-                        if (decimal.TryParse(strategy.PrimaryKey, out decimal _pk) && _pk > nextPK)
+                        if (decimal.TryParse(data.PrimaryKey, out decimal _pk) && _pk > nextPK)
                         {
                             nextPK = _pk + 1;
                         }
 
-                        AddRule(strategy);
+                        AddRule(data);
                     }
                     catch (Exception ex)
                     {

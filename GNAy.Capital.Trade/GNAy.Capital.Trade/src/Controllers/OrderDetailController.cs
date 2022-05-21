@@ -46,109 +46,109 @@ namespace GNAy.Capital.Trade.Controllers
         private OrderDetailController() : this(null)
         { }
 
-        public void Check(StrategyData order, DateTime start)
+        public void Check(StrategyData data, DateTime start)
         {
             const string methodName = nameof(Check);
 
-            order = order.Trim();
+            data = data.Trim();
 
-            if (string.IsNullOrWhiteSpace(order.PrimaryKey))
+            if (string.IsNullOrWhiteSpace(data.PrimaryKey))
             {
-                throw new ArgumentException($"未設定唯一鍵|{order.ToLog()}");
+                throw new ArgumentException($"未設定唯一鍵|{data.ToLog()}");
             }
-            else if (this[order.PrimaryKey] != order)
+            else if (this[data.PrimaryKey] != data)
             {
-                throw new ArgumentException($"this[{order.PrimaryKey}] != order|{order.ToLog()}");
+                throw new ArgumentException($"this[{data.PrimaryKey}] != data|{data.ToLog()}");
             }
-            else if (order.StatusEnum != StrategyStatus.Enum.Waiting)
+            else if (data.StatusEnum != StrategyStatus.Enum.Waiting)
             {
-                throw new ArgumentException($"{order.StatusEnum} != StrategyStatus.Enum.Waiting|{order.ToLog()}");
+                throw new ArgumentException($"{data.StatusEnum} != StrategyStatus.Enum.Waiting|{data.ToLog()}");
             }
-            else if (order.OrderData != null || order.StopLossData != null || order.StopWinData != null || order.MoveStopWinData != null)
+            else if (data.OrderData != null || data.StopLossData != null || data.StopWinData != null || data.MoveStopWinData != null || data.MarketClosingData != null)
             {
-                throw new ArgumentException($"委託單資料結構異常|{order.OrderData != null}|{order.StopLossData != null}|{order.StopWinData != null}|{order.MoveStopWinData != null}|{order.ToLog()}");
+                throw new ArgumentException($"委託單資料結構異常|{data.OrderData != null}|{data.StopLossData != null}|{data.StopWinData != null}|{data.MoveStopWinData != null}|{data.MarketClosingData != null}|{data.ToLog()}");
             }
-            else if (order.Quote != null && order.Quote.Symbol != order.Symbol)
+            else if (data.Quote != null && data.Quote.Symbol != data.Symbol)
             {
-                throw new ArgumentException($"委託關聯報價代碼錯誤|{order.Quote.Symbol} != {order.Symbol}|{order.ToLog()}");
+                throw new ArgumentException($"委託關聯報價代碼錯誤|{data.Quote.Symbol} != {data.Symbol}|{data.ToLog()}");
             }
-            else if (order.Quote == null)
+            else if (data.Quote == null)
             {
-                order.Quote = _appCtrl.CAPQuote[order.Symbol];
+                data.Quote = _appCtrl.CAPQuote[data.Symbol];
             }
 
-            if (order.Quote == null)
+            if (data.Quote == null)
             {
-                (int, SKSTOCKLONG) product = _appCtrl.CAPQuote.GetProductInfo(order.Symbol, start);
+                (int, SKSTOCKLONG) product = _appCtrl.CAPQuote.GetProductInfo(data.Symbol, start);
 
                 if (product.Item1 != 0)
                 {
-                    throw new ArgumentException($"order.Symbol={order.Symbol}|{order.ToLog()}");
+                    throw new ArgumentException($"data.Symbol={data.Symbol}|{data.ToLog()}");
                 }
 
-                _appCtrl.Strategy.MarketCheck(order, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
+                _appCtrl.Strategy.MarketCheck(data, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
 
                 return;
             }
 
-            _appCtrl.Strategy.MarketCheck(order, order.Quote);
+            _appCtrl.Strategy.MarketCheck(data, data.Quote);
 
-            if (order.Quote.Simulate != QuoteData.RealTrade)
+            if (data.Quote.Simulate != QuoteData.RealTrade)
             {
-                throw new ArgumentException($"order.Quote.Simulate != QuoteData.RealTrade|{order.ToLog()}");
+                throw new ArgumentException($"data.Quote.Simulate != QuoteData.RealTrade|{data.ToLog()}");
             }
 
-            order.MarketPrice = order.Quote.DealPrice;
+            data.MarketPrice = data.Quote.DealPrice;
 
-            (string, decimal) orderPriceAfter = OrderPrice.Parse(order.OrderPriceBefore, order.Quote);
+            (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote);
 
-            order.OrderPriceAfter = orderPriceAfter.Item2;
-            _appCtrl.LogTrace(start, $"委託價計算前={order.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
-            Notice = $"委託價計算前={order.OrderPriceBefore}|計算後={orderPriceAfter.Item1}";
+            data.OrderPriceAfter = orderPriceAfter.Item2;
+            _appCtrl.LogTrace(start, $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
+            Notice = $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}";
 
-            if (order.PositionEnum == OrderPosition.Enum.Open)
+            if (data.PositionEnum == OrderPosition.Enum.Open)
             {
-                if (order.OrderQty <= 0)
+                if (data.OrderQty <= 0)
                 {
-                    throw new ArgumentException($"委託量({order.OrderQty}) <= 0|{order.ToLog()}");
+                    throw new ArgumentException($"委託量({data.OrderQty}) <= 0|{data.ToLog()}");
                 }
 
-                order.ClosedProfit = 0;
-                order.UnclosedQty = order.OrderQty;
-                order.UnclosedProfit = 0;
+                data.ClosedProfit = 0;
+                data.UnclosedQty = data.OrderQty;
+                data.UnclosedProfit = 0;
             }
 
-            order.DealPrice = order.OrderPriceAfter;
-            order.DealQty = order.OrderQty;
+            data.DealPrice = data.OrderPriceAfter;
+            data.DealQty = data.OrderQty;
 
-            StrategyData parent = order.Parent;
+            StrategyData parent = data.Parent;
 
             if (parent != null)
             {
-                if (order.PositionEnum == OrderPosition.Enum.Close && (order.OrderQty <= 0 || order.OrderQty > parent.UnclosedQty))
+                if (data.PositionEnum == OrderPosition.Enum.Close && (data.OrderQty <= 0 || data.OrderQty > parent.UnclosedQty))
                 {
-                    order.OrderQty = parent.UnclosedQty;
+                    data.OrderQty = parent.UnclosedQty;
                 }
 
-                if (order.OrderQty <= 0)
+                if (data.OrderQty <= 0)
                 {
-                    throw new ArgumentException($"委託量({order.OrderQty}) <= 0|{order.ToLog()}");
+                    throw new ArgumentException($"委託量({data.OrderQty}) <= 0|{data.ToLog()}");
                 }
 
-                if (order == parent.OrderData)
+                if (data == parent.OrderData)
                 {
-                    parent.DealPrice = order.DealPrice;
-                    parent.ClosedProfit += order.ClosedProfit;
-                    parent.UnclosedQty = order.UnclosedQty;
+                    parent.DealPrice = data.DealPrice;
+                    parent.ClosedProfit += data.ClosedProfit;
+                    parent.UnclosedQty = data.UnclosedQty;
                 }
-                else if (order == parent.StopLossData || order == parent.StopWinData || order == parent.MoveStopWinData || order == parent.MarketClosingData)
+                else if (data == parent.StopLossData || data == parent.StopWinData || data == parent.MoveStopWinData || data == parent.MarketClosingData)
                 {
-                    order.ClosedProfit = (order.DealPrice - parent.DealPrice) * order.DealQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
-                    order.UnclosedQty = parent.UnclosedQty - order.DealQty;
-                    order.UnclosedProfit = (order.DealPrice - parent.DealPrice) * order.UnclosedQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                    data.ClosedProfit = (data.DealPrice - parent.DealPrice) * data.DealQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                    data.UnclosedQty = parent.UnclosedQty - data.DealQty;
+                    data.UnclosedProfit = (data.DealPrice - parent.DealPrice) * data.UnclosedQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
 
-                    parent.ClosedProfit += order.ClosedProfit;
-                    parent.UnclosedQty = order.UnclosedQty;
+                    parent.ClosedProfit += data.ClosedProfit;
+                    parent.UnclosedQty = data.UnclosedQty;
                 }
 
                 parent.Updater = methodName;
@@ -156,22 +156,22 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void Add(StrategyData order)
+        public void Add(StrategyData data)
         {
-            if (string.IsNullOrWhiteSpace(order.PrimaryKey))
+            if (string.IsNullOrWhiteSpace(data.PrimaryKey))
             {
-                throw new ArgumentException($"未設定唯一鍵|{order.ToLog()}");
+                throw new ArgumentException($"未設定唯一鍵|{data.ToLog()}");
             }
 
-            DateTime start = _appCtrl.StartTrace($"{order?.ToLog()}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
 
-            _dataMap.Add(order.PrimaryKey, order);
+            _dataMap.Add(data.PrimaryKey, data);
 
             _appCtrl.MainForm.InvokeSync(delegate
             {
                 try
                 {
-                    _dataCollection.Add(order);
+                    _dataCollection.Add(data);
                 }
                 catch (Exception ex)
                 {

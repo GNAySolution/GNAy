@@ -359,40 +359,56 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _unclosedProfit, value); }
         }
 
-        private string _triggerAfterStopLoss;
+        private string _startTriggerAfterStopLoss;
         [Column("停損後接續執行觸價", "停損後觸價", WPFDisplayIndex = 28)]
-        public string TriggerAfterStopLoss
+        public string StartTriggerAfterStopLoss
         {
-            get { return _triggerAfterStopLoss; }
-            set { OnPropertyChanged(ref _triggerAfterStopLoss, value); }
+            get { return _startTriggerAfterStopLoss; }
+            set { OnPropertyChanged(ref _startTriggerAfterStopLoss, value); }
         }
 
-        private string _strategyAfterStopLoss;
+        private string _startStrategyAfterStopLoss;
         [Column("停損後接續執行策略", "停損後策略", WPFDisplayIndex = 29)]
-        public string StrategyAfterStopLoss
+        public string StartStrategyAfterStopLoss
         {
-            get { return _strategyAfterStopLoss; }
-            set { OnPropertyChanged(ref _strategyAfterStopLoss, value); }
+            get { return _startStrategyAfterStopLoss; }
+            set { OnPropertyChanged(ref _startStrategyAfterStopLoss, value); }
         }
 
-        private string _triggerAfterStopWin;
+        private string _startTriggerAfterStopWin;
         [Column("停利後接續執行觸價", "停利後觸價", WPFDisplayIndex = 30)]
-        public string TriggerAfterStopWin
+        public string StartTriggerAfterStopWin
         {
-            get { return _triggerAfterStopWin; }
-            set { OnPropertyChanged(ref _triggerAfterStopWin, value); }
+            get { return _startTriggerAfterStopWin; }
+            set { OnPropertyChanged(ref _startTriggerAfterStopWin, value); }
         }
 
-        private string _strategyAfterStopWin;
+        private string _startStrategyAfterStopWin;
         [Column("停利後接續執行策略", "停利後策略", WPFDisplayIndex = 31)]
-        public string StrategyAfterStopWin
+        public string StartStrategyAfterStopWin
         {
-            get { return _strategyAfterStopWin; }
-            set { OnPropertyChanged(ref _strategyAfterStopWin, value); }
+            get { return _startStrategyAfterStopWin; }
+            set { OnPropertyChanged(ref _startStrategyAfterStopWin, value); }
+        }
+
+        private string _stopTriggerAfterStopWin;
+        [Column("停利後停止觸價", "停止觸價", WPFDisplayIndex = 32)]
+        public string StopTriggerAfterStopWin
+        {
+            get { return _stopTriggerAfterStopWin; }
+            set { OnPropertyChanged(ref _stopTriggerAfterStopWin, value); }
+        }
+
+        private string _stopStrategyAfterStopWin;
+        [Column("停利後停止策略", "停止策略", WPFDisplayIndex = 33)]
+        public string StopStrategyAfterStopWin
+        {
+            get { return _stopStrategyAfterStopWin; }
+            set { OnPropertyChanged(ref _stopStrategyAfterStopWin, value); }
         }
 
         private int _winCloseQty;
-        [Column("收盤獲利減倉量", "收獲量", WPFDisplayIndex = 32)]
+        [Column("收盤獲利減倉量", "收獲量", WPFDisplayIndex = 34)]
         public int WinCloseQty
         {
             get { return _winCloseQty; }
@@ -407,7 +423,7 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _winCloseSeconds, value); }
         }
         private DateTime _winCloseTime;
-        [Column("收盤獲利減倉時間", "收獲時間", CSVIndex = -1, WPFDisplayIndex = 33, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("收盤獲利減倉時間", "收獲時間", CSVIndex = -1, WPFDisplayIndex = 35, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
         public DateTime WinCloseTime
         {
             get { return _winCloseTime; }
@@ -415,7 +431,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _lossCloseQty;
-        [Column("收盤損失減倉量", "收損量", WPFDisplayIndex = 34)]
+        [Column("收盤損失減倉量", "收損量", WPFDisplayIndex = 36)]
         public int LossCloseQty
         {
             get { return _lossCloseQty; }
@@ -430,7 +446,7 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _lossCloseSeconds, value); }
         }
         private DateTime _lossCloseTime;
-        [Column("收盤損失減倉時間", "收損時間", CSVIndex = -1, WPFDisplayIndex = 35, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("收盤損失減倉時間", "收損時間", CSVIndex = -1, WPFDisplayIndex = 37, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
         public DateTime LossCloseTime
         {
             get { return _lossCloseTime; }
@@ -439,10 +455,8 @@ namespace GNAy.Capital.Models
 
         public StrategyData MarketClosingData;
 
-        //
-
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 36)]
+        [Column("註解", WPFDisplayIndex = 38)]
         public string Comment
         {
             get { return _comment; }
@@ -492,10 +506,12 @@ namespace GNAy.Capital.Models
             ClosedProfit = 0;
             UnclosedQty = 0;
             UnclosedProfit = 0;
-            TriggerAfterStopLoss = string.Empty;
-            StrategyAfterStopLoss = string.Empty;
-            TriggerAfterStopWin = string.Empty;
-            StrategyAfterStopWin = string.Empty;
+            StartTriggerAfterStopLoss = string.Empty;
+            StartStrategyAfterStopLoss = string.Empty;
+            StartTriggerAfterStopWin = string.Empty;
+            StartStrategyAfterStopWin = string.Empty;
+            StopTriggerAfterStopWin = string.Empty;
+            StopStrategyAfterStopWin = string.Empty;
             WinCloseQty = 0;
             WinCloseSeconds = 0;
             WinCloseTime = DateTime.MinValue;
@@ -503,7 +519,6 @@ namespace GNAy.Capital.Models
             LossCloseSeconds = 0;
             LossCloseTime = DateTime.MinValue;
             MarketClosingData = null;
-            //
             Comment = string.Empty;
         }
 
@@ -519,10 +534,12 @@ namespace GNAy.Capital.Models
             MoveStopWinBefore = MoveStopWinBefore.Replace(" ", string.Empty);
             OrderReport = OrderReport.Replace(" ", string.Empty);
             DealReport = DealReport.Replace(" ", string.Empty);
-            TriggerAfterStopLoss = TriggerAfterStopLoss.Replace(" ", string.Empty);
-            StrategyAfterStopLoss = StrategyAfterStopLoss.Replace(" ", string.Empty);
-            TriggerAfterStopWin = TriggerAfterStopWin.Replace(" ", string.Empty);
-            StrategyAfterStopWin = StrategyAfterStopWin.Replace(" ", string.Empty);
+            StartTriggerAfterStopLoss = StartTriggerAfterStopLoss.Replace(" ", string.Empty);
+            StartStrategyAfterStopLoss = StartStrategyAfterStopLoss.Replace(" ", string.Empty);
+            StartTriggerAfterStopWin = StartTriggerAfterStopWin.Replace(" ", string.Empty);
+            StartStrategyAfterStopWin = StartStrategyAfterStopWin.Replace(" ", string.Empty);
+            StopTriggerAfterStopWin = StopTriggerAfterStopWin.Replace(" ", string.Empty);
+            StopStrategyAfterStopWin = StopStrategyAfterStopWin.Replace(" ", string.Empty);
             Comment = Comment.Replace(" ", string.Empty);
 
             Updater = memberName;
@@ -533,7 +550,7 @@ namespace GNAy.Capital.Models
 
         public StrategyData Reset()
         {
-            //if (UnclosedQty <= 0)
+            //TODO: if (UnclosedQty <= 0)
             //{ }
             //else if (StatusEnum == StrategyStatus.Enum.Waiting ||
             //    StatusEnum == StrategyStatus.Enum.Cancelled ||

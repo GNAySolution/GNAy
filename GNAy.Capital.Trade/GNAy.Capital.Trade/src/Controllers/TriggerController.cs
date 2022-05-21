@@ -31,7 +31,7 @@ namespace GNAy.Capital.Trade.Controllers
         public TriggerData this[string key] => _dataMap.TryGetValue(key, out TriggerData data) ? data : null;
         public IReadOnlyList<TriggerData> DataCollection => _dataCollection;
 
-        private ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
+        private readonly ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
 
         public TriggerController(AppController appCtrl)
         {
@@ -260,14 +260,15 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (data.StatusEnum == TriggerStatus.Enum.Executed)
-                {
-                    throw new ArgumentException($"已觸發無法取消|{data.ToLog()}");
-                }
-                else if (data.StatusEnum == TriggerStatus.Enum.Cancelled)
+                if (data.StatusEnum == TriggerStatus.Enum.Cancelled)
                 {
                     _appCtrl.LogTrace(start, $"已經取消|{data.ToLog()}", UniqueName);
+
                     return true;
+                }
+                else if (data.StatusEnum == TriggerStatus.Enum.Executed)
+                {
+                    throw new ArgumentException($"已觸發無法取消|{data.ToLog()}");
                 }
 
                 data.StatusEnum = TriggerStatus.Enum.Cancelled;
@@ -290,7 +291,7 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        public bool Cancel(string primaryKey)
+        public bool Cancel(string primaryKey, string comment = "手動取消")
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
 
@@ -303,7 +304,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 lock (data.SyncRoot)
                 {
-                    if (Cancel(data, "手動取消", start))
+                    if (Cancel(data, comment, start))
                     {
                         Task.Factory.StartNew(() => SaveData());
 

@@ -537,9 +537,9 @@
                 <Label Content="停利後執行" HorizontalAlignment="Left" Margin="591,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStartTriggerAfterStopWin" Text="停利後執行觸價" ToolTip="停利後接續執行觸價" HorizontalAlignment="Left" Margin="591,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxStartStrategyAfterStopWin" Text="停利後執行策略" ToolTip="停利後接續執行策略" HorizontalAlignment="Left" Margin="591,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="停利後取消" HorizontalAlignment="Left" Margin="716,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxCancelTriggerAfterStopWin" Text="停利後取消觸價" ToolTip="停利後取消觸價" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <TextBox x:Name="TextBoxCancelStrategyAfterStopWin" Text="停利後取消策略" ToolTip="停利後取消策略" HorizontalAlignment="Left" Margin="716,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <Label Content="停利後停止" HorizontalAlignment="Left" Margin="716,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStopTriggerAfterStopWin" Text="停利後停止觸價" ToolTip="停利後停止觸價" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStopStrategyAfterStopWin" Text="停利後停止策略" ToolTip="停利後停止策略" HorizontalAlignment="Left" Margin="716,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="收盤獲利減倉或CD單" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyWinClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="收盤損失減倉" HorizontalAlignment="Left" Margin="966,57,0,0" VerticalAlignment="Top"/>
@@ -842,10 +842,12 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding TriggerAfterStopLoss}"/>
-                                    <DataGridTextColumn Binding="{Binding StrategyAfterStopLoss}"/>
-                                    <DataGridTextColumn Binding="{Binding TriggerAfterStopWin}"/>
-                                    <DataGridTextColumn Binding="{Binding StrategyAfterStopWin}"/>
+                                    <DataGridTextColumn Binding="{Binding StartTriggerAfterStopLoss}"/>
+                                    <DataGridTextColumn Binding="{Binding StartStrategyAfterStopLoss}"/>
+                                    <DataGridTextColumn Binding="{Binding StartTriggerAfterStopWin}"/>
+                                    <DataGridTextColumn Binding="{Binding StartStrategyAfterStopWin}"/>
+                                    <DataGridTextColumn Binding="{Binding StopTriggerAfterStopWin}"/>
+                                    <DataGridTextColumn Binding="{Binding StopStrategyAfterStopWin}"/>
                                     <DataGridTextColumn Binding="{Binding WinCloseQty}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
@@ -918,8 +920,8 @@
                 <Button x:Name="ButtonStartStartegyNow" Content="立刻啟動策略" HorizontalAlignment="Left" Margin="54,82,0,0" VerticalAlignment="Top" Click="ButtonStartStartegyNow_Click"/>
                 <Label Content="委託價格" HorizontalAlignment="Left" Margin="135,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxOrderPrice" Text="MPHL" ToolTip="M市價，P範圍市價，H漲停價，L跌停價" HorizontalAlignment="Left" Margin="135,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="委託口數" HorizontalAlignment="Left" Margin="260,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxOrderQty" Text="委託口數" ToolTip="委託口數" HorizontalAlignment="Left" Margin="260,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <Label Content="委託量" HorizontalAlignment="Left" Margin="260,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxOrderQty" Text="委託量" ToolTip="委託量" HorizontalAlignment="Left" Margin="260,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="委託序號" HorizontalAlignment="Left" Margin="452,59,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxOrderSeqNo" HorizontalAlignment="Left" Margin="510,61,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"/>
                 <Button x:Name="ButtonCancelOrderBySeqNo" Content="刪單by序號" HorizontalAlignment="Left" Margin="635,61,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderBySeqNo_Click"/>
@@ -1100,10 +1102,12 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding TriggerAfterStopLoss}"/>
-                                    <DataGridTextColumn Binding="{Binding StrategyAfterStopLoss}"/>
-                                    <DataGridTextColumn Binding="{Binding TriggerAfterStopWin}"/>
-                                    <DataGridTextColumn Binding="{Binding StrategyAfterStopWin}"/>
+                                    <DataGridTextColumn Binding="{Binding StartTriggerAfterStopLoss}"/>
+                                    <DataGridTextColumn Binding="{Binding StartStrategyAfterStopLoss}"/>
+                                    <DataGridTextColumn Binding="{Binding StartTriggerAfterStopWin}"/>
+                                    <DataGridTextColumn Binding="{Binding StartStrategyAfterStopWin}"/>
+                                    <DataGridTextColumn Binding="{Binding StopTriggerAfterStopWin}"/>
+                                    <DataGridTextColumn Binding="{Binding StopStrategyAfterStopWin}"/>
                                     <DataGridTextColumn Binding="{Binding WinCloseQty}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
