@@ -11,7 +11,7 @@
 * https://www.capital.com.tw/Service2/download/api.asp
 * Demo放在以下頻道
 * https://youtube.com/playlist?list=PLOGS4yeidG_YCRn2hZjwbP4ffqnL33VuH
-* (投資一定有風險，不同時間進場，將有不同的投資績效，電子下單也可能面對使用者操作不當、程式錯誤、作業系統錯誤、硬體錯誤、病毒攻擊、網路攻擊、時間延遲、網路壅塞、斷線、停電等風險)
+* (投資一定有風險，不同時間進場，將有不同的投資績效，電子下單也可能面對使用者操作不當、程式錯誤、作業系統錯誤、硬體錯誤、病毒攻擊、時間延遲、網路壅塞、斷線、停電等風險)
 
 ###### vcredist_x64.exe & CAP-*.pfx
 * 使用群益API的前置條件，要先安裝憑證(CAP-*.pfx)，以及微軟Visual C++ 2010 Service Pack 1 MFC可轉散發套件安全性更新(vcredist_x64.exe)
