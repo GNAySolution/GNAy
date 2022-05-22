@@ -16,6 +16,8 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
+        private readonly HashSet<string> _strategyAccounts;
+
         private readonly ConcurrentQueue<string> _waitToAdd;
 
         private readonly SortedDictionary<string, OpenInterestData> _dataMap;
@@ -33,6 +35,8 @@ namespace GNAy.Capital.Trade.Controllers
             UniqueName = nameof(OpenInterestController).Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
+            _strategyAccounts = new HashSet<string>();
+
             _waitToAdd = new ConcurrentQueue<string>();
 
             _dataMap = new SortedDictionary<string, OpenInterestData>();
@@ -44,6 +48,82 @@ namespace GNAy.Capital.Trade.Controllers
 
         private OpenInterestController() : this(null)
         { }
+
+        private void StartStrategy(string account, DateTime start)
+        {
+            const string methodName = nameof(StartStrategy);
+
+            try
+            {
+                if (!_appCtrl.Settings.StartFromOpenInterest || _strategyAccounts.Contains(account) || _appCtrl.Strategy == null || _appCtrl.Strategy.Count <= 0)
+                {
+                    return;
+                }
+
+                SortedDictionary<string, (OpenInterestData, StrategyData)> map = new SortedDictionary<string, (OpenInterestData, StrategyData)>();
+
+                for (int i = _appCtrl.Strategy.Count - 1; i >= 0; --i)
+                {
+                    try
+                    {
+                        StrategyData target = _appCtrl.Strategy.DataCollection[i];
+
+                        if (target.FullAccount != account)
+                        {
+                            continue;
+                        }
+
+                        _strategyAccounts.Add(account);
+
+                        if (target.OrderData != null || target.UnclosedQty != 0)
+                        {
+                            continue;
+                        }
+
+                        string key = $"{target.FullAccount}_{target.Symbol}_{target.BS}_{target.DayTrade}";
+                        OpenInterestData data = this[key];
+
+                        if (data == null || data.PositionEnum == OrderPosition.Enum.Close || data.Quantity < target.OrderQty)
+                        {
+                            continue;
+                        }
+                        else if (!map.TryGetValue(key, out (OpenInterestData, StrategyData) _old))
+                        {
+                            map[key] = (data, target);
+                            continue;
+                        }
+                        else if (_old.Item2.OrderQty < target.OrderQty)
+                        {
+                            map[key] = (data, target);
+                            continue;
+                        }
+                        else if (_old.Item2.OrderQty > target.OrderQty)
+                        {
+                            continue;
+                        }
+
+                        //TODO: 有兩個相同委託量的策略
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
+                }
+
+                foreach ((OpenInterestData, StrategyData) value in map.Values)
+                {
+                    //value.Item2.CreateOrder();
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
 
         private void CheckStrategy(OpenInterestData data, DateTime start)
         {
@@ -79,6 +159,11 @@ namespace GNAy.Capital.Trade.Controllers
                 if (data.PositionEnum == OrderPosition.Enum.Close)
                 {
                     _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{strategy.UnclosedQty} != 0|{strategy.ToLog()}", UniqueName);
+                    strategy.UnclosedQty = 0;
+                }
+                else if (strategy.UnclosedQty < 0)
+                {
+                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{strategy.UnclosedQty} < 0|{strategy.ToLog()}", UniqueName);
                     strategy.UnclosedQty = 0;
                 }
                 else if (strategy.UnclosedQty > data.Quantity)
@@ -210,6 +295,8 @@ namespace GNAy.Capital.Trade.Controllers
                         _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                     }
 
+                    StartStrategy(QuerySent.Item3, start);
+
                     continue;
                 }
 
@@ -301,6 +388,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     int result = _appCtrl.CAPOrder.GetOpenInterest(acc.FullAccount);
                     QuerySent = (DateTime.Now, i, acc.FullAccount, result);
+
                     return QuerySent;
                 }
 
@@ -315,6 +403,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     int result = _appCtrl.CAPOrder.GetOpenInterest(acc.FullAccount);
                     QuerySent = (DateTime.Now, i, acc.FullAccount, result);
+
                     return QuerySent;
                 }
             }
@@ -324,6 +413,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
 
             QuerySent = (DateTime.Now, -1, string.Empty, -1);
+
             return QuerySent;
         }
     }

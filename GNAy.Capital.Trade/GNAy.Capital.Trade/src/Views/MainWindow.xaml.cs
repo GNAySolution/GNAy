@@ -1706,12 +1706,12 @@ namespace GNAy.Capital.Trade
                 TextBoxStrategyStopLoss.Text = strategy.StopLossBefore;
                 TextBoxStrategyStopWin.Text = strategy.StopWinBefore;
                 TextBoxStrategyMoveStopWin.Text = strategy.MoveStopWinBefore;
-                TextBoxStartTriggerAfterStopLoss.Text = strategy.StartTriggerAfterStopLoss;
-                TextBoxStartStrategyAfterStopLoss.Text = strategy.StartStrategyAfterStopLoss;
-                TextBoxStartTriggerAfterStopWin.Text = strategy.StartTriggerAfterStopWin;
-                TextBoxStartStrategyAfterStopWin.Text = strategy.StartStrategyAfterStopWin;
-                TextBoxStopTriggerAfterStopWin.Text = strategy.StopTriggerAfterStopWin;
-                TextBoxStopStrategyAfterStopWin.Text = strategy.StopStrategyAfterStopWin;
+                TextBoxOpenTriggerAfterStopLoss.Text = strategy.OpenTriggerAfterStopLoss;
+                TextBoxOpenStrategyAfterStopLoss.Text = strategy.OpenStrategyAfterStopLoss;
+                TextBoxOpenTriggerAfterStopWin.Text = strategy.OpenTriggerAfterStopWin;
+                TextBoxOpenStrategyAfterStopWin.Text = strategy.OpenStrategyAfterStopWin;
+                TextBoxCloseTriggerAfterStopWin.Text = strategy.CloseTriggerAfterStopWin;
+                TextBoxCloseStrategyAfterStopWin.Text = strategy.CloseStrategyAfterStopWin;
                 TextBoxStrategyWinClose.Text = $"{strategy.WinCloseQty},{strategy.WinCloseSeconds}secs";
                 TextBoxStrategyLossClose.Text = $"{strategy.LossCloseQty},{strategy.LossCloseSeconds}secs";
 
@@ -1780,7 +1780,7 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                _appCtrl.Strategy.Stop(TextBoxStrategyPrimaryKey.Text);
+                _appCtrl.Strategy.Close(TextBoxStrategyPrimaryKey.Text);
             }
             catch (Exception ex)
             {
@@ -1826,12 +1826,12 @@ namespace GNAy.Capital.Trade
                     StopLossBefore = TextBoxStrategyStopLoss.Text,
                     StopWinBefore = TextBoxStrategyStopWin.Text,
                     MoveStopWinBefore = TextBoxStrategyMoveStopWin.Text,
-                    StartTriggerAfterStopLoss = TextBoxStartTriggerAfterStopLoss.Text,
-                    StartStrategyAfterStopLoss = TextBoxStartStrategyAfterStopLoss.Text,
-                    StartTriggerAfterStopWin = TextBoxStartTriggerAfterStopWin.Text,
-                    StartStrategyAfterStopWin = TextBoxStartStrategyAfterStopWin.Text,
-                    StopTriggerAfterStopWin = TextBoxStopTriggerAfterStopWin.Text,
-                    StopStrategyAfterStopWin = TextBoxStopStrategyAfterStopWin.Text,
+                    OpenTriggerAfterStopLoss = TextBoxOpenTriggerAfterStopLoss.Text,
+                    OpenStrategyAfterStopLoss = TextBoxOpenStrategyAfterStopLoss.Text,
+                    OpenTriggerAfterStopWin = TextBoxOpenTriggerAfterStopWin.Text,
+                    OpenStrategyAfterStopWin = TextBoxOpenStrategyAfterStopWin.Text,
+                    CloseTriggerAfterStopWin = TextBoxCloseTriggerAfterStopWin.Text,
+                    CloseStrategyAfterStopWin = TextBoxCloseStrategyAfterStopWin.Text,
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
@@ -1936,7 +1936,7 @@ namespace GNAy.Capital.Trade
                     UpdateTime = DateTime.Now,
                 };
 
-                _appCtrl.CAPOrder.SendAsync(order);
+                _appCtrl.CAPOrder.Send(order);
             }
             catch (Exception ex)
             {

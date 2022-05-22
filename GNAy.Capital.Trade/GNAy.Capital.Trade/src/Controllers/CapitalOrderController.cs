@@ -380,33 +380,13 @@ namespace GNAy.Capital.Trade.Controllers
             return m_nCode == 0 ? (LogLevel.Trace, orderMsg) : _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderMsg);
         }
 
-        public void Send(StrategyData order)
+        private void SendAsync(StrategyData order, DateTime start)
         {
-            const string methodName = nameof(Send);
-
-            DateTime start = _appCtrl.StartTrace($"{order?.ToLog()}", UniqueName);
+            const string methodName = nameof(SendAsync);
 
             try
             {
-                if (string.IsNullOrWhiteSpace(order.PrimaryKey))
-                {
-                    order.PrimaryKey = $"{order.CreatedTime:HHmmss}_{StrategyStatus.Enum.OrderSent}";
-
-                    if (_appCtrl.Strategy[order.PrimaryKey] != null)
-                    {
-                        throw new ArgumentException($"_appCtrl.Strategy[{order.PrimaryKey}] != null|{order.ToLog()}");
-                    }
-                }
-                else if (_appCtrl.Strategy[order.PrimaryKey] == order)
-                {
-                    throw new ArgumentException($"_appCtrl.Strategy[{order.PrimaryKey}] == order|{order.ToLog()}");
-                }
-
-                _appCtrl.OrderDetail.Add(order);
-                _appCtrl.OrderDetail.Check(order, start);
-
                 order.StatusEnum = StrategyStatus.Enum.OrderSent;
-                _appCtrl.Strategy.SaveData(_appCtrl.OrderDetail.DataCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
 
                 (LogLevel, string) orderResult = (LogLevel.Trace, $"_appCtrl.Settings.SendRealOrder={_appCtrl.Settings.SendRealOrder}"); //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
 
@@ -434,8 +414,6 @@ namespace GNAy.Capital.Trade.Controllers
                 order.OrderReport = orderResult.Item2;
                 order.Updater = methodName;
                 order.UpdateTime = DateTime.Now;
-
-                _appCtrl.Strategy.SaveData(_appCtrl.OrderDetail.DataCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
             }
             catch (Exception ex)
             {
@@ -476,13 +454,76 @@ namespace GNAy.Capital.Trade.Controllers
                     parent.UpdateTime = DateTime.Now;
                 }
 
+                _appCtrl.Strategy.SaveData(_appCtrl.OrderDetail.DataCollection, _appCtrl.Config.SentOrderFolder, _appCtrl.Settings.SentOrderFileFormat);
+
                 _appCtrl.EndTrace(start, UniqueName);
             }
         }
 
-        public void SendAsync(StrategyData order)
+        public void Send(StrategyData order)
         {
-            Task.Factory.StartNew(() => Send(order));
+            const string methodName = nameof(Send);
+
+            DateTime start = _appCtrl.StartTrace($"{order?.ToLog()}", UniqueName);
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(order.PrimaryKey))
+                {
+                    order.PrimaryKey = $"{order.CreatedTime:HHmmss}_{StrategyStatus.Enum.OrderSent}";
+
+                    if (_appCtrl.Strategy[order.PrimaryKey] != null)
+                    {
+                        throw new ArgumentException($"_appCtrl.Strategy[{order.PrimaryKey}] != null|{order.ToLog()}");
+                    }
+                }
+                else if (_appCtrl.Strategy[order.PrimaryKey] == order)
+                {
+                    throw new ArgumentException($"_appCtrl.Strategy[{order.PrimaryKey}] == order|{order.ToLog()}");
+                }
+
+                _appCtrl.OrderDetail.Add(order);
+                _appCtrl.OrderDetail.Check(order, start);
+
+                SendAsync(order, start);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+                Notice = ex.Message;
+
+                order.StatusEnum = StrategyStatus.Enum.OrderError;
+                order.OrderReport = ex.Message;
+                order.Updater = methodName;
+                order.UpdateTime = DateTime.Now;
+
+                StrategyData parent = order.Parent;
+
+                if (parent != null)
+                {
+                    switch (parent.StatusEnum)
+                    {
+                        case StrategyStatus.Enum.OrderSent:
+                            parent.StatusEnum = StrategyStatus.Enum.OrderError;
+                            break;
+                        case StrategyStatus.Enum.StopLossSent:
+                            parent.StatusEnum = StrategyStatus.Enum.StopLossError;
+                            break;
+                        case StrategyStatus.Enum.StopWinSent:
+                            parent.StatusEnum = StrategyStatus.Enum.StopWinError;
+                            break;
+                        case StrategyStatus.Enum.MoveStopWinSent:
+                            parent.StatusEnum = StrategyStatus.Enum.MoveStopWinError;
+                            break;
+                        case StrategyStatus.Enum.MarketClosingSent:
+                            parent.StatusEnum = StrategyStatus.Enum.MarketClosingError;
+                            break;
+                    }
+
+                    parent.Updater = methodName;
+                    parent.UpdateTime = DateTime.Now;
+                }
+            }
         }
 
         public void CancelBySeqNo(OrderAccData acc, string seqNo)

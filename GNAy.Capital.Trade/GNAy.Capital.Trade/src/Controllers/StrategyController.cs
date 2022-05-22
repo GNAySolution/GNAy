@@ -124,6 +124,10 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 throw new ArgumentException($"data.Parent != null|{data.Parent.ToLog()}");
             }
+            else if (data.PositionEnum != OrderPosition.Enum.Open)
+            {
+                throw new ArgumentException($"data.PositionEnum != OrderPosition.Enum.Open|{data.ToLog()}");
+            }
             else if (data.OrderQty <= 0)
             {
                 throw new ArgumentException($"委託量({data.OrderQty}) <= 0|{data.ToLog()}");
@@ -299,9 +303,9 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private bool Stop(StrategyData data, int qty, string comment, DateTime start)
+        private bool Close(StrategyData data, int qty, string comment, DateTime start)
         {
-            const string methodName = nameof(Stop);
+            const string methodName = nameof(Close);
 
             try
             {
@@ -321,25 +325,14 @@ namespace GNAy.Capital.Trade.Controllers
                     return true;
                 }
 
-                StrategyData marketClosingOrder = data.CreateMarketClosingOrder();
-                marketClosingOrder.OrderQty = qty;
-
-                if (marketClosingOrder.OrderQty > 0) //負值減倉正值留倉
-                {
-                    marketClosingOrder.OrderQty = data.UnclosedQty - marketClosingOrder.OrderQty;
-                }
-
-                if (marketClosingOrder.OrderQty <= 0 || marketClosingOrder.OrderQty > data.UnclosedQty)
-                {
-                    marketClosingOrder.OrderQty = data.UnclosedQty;
-                }
+                StrategyData marketClosingOrder = data.CreateMarketClosingOrder(qty);
 
                 data.StatusEnum = StrategyStatus.Enum.MarketClosingSent;
                 data.Comment = comment;
                 data.Updater = methodName;
                 data.UpdateTime = DateTime.Now;
 
-                _appCtrl.CAPOrder.SendAsync(marketClosingOrder);
+                _appCtrl.CAPOrder.Send(marketClosingOrder);
 
                 return true;
             }
@@ -356,7 +349,7 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        public bool Stop(string primaryKey, int qty = 0, string comment = "手動停止")
+        public bool Close(string primaryKey, int qty = 0, string comment = "手動停止")
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}|qty={qty}", UniqueName);
 
@@ -369,7 +362,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 lock (data.SyncRoot)
                 {
-                    if (Stop(data, qty, comment, start))
+                    if (Close(data, qty, comment, start))
                     {
                         Task.Factory.StartNew(() => SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat));
 
@@ -390,7 +383,7 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        private void StartTrigger(StrategyData data, string primary, DateTime start)
+        private void OpenTrigger(StrategyData data, string primary, DateTime start)
         {
             try
             {
@@ -416,7 +409,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void StartStrategy(StrategyData data, string primary, DateTime start)
+        private void OpenStrategy(StrategyData data, string primary, DateTime start)
         {
             try
             {
@@ -437,23 +430,23 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void AfterStopLoss(StrategyData data, DateTime start)
         {
-            if (!string.IsNullOrWhiteSpace(data.StartTriggerAfterStopLoss))
+            if (!string.IsNullOrWhiteSpace(data.OpenTriggerAfterStopLoss))
             {
-                HashSet<string> triggers = new HashSet<string>(data.StartTriggerAfterStopLoss.Split(','));
+                HashSet<string> triggers = new HashSet<string>(data.OpenTriggerAfterStopLoss.Split(','));
 
                 foreach (string primary in triggers)
                 {
-                    StartTrigger(data, primary, start);
+                    OpenTrigger(data, primary, start);
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(data.StartStrategyAfterStopLoss))
+            if (!string.IsNullOrWhiteSpace(data.OpenStrategyAfterStopLoss))
             {
-                HashSet<string> strategise = new HashSet<string>(data.StartStrategyAfterStopLoss.Split(','));
+                HashSet<string> strategise = new HashSet<string>(data.OpenStrategyAfterStopLoss.Split(','));
 
                 foreach (string primary in strategise)
                 {
-                    StartStrategy(data, primary, start);
+                    OpenStrategy(data, primary, start);
                 }
             }
         }
@@ -472,9 +465,9 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(data.StopTriggerAfterStopWin))
+            if (!string.IsNullOrWhiteSpace(data.CloseTriggerAfterStopWin))
             {
-                HashSet<string> triggers = new HashSet<string>(data.StopTriggerAfterStopWin.Split(','));
+                HashSet<string> triggers = new HashSet<string>(data.CloseTriggerAfterStopWin.Split(','));
 
                 foreach (string primary in triggers)
                 {
@@ -482,33 +475,33 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(data.StopStrategyAfterStopWin))
+            if (!string.IsNullOrWhiteSpace(data.CloseStrategyAfterStopWin))
             {
-                HashSet<string> strategise = new HashSet<string>(data.StopStrategyAfterStopWin.Split(','));
+                HashSet<string> strategise = new HashSet<string>(data.CloseStrategyAfterStopWin.Split(','));
 
                 foreach (string primary in strategise)
                 {
-                    Stop(primary, 0, "策略停止");
+                    Close(primary, 0, "策略停止");
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(data.StartTriggerAfterStopWin))
+            if (!string.IsNullOrWhiteSpace(data.OpenTriggerAfterStopWin))
             {
-                HashSet<string> triggers = new HashSet<string>(data.StartTriggerAfterStopWin.Split(','));
+                HashSet<string> triggers = new HashSet<string>(data.OpenTriggerAfterStopWin.Split(','));
 
                 foreach (string primary in triggers)
                 {
-                    StartTrigger(data, primary, start);
+                    OpenTrigger(data, primary, start);
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(data.StartStrategyAfterStopWin))
+            if (!string.IsNullOrWhiteSpace(data.OpenStrategyAfterStopWin))
             {
-                HashSet<string> strategise = new HashSet<string>(data.StartStrategyAfterStopWin.Split(','));
+                HashSet<string> strategise = new HashSet<string>(data.OpenStrategyAfterStopWin.Split(','));
 
                 foreach (string primary in strategise)
                 {
-                    StartStrategy(data, primary, start);
+                    OpenStrategy(data, primary, start);
                 }
             }
         }
@@ -572,14 +565,14 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (data.UnclosedProfit > 0 && data.WinCloseSeconds > 0 && DateTime.Now >= data.WinCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
                     {
-                        Stop(data, data.WinCloseQty, "收盤獲利減倉", start);
+                        Close(data, data.WinCloseQty, "收盤獲利減倉", start);
 
                         saveData = true;
                         return saveData;
                     }
                     else if (data.UnclosedProfit <= 0 && data.LossCloseSeconds > 0 && DateTime.Now >= data.LossCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
                     {
-                        Stop(data, data.LossCloseQty, "收盤損失減倉", start);
+                        Close(data, data.LossCloseQty, "收盤損失減倉", start);
 
                         saveData = true;
                         return saveData;
@@ -595,7 +588,7 @@ namespace GNAy.Capital.Trade.Controllers
                             StrategyData stopLossOrder = data.CreateStopLossOrder();
 
                             data.StatusEnum = StrategyStatus.Enum.StopLossSent;
-                            _appCtrl.CAPOrder.SendAsync(stopLossOrder);
+                            _appCtrl.CAPOrder.Send(stopLossOrder);
 
                             saveData = true;
                             AfterStopLoss(data, start);
@@ -610,7 +603,7 @@ namespace GNAy.Capital.Trade.Controllers
                             { } //滿足條件但不減倉
                             else
                             {
-                                _appCtrl.CAPOrder.SendAsync(stopWinOrder);
+                                _appCtrl.CAPOrder.Send(stopWinOrder);
                             }
 
                             saveData = true;
@@ -622,7 +615,7 @@ namespace GNAy.Capital.Trade.Controllers
                         StrategyData stopLossOrder = data.CreateStopLossOrder();
 
                         data.StatusEnum = StrategyStatus.Enum.StopLossSent;
-                        _appCtrl.CAPOrder.SendAsync(stopLossOrder);
+                        _appCtrl.CAPOrder.Send(stopLossOrder);
 
                         saveData = true;
                         AfterStopLoss(data, start);
@@ -637,7 +630,7 @@ namespace GNAy.Capital.Trade.Controllers
                         { } //滿足條件但不減倉
                         else
                         {
-                            _appCtrl.CAPOrder.SendAsync(stopWinOrder);
+                            _appCtrl.CAPOrder.Send(stopWinOrder);
                         }
 
                         saveData = true;
@@ -658,7 +651,7 @@ namespace GNAy.Capital.Trade.Controllers
                             { } //滿足條件但不減倉
                             else
                             {
-                                _appCtrl.CAPOrder.SendAsync(moveStopWinOrder);
+                                _appCtrl.CAPOrder.Send(moveStopWinOrder);
                             }
 
                             saveData = true;
@@ -675,7 +668,7 @@ namespace GNAy.Capital.Trade.Controllers
                         { } //滿足條件但不減倉
                         else
                         {
-                            _appCtrl.CAPOrder.SendAsync(moveStopWinOrder);
+                            _appCtrl.CAPOrder.Send(moveStopWinOrder);
                         }
 
                         saveData = true;
@@ -831,7 +824,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             StrategyData order = data.CreateOrder();
             data.StatusEnum = StrategyStatus.Enum.OrderSent;
-            _appCtrl.CAPOrder.SendAsync(order);
+            _appCtrl.CAPOrder.Send(order);
         }
 
         public void RecoverSetting(FileInfo fileStrategy = null, FileInfo fileSentOrder = null)
@@ -876,6 +869,8 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
+
+                        data.UnclosedQty = 0;
 
                         data = data.Reset();
                         data.MarketType = _appCtrl.CAPOrder[data.FullAccount].MarketType;

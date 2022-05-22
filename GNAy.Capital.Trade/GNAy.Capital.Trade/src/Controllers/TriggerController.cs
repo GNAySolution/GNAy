@@ -131,13 +131,13 @@ namespace GNAy.Capital.Trade.Controllers
             return (LogLevel.Trace, string.Empty);
         }
 
-        private void StrategyOpen(TriggerData data, string strategyPK, DateTime start)
+        private void OpenStrategy(TriggerData data, string strategyPK, DateTime start)
         {
             try
             {
-                StrategyData strategy = _appCtrl.Strategy[strategyPK];
-                strategy = strategy.Reset();
-                _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
+                StrategyData target = _appCtrl.Strategy[strategyPK];
+                target = target.Reset();
+                _appCtrl.Strategy.StartNow(target.PrimaryKey);
             }
             catch (Exception ex)
             {
@@ -150,7 +150,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private HashSet<string> StrategyOpen(TriggerData data, DateTime start)
+        private HashSet<string> OpenStrategy(TriggerData data, DateTime start)
         {
             if (!string.IsNullOrWhiteSpace(data.StrategyOpenOR))
             {
@@ -158,7 +158,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 foreach (string primary in primariesOR)
                 {
-                    StrategyOpen(data, primary, start);
+                    OpenStrategy(data, primary, start);
                 }
             }
 
@@ -196,7 +196,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
 
                     strategyAND.Add(primary);
-                    StrategyOpen(data, primary, start);
+                    OpenStrategy(data, primary, start);
                 }
             }
 
@@ -391,8 +391,8 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.LogTrace(start, $"{data.ToLog()}|{data.ColumnValue} {data.Rule} {data.TargetValue}", UniqueName);
 
                     saveData = true;
-                    HashSet<string> strategyAND = StrategyOpen(data, start);
-                    //TODO: StrategyClose(data, start);
+                    HashSet<string> strategyAND = OpenStrategy(data, start);
+                    //TODO: CloseStrategy(data, start);
 
                     if (string.IsNullOrWhiteSpace(data.StrategyOpenAND) || strategyAND.Count > 0)
                     {

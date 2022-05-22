@@ -64,6 +64,10 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 throw new ArgumentException($"{data.StatusEnum} != StrategyStatus.Enum.Waiting|{data.ToLog()}");
             }
+            else if (data.OrderQty <= 0)
+            {
+                throw new ArgumentException($"委託量({data.OrderQty}) <= 0|{data.ToLog()}");
+            }
             else if (data.OrderData != null || data.StopLossData != null || data.StopWinData != null || data.MoveStopWinData != null || data.MarketClosingData != null)
             {
                 throw new ArgumentException($"委託單資料結構異常|{data.OrderData != null}|{data.StopLossData != null}|{data.StopWinData != null}|{data.MoveStopWinData != null}|{data.MarketClosingData != null}|{data.ToLog()}");
@@ -106,35 +110,20 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.LogTrace(start, $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
             Notice = $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}";
 
-            if (data.PositionEnum == OrderPosition.Enum.Open)
-            {
-                if (data.OrderQty <= 0)
-                {
-                    throw new ArgumentException($"委託量({data.OrderQty}) <= 0|{data.ToLog()}");
-                }
-
-                data.ClosedProfit = 0;
-                data.UnclosedQty = data.OrderQty;
-                data.UnclosedProfit = 0;
-            }
-
             data.DealPrice = data.OrderPriceAfter;
             data.DealQty = data.OrderQty;
+
+            if (data.PositionEnum == OrderPosition.Enum.Open)
+            {
+                data.ClosedProfit = 0;
+                data.UnclosedQty = data.DealQty;
+                data.UnclosedProfit = 0;
+            }
 
             StrategyData parent = data.Parent;
 
             if (parent != null)
             {
-                if (data.PositionEnum == OrderPosition.Enum.Close && (data.OrderQty <= 0 || data.OrderQty > parent.UnclosedQty))
-                {
-                    data.OrderQty = parent.UnclosedQty;
-                }
-
-                if (data.OrderQty <= 0)
-                {
-                    throw new ArgumentException($"委託量({data.OrderQty}) <= 0|{data.ToLog()}");
-                }
-
                 if (data == parent.OrderData)
                 {
                     parent.DealPrice = data.DealPrice;
@@ -172,6 +161,8 @@ namespace GNAy.Capital.Trade.Controllers
                 try
                 {
                     _dataCollection.Add(data);
+
+                    _appCtrl.MainForm.DataGridOrderDetail.ScrollToBorderEnd();
                 }
                 catch (Exception ex)
                 {
