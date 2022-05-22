@@ -315,7 +315,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     return true;
                 }
-                else if (data.StatusEnum == StrategyStatus.Enum.Waiting || data.StatusEnum == StrategyStatus.Enum.OrderError || data.StopLossData != null || data.MarketClosingData != null || data.UnclosedQty <= 0)
+                else if (data.StatusEnum == StrategyStatus.Enum.Waiting || data.StopLossData != null || data.MarketClosingData != null || data.UnclosedQty <= 0)
                 {
                     data.StatusEnum = StrategyStatus.Enum.Cancelled;
                     data.Comment = comment;
@@ -414,7 +414,7 @@ namespace GNAy.Capital.Trade.Controllers
             try
             {
                 StrategyData target = _appCtrl.Strategy[primary];
-                target = target.Reset();
+
                 _appCtrl.Strategy.StartNow(target.PrimaryKey);
             }
             catch (Exception ex)
@@ -432,9 +432,9 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (!string.IsNullOrWhiteSpace(data.OpenTriggerAfterStopLoss))
             {
-                HashSet<string> triggers = new HashSet<string>(data.OpenTriggerAfterStopLoss.Split(','));
+                HashSet<string> targets = new HashSet<string>(data.OpenTriggerAfterStopLoss.Split(','));
 
-                foreach (string primary in triggers)
+                foreach (string primary in targets)
                 {
                     OpenTrigger(data, primary, start);
                 }
@@ -442,9 +442,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!string.IsNullOrWhiteSpace(data.OpenStrategyAfterStopLoss))
             {
-                HashSet<string> strategise = new HashSet<string>(data.OpenStrategyAfterStopLoss.Split(','));
+                HashSet<string> targets = new HashSet<string>(data.OpenStrategyAfterStopLoss.Split(','));
 
-                foreach (string primary in strategise)
+                foreach (string primary in targets)
                 {
                     OpenStrategy(data, primary, start);
                 }
@@ -467,9 +467,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!string.IsNullOrWhiteSpace(data.CloseTriggerAfterStopWin))
             {
-                HashSet<string> triggers = new HashSet<string>(data.CloseTriggerAfterStopWin.Split(','));
+                HashSet<string> targets = new HashSet<string>(data.CloseTriggerAfterStopWin.Split(','));
 
-                foreach (string primary in triggers)
+                foreach (string primary in targets)
                 {
                     _appCtrl.Trigger.Cancel(primary, "策略取消");
                 }
@@ -477,9 +477,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!string.IsNullOrWhiteSpace(data.CloseStrategyAfterStopWin))
             {
-                HashSet<string> strategise = new HashSet<string>(data.CloseStrategyAfterStopWin.Split(','));
+                HashSet<string> targets = new HashSet<string>(data.CloseStrategyAfterStopWin.Split(','));
 
-                foreach (string primary in strategise)
+                foreach (string primary in targets)
                 {
                     Close(primary, 0, "策略停止");
                 }
@@ -487,9 +487,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!string.IsNullOrWhiteSpace(data.OpenTriggerAfterStopWin))
             {
-                HashSet<string> triggers = new HashSet<string>(data.OpenTriggerAfterStopWin.Split(','));
+                HashSet<string> targets = new HashSet<string>(data.OpenTriggerAfterStopWin.Split(','));
 
-                foreach (string primary in triggers)
+                foreach (string primary in targets)
                 {
                     OpenTrigger(data, primary, start);
                 }
@@ -497,9 +497,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!string.IsNullOrWhiteSpace(data.OpenStrategyAfterStopWin))
             {
-                HashSet<string> strategise = new HashSet<string>(data.OpenStrategyAfterStopWin.Split(','));
+                HashSet<string> targets = new HashSet<string>(data.OpenStrategyAfterStopWin.Split(','));
 
-                foreach (string primary in strategise)
+                foreach (string primary in targets)
                 {
                     OpenStrategy(data, primary, start);
                 }
@@ -814,11 +814,7 @@ namespace GNAy.Capital.Trade.Controllers
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
 
             StrategyData data = this[primaryKey.Replace(" ", string.Empty)];
-
-            if (data.StatusEnum != StrategyStatus.Enum.Waiting)
-            {
-                throw new ArgumentException($"{data.StatusEnum} != StrategyStatus.Enum.Waiting|{data.ToLog()}");
-            }
+            data.Reset();
 
             ParentCheck(data, true, start);
 

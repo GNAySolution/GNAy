@@ -138,7 +138,7 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
-                StrategyData strategy = _appCtrl.Strategy.DataCollection.FirstOrDefault(x =>
+                StrategyData target = _appCtrl.Strategy.DataCollection.FirstOrDefault(x =>
                     x.StatusEnum != StrategyStatus.Enum.Waiting &&
                     x.StatusEnum != StrategyStatus.Enum.Cancelled &&
                     x.StatusEnum != StrategyStatus.Enum.OrderError &&
@@ -149,32 +149,32 @@ namespace GNAy.Capital.Trade.Controllers
                     x.OrderData != null &&
                     x.UnclosedQty != 0);
 
-                if (strategy == null)
+                if (target == null)
                 {
                     return;
                 }
 
-                data.Strategy = strategy.PrimaryKey;
+                data.Strategy = target.PrimaryKey;
 
                 if (data.PositionEnum == OrderPosition.Enum.Close)
                 {
-                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{strategy.UnclosedQty} != 0|{strategy.ToLog()}", UniqueName);
-                    strategy.UnclosedQty = 0;
+                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{target.UnclosedQty} != 0|{target.ToLog()}", UniqueName);
+                    target.UnclosedQty = 0;
                 }
-                else if (strategy.UnclosedQty < 0)
+                else if (target.UnclosedQty < 0)
                 {
-                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{strategy.UnclosedQty} < 0|{strategy.ToLog()}", UniqueName);
-                    strategy.UnclosedQty = 0;
+                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{target.UnclosedQty} < 0|{target.ToLog()}", UniqueName);
+                    target.UnclosedQty = 0;
                 }
-                else if (strategy.UnclosedQty > data.Quantity)
+                else if (target.UnclosedQty > data.Quantity)
                 {
-                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{strategy.UnclosedQty} > 庫存{data.Quantity}|{strategy.ToLog()}", UniqueName);
-                    strategy.UnclosedQty = data.Quantity;
+                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{target.UnclosedQty} > 庫存{data.Quantity}|{target.ToLog()}", UniqueName);
+                    target.UnclosedQty = data.Quantity;
                 }
-                else if (strategy.UnclosedQty == data.Quantity && strategy.DealPrice != data.AveragePrice)
+                else if (target.UnclosedQty == data.Quantity && target.DealPrice != data.AveragePrice)
                 {
-                    _appCtrl.LogTrace(start, $"成交均價校正{strategy.UnclosedQty} != {data.Quantity}|{strategy.ToLog()}", UniqueName);
-                    strategy.DealPrice = data.AveragePrice;
+                    _appCtrl.LogTrace(start, $"成交均價校正{target.UnclosedQty} != {data.Quantity}|{target.ToLog()}", UniqueName);
+                    target.DealPrice = data.AveragePrice;
                 }
             }
             catch (Exception ex)

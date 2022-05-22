@@ -97,11 +97,6 @@ namespace GNAy.Capital.Trade.Controllers
 
             _appCtrl.Strategy.MarketCheck(data, data.Quote);
 
-            if (data.Quote.Simulate != QuoteData.RealTrade)
-            {
-                throw new ArgumentException($"data.Quote.Simulate != QuoteData.RealTrade|{data.ToLog()}");
-            }
-
             data.MarketPrice = data.Quote.DealPrice;
 
             (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote);

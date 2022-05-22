@@ -154,9 +154,9 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (!string.IsNullOrWhiteSpace(data.StrategyOpenOR))
             {
-                HashSet<string> primariesOR = new HashSet<string>(data.StrategyOpenOR.Split(','));
+                HashSet<string> targets = new HashSet<string>(data.StrategyOpenOR.Split(','));
 
-                foreach (string primary in primariesOR)
+                foreach (string primary in targets)
                 {
                     OpenStrategy(data, primary, start);
                 }
@@ -166,9 +166,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!string.IsNullOrWhiteSpace(data.StrategyOpenAND))
             {
-                HashSet<string> primariesAND = new HashSet<string>(data.StrategyOpenAND.Split(','));
+                HashSet<string> targets = new HashSet<string>(data.StrategyOpenAND.Split(','));
 
-                foreach (string primary in primariesAND)
+                foreach (string primary in targets)
                 {
                     string pk = $",{primary},";
                     bool startStrategy = true;
