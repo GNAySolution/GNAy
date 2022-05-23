@@ -51,8 +51,6 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void StartStrategy(string account, DateTime start)
         {
-            const string methodName = nameof(StartStrategy);
-
             try
             {
                 if (!_appCtrl.Settings.StartFromOpenInterest || _strategyAccounts.Contains(account) || _appCtrl.Strategy == null || _appCtrl.Strategy.Count <= 0)
@@ -112,7 +110,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 foreach ((OpenInterestData, StrategyData) value in map.Values)
                 {
-                    //value.Item2.CreateOrder();
+                    _appCtrl.Strategy.CreateAndAddOrder(value.Item2);
                 }
             }
             catch (Exception ex)

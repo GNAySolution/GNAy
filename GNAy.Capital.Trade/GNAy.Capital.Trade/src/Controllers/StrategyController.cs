@@ -823,6 +823,26 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.CAPOrder.Send(order);
         }
 
+        public void CreateAndAddOrder(StrategyData data)
+        {
+            const string methodName = nameof(CreateAndAddOrder);
+
+            DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
+
+            try
+            {
+                //TODO
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
         public void RecoverSetting(FileInfo fileStrategy = null, FileInfo fileSentOrder = null)
         {
             const string methodName = nameof(RecoverSetting);

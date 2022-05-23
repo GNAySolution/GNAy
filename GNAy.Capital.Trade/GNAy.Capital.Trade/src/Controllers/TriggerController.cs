@@ -122,6 +122,26 @@ namespace GNAy.Capital.Trade.Controllers
                     return (LogLevel.Error, $"重啟觸價({primary})失敗");
                 }
 
+                for (int i = _dataCollection.Count - 1; i >= 0; --i)
+                {
+                    TriggerData other = _dataCollection[i];
+
+                    if (other.StatusEnum == TriggerStatus.Enum.Executed || string.IsNullOrWhiteSpace(other.Start))
+                    {
+                        continue;
+                    }
+
+                    HashSet<string> cancelList = new HashSet<string>(other.Start.Split(','));
+
+                    foreach (string pk in cancelList)
+                    {
+                        if (pk == data.PrimaryKey)
+                        {
+                            return (LogLevel.Warn, $"等{other.PrimaryKey}觸價後再啟動");
+                        }
+                    }
+                }
+
                 data.StatusEnum = TriggerStatus.Enum.Waiting;
                 data.Comment = $"重啟";
                 data.Updater = methodName;
@@ -173,17 +193,17 @@ namespace GNAy.Capital.Trade.Controllers
                     string pk = $",{primary},";
                     bool startStrategy = true;
 
-                    foreach (TriggerData td in _dataMap.Values)
+                    foreach (TriggerData other in _dataMap.Values)
                     {
-                        if (td == data)
+                        if (other == data)
                         {
                             continue;
                         }
-                        else if (!string.Format(",{0},", td.StrategyOpenAND).Contains(pk))
+                        else if (!string.Format(",{0},", other.StrategyOpenAND).Contains(pk))
                         {
                             continue;
                         }
-                        else if (td.StatusEnum == TriggerStatus.Enum.Waiting || td.StatusEnum == TriggerStatus.Enum.Cancelled || td.StatusEnum == TriggerStatus.Enum.Monitoring)
+                        else if (other.StatusEnum != TriggerStatus.Enum.Executed)
                         {
                             startStrategy = false;
                             break;

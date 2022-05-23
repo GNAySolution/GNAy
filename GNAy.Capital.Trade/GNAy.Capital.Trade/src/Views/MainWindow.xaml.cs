@@ -385,8 +385,12 @@ namespace GNAy.Capital.Trade
             {
                 CheckBoxSendRealOrder.IsChecked = _appCtrl.Settings.SendRealOrder;
                 CheckBoxSendRealOrder_CheckedOrNot(null, null);
+
                 CheckBoxLiveMode.IsChecked = _appCtrl.Settings.LiveMode;
                 CheckBoxLiveMode_CheckedOrNot(null, null);
+
+                CheckBoxStartFromOpenInterest.IsChecked = _appCtrl.Settings.StartFromOpenInterest;
+                CheckBoxStartFromOpenInterest_CheckedOrNot(null, null);
 
                 if (!_appCtrl.Config.Archive.Exists)
                 {
@@ -1176,6 +1180,25 @@ namespace GNAy.Capital.Trade
 
                     DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                 }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void CheckBoxStartFromOpenInterest_CheckedOrNot(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                _appCtrl.Settings.StartFromOpenInterest = CheckBoxStartFromOpenInterest.IsChecked.Value;
+                _appCtrl.LogTrace(start, $"StartFromOpenInterest={_appCtrl.Settings.StartFromOpenInterest}", UniqueName);
             }
             catch (Exception ex)
             {

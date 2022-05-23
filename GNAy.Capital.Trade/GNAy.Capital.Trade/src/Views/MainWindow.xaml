@@ -45,12 +45,13 @@
                             <Button x:Name="ButtonSaveQuotesTest" Content="儲存報價資料" HorizontalAlignment="Left" Margin="135,174,0,0" VerticalAlignment="Top" Click="ButtonSaveQuotesTest_Click"/>
                             <CheckBox x:Name="CheckBoxSendRealOrder" Content="SendRealOrder" HorizontalAlignment="Left" Margin="216,10,0,0" VerticalAlignment="Top" Checked="CheckBoxSendRealOrder_CheckedOrNot" Unchecked="CheckBoxSendRealOrder_CheckedOrNot"/>
                             <CheckBox x:Name="CheckBoxLiveMode" Content="LiveMode" HorizontalAlignment="Left" Margin="216,32,0,0" VerticalAlignment="Top" Checked="CheckBoxLiveMode_CheckedOrNot" Unchecked="CheckBoxLiveMode_CheckedOrNot"/>
-                            <Button x:Name="ButtonReadCertification" Content="讀取下單憑證" HorizontalAlignment="Left" Margin="216,54,0,0" VerticalAlignment="Top" Click="ButtonReadCertification_Click"/>
-                            <Button x:Name="ButtonGetOrderAccs" Content="取得下單帳號" HorizontalAlignment="Left" Margin="297,54,0,0" VerticalAlignment="Top" Click="ButtonGetOrderAccs_Click"/>
-                            <Button x:Name="ButtonUnlockOrder" Content="下單解鎖" HorizontalAlignment="Left" Margin="240,78,0,0" VerticalAlignment="Top" Click="ButtonUnlockOrder_Click"/>
-                            <Button x:Name="ButtonGetOpenInterest" Content="期權未平倉" HorizontalAlignment="Left" Margin="309,78,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
-                            <Button x:Name="ButtonSetOrderMaxQty" Content="限制委託量" HorizontalAlignment="Left" Margin="228,102,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxQty_Click"/>
-                            <Button x:Name="ButtonSetOrderMaxCount" Content="限制委託筆數" HorizontalAlignment="Left" Margin="297,102,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxCount_Click"/>
+                            <CheckBox x:Name="CheckBoxStartFromOpenInterest" Content="StartFromOpenInterest" HorizontalAlignment="Left" Margin="216,54,0,0" VerticalAlignment="Top" Checked="CheckBoxStartFromOpenInterest_CheckedOrNot" Unchecked="CheckBoxStartFromOpenInterest_CheckedOrNot"/>
+                            <Button x:Name="ButtonReadCertification" Content="讀取下單憑證" HorizontalAlignment="Left" Margin="216,78,0,0" VerticalAlignment="Top" Click="ButtonReadCertification_Click"/>
+                            <Button x:Name="ButtonGetOrderAccs" Content="取得下單帳號" HorizontalAlignment="Left" Margin="297,78,0,0" VerticalAlignment="Top" Click="ButtonGetOrderAccs_Click"/>
+                            <Button x:Name="ButtonUnlockOrder" Content="下單解鎖" HorizontalAlignment="Left" Margin="240,102,0,0" VerticalAlignment="Top" Click="ButtonUnlockOrder_Click"/>
+                            <Button x:Name="ButtonGetOpenInterest" Content="期權未平倉" HorizontalAlignment="Left" Margin="309,102,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
+                            <Button x:Name="ButtonSetOrderMaxQty" Content="限制委託量" HorizontalAlignment="Left" Margin="228,126,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxQty_Click"/>
+                            <Button x:Name="ButtonSetOrderMaxCount" Content="限制委託筆數" HorizontalAlignment="Left" Margin="297,126,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxCount_Click"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="行事曆">
