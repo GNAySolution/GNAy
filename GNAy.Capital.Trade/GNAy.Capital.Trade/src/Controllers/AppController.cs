@@ -323,10 +323,12 @@ namespace GNAy.Capital.Trade.Controllers
                 if (!string.IsNullOrWhiteSpace(arg) && arg.StartsWith("-AppSettings=", StringComparison.OrdinalIgnoreCase))
                 {
                     string sub = arg.Substring("-AppSettings=".Length);
+
                     if (File.Exists(sub))
                     {
                         configFile = new FileInfo(sub);
                     }
+
                     break;
                 }
             }

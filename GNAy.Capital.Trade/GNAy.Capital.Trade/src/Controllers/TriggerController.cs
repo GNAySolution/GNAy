@@ -606,19 +606,25 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.LogError(start, $"非期貨選擇權，結束時間({times[1]})不可小於開始時間({times[0]})", UniqueName);
                     return (false, null, null);
                 }
-                else if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && endTime.Value.Hour >= 5)
+                else if (startTime.HasValue && endTime.HasValue && endTime.Value <= startTime.Value && endTime.Value.Hour >= _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].Hour)
                 {
                     _appCtrl.LogError(start, $"結束時間({times[1]})不可大於等於凌晨5點", UniqueName);
                     return (false, null, null);
                 }
 
-                if (startTime.HasValue && startTime.Value < DateTime.Now && startTime.Value.Hour < 5 && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option))
+                if (startTime.HasValue && startTime.Value < DateTime.Now && startTime.Value.Hour < _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].Hour && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option))
                 {
                     startTime = startTime.Value.AddDays(1);
                     _appCtrl.LogTrace(start, $"期貨選擇權，開始時間跨日，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}", UniqueName);
                 }
 
-                if (endTime.HasValue && endTime.Value < DateTime.Now && endTime.Value.Hour < 5 && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option))
+                if (!_appCtrl.CAPQuote.IsAMMarket && DateTime.Now.Hour < _appCtrl.CAPQuote.MarketCloseTime.Hour && startTime.HasValue && startTime.Value.Hour >= _appCtrl.CAPQuote.MarketStartTime.Hour && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option))
+                {
+                    startTime = startTime.Value.AddDays(-1);
+                    _appCtrl.LogTrace(start, $"凌晨啟動，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}", UniqueName);
+                }
+
+                if (endTime.HasValue && endTime.Value < DateTime.Now && endTime.Value.Hour < _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].Hour && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option))
                 {
                     endTime = endTime.Value.AddDays(1);
                     _appCtrl.LogTrace(start, $"期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}", UniqueName);

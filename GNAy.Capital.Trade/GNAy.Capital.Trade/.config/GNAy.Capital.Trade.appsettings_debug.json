@@ -1,5 +1,5 @@
 {
-  "Version": "0.22.521.1",
+  "Version": "0.22.524.1",
   "Description": "測試用設定",
   "ProcessPriority": 128,
   "Big5EncodingCodePage": 950,
@@ -61,8 +61,9 @@
   "QuoteFileClosePrefix": "Last_",
   "QuoteFileRecoverPrefix": "Recover_",
   "QuoteSaveInterval": 45,
-  "OrderMaxQty": 100,
-  "OrderMaxCount": 100,
+  "OrderTimeInterval": 100,
+  "OrderMaxQty": 50,
+  "OrderMaxCount": 50,
   "TriggerFolderPath": "TriggerData",
   "TriggerFileFormat": "MMdd_HHmm",
   "StrategyFolderPath": "StrategyData",

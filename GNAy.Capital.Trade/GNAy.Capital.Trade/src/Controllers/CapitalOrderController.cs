@@ -326,7 +326,7 @@ namespace GNAy.Capital.Trade.Controllers
                 m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
                 orderResult = orderMsg;
 
-                Thread.Sleep(50);
+                Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
 
                 return m_nCode == 0 ? (LogLevel.Trace, orderResult) : _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderResult);
             }
@@ -334,7 +334,7 @@ namespace GNAy.Capital.Trade.Controllers
             int succeededCnt = 0;
             (LogLevel, string) output = (LogLevel.Error, orderResult);
 
-            for (int i = 0; i < order.OrderQty * 4; ++i)
+            for (int i = 0; i < order.OrderQty * 8; ++i)
             {
                 FUTUREORDER capOrder = CreateCaptialFutures(order);
                 capOrder.nQty = 1;
@@ -342,7 +342,7 @@ namespace GNAy.Capital.Trade.Controllers
                 m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
                 orderResult = orderMsg;
 
-                Thread.Sleep(50);
+                Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
 
                 if (m_nCode == 0)
                 {
@@ -357,7 +357,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     output = _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderResult);
 
-                    if (i == order.OrderQty * 4 - 1)
+                    if (i == order.OrderQty * 8 - 1)
                     {
                         _appCtrl.LogError(start, $"委託部份失敗|succeededCnt={succeededCnt}|failed={order.OrderQty - succeededCnt}|{order.ToLog()}", UniqueName);
 
@@ -375,7 +375,7 @@ namespace GNAy.Capital.Trade.Controllers
             string orderMsg = string.Empty;
             int m_nCode = m_pSKOrder.SendOptionOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
 
-            Thread.Sleep(50);
+            Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
 
             return m_nCode == 0 ? (LogLevel.Trace, orderMsg) : _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderMsg);
         }

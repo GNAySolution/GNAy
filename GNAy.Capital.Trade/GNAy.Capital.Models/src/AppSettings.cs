@@ -94,6 +94,10 @@ namespace GNAy.Capital.Models
         public int QuoteSaveInterval { get; set; }
 
         /// <summary>
+        /// 委託單的間隔毫秒
+        /// </summary>
+        public int OrderTimeInterval { get; set; }
+        /// <summary>
         /// 設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
         /// </summary>
         public int OrderMaxQty { get; set; }
@@ -137,7 +141,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.521.1";
+            Version = "0.22.524.1";
             Description = "測試用設定";
 
             ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -184,8 +188,9 @@ namespace GNAy.Capital.Models
             QuoteFileRecoverPrefix = "Recover_";
             QuoteSaveInterval = 45;
 
-            OrderMaxQty = 100;
-            OrderMaxCount = 100;
+            OrderTimeInterval = 100;
+            OrderMaxQty = 50;
+            OrderMaxCount = 50;
 
             TriggerFolderPath = "TriggerData";
             TriggerFileFormat = "MMdd_HHmm";
