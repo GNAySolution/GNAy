@@ -1558,6 +1558,7 @@ namespace GNAy.Capital.Trade
                     TabControlBB.SelectedIndex = 0;
                     _appCtrl.LogWarn(start, "防呆，再次確認，避免看錯", UniqueName);
                     StatusBarItemBB2.Text = "防呆，再次確認，避免看錯";
+
                     return;
                 }
 
@@ -1586,10 +1587,11 @@ namespace GNAy.Capital.Trade
                     TabControlBB.SelectedIndex = 0;
                     _appCtrl.LogWarn(start, "防呆，再次確認，避免看錯", UniqueName);
                     StatusBarItemBB2.Text = "防呆，再次確認，避免看錯";
+
                     return;
                 }
 
-                TriggerData trigger = new TriggerData((TradeColumnTrigger)ComboBoxTriggerColumn.SelectedItem)
+                TriggerData data = new TriggerData((TradeColumnTrigger)ComboBoxTriggerColumn.SelectedItem)
                 {
                     PrimaryKey = TextBoxTriggerPrimaryKey.Text,
                     Symbol1 = ComboBoxTriggerProduct1.Text.Split(',')[0],
@@ -1605,7 +1607,7 @@ namespace GNAy.Capital.Trade
                     UpdateTime = DateTime.Now,
                 };
 
-                _appCtrl.Trigger.AddRule(trigger, TextBoxTriggerTimeDuration.Text);
+                _appCtrl.Trigger.AddRule(data, TextBoxTriggerTimeDuration.Text);
 
                 string primaryKey = TextBoxTriggerPrimaryKey.Text.Replace(" ", string.Empty);
 
@@ -1651,59 +1653,59 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                TriggerData trigger = ((DataGridCell)sender).GetItem<TriggerData>();
-                _appCtrl.LogTrace(start, trigger.ToLog(), UniqueName);
+                TriggerData data = ((DataGridCell)sender).GetItem<TriggerData>();
+                _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
 
-                ComboBoxTriggerProduct1.Text = trigger.Symbol1;
-                ComboBoxTriggerProduct2.Text = trigger.Symbol2;
+                ComboBoxTriggerProduct1.Text = data.Symbol1;
+                ComboBoxTriggerProduct2.Text = data.Symbol2;
 
                 ComboBoxTriggerColumn.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxTriggerColumn.Items.Count; ++i)
                 {
                     ComboBoxTriggerColumn.SelectedIndex = i;
-                    if (ComboBoxTriggerColumn.SelectedItem is TradeColumnTrigger column && column.Property == trigger.Column.Property)
+                    if (ComboBoxTriggerColumn.SelectedItem is TradeColumnTrigger column && column.Property == data.Column.Property)
                     {
-                        if (column.Property.Name == trigger.ColumnProperty)
+                        if (column.Property.Name == data.ColumnProperty)
                         {
                             break;
                         }
                         else
                         {
-                            _appCtrl.LogError(start, $"Trigger|觸價關聯報價欄位錯誤|column.Property.Name{column.Property.Name} != trigger.ColumnProperty{trigger.ColumnProperty}|{trigger.ToLog()}", UniqueName);
+                            _appCtrl.LogError(start, $"Trigger|觸價關聯報價欄位錯誤|column.Property.Name{column.Property.Name} != data.ColumnProperty{data.ColumnProperty}|{data.ToLog()}", UniqueName);
                         }
                     }
                     if (i == ComboBoxTriggerColumn.Items.Count - 1)
                     {
                         ComboBoxTriggerColumn.SelectedIndex = -1;
-                        _appCtrl.LogError(start, $"Trigger|觸價關聯報價欄位錯誤|{trigger.ToLog()}", UniqueName);
+                        _appCtrl.LogError(start, $"Trigger|觸價關聯報價欄位錯誤|{data.ToLog()}", UniqueName);
                     }
                 }
 
                 if (string.IsNullOrWhiteSpace(ComboBoxTriggerProduct2.Text))
                 {
-                    TextBoxTriggerRuleValue.Text = $"{trigger.Rule}{trigger.TargetValue:0.00####}";
+                    TextBoxTriggerRuleValue.Text = $"{data.Rule}{data.TargetValue:0.00####}";
                 }
                 else
                 {
-                    TextBoxTriggerRuleValue.Text = $"{trigger.Rule}P2{trigger.Symbol2Setting}";
+                    TextBoxTriggerRuleValue.Text = $"{data.Rule}P2{data.Symbol2Setting}";
                 }
 
-                TextBoxTriggerPrimaryKey.Text = trigger.PrimaryKey;
-                TextBoxTriggerCancel.Text = trigger.Cancel;
-                TextBoxTriggerStart.Text = trigger.Start;
-                TextBoxTriggerStrategyOpenOR.Text = trigger.StrategyOpenOR;
-                TextBoxTriggerStrategyOpenAND.Text = trigger.StrategyOpenAND;
-                TextBoxTriggerStrategyCloseOR.Text = trigger.StrategyCloseOR;
-                TextBoxTriggerStrategyCloseAND.Text = trigger.StrategyCloseAND;
+                TextBoxTriggerPrimaryKey.Text = data.PrimaryKey;
+                TextBoxTriggerCancel.Text = data.Cancel;
+                TextBoxTriggerStart.Text = data.Start;
+                TextBoxTriggerStrategyOpenOR.Text = data.StrategyOpenOR;
+                TextBoxTriggerStrategyOpenAND.Text = data.StrategyOpenAND;
+                TextBoxTriggerStrategyCloseOR.Text = data.StrategyCloseOR;
+                TextBoxTriggerStrategyCloseAND.Text = data.StrategyCloseAND;
 
                 TextBoxTriggerTimeDuration.Text = string.Empty;
-                if (trigger.StartTime.HasValue)
+                if (data.StartTime.HasValue)
                 {
-                    TextBoxTriggerTimeDuration.Text = $"{trigger.StartTime.Value:HHmmss}";
+                    TextBoxTriggerTimeDuration.Text = $"{data.StartTime.Value:HHmmss}";
                 }
-                if (trigger.EndTime.HasValue)
+                if (data.EndTime.HasValue)
                 {
-                    TextBoxTriggerTimeDuration.Text = $"{TextBoxTriggerTimeDuration.Text}~{trigger.EndTime.Value:HHmmss}";
+                    TextBoxTriggerTimeDuration.Text = $"{TextBoxTriggerTimeDuration.Text}~{data.EndTime.Value:HHmmss}";
                 }
             }
             catch (Exception ex)
@@ -1722,44 +1724,45 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                StrategyData strategy = ((DataGridCell)sender).GetItem<StrategyData>();
-                _appCtrl.LogTrace(start, strategy.ToLog(), UniqueName);
+                StrategyData data = ((DataGridCell)sender).GetItem<StrategyData>();
+                _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
 
-                TextBoxStrategyPrimaryKey.Text = strategy.PrimaryKey;
-                TextBoxStrategyStopLoss.Text = strategy.StopLossBefore;
-                TextBoxStrategyStopWin.Text = strategy.StopWinBefore;
-                TextBoxStrategyMoveStopWin.Text = strategy.MoveStopWinBefore;
-                TextBoxOpenTriggerAfterStopLoss.Text = strategy.OpenTriggerAfterStopLoss;
-                TextBoxOpenStrategyAfterStopLoss.Text = strategy.OpenStrategyAfterStopLoss;
-                TextBoxOpenTriggerAfterStopWin.Text = strategy.OpenTriggerAfterStopWin;
-                TextBoxOpenStrategyAfterStopWin.Text = strategy.OpenStrategyAfterStopWin;
-                TextBoxCloseTriggerAfterStopWin.Text = strategy.CloseTriggerAfterStopWin;
-                TextBoxCloseStrategyAfterStopWin.Text = strategy.CloseStrategyAfterStopWin;
-                TextBoxStrategyWinClose.Text = $"{strategy.WinCloseQty},{strategy.WinCloseSeconds}secs";
-                TextBoxStrategyLossClose.Text = $"{strategy.LossCloseQty},{strategy.LossCloseSeconds}secs";
+                TextBoxStrategyPrimaryKey.Text = data.PrimaryKey;
+                TextBoxStrategyStopLoss.Text = data.StopLossBefore;
+                TextBoxStrategyStopWin.Text = data.StopWinBefore;
+                TextBoxStrategyMoveStopWin.Text = data.MoveStopWinBefore;
+                TextBoxOpenTriggerAfterStopLoss.Text = data.OpenTriggerAfterStopLoss;
+                TextBoxOpenStrategyAfterStopLoss.Text = data.OpenStrategyAfterStopLoss;
+                TextBoxOpenTriggerAfterStopWin.Text = data.OpenTriggerAfterStopWin;
+                TextBoxOpenStrategyAfterStopWin.Text = data.OpenStrategyAfterStopWin;
+                TextBoxCloseTriggerAfterStopWin.Text = data.CloseTriggerAfterStopWin;
+                TextBoxCloseStrategyAfterStopWin.Text = data.CloseStrategyAfterStopWin;
+                TextBoxStrategyWinClose.Text = $"{data.WinCloseQty},{data.WinCloseSeconds}secs";
+                TextBoxStrategyLossClose.Text = $"{data.LossCloseQty},{data.LossCloseSeconds}secs";
+                CheckBoxStrategySendReal.IsChecked = data.SendRealOrder;
 
                 ComboBoxOrderAccs.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxOrderAccs.Items.Count; ++i)
                 {
                     ComboBoxOrderAccs.SelectedIndex = i;
-                    if (ComboBoxOrderAccs.SelectedItem is OrderAccData orderAcc && orderAcc.FullAccount == strategy.FullAccount)
+                    if (ComboBoxOrderAccs.SelectedItem is OrderAccData orderAcc && orderAcc.FullAccount == data.FullAccount)
                     {
                         break;
                     }
                     if (i == ComboBoxOrderAccs.Items.Count - 1)
                     {
                         ComboBoxOrderAccs.SelectedIndex = -1;
-                        _appCtrl.LogError(start, $"Strategy|策略關聯帳號錯誤|{strategy.ToLog()}", UniqueName);
+                        _appCtrl.LogError(start, $"Strategy|策略關聯帳號錯誤|{data.ToLog()}", UniqueName);
                     }
                 }
 
-                ComboBoxOrderProduct.Text = strategy.Symbol;
-                ComboBoxOrderBuySell.SelectedIndex = strategy.BS;
-                ComboBoxOrderTradeType.SelectedIndex = strategy.TradeType;
-                ComboBoxOrderDayTrade.SelectedIndex = strategy.DayTrade;
-                ComboBoxOrderPositionKind.SelectedIndex = strategy.Position;
-                TextBoxOrderPrice.Text = strategy.OrderPriceBefore;
-                TextBoxOrderQty.Text = $"{strategy.OrderQty}";
+                ComboBoxOrderProduct.Text = data.Symbol;
+                ComboBoxOrderBuySell.SelectedIndex = data.BS;
+                ComboBoxOrderTradeType.SelectedIndex = data.TradeType;
+                ComboBoxOrderDayTrade.SelectedIndex = data.DayTrade;
+                ComboBoxOrderPositionKind.SelectedIndex = data.Position;
+                TextBoxOrderPrice.Text = data.OrderPriceBefore;
+                TextBoxOrderQty.Text = $"{data.OrderQty}";
             }
             catch (Exception ex)
             {
@@ -1800,6 +1803,7 @@ namespace GNAy.Capital.Trade
                     TabControlBB.SelectedIndex = 1;
                     _appCtrl.LogWarn(start, "防呆，再次確認，避免看錯", UniqueName);
                     StatusBarItemBB2.Text = "防呆，再次確認，避免看錯";
+
                     return;
                 }
 
@@ -1828,12 +1832,13 @@ namespace GNAy.Capital.Trade
                     TabControlBB.SelectedIndex = 1;
                     _appCtrl.LogWarn(start, "防呆，再次確認，避免看錯", UniqueName);
                     StatusBarItemBB2.Text = "防呆，再次確認，避免看錯";
+
                     return;
                 }
 
                 OrderAccData acc = (OrderAccData)ComboBoxOrderAccs.SelectedItem;
 
-                StrategyData strategy = new StrategyData()
+                StrategyData data = new StrategyData()
                 {
                     PrimaryKey = TextBoxStrategyPrimaryKey.Text,
                     MarketType = acc.MarketType,
@@ -1855,6 +1860,7 @@ namespace GNAy.Capital.Trade
                     OpenStrategyAfterStopWin = TextBoxOpenStrategyAfterStopWin.Text,
                     CloseTriggerAfterStopWin = TextBoxCloseTriggerAfterStopWin.Text,
                     CloseStrategyAfterStopWin = TextBoxCloseStrategyAfterStopWin.Text,
+                    SendRealOrder = CheckBoxStrategySendReal.IsChecked.Value,
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
@@ -1862,6 +1868,7 @@ namespace GNAy.Capital.Trade
                 if (!string.IsNullOrWhiteSpace(TextBoxStrategyWinClose.Text))
                 {
                     string[] winClose = TextBoxStrategyWinClose.Text.Split(',');
+
                     foreach (string cell in winClose)
                     {
                         string lower = cell.ToLower();
@@ -1869,17 +1876,19 @@ namespace GNAy.Capital.Trade
                         if (lower.Contains("secs") || lower.Contains("seconds") || lower.Contains("sec") || lower.Contains("second"))
                         {
                             string secs = lower.Replace("secs", string.Empty).Replace("seconds", string.Empty).Replace("sec", string.Empty).Replace("second", string.Empty);
-                            strategy.WinCloseSeconds = int.Parse(secs);
+                            data.WinCloseSeconds = int.Parse(secs);
+
                             continue;
                         }
 
-                        strategy.WinCloseQty = int.Parse(cell);
+                        data.WinCloseQty = int.Parse(cell);
                     }
                 }
 
                 if (!string.IsNullOrWhiteSpace(TextBoxStrategyLossClose.Text))
                 {
                     string[] lossClose = TextBoxStrategyLossClose.Text.Split(',');
+
                     foreach (string cell in lossClose)
                     {
                         string lower = cell.ToLower();
@@ -1887,15 +1896,16 @@ namespace GNAy.Capital.Trade
                         if (lower.Contains("secs") || lower.Contains("seconds") || lower.Contains("sec") || lower.Contains("second"))
                         {
                             string secs = lower.Replace("secs", string.Empty).Replace("seconds", string.Empty).Replace("sec", string.Empty).Replace("second", string.Empty);
-                            strategy.LossCloseSeconds = int.Parse(secs);
+                            data.LossCloseSeconds = int.Parse(secs);
+
                             continue;
                         }
 
-                        strategy.LossCloseQty = int.Parse(cell);
+                        data.LossCloseQty = int.Parse(cell);
                     }
                 }
 
-                _appCtrl.Strategy.AddRule(strategy);
+                _appCtrl.Strategy.AddRule(data);
 
                 if (!decimal.TryParse(TextBoxStrategyPrimaryKey.Text.Replace(" ", string.Empty), out decimal pk))
                 {
@@ -1906,7 +1916,7 @@ namespace GNAy.Capital.Trade
                 {
                     Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
 
-                    if (_appCtrl.Strategy[strategy.PrimaryKey] == null)
+                    if (_appCtrl.Strategy[data.PrimaryKey] == null)
                     {
                         return;
                     }
@@ -1955,6 +1965,7 @@ namespace GNAy.Capital.Trade
                     Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
                     OrderPriceBefore = TextBoxOrderPrice.Text,
                     OrderQty = int.Parse(TextBoxOrderQty.Text),
+                    SendRealOrder = CheckBoxStrategySendReal.IsChecked.Value,
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
@@ -1982,14 +1993,16 @@ namespace GNAy.Capital.Trade
                     TabControlBB.SelectedIndex = 1;
                     _appCtrl.LogWarn(start, "防呆，再次確認，避免看錯", UniqueName);
                     StatusBarItemBB2.Text = "防呆，再次確認，避免看錯";
+
                     return;
                 }
 
-                if (DataGridStrategyRule.SelectedCells.Count > 0 && DataGridStrategyRule.SelectedCells[0].Item is StrategyData strategy)
+                if (DataGridStrategyRule.SelectedCells.Count > 0 && DataGridStrategyRule.SelectedCells[0].Item is StrategyData data)
                 {
-                    if (strategy.PrimaryKey == TextBoxStrategyPrimaryKey.Text.Trim() && strategy.StatusEnum == StrategyStatus.Enum.Waiting)
+                    if (data.PrimaryKey == TextBoxStrategyPrimaryKey.Text.Trim() && data.StatusEnum == StrategyStatus.Enum.Waiting)
                     {
-                        _appCtrl.Strategy.StartNow(strategy.PrimaryKey);
+                        _appCtrl.Strategy.StartNow(data.PrimaryKey);
+
                         return;
                     }
                 }
@@ -2003,6 +2016,7 @@ namespace GNAy.Capital.Trade
                     try
                     {
                         Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
+
                         _appCtrl.Strategy.StartNow(primaryKey);
                     }
                     catch (Exception ex)

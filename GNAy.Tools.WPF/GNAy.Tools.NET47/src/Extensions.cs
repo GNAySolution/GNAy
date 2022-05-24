@@ -302,6 +302,14 @@ namespace GNAy.Tools.NET47
             {
                 obj.SetValue(instance, byte.Parse(value));
             }
+            else if (propertyType == typeof(bool))
+            {
+                obj.SetValue(instance, bool.Parse(value));
+            }
+            else if (propertyType == typeof(bool?))
+            {
+                obj.SetValue(instance, bool.Parse(value));
+            }
             else
             {
                 throw new NotSupportedException($"PropertyType ({propertyType.FullName}) is not supported.");

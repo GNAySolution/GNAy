@@ -115,10 +115,14 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (matched.HasValue && matched.Value)
                 {
+                    data.Comment = $"觸價條件({columnValue:0.00####} {data.Rule} {targetValue:0.00####})已滿足，重啟觸價失敗";
+
                     return (LogLevel.Warn, $"觸價條件({columnValue:0.00####} {data.Rule} {targetValue:0.00####})已滿足，重啟觸價({primary})失敗");
                 }
                 else if (!matched.HasValue)
                 {
+                    data.Comment = $"重啟觸價失敗";
+
                     return (LogLevel.Error, $"重啟觸價({primary})失敗");
                 }
 
@@ -137,6 +141,8 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         if (pk == data.PrimaryKey)
                         {
+                            data.Comment = $"等{other.PrimaryKey}觸價後再啟動";
+
                             return (LogLevel.Warn, $"等{other.PrimaryKey}觸價後再啟動");
                         }
                     }
@@ -146,6 +152,8 @@ namespace GNAy.Capital.Trade.Controllers
                 data.Comment = $"重啟";
                 data.Updater = methodName;
                 data.UpdateTime = DateTime.Now;
+
+                //TODO: strategyAND的其他觸價條件，已滿足的還是能重啟
             }
 
             return (LogLevel.Trace, string.Empty);

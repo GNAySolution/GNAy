@@ -78,21 +78,22 @@ namespace GNAy.Capital.Trade.Controllers
                             continue;
                         }
 
-                        string key = $"{target.FullAccount}_{target.Symbol}_{target.BS}_{target.DayTrade}";
-                        OpenInterestData data = this[key];
+                        string key1 = $"{target.FullAccount}_{target.Symbol}_{target.BS}_{target.DayTrade}";
+                        string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BS}_{target.DayTrade}_{target.SendRealOrder}";
+                        OpenInterestData data = this[key1];
 
                         if (data == null || data.PositionEnum == OrderPosition.Enum.Close || data.Quantity < target.OrderQty)
                         {
                             continue;
                         }
-                        else if (!map.TryGetValue(key, out (OpenInterestData, StrategyData) _old))
+                        else if (!map.TryGetValue(key2, out (OpenInterestData, StrategyData) _old))
                         {
-                            map[key] = (data, target);
+                            map[key2] = (data, target);
                             continue;
                         }
                         else if (_old.Item2.OrderQty < target.OrderQty)
                         {
-                            map[key] = (data, target);
+                            map[key2] = (data, target);
                             continue;
                         }
                         else if (_old.Item2.OrderQty > target.OrderQty)
@@ -110,7 +111,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 foreach ((OpenInterestData, StrategyData) value in map.Values)
                 {
-                    _appCtrl.Strategy.CreateAndAddOrder(value.Item2);
+                    _appCtrl.Strategy.CreateAndAddOrder(value.Item2, value.Item1);
                 }
             }
             catch (Exception ex)
@@ -145,7 +146,8 @@ namespace GNAy.Capital.Trade.Controllers
                     x.BSEnum == data.BSEnum &&
                     x.DayTradeEnum == data.DayTradeEnum &&
                     x.OrderData != null &&
-                    x.UnclosedQty != 0);
+                    x.UnclosedQty != 0 &&
+                    x.SendRealOrder);
 
                 if (target == null)
                 {

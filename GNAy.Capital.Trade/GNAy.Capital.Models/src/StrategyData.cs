@@ -455,8 +455,16 @@ namespace GNAy.Capital.Models
 
         public StrategyData MarketClosingData;
 
+        private bool _sendRealOrder;
+        [Column("真實下單", "實單", WPFDisplayIndex = 38)]
+        public bool SendRealOrder
+        {
+            get { return _sendRealOrder; }
+            set { OnPropertyChanged(ref _sendRealOrder, value); }
+        }
+
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 38)]
+        [Column("註解", WPFDisplayIndex = 39)]
         public string Comment
         {
             get { return _comment; }
@@ -519,6 +527,7 @@ namespace GNAy.Capital.Models
             LossCloseSeconds = 0;
             LossCloseTime = DateTime.MinValue;
             MarketClosingData = null;
+            SendRealOrder = false;
             Comment = string.Empty;
         }
 
@@ -627,6 +636,7 @@ namespace GNAy.Capital.Models
                 OrderPriceBefore = OrderPriceBefore,
                 OrderPriceAfter = OrderPriceAfter,
                 OrderQty = OrderQty,
+                SendRealOrder = SendRealOrder,
                 Updater = methodName,
                 UpdateTime = DateTime.Now,
             };
@@ -689,6 +699,7 @@ namespace GNAy.Capital.Models
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,
                 OrderQty = OrderQty,
+                SendRealOrder = SendRealOrder,
                 Updater = methodName,
                 UpdateTime = DateTime.Now,
             };
@@ -751,6 +762,7 @@ namespace GNAy.Capital.Models
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,
                 OrderQty = Math.Abs(StopWinQty),
+                SendRealOrder = SendRealOrder,
                 Updater = methodName,
                 UpdateTime = DateTime.Now,
             };
@@ -813,6 +825,7 @@ namespace GNAy.Capital.Models
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,
                 OrderQty = Math.Abs(MoveStopWinQty),
+                SendRealOrder = SendRealOrder,
                 Updater = methodName,
                 UpdateTime = DateTime.Now,
             };
@@ -875,6 +888,7 @@ namespace GNAy.Capital.Models
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,
                 OrderQty = 0,
+                SendRealOrder = SendRealOrder,
                 Updater = methodName,
                 UpdateTime = DateTime.Now,
             };
@@ -894,7 +908,7 @@ namespace GNAy.Capital.Models
 
         public string ToLog()
         {
-            return $"{StatusDes},{PrimaryKey},{MarketType},{Account},{Symbol},{BSEnum},{PositionEnum},{OrderPriceBefore},{OrderPriceAfter:0.00},{OrderQty},{Comment}";
+            return $"{StatusDes},{PrimaryKey},{MarketType},{Account},{Symbol},{BSEnum},{PositionEnum},{OrderPriceBefore},{OrderPriceAfter:0.00},{OrderQty},{SendRealOrder},{Comment}";
         }
 
         public string ToCSVString()

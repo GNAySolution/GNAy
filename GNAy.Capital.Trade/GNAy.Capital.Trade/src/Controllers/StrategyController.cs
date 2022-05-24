@@ -823,11 +823,11 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.CAPOrder.Send(order);
         }
 
-        public void CreateAndAddOrder(StrategyData data)
+        public void CreateAndAddOrder(StrategyData data, OpenInterestData openInterest)
         {
             const string methodName = nameof(CreateAndAddOrder);
 
-            DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}|{openInterest?.ToLog()}", UniqueName);
 
             try
             {

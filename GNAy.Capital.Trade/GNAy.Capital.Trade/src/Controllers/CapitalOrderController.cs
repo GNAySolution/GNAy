@@ -388,9 +388,9 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 order.StatusEnum = StrategyStatus.Enum.OrderSent;
 
-                (LogLevel, string) orderResult = (LogLevel.Trace, $"_appCtrl.Settings.SendRealOrder={_appCtrl.Settings.SendRealOrder}"); //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
+                (LogLevel, string) orderResult = (LogLevel.Trace, $"SendRealOrder={_appCtrl.Settings.SendRealOrder && order.SendRealOrder}"); //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
 
-                if (_appCtrl.Settings.SendRealOrder)
+                if (_appCtrl.Settings.SendRealOrder && order.SendRealOrder)
                 {
                     lock (_syncOrderLock)
                     {

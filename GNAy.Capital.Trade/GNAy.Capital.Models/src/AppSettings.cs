@@ -141,7 +141,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.524.1";
+            Version = "0.22.524.3";
             Description = "測試用設定";
 
             ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -204,7 +204,7 @@ namespace GNAy.Capital.Models
             SendRealOrder = false;
             LiveMode = false;
 
-            StartFromOpenInterest = true;
+            StartFromOpenInterest = false;
         }
     }
 }

@@ -544,8 +544,8 @@
                 <Label Content="收盤獲利或損失時減倉" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyWinClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxStrategyLossClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數" HorizontalAlignment="Left" Margin="841,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="模擬下單" HorizontalAlignment="Left" Margin="966,57,0,0" VerticalAlignment="Top"/>
-                <CheckBox x:Name="CheckBoxStrategySendReal" Content="策略模擬" HorizontalAlignment="Left" Margin="966,82,0,0" VerticalAlignment="Top"/>
+                <Label Content="真實下單或模擬" HorizontalAlignment="Left" Margin="966,57,0,0" VerticalAlignment="Top"/>
+                <CheckBox x:Name="CheckBoxStrategySendReal" Content="真實下單" HorizontalAlignment="Left" Margin="966,82,0,0" VerticalAlignment="Top"/>
                 <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
@@ -866,7 +866,7 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding LossCloseTime}"/>
-
+                                    <DataGridTextColumn Binding="{Binding SendRealOrder}"/>
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -1126,7 +1126,7 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding LossCloseTime}"/>
-
+                                    <DataGridTextColumn Binding="{Binding SendRealOrder}"/>
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
