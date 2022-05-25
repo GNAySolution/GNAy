@@ -588,6 +588,7 @@ namespace GNAy.Capital.Trade.Controllers
                             StrategyData stopLossOrder = data.CreateStopLossOrder();
 
                             data.StatusEnum = StrategyStatus.Enum.StopLossSent;
+
                             _appCtrl.CAPOrder.Send(stopLossOrder);
 
                             saveData = true;
@@ -615,6 +616,7 @@ namespace GNAy.Capital.Trade.Controllers
                         StrategyData stopLossOrder = data.CreateStopLossOrder();
 
                         data.StatusEnum = StrategyStatus.Enum.StopLossSent;
+
                         _appCtrl.CAPOrder.Send(stopLossOrder);
 
                         saveData = true;
@@ -809,17 +811,48 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
+        private void SerialReset(StrategyData data)
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.OpenStrategyAfterStopLoss))
+            {
+                HashSet<string> targets = new HashSet<string>(data.OpenStrategyAfterStopLoss.Split(','));
+
+                foreach (string primary in targets)
+                {
+                    SerialReset(this[primary]);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.OpenStrategyAfterStopWin))
+            {
+                HashSet<string> targets = new HashSet<string>(data.OpenStrategyAfterStopWin.Split(','));
+
+                foreach (string primary in targets)
+                {
+                    SerialReset(this[primary]);
+                }
+            }
+
+            data.Reset();
+        }
+
         public void StartNow(string primaryKey)
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
 
             StrategyData data = this[primaryKey.Replace(" ", string.Empty)];
-            data.Reset();
-
+            SerialReset(data);
             ParentCheck(data, true, start);
 
             StrategyData order = data.CreateOrder();
+
             data.StatusEnum = StrategyStatus.Enum.OrderSent;
+
             _appCtrl.CAPOrder.Send(order);
         }
 
@@ -831,7 +864,14 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                //TODO
+                SerialReset(data);
+                ParentCheck(data, true, start);
+
+                StrategyData order = data.CreateOrder();
+
+                data.StatusEnum = StrategyStatus.Enum.OrderSent;
+
+                //TODO: 利用庫存判斷要啟動的策略
             }
             catch (Exception ex)
             {

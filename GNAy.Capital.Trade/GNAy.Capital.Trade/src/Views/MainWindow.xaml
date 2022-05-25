@@ -640,7 +640,6 @@
                                     <DataGridTextColumn Binding="{Binding StrategyOpenOR}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                                 <Setter Property="FontWeight" Value="DemiBold"/>
                                                 <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
@@ -650,7 +649,6 @@
                                     <DataGridTextColumn Binding="{Binding StrategyCloseOR}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="HorizontalAlignment" Value="Right"/>
                                                 <Setter Property="FontWeight" Value="DemiBold"/>
                                                 <Setter Property="Foreground" Value="MediumBlue"/>
                                             </Style>
