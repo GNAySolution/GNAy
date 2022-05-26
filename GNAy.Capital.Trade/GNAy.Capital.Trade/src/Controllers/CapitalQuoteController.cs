@@ -155,7 +155,7 @@ namespace GNAy.Capital.Trade.Controllers
                             startDelayed = true;
                         }
                     }
-                    else if (CreatedTime > _appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM].AddMinutes(-2) || _appCtrl.Config.IsHoliday(CreatedTime) || CreatedTime.Hour < 8)
+                    else if (CreatedTime > _appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM].AddMinutes(-2) || _appCtrl.Config.IsHoliday(CreatedTime) || CreatedTime.Hour < _appCtrl.Settings.MarketStart[(int)Market.EDayNight.AM].Hour)
                     {
                         startDelayed = true;
                     }
@@ -168,7 +168,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else if (!_appCtrl.Config.IsHoliday(start))
                     {
-                        if (CreatedTime.Hour < 5)
+                        if (CreatedTime.Hour < _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM].Hour)
                         {
                             MarketStartTime = _appCtrl.Settings.MarketStart[(int)Market.EDayNight.PM].AddDays(-1);
                             MarketCloseTime = _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM];

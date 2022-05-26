@@ -197,7 +197,7 @@ namespace GNAy.Capital.Trade.Controllers
                 foreach (string primary in targets)
                 {
                     string pk = $",{primary},";
-                    bool startStrategy = true;
+                    bool openStrategy = true;
 
                     foreach (TriggerData other in _dataMap.Values)
                     {
@@ -211,12 +211,12 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                         else if (other.StatusEnum != TriggerStatus.Enum.Executed)
                         {
-                            startStrategy = false;
+                            openStrategy = false;
                             break;
                         }
                     }
 
-                    if (!startStrategy)
+                    if (!openStrategy)
                     {
                         continue;
                     }
@@ -634,14 +634,18 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.LogTrace(start, $"期貨選擇權，結束時間跨日，{times[1]} -> {endTime.Value:MM/dd HH:mm:ss}", UniqueName);
                 }
 
-                if (!_appCtrl.CAPQuote.IsAMMarket && DateTime.Now.Hour < _appCtrl.CAPQuote.MarketCloseTime.Hour && startTime.HasValue && startTime.Value.Hour >= _appCtrl.CAPQuote.MarketStartTime.Hour && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option))
+                if (!_appCtrl.CAPQuote.IsAMMarket && DateTime.Now.Hour < _appCtrl.CAPQuote.MarketCloseTime.Hour && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option))
                 {
-                    startTime = startTime.Value.AddDays(-1);
-                    _appCtrl.LogTrace(start, $"凌晨啟動，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}", UniqueName);
+                    if (startTime.HasValue && startTime.Value.Hour >= _appCtrl.CAPQuote.MarketStartTime.Hour)
+                    {
+                        startTime = startTime.Value.AddDays(-1);
+                        _appCtrl.LogTrace(start, $"凌晨啟動，開始時間調整，{times[0]} -> {startTime.Value:MM/dd HH:mm:ss}", UniqueName);
+                    }
 
-                    if (endTime.HasValue && endTime.Value.Hour >= _appCtrl.CAPQuote.MarketCloseTime.Hour)
+                    if (endTime.HasValue && endTime.Value.Hour >= _appCtrl.CAPQuote.MarketStartTime.Hour)
                     {
                         endTime = endTime.Value.AddDays(-1);
+                        _appCtrl.LogTrace(start, $"凌晨啟動，結束時間調整，{times[0]} -> {endTime.Value:MM/dd HH:mm:ss}", UniqueName);
                     }
                 }
 
@@ -666,7 +670,7 @@ namespace GNAy.Capital.Trade.Controllers
                     throw new ArgumentNullException($"未設定觸價資料夾(Settings.TriggerFolderPath)，無法建立觸價資料|{data.ToLog()}");
                 }
 
-                data = data.Trim();
+                data.Trim();
 
                 if (string.IsNullOrWhiteSpace(data.PrimaryKey))
                 {
@@ -815,11 +819,11 @@ namespace GNAy.Capital.Trade.Controllers
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;
 
-                foreach (TriggerData td in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
+                foreach (TriggerData data in TriggerData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
                 {
                     try
                     {
-                        TriggerData data = td.Trim();
+                        data.Trim();
 
                         if (string.IsNullOrWhiteSpace(data.PrimaryKey))
                         {

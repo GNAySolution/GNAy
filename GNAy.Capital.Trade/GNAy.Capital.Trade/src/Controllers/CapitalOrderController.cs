@@ -485,7 +485,14 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.OrderDetail.Add(order);
                 _appCtrl.OrderDetail.Check(order, start);
 
-                Task.Factory.StartNew(() => SendAsync(order, start));
+                if (_appCtrl.Settings.SendRealOrder && order.SendRealOrder)
+                {
+                    Task.Factory.StartNew(() => SendAsync(order, start));
+                }
+                else
+                {
+                    SendAsync(order, start);
+                }
             }
             catch (Exception ex)
             {

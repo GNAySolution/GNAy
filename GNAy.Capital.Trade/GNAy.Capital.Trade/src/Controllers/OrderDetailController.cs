@@ -50,7 +50,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             const string methodName = nameof(Check);
 
-            data = data.Trim();
+            data.Trim();
 
             if (string.IsNullOrWhiteSpace(data.PrimaryKey))
             {
@@ -72,7 +72,11 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 throw new ArgumentException($"委託單資料結構異常|{data.OrderData != null}|{data.StopLossData != null}|{data.StopWinData != null}|{data.MoveStopWinData != null}|{data.MarketClosingData != null}|{data.ToLog()}");
             }
-            else if (data.Quote != null && data.Quote.Symbol != data.Symbol)
+
+            data.SendRealOrder = _appCtrl.Settings.SendRealOrder && data.SendRealOrder;
+
+
+            if (data.Quote != null && data.Quote.Symbol != data.Symbol)
             {
                 throw new ArgumentException($"委託關聯報價代碼錯誤|{data.Quote.Symbol} != {data.Symbol}|{data.ToLog()}");
             }

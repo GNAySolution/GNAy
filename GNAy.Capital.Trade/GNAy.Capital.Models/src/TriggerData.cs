@@ -281,7 +281,7 @@ namespace GNAy.Capital.Models
         private TriggerData() : this(null, null)
         { }
 
-        public TriggerData Trim([CallerMemberName] string memberName = "")
+        public void Trim([CallerMemberName] string memberName = "")
         {
             PrimaryKey = PrimaryKey.Replace(" ", string.Empty);
             Symbol1 = Symbol1.Replace(" ", string.Empty);
@@ -298,8 +298,6 @@ namespace GNAy.Capital.Models
 
             Updater = memberName;
             UpdateTime = DateTime.Now;
-
-            return this;
         }
 
         public decimal GetColumnValue(QuoteData quote)

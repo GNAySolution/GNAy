@@ -114,7 +114,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void ParentCheck(StrategyData data, bool readyToSend, DateTime start)
         {
-            data = data.Trim();
+            data.Trim();
 
             if (string.IsNullOrWhiteSpace(data.PrimaryKey))
             {
@@ -858,12 +858,18 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void CreateAndAddOrder(StrategyData data, OpenInterestData openInterest)
         {
-            const string methodName = nameof(CreateAndAddOrder);
-
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}|{openInterest?.ToLog()}", UniqueName);
 
             try
             {
+                QuoteData quoteBK = data.Quote;
+                data.Quote = quoteBK.DeepClone();
+                data.Quote.DealPrice = openInterest.AveragePrice;
+                data.Quote.Simulate = 1;
+
+                bool sendRealOrder = data.SendRealOrder;
+                data.SendRealOrder = false;
+
                 SerialReset(data);
                 ParentCheck(data, true, start);
 
@@ -871,7 +877,15 @@ namespace GNAy.Capital.Trade.Controllers
 
                 data.StatusEnum = StrategyStatus.Enum.OrderSent;
 
-                //TODO: 利用庫存判斷要啟動的策略
+                _appCtrl.CAPOrder.Send(order);
+
+                data.Quote = quoteBK;
+
+                data.DealPrice = openInterest.AveragePrice;
+                order.DealPrice = openInterest.AveragePrice;
+
+                data.SendRealOrder = sendRealOrder;
+                order.SendRealOrder = sendRealOrder;
             }
             catch (Exception ex)
             {
@@ -915,11 +929,11 @@ namespace GNAy.Capital.Trade.Controllers
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;
 
-                foreach (StrategyData sd in StrategyData.ForeachQuoteFromCSVFile(fileStrategy.FullName, columnNames))
+                foreach (StrategyData data in StrategyData.ForeachQuoteFromCSVFile(fileStrategy.FullName, columnNames))
                 {
                     try
                     {
-                        StrategyData data = sd.Trim();
+                        data.Trim();
 
                         if (string.IsNullOrWhiteSpace(data.PrimaryKey))
                         {
@@ -927,8 +941,8 @@ namespace GNAy.Capital.Trade.Controllers
                         }
 
                         data.UnclosedQty = 0;
+                        data.Reset();
 
-                        data = data.Reset();
                         data.MarketType = _appCtrl.CAPOrder[data.FullAccount].MarketType;
                         data.Quote = _appCtrl.CAPQuote[data.Symbol];
                         data.Updater = methodName;

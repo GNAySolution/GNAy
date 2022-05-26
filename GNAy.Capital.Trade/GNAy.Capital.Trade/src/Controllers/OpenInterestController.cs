@@ -111,16 +111,19 @@ namespace GNAy.Capital.Trade.Controllers
 
                 foreach ((OpenInterestData, StrategyData) value in map.Values)
                 {
-                    _appCtrl.Strategy.CreateAndAddOrder(value.Item2, value.Item1);
+                    try
+                    {
+                        _appCtrl.Strategy.CreateAndAddOrder(value.Item2, value.Item1);
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
             }
         }
 

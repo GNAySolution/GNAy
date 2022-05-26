@@ -531,7 +531,7 @@ namespace GNAy.Capital.Models
             Comment = string.Empty;
         }
 
-        public StrategyData Trim([CallerMemberName] string memberName = "")
+        public void Trim([CallerMemberName] string memberName = "")
         {
             PrimaryKey = PrimaryKey.Replace(" ", string.Empty);
             Branch = Branch.Replace(" ", string.Empty);
@@ -553,11 +553,9 @@ namespace GNAy.Capital.Models
 
             Updater = memberName;
             UpdateTime = DateTime.Now;
-
-            return this;
         }
 
-        public StrategyData Reset()
+        public void Reset([CallerMemberName] string memberName = "")
         {
             if (UnclosedQty > 0)
             {
@@ -580,7 +578,8 @@ namespace GNAy.Capital.Models
             MarketClosingData = null;
             Comment = string.Empty;
 
-            return this;
+            Updater = memberName;
+            UpdateTime = DateTime.Now;
         }
 
         public StrategyData CreateOrder()
