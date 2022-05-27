@@ -4,8 +4,9 @@
 * 技術細節整理放在Blog
 * https://gnaysolution.blogspot.com/
 
-## https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Trade/GNAy.Capital.Trade.csproj
+## GNAy.Capital.Trade.csproj
 ![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22050811.jpg)
+* https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Trade/GNAy.Capital.Trade.csproj
 * 交易輔助APP，策略交易框架與範例，提供多樣化的素材，方便user自行組合與測試交易策略
 * 基於群益API(SKCOM.dll)，需先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
 * https://www.capital.com.tw/Service2/download/api.asp
@@ -32,7 +33,8 @@
 ###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/GNAy.Capital.Trade.dwp.config
 * 讀取帳號密碼的基本範例，專案不對帳密做儲存或特別處理，有需要請自行修改程式碼
 
-###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/holidaySchedule_{yyy}.csv
+###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/holidaySchedule_111.csv
+* holidaySchedule_{yyy}.csv
 * 臺灣證券交易所市場開休市日期
 * https://www.twse.com.tw/zh/holidaySchedule/holidaySchedule
 
@@ -46,15 +48,19 @@
 ###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/StrategyData/0504_1442.csv
 * 策略範例，方便demo用的，用來快速測試停損停利等各項功能，是容易賠錢的設定，請勿在正式環境使用
 
-## https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Models/GNAy.Capital.Models.csproj
+## GNAy.Capital.Models.csproj
+* https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Models/GNAy.Capital.Models.csproj
 * 策略交易框架，相關模型、資料、設定
 
-## https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Monitor/GNAy.Capital.Monitor.csproj
+## GNAy.Capital.Monitor.csproj
+* https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Monitor/GNAy.Capital.Monitor.csproj
 * 針對GNAy.Capital.Trade的監控和功能測試，空專案，尚未實作
 
-## https://github.com/GNAySolution/GNAy/tree/main/GNAy.Tools.WPF/GNAy.Tools.WPF/GNAy.Tools.WPF.csproj
+## GNAy.Tools.WPF.csproj
+* https://github.com/GNAySolution/GNAy/tree/main/GNAy.Tools.WPF/GNAy.Tools.WPF/GNAy.Tools.WPF.csproj
 * WPF共用工具
 
-## https://github.com/GNAySolution/GNAy/tree/main/GNAy.Tools.WPF/GNAy.Tools.NET47/GNAy.Tools.NET47.csproj
+## GNAy.Tools.NET47.csproj
+* https://github.com/GNAySolution/GNAy/tree/main/GNAy.Tools.WPF/GNAy.Tools.NET47/GNAy.Tools.NET47.csproj
 * .NET Framework 4.7共用工具
 
