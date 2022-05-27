@@ -78,8 +78,8 @@ namespace GNAy.Capital.Trade.Controllers
                             continue;
                         }
 
-                        string key1 = $"{target.FullAccount}_{target.Symbol}_{target.BS}_{target.DayTrade}";
-                        string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BS}_{target.DayTrade}_{target.SendRealOrder}";
+                        string key1 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}";
+                        string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}_{target.SendRealOrder}";
                         OpenInterestData data = this[key1];
 
                         if (data == null || data.PositionEnum == OrderPosition.Enum.Close || data.Quantity < target.OrderQty)

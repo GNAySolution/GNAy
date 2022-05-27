@@ -860,16 +860,16 @@ namespace GNAy.Capital.Trade.Controllers
         {
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}|{openInterest?.ToLog()}", UniqueName);
 
+            QuoteData quoteBK = data.Quote;
+            data.Quote = data.Quote.Clone();
+            data.Quote.DealPrice = openInterest.AveragePrice;
+            data.Quote.Simulate = QuoteData.SimulateTrade;
+
+            bool sendRealOrder = data.SendRealOrder;
+            data.SendRealOrder = false;
+
             try
             {
-                QuoteData quoteBK = data.Quote;
-                data.Quote = quoteBK.DeepClone();
-                data.Quote.DealPrice = openInterest.AveragePrice;
-                data.Quote.Simulate = 1;
-
-                bool sendRealOrder = data.SendRealOrder;
-                data.SendRealOrder = false;
-
                 SerialReset(data);
                 ParentCheck(data, true, start);
 
@@ -879,12 +879,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                 _appCtrl.CAPOrder.Send(order);
 
-                data.Quote = quoteBK;
-
                 data.DealPrice = openInterest.AveragePrice;
                 order.DealPrice = openInterest.AveragePrice;
-
-                data.SendRealOrder = sendRealOrder;
                 order.SendRealOrder = sendRealOrder;
             }
             catch (Exception ex)
@@ -893,6 +889,9 @@ namespace GNAy.Capital.Trade.Controllers
             }
             finally
             {
+                data.Quote = quoteBK;
+                data.SendRealOrder = sendRealOrder;
+
                 _appCtrl.EndTrace(start, UniqueName);
             }
         }

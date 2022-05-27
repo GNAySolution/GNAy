@@ -15,8 +15,8 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class QuoteData : NotifyPropertyChanged
     {
-        //public const int SimulateTrade = 1;
         public const int RealTrade = 0;
+        public const int SimulateTrade = 1;
 
         public static readonly Dictionary<string, (TradeColumnAttribute, PropertyInfo)> PropertyMap = typeof(QuoteData).GetColumnAttrMapByProperty<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
         public static readonly SortedDictionary<int, (TradeColumnAttribute, PropertyInfo)> ColumnGetters = typeof(QuoteData).GetColumnAttrMapByIndex<TradeColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
@@ -358,6 +358,44 @@ namespace GNAy.Capital.Models
             DecimalPos = 0;
             TotalQtyBefore = 0;
             Recovered = false;
+        }
+
+        public QuoteData Clone([CallerMemberName] string memberName = "")
+        {
+            return new QuoteData()
+            {
+                Creator = memberName,
+                CreatedTime = DateTime.Now,
+                Updater = memberName,
+                UpdateTime = DateTime.Now,
+                Symbol = Symbol,
+                Name = Name,
+                MatchedTimeHHmmss = MatchedTimeHHmmss,
+                MatchedTimefff = MatchedTimefff,
+                DealPrice = DealPrice,
+                DealQty = DealQty,
+                BestBuyPrice = BestBuyPrice,
+                BestBuyQty = BestBuyQty,
+                BestSellPrice = BestSellPrice,
+                BestSellQty = BestSellQty,
+                OpenPrice = OpenPrice,
+                HighPrice = HighPrice,
+                LowPrice = LowPrice,
+                Reference = Reference,
+                LastClosePrice = LastClosePrice,
+                Simulate = Simulate,
+                TotalQty = TotalQty,
+                TradeDateRaw = TradeDateRaw,
+                HighPriceLimit = HighPriceLimit,
+                LowPriceLimit = LowPriceLimit,
+                Count = Count,
+                Index = Index,
+                Page = Page,
+                MarketGroupEnum = MarketGroupEnum,
+                DecimalPos = DecimalPos,
+                TotalQtyBefore = TotalQtyBefore,
+                Recovered = Recovered,
+            };
         }
 
         public string ToCSVString()

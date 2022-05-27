@@ -72,5 +72,5 @@
   "SentOrderFileFormat": "yyMMdd_HHmmss_ffffff",
   "SendRealOrder": false,
   "LiveMode": false,
-  "StartFromOpenInterest": false
+  "StartFromOpenInterest": true
 }
