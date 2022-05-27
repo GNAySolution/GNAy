@@ -141,10 +141,10 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int LoginUser(string userID, string dwp)
         {
+            DateTime start = _appCtrl.StartTrace($"userID={userID}|dwp=********", UniqueName);
+
             userID = userID.Trim().ToUpper();
             dwp = dwp.Trim();
-
-            DateTime start = _appCtrl.StartTrace($"userID={userID}|dwp=********", UniqueName);
 
             try
             {

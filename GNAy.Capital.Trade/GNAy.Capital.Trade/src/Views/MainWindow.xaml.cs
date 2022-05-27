@@ -100,7 +100,6 @@ namespace GNAy.Capital.Trade
 
             ButtonSetOrderMaxQty.IsEnabled = false;
             ButtonSetOrderMaxCount.IsEnabled = false;
-            ComboBoxOrderDayTrade.IsEnabled = false;
 
             _timer1 = new DispatcherTimer(DispatcherPriority.ContextIdle)
             {

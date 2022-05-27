@@ -4,7 +4,7 @@
 * 技術細節整理放在Blog
 * https://gnaysolution.blogspot.com/
 
-## GNAy.Capital.Trade.csproj
+## https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Trade/GNAy.Capital.Trade.csproj
 ![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22050811.jpg)
 * 交易輔助APP，策略交易框架與範例，提供多樣化的素材，方便user自行組合與測試交易策略
 * 基於群益API(SKCOM.dll)，需先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.37_x64
@@ -17,7 +17,7 @@
 * 使用群益API的前置條件，要先安裝憑證(CAP-*.pfx)，以及微軟Visual C++ 2010 Service Pack 1 MFC可轉散發套件安全性更新(vcredist_x64.exe)
 * https://docs.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
-###### GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22050811.jpg
+###### https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22050811.jpg
 * APP(開發中)操作介面示意圖
 - [x] 交易輔助APP，自定義台灣期貨、單隻腳選擇權，多樣化的觸價條件與停損停利策略
 - [x] 短期目標是幫助user快速做當沖或隔日沖
@@ -29,32 +29,32 @@
 - [ ] 中期目標是連續IOC等多樣化的CD單，並串接其他券商的API
 - [ ] 長期目標是把程式移植到iOS平台上，用iPhone或Mac操作
 
-###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/GNAy.Capital.Trade.dwp.config
+###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/GNAy.Capital.Trade.dwp.config
 * 讀取帳號密碼的基本範例，專案不對帳密做儲存或特別處理，有需要請自行修改程式碼
 
-###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/holidaySchedule_{yyy}.csv
+###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/holidaySchedule_{yyy}.csv
 * 臺灣證券交易所市場開休市日期
 * https://www.twse.com.tw/zh/holidaySchedule/holidaySchedule
 
-###### GNAy.Capital.Trade/GNAy.Capital.Trade/docs/Futures_MTX_1DayK.csv
+###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/Futures_MTX_1DayK.csv
 * 範例參考期交所的小台日K資訊，整理使其更易於發想交易策略，以及回測驗證多年績效
 * https://www.taifex.com.tw/cht/3/dlFutDailyMarketView
 
-###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/TriggerData/0404_1830.csv
+###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/TriggerData/0404_1830.csv
 * 觸價範例，方便demo用的，用來快速測試停損停利等各項功能，是容易賠錢的設定，請勿在正式環境使用
 
-###### GNAy.Capital.Trade/GNAy.Capital.Trade/.config/StrategyData/0504_1442.csv
+###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/StrategyData/0504_1442.csv
 * 策略範例，方便demo用的，用來快速測試停損停利等各項功能，是容易賠錢的設定，請勿在正式環境使用
 
-## GNAy.Capital.Models.csproj
+## https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Models/GNAy.Capital.Models.csproj
 * 策略交易框架，相關模型、資料、設定
 
-## GNAy.Capital.Monitor.csproj
+## https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Monitor/GNAy.Capital.Monitor.csproj
 * 針對GNAy.Capital.Trade的監控和功能測試，空專案，尚未實作
 
-## GNAy.Tools.WPF.csproj
+## https://github.com/GNAySolution/GNAy/tree/main/GNAy.Tools.WPF/GNAy.Tools.WPF/GNAy.Tools.WPF.csproj
 * WPF共用工具
 
-## GNAy.Tools.NET47.csproj
+## https://github.com/GNAySolution/GNAy/tree/main/GNAy.Tools.WPF/GNAy.Tools.NET47/GNAy.Tools.NET47.csproj
 * .NET Framework 4.7共用工具
 
