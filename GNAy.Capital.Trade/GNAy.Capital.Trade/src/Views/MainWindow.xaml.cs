@@ -32,6 +32,10 @@ namespace GNAy.Capital.Trade
     {
         public readonly DateTime StartTime;
         public readonly string UniqueName;
+
+        public readonly string ProcessName;
+        public readonly int ProcessID;
+
         private readonly AppController _appCtrl;
 
         private readonly Dictionary<TextBox, ComboBox> _editableCBMap;
@@ -45,18 +49,31 @@ namespace GNAy.Capital.Trade
 
             StartTime = DateTime.Now;
             UniqueName = nameof(MainWindow);
-            _appCtrl = new AppController(this);
+
+            Process ps = Process.GetCurrentProcess();
+            ProcessName = ps.ProcessName.Replace(".vshost", string.Empty);
+            ProcessID = ps.Id;
+
+            foreach (Process other in Process.GetProcessesByName(ProcessName))
+            {
+                if (other.MainModule.FileName == ps.MainModule.FileName && other.Id != ps.Id) //同路徑的執行檔只能存在一個實體
+                {
+                    Environment.Exit(0);
+                }
+            }
 
             //https://www.796t.com/post/MWV3bG0=.html
             FileInfo assemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);
             FileVersionInfo version = FileVersionInfo.GetVersionInfo(assemblyFile.FullName);
+
+            _appCtrl = new AppController(this, ps);
 
             Title = $"{version.Comments} ({version.FileVersion})";
             if (version.FileMajorPart <= 0 || version.FilePrivatePart % 2 == 1)
             {
                 Title = $"{Title}(BETA)";
             }
-            Title = $"{Title} ({version.ProductName})({version.LegalCopyright}) ({assemblyFile.Directory.Name}\\{assemblyFile.Name})({_appCtrl.Settings.Description})";
+            Title = $"{Title} ({version.ProductName})({version.LegalCopyright}) ({assemblyFile.Directory.Name}\\{assemblyFile.Name})({ps.Id})({_appCtrl.Settings.Description})";
             if (Debugger.IsAttached)
             {
                 Title = $"{Title}(附加偵錯)";
@@ -401,6 +418,7 @@ namespace GNAy.Capital.Trade
                     MessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK);
 
                     _appCtrl.Exit(caption, LogLevel.Warn);
+
                     return;
                 }
                 else if (_appCtrl.Config.AutoRun)
@@ -881,6 +899,11 @@ namespace GNAy.Capital.Trade
 
             try
             {
+                if (!_appCtrl.CallTimedEventBySelf)
+                {
+                    _appCtrl.OnTimedEvent(DateTime.Now);
+                }
+
                 //https://stackoverflow.com/questions/9565740/display-duration-in-milliseconds
                 string elapsed = (start - StartTime).ToString("hh':'mm':'ss");
                 StatusBarItemAA2.Text = $"{elapsed}";
@@ -985,15 +1008,16 @@ namespace GNAy.Capital.Trade
             try
             {
                 StatusBarItemCA2.Text = $"{start:HH:mm:ss}|IsHoliday={_appCtrl.Config.IsHoliday(start)}";
-                ButtonSaveQuotesTest_Click(null, null);
+                //ButtonSaveQuotesTest_Click(null, null);
 
                 foreach (DateTime timeToClose in _appCtrl.Settings.MarketClose)
                 {
                     if (start.Hour == timeToClose.Hour && start.Minute >= (timeToClose.Minute + 2) && start.Minute <= (timeToClose.Minute + 4))
                     {
                         _timer1.Stop();
-                        Thread.Sleep(3 * 1000);
+                        Thread.Sleep(1 * 1000);
                         _appCtrl.Exit($"Time to exit.");
+
                         return;
                     }
                 }
@@ -1019,6 +1043,7 @@ namespace GNAy.Capital.Trade
                 if (reConnect == 0)
                 {
                     _timer2.Start();
+
                     return;
                 }
 
@@ -1061,7 +1086,12 @@ namespace GNAy.Capital.Trade
                     {
                         //TODO: Send alert mail.
                         _appCtrl.CAPQuote.Disconnect();
-                        this.InvokeAsync(delegate { _timer2.Start(); }); //Retry to connect quote service.
+                        //this.InvokeAsync(delegate { _timer2.Start(); }); //Retry to connect quote service.
+
+                        _timer1.Stop();
+                        Thread.Sleep(1 * 1000);
+                        _appCtrl.Exit($"{_appCtrl.CAPQuote.Status}|{_appCtrl.CAPQuote.StatusStr}");
+
                         return;
                     }
 
@@ -1217,7 +1247,7 @@ namespace GNAy.Capital.Trade
             {
                 if (string.IsNullOrWhiteSpace(TextBoxUserID.Text) && string.IsNullOrWhiteSpace(DWPBox.Password))
                 {
-                    FileInfo dwpFile = new FileInfo($"{_appCtrl.ProcessName}.dwp.config");
+                    FileInfo dwpFile = new FileInfo($"{ProcessName}.dwp.config");
 
                     if (dwpFile.Exists)
                     {
@@ -1419,6 +1449,7 @@ namespace GNAy.Capital.Trade
                 DirectoryInfo folder = new DirectoryInfo(TextBoxQuoteFolderTest.Text);
                 folder.Create();
                 folder.Refresh();
+
                 _appCtrl.CAPQuote.SaveDataAsync(folder);
             }
             catch (Exception ex)

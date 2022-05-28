@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -91,10 +92,8 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public (LogLevel, string) Restart(string primary)
+        public (LogLevel, string) Restart(string primary, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(Restart);
-
             TriggerData data = this[primary];
 
             if (data == null)
@@ -150,7 +149,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 data.StatusEnum = TriggerStatus.Enum.Waiting;
                 data.Comment = $"重啟";
-                data.Updater = methodName;
+                data.Updater = memberName;
                 data.UpdateTime = DateTime.Now;
 
                 //TODO: strategyAND的其他觸價條件，已滿足的還是能重啟
@@ -229,10 +228,8 @@ namespace GNAy.Capital.Trade.Controllers
             return strategyAND;
         }
 
-        private void CancelAfterExecuted(TriggerData executed, DateTime start)
+        private void CancelAfterExecuted(TriggerData executed, DateTime start, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(CancelAfterExecuted);
-
             if (string.IsNullOrWhiteSpace(executed.Cancel))
             {
                 return;
@@ -258,7 +255,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     data.StatusEnum = TriggerStatus.Enum.Cancelled;
                     data.Comment = executed.ToLog();
-                    data.Updater = methodName;
+                    data.Updater = memberName;
                     data.UpdateTime = DateTime.Now;
                     _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                 }
@@ -280,10 +277,8 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private bool Cancel(TriggerData data, string comment, DateTime start)
+        private bool Cancel(TriggerData data, string comment, DateTime start, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(Cancel);
-
             try
             {
                 if (data.StatusEnum == TriggerStatus.Enum.Cancelled)
@@ -299,7 +294,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 data.StatusEnum = TriggerStatus.Enum.Cancelled;
                 data.Comment = comment;
-                data.Updater = methodName;
+                data.Updater = memberName;
                 data.UpdateTime = DateTime.Now;
                 _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
 

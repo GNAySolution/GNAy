@@ -126,6 +126,7 @@ namespace GNAy.Tools.WPF
         public static TextBox GetEditableTextBox(this ComboBox obj)
         {
             obj.ApplyTemplate();
+
             return (TextBox)obj.Template.FindName("PART_EditableTextBox", obj);
         }
 
@@ -193,6 +194,7 @@ namespace GNAy.Tools.WPF
             {
                 Source = obj,
             };
+
             return s.View;
         }
 
@@ -210,9 +212,14 @@ namespace GNAy.Tools.WPF
             return oc;
         }
 
+        /// <summary>
+        /// https://stackoverflow.com/questions/65294707/argumentoutofrangeexception-when-calling-visualtreehelper-getchild
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public static ScrollViewer GetScrollViewer(this DependencyObject obj)
         {
-            Decorator border = VisualTreeHelper.GetChild(obj, 0) as Decorator;
+            Decorator border = VisualTreeHelper.GetChildrenCount(obj) > 0 ? VisualTreeHelper.GetChild(obj, 0) as Decorator : null;
             return border?.Child as ScrollViewer;
         }
 
@@ -237,6 +244,7 @@ namespace GNAy.Tools.WPF
                 {
                     viewer.ScrollToHome();
                 }
+
                 return true;
             }
 
@@ -278,6 +286,7 @@ namespace GNAy.Tools.WPF
         public static T GetItem<T>(this DataGridCell obj) where T : class
         {
             DataGridRow row = obj.FindOwner<DataGridRow>();
+
             return row == null ? null : (T)row.Item;
         }
     }

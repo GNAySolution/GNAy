@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -144,10 +145,6 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 throw new ArgumentException($"data.LossCloseSeconds({data.LossCloseSeconds}) < 0|{data.ToLog()}");
             }
-            else if (data.Quote != null && data.Quote.Symbol != data.Symbol)
-            {
-                throw new ArgumentException($"策略關聯報價代碼錯誤|{data.Quote.Symbol} != {data.Symbol}|{data.ToLog()}");
-            }
             else if (data.Quote == null)
             {
                 data.Quote = _appCtrl.CAPQuote[data.Symbol];
@@ -169,6 +166,10 @@ namespace GNAy.Capital.Trade.Controllers
                 MarketCheck(data, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
 
                 return;
+            }
+            else if (data.Quote.Symbol != data.Symbol)
+            {
+                throw new ArgumentException($"策略關聯報價代碼錯誤|{data.Quote.Symbol} != {data.Symbol}|{data.ToLog()}");
             }
 
             MarketCheck(data, data.Quote);
@@ -303,10 +304,8 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private bool Close(StrategyData data, int qty, string comment, DateTime start)
+        private bool Close(StrategyData data, int qty, string comment, DateTime start, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(Close);
-
             try
             {
                 if (data.StatusEnum == StrategyStatus.Enum.Cancelled)
@@ -319,7 +318,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     data.StatusEnum = StrategyStatus.Enum.Cancelled;
                     data.Comment = comment;
-                    data.Updater = methodName;
+                    data.Updater = memberName;
                     data.UpdateTime = DateTime.Now;
 
                     return true;
@@ -329,7 +328,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 data.StatusEnum = StrategyStatus.Enum.MarketClosingSent;
                 data.Comment = comment;
-                data.Updater = methodName;
+                data.Updater = memberName;
                 data.UpdateTime = DateTime.Now;
 
                 _appCtrl.CAPOrder.Send(marketClosingOrder);
@@ -896,10 +895,8 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void RecoverSetting(FileInfo fileStrategy = null, FileInfo fileSentOrder = null)
+        public void RecoverSetting(FileInfo fileStrategy = null, FileInfo fileSentOrder = null, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(RecoverSetting);
-
             DateTime start = _appCtrl.StartTrace($"{fileStrategy?.FullName}", UniqueName);
 
             try
@@ -944,7 +941,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         data.MarketType = _appCtrl.CAPOrder[data.FullAccount].MarketType;
                         data.Quote = _appCtrl.CAPQuote[data.Symbol];
-                        data.Updater = methodName;
+                        data.Updater = memberName;
                         data.UpdateTime = DateTime.Now;
 
                         if (decimal.TryParse(data.PrimaryKey, out decimal _pk) && _pk > nextPK)

@@ -3,6 +3,7 @@ using SKCOMLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,11 +16,10 @@ namespace GNAy.Capital.Trade.Controllers
         /// </summary>
         /// <param name="raw"></param>
         /// <param name="quote">通常是斷線重連時更新Index用</param>
+        /// <param name="memberName"></param>
         /// <returns></returns>
-        public QuoteData CreateOrUpdate(SKSTOCKLONG raw, QuoteData quote = null)
+        public QuoteData CreateOrUpdate(SKSTOCKLONG raw, QuoteData quote = null, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(CreateOrUpdate);
-
             if (quote == null)
             {
                 quote = new QuoteData();
@@ -46,16 +46,14 @@ namespace GNAy.Capital.Trade.Controllers
             quote.MarketGroup = raw.bstrMarketNo[0] - '0';
             quote.DecimalPos = raw.sDecimal;
             quote.TotalQtyBefore = raw.nYQty;
-            quote.Updater = methodName;
+            quote.Updater = memberName;
             quote.UpdateTime = DateTime.Now;
 
             return quote;
         }
 
-        private QuoteData Create(SKSTOCKLONG raw, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
+        private QuoteData Create(SKSTOCKLONG raw, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(Create);
-
             QuoteData quote = CreateOrUpdate(raw);
 
             quote.Count = nPtr;
@@ -67,17 +65,14 @@ namespace GNAy.Capital.Trade.Controllers
             quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
             quote.DealQty = nQty;
             quote.Simulate = nSimulate;
-
-            quote.Updater = methodName;
+            quote.Updater = memberName;
             quote.UpdateTime = DateTime.Now;
 
             return quote;
         }
 
-        private bool Update(SKSTOCKLONG raw)
+        private bool Update(SKSTOCKLONG raw, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(Update);
-
             //https://stackoverflow.com/questions/628761/convert-a-character-digit-to-the-corresponding-integer-in-c
             if (!_dataIndexMap.TryGetValue((raw.bstrMarketNo[0] - '0') * 1000000 + raw.nStockIdx, out QuoteData quote))
             {
@@ -142,7 +137,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.DecimalPos = raw.sDecimal;
             quote.TotalQtyBefore = raw.nYQty;
 
-            quote.Updater = methodName;
+            quote.Updater = memberName;
             quote.UpdateTime = DateTime.Now;
 
             if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (LoadedOnTime || quote.Recovered))
@@ -192,7 +187,7 @@ namespace GNAy.Capital.Trade.Controllers
                     qRaw.DecimalPos = raw.sDecimal;
                     qRaw.TotalQtyBefore = raw.nYQty;
 
-                    qRaw.Updater = methodName;
+                    qRaw.Updater = memberName;
                     qRaw.UpdateTime = DateTime.Now;
 
                     symbol = string.IsNullOrWhiteSpace(qRaw.Symbol) ? $"{qRaw.MarketGroup}_{qRaw.Index}" : qRaw.Symbol;

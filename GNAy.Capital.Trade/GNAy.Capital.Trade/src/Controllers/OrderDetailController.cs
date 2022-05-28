@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,10 +47,8 @@ namespace GNAy.Capital.Trade.Controllers
         private OrderDetailController() : this(null)
         { }
 
-        public void Check(StrategyData data, DateTime start)
+        public void Check(StrategyData data, DateTime start, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(Check);
-
             data.Trim();
 
             if (string.IsNullOrWhiteSpace(data.PrimaryKey))
@@ -75,12 +74,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             data.SendRealOrder = _appCtrl.Settings.SendRealOrder && data.SendRealOrder;
 
-
-            if (data.Quote != null && data.Quote.Symbol != data.Symbol)
-            {
-                throw new ArgumentException($"委託關聯報價代碼錯誤|{data.Quote.Symbol} != {data.Symbol}|{data.ToLog()}");
-            }
-            else if (data.Quote == null)
+            if (data.Quote == null)
             {
                 data.Quote = _appCtrl.CAPQuote[data.Symbol];
             }
@@ -97,6 +91,10 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.Strategy.MarketCheck(data, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
 
                 return;
+            }
+            else if (data.Quote.Symbol != data.Symbol)
+            {
+                throw new ArgumentException($"委託關聯報價代碼錯誤|{data.Quote.Symbol} != {data.Symbol}|{data.ToLog()}");
             }
 
             _appCtrl.Strategy.MarketCheck(data, data.Quote);
@@ -139,7 +137,7 @@ namespace GNAy.Capital.Trade.Controllers
                     parent.UnclosedQty = data.UnclosedQty;
                 }
 
-                parent.Updater = methodName;
+                parent.Updater = memberName;
                 parent.UpdateTime = DateTime.Now;
             }
         }

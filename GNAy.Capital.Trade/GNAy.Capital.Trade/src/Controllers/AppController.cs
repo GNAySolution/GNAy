@@ -25,9 +25,6 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         public readonly MainWindow MainForm;
 
-        public readonly string ProcessName;
-        public readonly int ProcessID;
-
         private readonly ObservableCollection<AppLogInDataGrid> _appLogCollection;
 
         public readonly AppConfig Config;
@@ -42,8 +39,9 @@ namespace GNAy.Capital.Trade.Controllers
         public StrategyController Strategy { get; private set; }
 
         private readonly System.Timers.Timer _timerBG;
+        public bool CallTimedEventBySelf => _timerBG != null;
 
-        public AppController(MainWindow mainForm)
+        public AppController(MainWindow mainForm, Process ps)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(AppController).Replace("Controller", "Ctrl");
@@ -51,10 +49,6 @@ namespace GNAy.Capital.Trade.Controllers
 
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
-
-            Process ps = Process.GetCurrentProcess();
-            ProcessName = ps.ProcessName.Replace(".vshost", string.Empty);
-            ProcessID = ps.Id;
 
             mainForm.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _appLogCollection = mainForm.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
@@ -94,20 +88,28 @@ namespace GNAy.Capital.Trade.Controllers
             _secondsToQueryOpenInterest = 10;
             _lastTimeToSaveQuote = DateTime.Now;
 
-            _timerBG = new System.Timers.Timer(Settings.TimerIntervalBackground);
-            _timerBG.Elapsed += OnTimedEvent;
-            _timerBG.AutoReset = true;
-            _timerBG.Enabled = true;
+            if (Settings.TimerIntervalBackground > 0)
+            {
+                _timerBG = new System.Timers.Timer(Settings.TimerIntervalBackground);
+                _timerBG.Elapsed += OnTimedEvent;
+                _timerBG.AutoReset = true;
+                _timerBG.Enabled = true;
+            }
+            else
+            {
+                _timerBG = null;
+                Settings.TimerIntervalBackground = Settings.TimerIntervalUI1;
+            }
         }
 
-        protected AppController() : this(null)
+        protected AppController() : this(null, null)
         { }
 
         private void AppendLog(LogLevel level, string msg, int lineNumber, string memberName)
         {
             AppLogInDataGrid log = new AppLogInDataGrid()
             {
-                Project = ProcessName,
+                Project = MainForm.ProcessName,
                 Level = level.Name.ToUpper(),
                 ThreadID = Thread.CurrentThread.ManagedThreadId,
                 Message = msg,
@@ -315,7 +317,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private AppConfig LoadSettings()
         {
-            FileInfo configFile = new FileInfo($"{ProcessName}.appsettings.json");
+            FileInfo configFile = new FileInfo($"{MainForm.ProcessName}.appsettings.json");
             AppConfig config = null;
 
             foreach (string arg in Environment.GetCommandLineArgs())
@@ -388,7 +390,10 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                _timerBG.Enabled = false;
+                if (_timerBG != null)
+                {
+                    _timerBG.Enabled = false;
+                }
 
                 if (level == null || level == LogLevel.Trace)
                 {

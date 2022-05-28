@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -380,10 +381,8 @@ namespace GNAy.Capital.Trade.Controllers
             return m_nCode == 0 ? (LogLevel.Trace, orderMsg) : _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderMsg);
         }
 
-        private void SendAsync(StrategyData order, DateTime start)
+        private void SendAsync(StrategyData order, DateTime start, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(SendAsync);
-
             try
             {
                 order.StatusEnum = StrategyStatus.Enum.OrderSent;
@@ -412,7 +411,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 order.StatusEnum = orderResult.Item1 == LogLevel.Trace ? StrategyStatus.Enum.OrderReport : StrategyStatus.Enum.OrderError;
                 order.OrderReport = orderResult.Item2;
-                order.Updater = methodName;
+                order.Updater = memberName;
                 order.UpdateTime = DateTime.Now;
             }
             catch (Exception ex)
@@ -422,7 +421,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 order.StatusEnum = StrategyStatus.Enum.OrderError;
                 order.OrderReport = ex.Message;
-                order.Updater = methodName;
+                order.Updater = memberName;
                 order.UpdateTime = DateTime.Now;
             }
             finally
@@ -450,7 +449,7 @@ namespace GNAy.Capital.Trade.Controllers
                             break;
                     }
 
-                    parent.Updater = methodName;
+                    parent.Updater = memberName;
                     parent.UpdateTime = DateTime.Now;
                 }
 
@@ -460,10 +459,8 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void Send(StrategyData order)
+        public void Send(StrategyData order, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(Send);
-
             DateTime start = _appCtrl.StartTrace($"{order?.ToLog()}", UniqueName);
 
             try
@@ -487,11 +484,11 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (_appCtrl.Settings.SendRealOrder && order.SendRealOrder)
                 {
-                    Task.Factory.StartNew(() => SendAsync(order, start));
+                    Task.Factory.StartNew(() => SendAsync(order, start, memberName));
                 }
                 else
                 {
-                    SendAsync(order, start);
+                    SendAsync(order, start, memberName);
                 }
             }
             catch (Exception ex)
@@ -501,7 +498,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 order.StatusEnum = StrategyStatus.Enum.OrderError;
                 order.OrderReport = ex.Message;
-                order.Updater = methodName;
+                order.Updater = memberName;
                 order.UpdateTime = DateTime.Now;
 
                 StrategyData parent = order.Parent;
@@ -527,7 +524,7 @@ namespace GNAy.Capital.Trade.Controllers
                             break;
                     }
 
-                    parent.Updater = methodName;
+                    parent.Updater = memberName;
                     parent.UpdateTime = DateTime.Now;
                 }
             }

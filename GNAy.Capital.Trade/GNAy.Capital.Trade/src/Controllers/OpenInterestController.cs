@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -186,10 +187,8 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private (bool, OpenInterestData) AddOrUpdate(string account, string symbol, OrderBS.Enum bs, OrderDayTrade.Enum dayTrade, string price, string quantity, DateTime start)
+        private (bool, OpenInterestData) AddOrUpdate(string account, string symbol, OrderBS.Enum bs, OrderDayTrade.Enum dayTrade, string price, string quantity, DateTime start, [CallerMemberName] string memberName = "")
         {
-            const string methodName = nameof(AddOrUpdate);
-
             try
             {
                 decimal pri = decimal.Parse(price) / 100;
@@ -219,7 +218,7 @@ namespace GNAy.Capital.Trade.Controllers
                 data.PositionEnum = OrderPosition.Enum.Open;
                 data.AveragePrice = pri;
                 data.Quantity = qty;
-                data.Updater = methodName;
+                data.Updater = memberName;
                 data.UpdateTime = DateTime.Now;
 
                 CheckStrategy(data, start);

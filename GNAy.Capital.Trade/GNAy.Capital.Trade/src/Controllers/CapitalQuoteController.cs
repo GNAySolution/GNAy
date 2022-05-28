@@ -517,6 +517,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return;
                 }
+
                 start = _appCtrl.StartTrace(quoteFile.FullName, UniqueName);
 
                 List<string> columnNames = new List<string>();
@@ -580,6 +581,7 @@ namespace GNAy.Capital.Trade.Controllers
                         if (nCode != 0)
                         {
                             _appCtrl.CAPCenter.LogAPIMessage(start, nCode);
+
                             continue;
                         }
 
@@ -639,6 +641,7 @@ namespace GNAy.Capital.Trade.Controllers
                         if (nCode != 0)
                         {
                             _appCtrl.CAPCenter.LogAPIMessage(start, nCode);
+
                             continue;
                         }
 
