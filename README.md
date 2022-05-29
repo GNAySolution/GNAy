@@ -10,7 +10,7 @@
 * https://www.capital.com.tw/Service2/download/api.asp
 * Demo放在以下頻道
 * https://youtube.com/playlist?list=PLOGS4yeidG_YCRn2hZjwbP4ffqnL33VuH
-* 技術細節整理放在Blog，標籤GNAySolution
+* 技術細節整理放在Blog，標籤AutoTrading
 * https://gnaysolution.blogspot.com/
 * (投資一定有風險，不同時間進場，將有不同的投資績效，電子下單也可能面對使用者操作不當、程式錯誤、作業系統錯誤、硬體錯誤、病毒攻擊、時間延遲、網路壅塞、斷線、停電等風險)
 
@@ -42,11 +42,17 @@
 * 範例參考期交所的小台日K資訊，整理使其更易於發想交易策略，以及回測驗證多年績效
 * https://www.taifex.com.tw/cht/3/dlFutDailyMarketView
 
-###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/TriggerData/0404_1830.csv
-* 觸價範例，方便demo用的，用來快速測試停損停利等各項功能，是容易賠錢的設定，請勿在正式環境使用
+###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/TriggerData/T1_0404_AM.csv
+* 觸價範例，方便demo用，快速測試停損停利等各項功能，是容易賠錢的設定，請勿在正式環境使用
+* T1_0404_AM.csv，日盤
+* T1_0404_PM.csv，夜盤
 
-###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/StrategyData/0504_1442.csv
-* 策略範例，方便demo用的，用來快速測試停損停利等各項功能，是容易賠錢的設定，請勿在正式環境使用
+###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/StrategyData/T1_0504_false_AM.csv
+* 策略範例，方便demo用，快速測試停損停利等各項功能，是容易賠錢的設定，請勿在正式環境使用
+* T1_0504_false_AM.csv，日盤，隔日是平日
+* T1_0504_false_PM.csv，夜盤，隔日是平日
+* T1_0504_true_AM.csv，日盤，隔日是假日
+* T1_0504_true_PM.csv，夜盤，隔日是假日
 
 ## GNAy.Capital.Models.csproj
 * https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Models/GNAy.Capital.Models.csproj
