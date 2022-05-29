@@ -62,10 +62,6 @@ namespace GNAy.Capital.Trade.Controllers
                 LogError($"設定檔({Config.Archive.Name})版本過舊({Config.Version} < {newVer})", UniqueName);
                 //TODO: Migrate old config to new version.
             }
-            if (Config.TriggerFolder != null && string.IsNullOrWhiteSpace(Settings.TriggerFileFormat))
-            {
-                Settings.TriggerFileFormat = newSetting.TriggerFileFormat;
-            }
 
             if (!Debugger.IsAttached)
             {

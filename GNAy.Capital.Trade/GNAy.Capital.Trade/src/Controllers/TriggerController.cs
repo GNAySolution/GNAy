@@ -62,7 +62,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, string.Format("{0}.csv", DateTime.Now.ToString(_appCtrl.Settings.TriggerFileFormat)));
+                string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, string.Format("{0}.csv", DateTime.Now.ToString(_appCtrl.Settings.TriggerFileSaveFormat)));
                 _appCtrl.LogTrace(start, path, UniqueName);
 
                 using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
@@ -784,26 +784,37 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void RecoverSetting(FileInfo file = null)
+        public void RecoverSetting(FileInfo file = null, [CallerMemberName] string memberName = "")
         {
+            if (_dataMap.Count > 0)
+            {
+                return;
+            }
+
             DateTime start = _appCtrl.StartTrace($"{file?.FullName}", UniqueName);
 
             try
             {
-                if (_dataMap.Count > 0)
-                {
-                    return;
-                }
-
                 if (file == null)
                 {
                     if (_appCtrl.Config.TriggerFolder == null)
                     {
                         return;
                     }
-
                     _appCtrl.Config.TriggerFolder.Refresh();
-                    file = _appCtrl.Config.TriggerFolder.GetFiles("*.csv").LastOrDefault(x => Path.GetFileNameWithoutExtension(x.Name).Length == _appCtrl.Settings.TriggerFileFormat.Length);
+
+                    string loadFile = _appCtrl.Settings.TriggerFileLoadFormat;
+                    if (loadFile.Contains(AppSettings.Keyword_Holiday))
+                    {
+                        loadFile = loadFile.Replace(AppSettings.Keyword_Holiday, _appCtrl.Config.IsHoliday(DateTime.Now.AddDays(1)).ToString());
+                    }
+                    if (loadFile.Contains(AppSettings.Keyword_DayNight))
+                    {
+                        loadFile = loadFile.Replace(AppSettings.Keyword_DayNight, _appCtrl.CAPQuote.IsAMMarket ? $"{Market.EDayNight.AM}" : $"{Market.EDayNight.PM}");
+                    }
+                    file = _appCtrl.Config.TriggerFolder.GetFiles(loadFile).LastOrDefault();
+
+                    _appCtrl.StartTrace($"{file?.FullName}", UniqueName);
                 }
 
                 if (file == null)
@@ -818,7 +829,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     try
                     {
-                        data.Trim();
+                        data.Trim(memberName);
 
                         if (string.IsNullOrWhiteSpace(data.PrimaryKey))
                         {

@@ -174,17 +174,19 @@ namespace GNAy.Capital.Trade.Controllers
 
             MarketCheck(data, data.Quote);
 
-            if (_appCtrl.CAPQuote.MarketCloseTime != DateTime.MinValue)
-            {
-                if (data.WinCloseTime == DateTime.MinValue && data.WinCloseSeconds > 0)
-                {
-                    data.WinCloseTime = _appCtrl.CAPQuote.MarketCloseTime.AddSeconds(-data.WinCloseSeconds);
-                }
+            DateTime closeTime = _appCtrl.CAPQuote.MarketCloseTime;
 
-                if (data.LossCloseTime == DateTime.MinValue && data.LossCloseSeconds > 0)
-                {
-                    data.LossCloseTime = _appCtrl.CAPQuote.MarketCloseTime.AddSeconds(-data.LossCloseSeconds);
-                }
+            if (closeTime < DateTime.Now)
+            {
+                closeTime = _appCtrl.CAPQuote.IsAMMarket ? _appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM] : _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM];
+            }
+            if (data.WinCloseTime == DateTime.MinValue && data.WinCloseSeconds > 0)
+            {
+                data.WinCloseTime = closeTime.AddSeconds(-data.WinCloseSeconds);
+            }
+            if (data.LossCloseTime == DateTime.MinValue && data.LossCloseSeconds > 0)
+            {
+                data.LossCloseTime = closeTime.AddSeconds(-data.LossCloseSeconds);
             }
 
             (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote);
@@ -363,7 +365,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (Close(data, qty, comment, start))
                     {
-                        Task.Factory.StartNew(() => SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat));
+                        Task.Factory.StartNew(() => SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileSaveFormat));
 
                         return true;
                     }
@@ -734,7 +736,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (_waitToAdd.Count <= 0)
                 {
-                    SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
+                    SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileSaveFormat);
                 }
             }
 
@@ -760,7 +762,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (saveData)
             {
-                SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileFormat);
+                SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileSaveFormat);
             }
         }
 
@@ -895,29 +897,40 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void RecoverSetting(FileInfo fileStrategy = null, FileInfo fileSentOrder = null, [CallerMemberName] string memberName = "")
+        public void RecoverSetting(FileInfo file = null, [CallerMemberName] string memberName = "")
         {
-            DateTime start = _appCtrl.StartTrace($"{fileStrategy?.FullName}", UniqueName);
+            if (_dataMap.Count > 0)
+            {
+                return;
+            }
+
+            DateTime start = _appCtrl.StartTrace($"{file?.FullName}", UniqueName);
 
             try
             {
-                if (_dataMap.Count > 0)
-                {
-                    return;
-                }
-
-                if (fileStrategy == null)
+                if (file == null)
                 {
                     if (_appCtrl.Config.StrategyFolder == null)
                     {
                         return;
                     }
-
                     _appCtrl.Config.StrategyFolder.Refresh();
-                    fileStrategy = _appCtrl.Config.StrategyFolder.GetFiles("*.csv").LastOrDefault(x => Path.GetFileNameWithoutExtension(x.Name).Length == _appCtrl.Settings.StrategyFileFormat.Length);
+
+                    string loadFile = _appCtrl.Settings.StrategyFileLoadFormat;
+                    if (loadFile.Contains(AppSettings.Keyword_Holiday))
+                    {
+                        loadFile = loadFile.Replace(AppSettings.Keyword_Holiday, _appCtrl.Config.IsHoliday(DateTime.Now.AddDays(1)).ToString());
+                    }
+                    if (loadFile.Contains(AppSettings.Keyword_DayNight))
+                    {
+                        loadFile = loadFile.Replace(AppSettings.Keyword_DayNight, _appCtrl.CAPQuote.IsAMMarket ? $"{Market.EDayNight.AM}" : $"{Market.EDayNight.PM}");
+                    }
+                    file = _appCtrl.Config.StrategyFolder.GetFiles(loadFile).LastOrDefault();
+
+                    _appCtrl.StartTrace($"{file?.FullName}", UniqueName);
                 }
 
-                if (fileStrategy == null)
+                if (file == null)
                 {
                     return;
                 }
@@ -925,11 +938,11 @@ namespace GNAy.Capital.Trade.Controllers
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;
 
-                foreach (StrategyData data in StrategyData.ForeachQuoteFromCSVFile(fileStrategy.FullName, columnNames))
+                foreach (StrategyData data in StrategyData.ForeachQuoteFromCSVFile(file.FullName, columnNames))
                 {
                     try
                     {
-                        data.Trim();
+                        data.Trim(memberName);
 
                         if (string.IsNullOrWhiteSpace(data.PrimaryKey))
                         {
@@ -937,12 +950,10 @@ namespace GNAy.Capital.Trade.Controllers
                         }
 
                         data.UnclosedQty = 0;
-                        data.Reset();
+                        data.Reset(memberName);
 
                         data.MarketType = _appCtrl.CAPOrder[data.FullAccount].MarketType;
                         data.Quote = _appCtrl.CAPQuote[data.Symbol];
-                        data.Updater = memberName;
-                        data.UpdateTime = DateTime.Now;
 
                         if (decimal.TryParse(data.PrimaryKey, out decimal _pk) && _pk > nextPK)
                         {

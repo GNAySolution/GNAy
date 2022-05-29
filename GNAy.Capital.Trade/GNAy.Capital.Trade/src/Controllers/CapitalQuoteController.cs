@@ -518,7 +518,7 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
-                start = _appCtrl.StartTrace(quoteFile.FullName, UniqueName);
+                _appCtrl.StartTrace(quoteFile.FullName, UniqueName);
 
                 List<string> columnNames = new List<string>();
 

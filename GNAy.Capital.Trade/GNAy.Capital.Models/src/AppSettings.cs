@@ -13,6 +13,9 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class AppSettings
     {
+        public const string Keyword_Holiday = "{Holiday}";
+        public const string Keyword_DayNight = "{DayNight}";
+
         public string Version { get; set; }
         public string Description { get; set; }
 
@@ -110,13 +113,15 @@ namespace GNAy.Capital.Models
         /// 觸價資料夾
         /// </summary>
         public string TriggerFolderPath { get; set; }
-        public string TriggerFileFormat { get; set; }
+        public string TriggerFileLoadFormat { get; set; }
+        public string TriggerFileSaveFormat { get; set; }
 
         /// <summary>
         /// 策略資料夾
         /// </summary>
         public string StrategyFolderPath { get; set; }
-        public string StrategyFileFormat { get; set; }
+        public string StrategyFileLoadFormat { get; set; }
+        public string StrategyFileSaveFormat { get; set; }
 
         /// <summary>
         /// 送出的委託單，不論是否有收到委回成回
@@ -141,9 +146,10 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.528.1";
+            Version = "0.22.528.3";
             Description = "測試用設定";
 
+            //ProcessPriority = 0x80; //ProcessPriorityClass.High
             ProcessPriority = 0x20; //ProcessPriorityClass.Normal
             Big5EncodingCodePage = 950; //"big5"
 
@@ -193,10 +199,12 @@ namespace GNAy.Capital.Models
             OrderMaxCount = 50;
 
             TriggerFolderPath = "TriggerData";
-            TriggerFileFormat = "MMdd_HHmm";
+            TriggerFileLoadFormat = $"T*{Keyword_DayNight}.csv";
+            TriggerFileSaveFormat = "MMdd_HHmm";
 
             StrategyFolderPath = "StrategyData";
-            StrategyFileFormat = "MMdd_HHmm";
+            StrategyFileLoadFormat = $"T*{Keyword_Holiday}_{Keyword_DayNight}.csv";
+            StrategyFileSaveFormat = "MMdd_HHmm";
 
             SentOrderFolderPath = "SentOrder";
             SentOrderFileFormat = "yyMMdd_HHmmss_ffffff";
