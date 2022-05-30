@@ -96,12 +96,6 @@ namespace GNAy.Capital.Trade.Controllers
             AppendReply(strUserID, strData);
         }
 
-        private void m_SKReplyLib_OnReportCount(string strUserID, int nCount)
-        {
-            //_appCtrl.LogTrace($"strUserID={strUserID}|nCount={nCount}", UniqueName);
-            AppendReply(strUserID, $"{nCount}");
-        }
-
         /// <summary>
         /// <para>當有回報開始清除前日資料時，會發出的通知，表示清除前日回報</para>
         /// <para>R1 證券</para>

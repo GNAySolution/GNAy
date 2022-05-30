@@ -467,7 +467,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                 }
 
-                if (_dataCollection.Count > 0)
+                if (Count > 0)
                 {
                     int tradeDate = _dataCollection.Max(x => x.TradeDateRaw);
 
@@ -697,7 +697,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void SaveData(DirectoryInfo folder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
         {
-            if (_dataCollection.Count <= 0 || string.IsNullOrWhiteSpace(FileNameBase))
+            if (Count <= 0 || string.IsNullOrWhiteSpace(FileNameBase))
             {
                 return;
             }
@@ -755,7 +755,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public Task SaveDataAsync(DirectoryInfo quoteFolder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
         {
-            if (_dataCollection.Count <= 0 || string.IsNullOrWhiteSpace(FileNameBase))
+            if (Count <= 0 || string.IsNullOrWhiteSpace(FileNameBase))
             {
                 return null;
             }

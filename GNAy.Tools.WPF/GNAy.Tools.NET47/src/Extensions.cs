@@ -13,6 +13,19 @@ namespace GNAy.Tools.NET47
 {
     public static class Extensions
     {
+        public static IEnumerable<string> ForeachSet(this string obj, params char[] separator)
+        {
+            if (string.IsNullOrWhiteSpace(obj))
+            {
+                yield break;
+            }
+
+            foreach (string cell in new HashSet<string>(obj.Split(separator)))
+            {
+                yield return cell;
+            }
+        }
+
         /// <summary>
         /// https://codertw.com/%E5%89%8D%E7%AB%AF%E9%96%8B%E7%99%BC/220001/
         /// </summary>

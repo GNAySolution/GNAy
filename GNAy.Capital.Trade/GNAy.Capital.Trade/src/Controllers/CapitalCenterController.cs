@@ -161,7 +161,6 @@ namespace GNAy.Capital.Trade.Controllers
                 m_pSKReply.OnSolaceReplyDisconnect += OnSolaceReplyDisconnect;
                 m_pSKReply.OnComplete += OnComplete;
                 m_pSKReply.OnNewData += OnNewData;
-                m_pSKReply.OnReportCount += m_SKReplyLib_OnReportCount;
                 m_pSKReply.OnReplyClear += OnClear;
                 m_pSKReply.OnReplyClearMessage += OnClearMessage;
 

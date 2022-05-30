@@ -45,8 +45,6 @@ namespace GNAy.Capital.Trade
 
         public MainWindow()
         {
-            InitializeComponent();
-
             StartTime = DateTime.Now;
             UniqueName = nameof(MainWindow);
 
@@ -61,6 +59,8 @@ namespace GNAy.Capital.Trade
                     Environment.Exit(0);
                 }
             }
+
+            InitializeComponent();
 
             //https://www.796t.com/post/MWV3bG0=.html
             FileInfo assemblyFile = new FileInfo(Assembly.GetExecutingAssembly().Location);

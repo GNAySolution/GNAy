@@ -29,6 +29,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int Count => _dataCollection.Count;
         public StrategyData this[string key] => _dataMap.TryGetValue(key, out StrategyData data) ? data : null;
+        public StrategyData this[int index] => _dataCollection[index];
         public IReadOnlyList<StrategyData> DataCollection => _dataCollection;
 
         public string Notice { get; private set; }
@@ -431,24 +432,14 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void AfterStopLoss(StrategyData data, DateTime start)
         {
-            if (!string.IsNullOrWhiteSpace(data.OpenTriggerAfterStopLoss))
+            foreach (string primary in data.OpenTriggerAfterStopLoss.ForeachSet(','))
             {
-                HashSet<string> targets = new HashSet<string>(data.OpenTriggerAfterStopLoss.Split(','));
-
-                foreach (string primary in targets)
-                {
-                    OpenTrigger(data, primary, start);
-                }
+                OpenTrigger(data, primary, start);
             }
 
-            if (!string.IsNullOrWhiteSpace(data.OpenStrategyAfterStopLoss))
+            foreach (string primary in data.OpenStrategyAfterStopLoss.ForeachSet(','))
             {
-                HashSet<string> targets = new HashSet<string>(data.OpenStrategyAfterStopLoss.Split(','));
-
-                foreach (string primary in targets)
-                {
-                    OpenStrategy(data, primary, start);
-                }
+                OpenStrategy(data, primary, start);
             }
         }
 
@@ -466,44 +457,24 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(data.CloseTriggerAfterStopWin))
+            foreach (string primary in data.CloseTriggerAfterStopWin.ForeachSet(','))
             {
-                HashSet<string> targets = new HashSet<string>(data.CloseTriggerAfterStopWin.Split(','));
-
-                foreach (string primary in targets)
-                {
-                    _appCtrl.Trigger.Cancel(primary, "策略取消");
-                }
+                _appCtrl.Trigger.Cancel(primary, "策略取消");
             }
 
-            if (!string.IsNullOrWhiteSpace(data.CloseStrategyAfterStopWin))
+            foreach (string primary in data.CloseStrategyAfterStopWin.ForeachSet(','))
             {
-                HashSet<string> targets = new HashSet<string>(data.CloseStrategyAfterStopWin.Split(','));
-
-                foreach (string primary in targets)
-                {
-                    Close(primary, 0, "策略停止");
-                }
+                Close(primary, 0, "策略停止");
             }
 
-            if (!string.IsNullOrWhiteSpace(data.OpenTriggerAfterStopWin))
+            foreach (string primary in data.OpenTriggerAfterStopWin.ForeachSet(','))
             {
-                HashSet<string> targets = new HashSet<string>(data.OpenTriggerAfterStopWin.Split(','));
-
-                foreach (string primary in targets)
-                {
-                    OpenTrigger(data, primary, start);
-                }
+                OpenTrigger(data, primary, start);
             }
 
-            if (!string.IsNullOrWhiteSpace(data.OpenStrategyAfterStopWin))
+            foreach (string primary in data.OpenStrategyAfterStopWin.ForeachSet(','))
             {
-                HashSet<string> targets = new HashSet<string>(data.OpenStrategyAfterStopWin.Split(','));
-
-                foreach (string primary in targets)
-                {
-                    OpenStrategy(data, primary, start);
-                }
+                OpenStrategy(data, primary, start);
             }
         }
 
@@ -742,11 +713,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             bool saveData = false;
 
-            for (int i = _dataCollection.Count - 1; i >= 0; --i)
+            for (int i = Count - 1; i >= 0; --i)
             {
                 try
                 {
-                    StrategyData data = _dataCollection[i];
+                    StrategyData data = this[i];
 
                     if (UpdateStatus(data, data.Quote, start))
                     {
@@ -819,24 +790,14 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(data.OpenStrategyAfterStopLoss))
+            foreach (string primary in data.OpenStrategyAfterStopLoss.ForeachSet(','))
             {
-                HashSet<string> targets = new HashSet<string>(data.OpenStrategyAfterStopLoss.Split(','));
-
-                foreach (string primary in targets)
-                {
-                    SerialReset(this[primary]);
-                }
+                SerialReset(this[primary]);
             }
 
-            if (!string.IsNullOrWhiteSpace(data.OpenStrategyAfterStopWin))
+            foreach (string primary in data.OpenStrategyAfterStopWin.ForeachSet(','))
             {
-                HashSet<string> targets = new HashSet<string>(data.OpenStrategyAfterStopWin.Split(','));
-
-                foreach (string primary in targets)
-                {
-                    SerialReset(this[primary]);
-                }
+                SerialReset(this[primary]);
             }
 
             data.Reset();
@@ -857,7 +818,7 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.CAPOrder.Send(order);
         }
 
-        public void CreateAndAddOrder(StrategyData data, OpenInterestData openInterest)
+        public void StartNow(StrategyData data, OpenInterestData openInterest)
         {
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}|{openInterest?.ToLog()}", UniqueName);
 
@@ -971,9 +932,9 @@ namespace GNAy.Capital.Trade.Controllers
                 SpinWait.SpinUntil(() => _waitToAdd.Count <= 0);
                 Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
 
-                if (_dataCollection.Count >= nextPK)
+                if (Count >= nextPK)
                 {
-                    nextPK = _dataCollection.Count + 1;
+                    nextPK = Count + 1;
                 }
 
                 _appCtrl.MainForm.InvokeAsync(delegate { _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{nextPK}"; });

@@ -30,7 +30,7 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly ObservableCollection<TriggerData> _dataCollection;
         public int Count => _dataCollection.Count;
         public TriggerData this[string key] => _dataMap.TryGetValue(key, out TriggerData data) ? data : null;
-        public IReadOnlyList<TriggerData> DataCollection => _dataCollection;
+        public TriggerData this[int index] => _dataCollection[index];
 
         private readonly ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
 
@@ -125,18 +125,16 @@ namespace GNAy.Capital.Trade.Controllers
                     return (LogLevel.Error, $"重啟觸價({primary})失敗");
                 }
 
-                for (int i = _dataCollection.Count - 1; i >= 0; --i)
+                for (int i = Count - 1; i >= 0; --i)
                 {
-                    TriggerData other = _dataCollection[i];
+                    TriggerData other = this[i];
 
-                    if (other.StatusEnum == TriggerStatus.Enum.Executed || string.IsNullOrWhiteSpace(other.Start))
+                    if (other.StatusEnum == TriggerStatus.Enum.Executed)
                     {
                         continue;
                     }
 
-                    HashSet<string> cancelList = new HashSet<string>(other.Start.Split(','));
-
-                    foreach (string pk in cancelList)
+                    foreach (string pk in other.Start.ForeachSet(','))
                     {
                         if (pk == data.PrimaryKey)
                         {
@@ -152,7 +150,7 @@ namespace GNAy.Capital.Trade.Controllers
                 data.Updater = memberName;
                 data.UpdateTime = DateTime.Now;
 
-                //TODO: strategyAND的其他觸價條件，已滿足的還是能重啟
+                //TODO: strategyAND的其他觸價條件，已滿足的改為已執行
             }
 
             return (LogLevel.Trace, string.Empty);
@@ -177,52 +175,43 @@ namespace GNAy.Capital.Trade.Controllers
 
         private HashSet<string> OpenStrategy(TriggerData data, DateTime start)
         {
-            if (!string.IsNullOrWhiteSpace(data.StrategyOpenOR))
+            foreach (string primary in data.StrategyOpenOR.ForeachSet(','))
             {
-                HashSet<string> targets = new HashSet<string>(data.StrategyOpenOR.Split(','));
-
-                foreach (string primary in targets)
-                {
-                    OpenStrategy(data, primary, start);
-                }
+                OpenStrategy(data, primary, start);
             }
 
             HashSet<string> strategyAND = new HashSet<string>();
 
-            if (!string.IsNullOrWhiteSpace(data.StrategyOpenAND))
+            foreach (string primary in data.StrategyOpenAND.ForeachSet(','))
             {
-                HashSet<string> targets = new HashSet<string>(data.StrategyOpenAND.Split(','));
+                string pk = $",{primary},";
+                bool openStrategy = true;
 
-                foreach (string primary in targets)
+                foreach (TriggerData other in _dataMap.Values)
                 {
-                    string pk = $",{primary},";
-                    bool openStrategy = true;
-
-                    foreach (TriggerData other in _dataMap.Values)
-                    {
-                        if (other == data)
-                        {
-                            continue;
-                        }
-                        else if (!string.Format(",{0},", other.StrategyOpenAND).Contains(pk))
-                        {
-                            continue;
-                        }
-                        else if (other.StatusEnum != TriggerStatus.Enum.Executed)
-                        {
-                            openStrategy = false;
-                            break;
-                        }
-                    }
-
-                    if (!openStrategy)
+                    if (other == data)
                     {
                         continue;
                     }
-
-                    strategyAND.Add(primary);
-                    OpenStrategy(data, primary, start);
+                    else if (!string.Format(",{0},", other.StrategyOpenAND).Contains(pk))
+                    {
+                        continue;
+                    }
+                    else if (other.StatusEnum != TriggerStatus.Enum.Executed)
+                    {
+                        openStrategy = false;
+                        break;
+                    }
                 }
+
+                if (!openStrategy)
+                {
+                    continue;
+                }
+
+                strategyAND.Add(primary);
+
+                OpenStrategy(data, primary, start);
             }
 
             return strategyAND;
@@ -230,14 +219,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void CancelAfterExecuted(TriggerData executed, DateTime start, [CallerMemberName] string memberName = "")
         {
-            if (string.IsNullOrWhiteSpace(executed.Cancel))
-            {
-                return;
-            }
-
-            HashSet<string> cancelList = new HashSet<string>(executed.Cancel.Split(','));
-
-            foreach (string cancel in cancelList)
+            foreach (string cancel in executed.Cancel.ForeachSet(','))
             {
                 TriggerData data = this[cancel];
 
@@ -264,16 +246,9 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void StartAfterExecuted(TriggerData executed)
         {
-            if (string.IsNullOrWhiteSpace(executed.Start))
+            foreach (string primary in executed.Start.ForeachSet(','))
             {
-                return;
-            }
-
-            HashSet<string> startList = new HashSet<string>(executed.Start.Split(','));
-
-            foreach (string pk in startList)
-            {
-                Restart(pk);
+                Restart(primary);
             }
         }
 
@@ -493,18 +468,11 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (_waitToAdd.Count <= 0)
                 {
-                    for (int i = _dataCollection.Count - 1; i >= 0; --i)
+                    for (int i = Count - 1; i >= 0; --i)
                     {
-                        data = _dataCollection[i];
+                        data = this[i];
 
-                        if (string.IsNullOrWhiteSpace(data.Start))
-                        {
-                            continue;
-                        }
-
-                        HashSet<string> cancelList = new HashSet<string>(data.Start.Split(','));
-
-                        foreach (string pk in cancelList)
+                        foreach (string pk in data.Start.ForeachSet(','))
                         {
                             if (_dataMap.TryGetValue(pk, out TriggerData td) && td.StatusEnum != TriggerStatus.Enum.Executed && td.StatusEnum != TriggerStatus.Enum.Cancelled)
                             {
@@ -522,11 +490,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             bool saveData = false;
 
-            for (int i = _dataCollection.Count - 1; i >= 0; --i)
+            for (int i = Count - 1; i >= 0; --i)
             {
                 try
                 {
-                    TriggerData data = _dataCollection[i];
+                    TriggerData data = this[i];
 
                     if (UpdateStatus(data, data.Quote1, start))
                     {
@@ -877,9 +845,9 @@ namespace GNAy.Capital.Trade.Controllers
                 SpinWait.SpinUntil(() => _waitToAdd.Count <= 0);
                 Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
 
-                if (_dataCollection.Count >= nextPK)
+                if (Count >= nextPK)
                 {
-                    nextPK = _dataCollection.Count + 1;
+                    nextPK = Count + 1;
                 }
 
                 if (!_dataMap.ContainsKey($"{nextPK}"))

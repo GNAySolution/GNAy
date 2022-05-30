@@ -26,7 +26,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int Count => _dataCollection.Count;
         public OpenInterestData this[string key] => _dataMap.TryGetValue(key, out OpenInterestData data) ? data : null;
-        public IReadOnlyList<OpenInterestData> DataCollection => _dataCollection;
+        public OpenInterestData this[int index] => _dataCollection[index];
 
         public (DateTime, int, string, int) QuerySent { get; private set; }
 
@@ -65,7 +65,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     try
                     {
-                        StrategyData target = _appCtrl.Strategy.DataCollection[i];
+                        StrategyData target = _appCtrl.Strategy[i];
 
                         if (target.FullAccount != account)
                         {
@@ -114,7 +114,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     try
                     {
-                        _appCtrl.Strategy.CreateAndAddOrder(value.Item2, value.Item1);
+                        _appCtrl.Strategy.StartNow(value.Item2, value.Item1);
                     }
                     catch (Exception ex)
                     {
@@ -280,9 +280,9 @@ namespace GNAy.Capital.Trade.Controllers
                         continue;
                     }
 
-                    for (int i = _dataCollection.Count - 1; i >= 0; --i)
+                    for (int i = Count - 1; i >= 0; --i)
                     {
-                        OpenInterestData data = _dataCollection[i];
+                        OpenInterestData data = this[i];
 
                         if (data.UpdateTime >= QuerySent.Item1 || data.Account != QuerySent.Item3 || data.PositionEnum == OrderPosition.Enum.Close)
                         {
@@ -319,9 +319,9 @@ namespace GNAy.Capital.Trade.Controllers
                 AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.Yes, cells[8], cells[7], start);
             }
 
-            for (int i = _dataCollection.Count - 1; i >= 0; --i)
+            for (int i = Count - 1; i >= 0; --i)
             {
-                OpenInterestData data = _dataCollection[i];
+                OpenInterestData data = this[i];
 
                 if (data.Quote == null || data.Quote.DealPrice == 0 || data.Quote.Simulate != QuoteData.RealTrade)
                 {
@@ -379,9 +379,9 @@ namespace GNAy.Capital.Trade.Controllers
                     return QuerySent;
                 }
 
-                for (int i = QuerySent.Item2 + 1; i < _appCtrl.CAPOrder.DataCollection.Count; ++i)
+                for (int i = QuerySent.Item2 + 1; i < _appCtrl.CAPOrder.Count; ++i)
                 {
-                    OrderAccData acc = _appCtrl.CAPOrder.DataCollection[i];
+                    OrderAccData acc = _appCtrl.CAPOrder[i];
 
                     if (acc.MarketType != Market.EType.Futures)
                     {
@@ -394,9 +394,9 @@ namespace GNAy.Capital.Trade.Controllers
                     return QuerySent;
                 }
 
-                for (int i = 0; i < _appCtrl.CAPOrder.DataCollection.Count; ++i)
+                for (int i = 0; i < _appCtrl.CAPOrder.Count; ++i)
                 {
-                    OrderAccData acc = _appCtrl.CAPOrder.DataCollection[i];
+                    OrderAccData acc = _appCtrl.CAPOrder[i];
 
                     if (acc.MarketType != Market.EType.Futures)
                     {

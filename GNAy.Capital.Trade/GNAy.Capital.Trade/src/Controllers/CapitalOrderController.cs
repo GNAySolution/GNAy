@@ -29,7 +29,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int Count => _dataCollection.Count;
         public OrderAccData this[string account] => _dataCollection.FirstOrDefault(x => x.FullAccount == account || x.Account == account);
-        public IReadOnlyList<OrderAccData> DataCollection => _dataCollection;
+        public OrderAccData this[int index] => _dataCollection[index];
 
         private readonly ObservableCollection<string> _buySell;
         private readonly ObservableCollection<string> _tradeTypes;
