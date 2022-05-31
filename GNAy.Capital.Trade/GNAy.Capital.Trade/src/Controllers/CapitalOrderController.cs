@@ -273,7 +273,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public int GetOpenInterest(string orderAcc = "", int format = 1)
+        public int GetOpenInterest(string orderAcc, int format = 1)
         {
             DateTime start = _appCtrl.StartTrace();
 
@@ -291,6 +291,29 @@ namespace GNAy.Capital.Trade.Controllers
             catch (Exception ex)
             {
                 _appCtrl.LogException(start, ex, $"orderAcc={orderAcc}|format={format}|{ex.StackTrace}");
+            }
+
+            return -1;
+        }
+
+        public int GetFuturesRights(string orderAcc, short coinType = 1)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                int m_nCode = m_pSKOrder.GetFutureRights(_appCtrl.CAPCenter.UserID, orderAcc, coinType); //查詢國內權益數 //0:全幣別，1:基幣(台幣TWD)，2:人民幣RMB
+
+                if (m_nCode != 0)
+                {
+                    _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, $"orderAcc={orderAcc}|coinType={coinType}");
+                }
+
+                return m_nCode;
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, $"orderAcc={orderAcc}|coinType={coinType}|{ex.StackTrace}");
             }
 
             return -1;

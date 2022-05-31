@@ -87,6 +87,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\Controllers\FuturesRightsController.cs" />
     <Compile Include="src\Controllers\OpenInterestController.cs" />
     <Compile Include="src\Controllers\OrderDetailController.cs" />
     <Compile Include="src\Controllers\StrategyController.cs" />

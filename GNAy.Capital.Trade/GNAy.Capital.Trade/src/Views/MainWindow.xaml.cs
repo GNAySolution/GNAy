@@ -54,10 +54,15 @@ namespace GNAy.Capital.Trade
 
             foreach (Process other in Process.GetProcessesByName(ProcessName))
             {
-                if (other.MainModule.FileName == ps.MainModule.FileName && other.Id != ps.Id) //同路徑的執行檔只能存在一個實體
+                try
                 {
-                    Environment.Exit(0);
+                    if (other.MainModule.FileName == ps.MainModule.FileName && other.Id != ps.Id) //同路徑的執行檔只能存在一個實體
+                    {
+                        Environment.Exit(0);
+                    }
                 }
+                catch
+                { }
             }
 
             InitializeComponent();
@@ -103,12 +108,6 @@ namespace GNAy.Capital.Trade
                 TextBox partTB = ComboBoxOrderSeqNo.GetEditableTextBox();
                 partTB.GotFocus += TextBox_GotFocus;
                 _editableCBMap[partTB] = ComboBoxOrderSeqNo;
-            }
-            if (ComboBoxOrderBookNo.IsEditable)
-            {
-                TextBox partTB = ComboBoxOrderBookNo.GetEditableTextBox();
-                partTB.GotFocus += TextBox_GotFocus;
-                _editableCBMap[partTB] = ComboBoxOrderBookNo;
             }
 
             StatusBarItemAA1.Text = StartTime.ToString("MM/dd HH:mm");
@@ -400,13 +399,14 @@ namespace GNAy.Capital.Trade
             try
             {
                 CheckBoxSendRealOrder.IsChecked = _appCtrl.Settings.SendRealOrder;
-                CheckBoxSendRealOrder_CheckedOrNot(null, null);
 
-                CheckBoxLiveMode.IsChecked = _appCtrl.Settings.LiveMode;
-                CheckBoxLiveMode_CheckedOrNot(null, null);
+                if (_appCtrl.Settings.LiveMode)
+                {
+                    TextBoxUserID.Visibility = Visibility.Collapsed;
+                    ComboBoxOrderAccs.Visibility = Visibility.Collapsed;
+                }
 
                 CheckBoxStartFromOpenInterest.IsChecked = _appCtrl.Settings.StartFromOpenInterest;
-                CheckBoxStartFromOpenInterest_CheckedOrNot(null, null);
 
                 if (!_appCtrl.Config.Archive.Exists)
                 {
@@ -1050,10 +1050,7 @@ namespace GNAy.Capital.Trade
                 _appCtrl.Log(reConnect, $"Retry to connect quote service.|reConnect={reConnect}", UniqueName, DateTime.Now - start);
                 Task.Factory.StartNew(() =>
                 {
-                    if (_appCtrl.CAPQuote != null)
-                    {
-                        _appCtrl.CAPQuote.Disconnect();
-                    }
+                    _appCtrl.CAPQuote?.Disconnect();
 
                     Thread.Sleep(2 * 1000);
                     this.InvokeSync(delegate { ButtonLoginUser_Click(null, null); });
@@ -1084,7 +1081,6 @@ namespace GNAy.Capital.Trade
 
                     if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
                     {
-                        //TODO: Send alert mail.
                         _appCtrl.CAPQuote.Disconnect();
                         //this.InvokeAsync(delegate { _timer2.Start(); }); //Retry to connect quote service.
 
@@ -1117,7 +1113,11 @@ namespace GNAy.Capital.Trade
                     _appCtrl.Strategy.RecoverSetting();
 
                     Thread.Sleep(2 * 1000);
-                    this.InvokeAsync(delegate { _timer2.Start(); });
+                    this.InvokeAsync(delegate
+                    {
+                        CheckBoxLiveMode.IsChecked = _appCtrl.Settings.LiveMode;
+                        _timer2.Start();
+                    });
                 });
             }
             catch (Exception ex)
@@ -1574,6 +1574,27 @@ namespace GNAy.Capital.Trade
             finally
             {
                 _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void ButtonGetFuturesRights_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                OrderAccData acc = (OrderAccData)ComboBoxOrderAccs.SelectedItem;
+
+                if (acc.MarketType != Market.EType.Futures)
+                {
+                    return;
+                }
+
+                _appCtrl.CAPOrder.GetFuturesRights(acc.FullAccount);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
         }
 

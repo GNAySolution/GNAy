@@ -186,7 +186,13 @@ namespace GNAy.Capital.Trade.Controllers
                     //1098 SK_ERROR_TELNET_AGREEMENTSERVER_FAIL Telnet同意書查詢主機失敗，請確認您的環境(Firewall及hosts…等)
                     (LogLevel, string) apiMsg = LogAPIMessage(start, LoginUserResult);
                     m_pSKCenter = null;
-                    _appCtrl.Exit(apiMsg.Item2, apiMsg.Item1);
+
+                    if (_appCtrl.Config.AutoRun)
+                    {
+                        Thread.Sleep(1 * 1000);
+                        _appCtrl.Exit(apiMsg.Item2, apiMsg.Item1);
+                    }
+
                     return LoginUserResult;
                 }
 
@@ -207,6 +213,12 @@ namespace GNAy.Capital.Trade.Controllers
             catch (Exception ex)
             {
                 _appCtrl.LogException(start, ex, ex.StackTrace);
+
+                if (_appCtrl.Config.AutoRun)
+                {
+                    Thread.Sleep(1 * 1000);
+                    _appCtrl.Exit(ex.Message, LogLevel.Error);
+                }
             }
             finally
             {

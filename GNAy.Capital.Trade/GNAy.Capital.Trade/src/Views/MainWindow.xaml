@@ -49,9 +49,10 @@
                             <Button x:Name="ButtonReadCertification" Content="讀取下單憑證" HorizontalAlignment="Left" Margin="216,78,0,0" VerticalAlignment="Top" Click="ButtonReadCertification_Click"/>
                             <Button x:Name="ButtonGetOrderAccs" Content="取得下單帳號" HorizontalAlignment="Left" Margin="297,78,0,0" VerticalAlignment="Top" Click="ButtonGetOrderAccs_Click"/>
                             <Button x:Name="ButtonUnlockOrder" Content="下單解鎖" HorizontalAlignment="Left" Margin="240,102,0,0" VerticalAlignment="Top" Click="ButtonUnlockOrder_Click"/>
-                            <Button x:Name="ButtonGetOpenInterest" Content="期權未平倉" HorizontalAlignment="Left" Margin="309,102,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
+                            <Button x:Name="ButtonGetOpenInterest" Content="查期權未平倉" HorizontalAlignment="Left" Margin="297,102,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
                             <Button x:Name="ButtonSetOrderMaxQty" Content="限制委託量" HorizontalAlignment="Left" Margin="228,126,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxQty_Click"/>
                             <Button x:Name="ButtonSetOrderMaxCount" Content="限制委託筆數" HorizontalAlignment="Left" Margin="297,126,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxCount_Click"/>
+                            <Button x:Name="ButtonGetFuturesRights" Content="查期權權益數" HorizontalAlignment="Left" Margin="216,150,0,0" VerticalAlignment="Top" Click="ButtonGetFuturesRights_Click"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="行事曆">
@@ -922,12 +923,9 @@
                 <TextBox x:Name="TextBoxOrderPrice" Text="MPHL" ToolTip="M市價，P範圍市價，H漲停價，L跌停價" HorizontalAlignment="Left" Margin="135,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="委託量" HorizontalAlignment="Left" Margin="260,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxOrderQty" Text="委託量" ToolTip="委託量" HorizontalAlignment="Left" Margin="260,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="委託序號" HorizontalAlignment="Left" Margin="452,59,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderSeqNo" HorizontalAlignment="Left" Margin="510,61,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"/>
-                <Button x:Name="ButtonCancelOrderBySeqNo" Content="刪單by序號" HorizontalAlignment="Left" Margin="635,61,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderBySeqNo_Click"/>
-                <Label Content="委託書號" HorizontalAlignment="Left" Margin="452,80,0,0" VerticalAlignment="Top"/>
-                <ComboBox x:Name="ComboBoxOrderBookNo" HorizontalAlignment="Left" Margin="510,82,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"/>
-                <Button x:Name="ButtonCancelOrderByBookNo" Content="刪單by書號" HorizontalAlignment="Left" Margin="635,82,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderByBookNo_Click"/>
+                <Label Content="委託序號" HorizontalAlignment="Left" Margin="452,80,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="ComboBoxOrderSeqNo" HorizontalAlignment="Left" Margin="510,82,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"/>
+                <Button x:Name="ButtonCancelOrderBySeqNo" Content="刪單by序號" HorizontalAlignment="Left" Margin="635,82,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderBySeqNo_Click"/>
                 <TabControl x:Name="TabControlCB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="委託成交回報">
                         <Grid Background="#FFE5E5E5">
@@ -1203,6 +1201,10 @@
                                     </DataGridTextColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="權益數">
+                        <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
                 </TabControl>

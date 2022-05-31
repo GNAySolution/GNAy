@@ -18,7 +18,7 @@
   "TimerIntervalUI1": 50,
   "TimerIntervalUI2": 35000,
   "AutoRunInTradeDay": true,
-  "AutoRunInHoliday": true,
+  "AutoRunInHoliday": false,
   "MarketStart": [
     "15:00:00",
     "08:45:00"

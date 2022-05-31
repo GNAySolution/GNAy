@@ -58,10 +58,6 @@
 * https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Models/GNAy.Capital.Models.csproj
 * 策略交易框架，相關模型、資料、設定
 
-## GNAy.Capital.Monitor.csproj
-* https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Monitor/GNAy.Capital.Monitor.csproj
-* 針對GNAy.Capital.Trade的監控和功能測試，空專案，尚未實作
-
 ## GNAy.Tools.WPF.csproj
 * https://github.com/GNAySolution/GNAy/tree/main/GNAy.Tools.WPF/GNAy.Tools.WPF/GNAy.Tools.WPF.csproj
 * WPF共用工具
@@ -69,4 +65,3 @@
 ## GNAy.Tools.NET47.csproj
 * https://github.com/GNAySolution/GNAy/tree/main/GNAy.Tools.WPF/GNAy.Tools.NET47/GNAy.Tools.NET47.csproj
 * .NET Framework 4.7共用工具
-

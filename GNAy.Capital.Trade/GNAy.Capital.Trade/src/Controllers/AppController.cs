@@ -81,7 +81,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             SignalTimeBG = DateTime.MinValue;
 
-            _secondsToQueryOpenInterest = 10;
+            _secondsToQueryOpenInterest = 12;
             _lastTimeToSaveQuote = DateTime.Now;
 
             if (Settings.TimerIntervalBackground > 0)
@@ -416,10 +416,9 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         CAPQuote.SaveData(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
                     }
+
                     CAPQuote.Disconnect();
                 }
-
-                //TODO: Send info mail.
 
                 EndTrace(start, UniqueName);
 
@@ -484,6 +483,12 @@ namespace GNAy.Capital.Trade.Controllers
             catch (Exception ex)
             {
                 LogException(start, ex, ex.StackTrace);
+
+                if (Config.AutoRun)
+                {
+                    Thread.Sleep(1 * 1000);
+                    Exit(ex.Message, LogLevel.Error);
+                }
             }
             finally
             {
