@@ -823,7 +823,7 @@ namespace GNAy.Capital.Trade.Controllers
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}|{openInterest?.ToLog()}", UniqueName);
 
             QuoteData quoteBK = data.Quote;
-            data.Quote = data.Quote.Clone();
+            data.Quote = data.Quote.DeepClone();
             data.Quote.DealPrice = openInterest.AveragePrice;
             data.Quote.Simulate = QuoteData.SimulateTrade;
 

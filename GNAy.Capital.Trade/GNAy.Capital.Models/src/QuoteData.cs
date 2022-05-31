@@ -360,44 +360,6 @@ namespace GNAy.Capital.Models
             Recovered = false;
         }
 
-        public QuoteData Clone([CallerMemberName] string memberName = "")
-        {
-            return new QuoteData()
-            {
-                Creator = memberName,
-                CreatedTime = DateTime.Now,
-                Updater = memberName,
-                UpdateTime = DateTime.Now,
-                Symbol = Symbol,
-                Name = Name,
-                MatchedTimeHHmmss = MatchedTimeHHmmss,
-                MatchedTimefff = MatchedTimefff,
-                DealPrice = DealPrice,
-                DealQty = DealQty,
-                BestBuyPrice = BestBuyPrice,
-                BestBuyQty = BestBuyQty,
-                BestSellPrice = BestSellPrice,
-                BestSellQty = BestSellQty,
-                OpenPrice = OpenPrice,
-                HighPrice = HighPrice,
-                LowPrice = LowPrice,
-                Reference = Reference,
-                LastClosePrice = LastClosePrice,
-                Simulate = Simulate,
-                TotalQty = TotalQty,
-                TradeDateRaw = TradeDateRaw,
-                HighPriceLimit = HighPriceLimit,
-                LowPriceLimit = LowPriceLimit,
-                Count = Count,
-                Index = Index,
-                Page = Page,
-                MarketGroupEnum = MarketGroupEnum,
-                DecimalPos = DecimalPos,
-                TotalQtyBefore = TotalQtyBefore,
-                Recovered = Recovered,
-            };
-        }
-
         public string ToCSVString()
         {
             string result = string.Join("\",\"", ColumnGetters.Values.Select(x => x.Item2.ValueToString(this, x.Item1.CSVStringFormat)));

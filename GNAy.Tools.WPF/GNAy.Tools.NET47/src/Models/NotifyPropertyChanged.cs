@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace GNAy.Tools.NET47.Models
 {
+    [Serializable]
     public class NotifyPropertyChanged : INotifyPropertyChanged
     {
+        /// <summary>
+        /// <para>https://stackoverflow.com/questions/8879426/serializationexception-when-serializing-instance-of-a-class-which-implements-ino</para>
+        /// <para>https://docs.microsoft.com/en-us/dotnet/api/system.nonserializedattribute?redirectedfrom=MSDN&view=net-6.0</para>
+        /// </summary>
+        [field: NonSerialized()]
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
