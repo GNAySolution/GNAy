@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GNAy.Capital.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,6 +19,11 @@ namespace GNAy.Capital.Trade.Controllers
         //public int Count => _dataCollection.Count;
         //public FuturesRightsData this[int index] => _dataCollection[index];
 
+        /// <summary>
+        /// (時間,索引,帳號,查詢結果)
+        /// </summary>
+        public (DateTime, int, string, int) QuerySent { get; private set; }
+
         public FuturesRightsController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
@@ -26,9 +32,64 @@ namespace GNAy.Capital.Trade.Controllers
 
             //_appCtrl.MainForm.DataGridFuturesRights.SetHeadersByBindings(FuturesRightsData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             //_dataCollection = _appCtrl.MainForm.DataGridFuturesRights.SetAndGetItemsSource<FuturesRightsData>();
+
+            QuerySent = (DateTime.Now, -1, string.Empty, -1);
         }
 
         private FuturesRightsController() : this(null)
         { }
+
+        public (DateTime, int, string, int) SendNextQuery(DateTime start)
+        {
+            try
+            {
+                if (_appCtrl.CAPCenter == null)
+                {
+                    return QuerySent;
+                }
+                else if (_appCtrl.CAPOrder.Count <= 0)
+                {
+                    return QuerySent;
+                }
+
+                for (int i = QuerySent.Item2 + 1; i < _appCtrl.CAPOrder.Count; ++i)
+                {
+                    OrderAccData acc = _appCtrl.CAPOrder[i];
+
+                    if (acc.MarketType != Market.EType.Futures)
+                    {
+                        continue;
+                    }
+
+                    int result = _appCtrl.CAPOrder.GetFuturesRights(acc.FullAccount);
+                    QuerySent = (DateTime.Now, i, acc.FullAccount, result);
+
+                    return QuerySent;
+                }
+
+                for (int i = 0; i < _appCtrl.CAPOrder.Count; ++i)
+                {
+                    OrderAccData acc = _appCtrl.CAPOrder[i];
+
+                    if (acc.MarketType != Market.EType.Futures)
+                    {
+                        continue;
+                    }
+
+                    int result = _appCtrl.CAPOrder.GetFuturesRights(acc.FullAccount);
+                    QuerySent = (DateTime.Now, i, acc.FullAccount, result);
+
+                    return QuerySent;
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+
+            QuerySent = (DateTime.Now, -1, string.Empty, -1);
+
+            return QuerySent;
+        }
     }
 }

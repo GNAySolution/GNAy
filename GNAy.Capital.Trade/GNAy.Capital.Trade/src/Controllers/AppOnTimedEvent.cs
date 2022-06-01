@@ -12,6 +12,7 @@ namespace GNAy.Capital.Trade.Controllers
         public DateTime SignalTimeBG { get; private set; }
 
         private int _secondsToQueryOpenInterest;
+        private int _secondsToQueryFuturesRights;
         private DateTime _lastTimeToSaveQuote;
 
         public void OnTimedEvent(DateTime signalTime)
@@ -30,6 +31,29 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             _secondsToQueryOpenInterest += 2;
                             LogWarn(signalTime, $"_secondsToQueryOpenInterest={_secondsToQueryOpenInterest}", UniqueName);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(signalTime, ex, ex.StackTrace);
+            }
+
+            try
+            {
+                if (FuturesRights != null)
+                {
+                    //TODO: FuturesRights.UpdateStatus(signalTime);
+
+                    if ((signalTime - FuturesRights.QuerySent.Item1).TotalSeconds >= _secondsToQueryFuturesRights)
+                    {
+                        //TODO: FuturesRights.SendNextQuery(signalTime);
+
+                        if (CAPOrder.Count > 0 && FuturesRights.QuerySent.Item4 != 0)
+                        {
+                            _secondsToQueryFuturesRights += 2;
+                            LogWarn(signalTime, $"_secondsToQueryFuturesRights={_secondsToQueryFuturesRights}", UniqueName);
                         }
                     }
                 }

@@ -842,8 +842,11 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.CAPOrder.Send(order);
 
                 data.DealPrice = openInterest.AveragePrice;
+
                 order.DealPrice = openInterest.AveragePrice;
                 order.SendRealOrder = sendRealOrder;
+
+                openInterest.Strategy = data.PrimaryKey;
             }
             catch (Exception ex)
             {

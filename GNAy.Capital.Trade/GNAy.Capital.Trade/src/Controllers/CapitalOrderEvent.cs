@@ -121,7 +121,9 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnFutureRights(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
+            //_appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
+
+            //TODO: _appCtrl.FuturesRights.AddOrUpdateAsync(bstrData);
         }
 
         /// <summary>

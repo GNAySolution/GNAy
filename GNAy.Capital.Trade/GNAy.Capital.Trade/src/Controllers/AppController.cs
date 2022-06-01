@@ -37,6 +37,7 @@ namespace GNAy.Capital.Trade.Controllers
         public OpenInterestController OpenInterest { get; private set; }
         public OrderDetailController OrderDetail { get; private set; }
         public StrategyController Strategy { get; private set; }
+        public FuturesRightsController FuturesRights { get; private set; }
 
         private readonly System.Timers.Timer _timerBG;
         public bool CallTimedEventBySelf => _timerBG != null;
@@ -75,13 +76,15 @@ namespace GNAy.Capital.Trade.Controllers
             CAPQuote = null;
             Trigger = null;
             CAPOrder = null;
+            OpenInterest = null;
             OrderDetail = null;
             Strategy = null;
-            OpenInterest = null;
+            FuturesRights = null;
 
             SignalTimeBG = DateTime.MinValue;
 
             _secondsToQueryOpenInterest = 12;
+            _secondsToQueryFuturesRights = 32;
             _lastTimeToSaveQuote = DateTime.Now;
 
             if (Settings.TimerIntervalBackground > 0)
@@ -454,6 +457,8 @@ namespace GNAy.Capital.Trade.Controllers
 
                     Strategy = new StrategyController(this);
                     MainForm.TextBoxStrategyPrimaryKey.Text = $"{Strategy.Count + 1}";
+
+                    FuturesRights = new FuturesRightsController(this);
 
                     MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderReport)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Header = OpenInterestData.PropertyMap[nameof(OpenInterestData.AveragePrice)].Item1.WPFName;

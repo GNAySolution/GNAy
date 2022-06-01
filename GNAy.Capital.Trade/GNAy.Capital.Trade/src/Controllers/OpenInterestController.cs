@@ -28,6 +28,9 @@ namespace GNAy.Capital.Trade.Controllers
         public OpenInterestData this[string key] => _dataMap.TryGetValue(key, out OpenInterestData data) ? data : null;
         public OpenInterestData this[int index] => _dataCollection[index];
 
+        /// <summary>
+        /// (時間,索引,帳號,查詢結果)
+        /// </summary>
         public (DateTime, int, string, int) QuerySent { get; private set; }
 
         public OpenInterestController(AppController appCtrl)
