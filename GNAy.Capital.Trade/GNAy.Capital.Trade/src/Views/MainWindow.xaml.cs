@@ -990,6 +990,10 @@ namespace GNAy.Capital.Trade
                 {
                     StatusBarItemCB1.Text = $"({DataGridOpenInterest.Columns.Count},{DataGridOpenInterest.Items.Count})";
                 }
+                else if (TabControlCB.SelectedIndex == 2 && DataGridFuturesRights.ItemsSource != null)
+                {
+                    StatusBarItemCB1.Text = $"({DataGridFuturesRights.Columns.Count},{DataGridFuturesRights.Items.Count})";
+                }
             }
             catch (Exception ex)
             {

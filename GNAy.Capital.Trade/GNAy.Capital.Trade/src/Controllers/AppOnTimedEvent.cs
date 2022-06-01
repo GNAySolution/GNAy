@@ -50,11 +50,11 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         //TODO: FuturesRights.SendNextQuery(signalTime);
 
-                        if (CAPOrder.Count > 0 && FuturesRights.QuerySent.Item4 != 0)
-                        {
-                            _secondsToQueryFuturesRights += 2;
-                            LogWarn(signalTime, $"_secondsToQueryFuturesRights={_secondsToQueryFuturesRights}", UniqueName);
-                        }
+                        //if (CAPOrder.Count > 0 && FuturesRights.QuerySent.Item4 != 0)
+                        //{
+                        //    _secondsToQueryFuturesRights += 2;
+                        //    LogWarn(signalTime, $"_secondsToQueryFuturesRights={_secondsToQueryFuturesRights}", UniqueName);
+                        //}
                     }
                 }
             }

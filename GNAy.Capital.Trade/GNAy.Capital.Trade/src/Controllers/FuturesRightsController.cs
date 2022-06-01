@@ -1,4 +1,5 @@
 ﻿using GNAy.Capital.Models;
+using GNAy.Tools.WPF;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,10 +15,10 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
-        //private readonly ObservableCollection<FuturesRightsData> _dataCollection;
+        private readonly ObservableCollection<FuturesRightsData> _dataCollection;
 
-        //public int Count => _dataCollection.Count;
-        //public FuturesRightsData this[int index] => _dataCollection[index];
+        public int Count => _dataCollection.Count;
+        public FuturesRightsData this[int index] => _dataCollection[index];
 
         /// <summary>
         /// (時間,索引,帳號,查詢結果)
@@ -30,8 +31,8 @@ namespace GNAy.Capital.Trade.Controllers
             UniqueName = nameof(FuturesRightsController).Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
-            //_appCtrl.MainForm.DataGridFuturesRights.SetHeadersByBindings(FuturesRightsData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
-            //_dataCollection = _appCtrl.MainForm.DataGridFuturesRights.SetAndGetItemsSource<FuturesRightsData>();
+            _appCtrl.MainForm.DataGridFuturesRights.SetHeadersByBindings(FuturesRightsData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
+            _dataCollection = _appCtrl.MainForm.DataGridFuturesRights.SetAndGetItemsSource<FuturesRightsData>();
 
             QuerySent = (DateTime.Now, -1, string.Empty, -1);
         }

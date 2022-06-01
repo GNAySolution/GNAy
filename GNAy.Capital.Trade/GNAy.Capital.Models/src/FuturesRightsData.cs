@@ -264,7 +264,7 @@ namespace GNAy.Capital.Models
 
         //Y ,
         private string _f23;
-        [Column("選擇權組合單加不加收保證金", CSVIndex = -1, WPFDisplayIndex = 25, WPFStringFormat = "{0:0.00}")]
+        [Column("選擇權組合單加不加收保證金", CSVIndex = -1, WPFDisplayIndex = 25)]
         public string F23
         {
             get { return _f23; }
@@ -282,7 +282,7 @@ namespace GNAy.Capital.Models
 
         //NTD,
         private string _currency;
-        [Column("幣別", CSVIndex = -1, WPFDisplayIndex = 27, WPFStringFormat = "{0:0.00}")]
+        [Column("幣別", CSVIndex = -1, WPFDisplayIndex = 27)]
         public string Currency
         {
             get { return _currency; }

@@ -83,8 +83,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             SignalTimeBG = DateTime.MinValue;
 
-            _secondsToQueryOpenInterest = 12;
-            _secondsToQueryFuturesRights = 32;
+            _secondsToQueryOpenInterest = 8;
+            _secondsToQueryFuturesRights = 28;
             _lastTimeToSaveQuote = DateTime.Now;
 
             if (Settings.TimerIntervalBackground > 0)

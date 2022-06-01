@@ -180,7 +180,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (target.UnclosedQty == data.Quantity && target.DealPrice != data.AveragePrice)
                 {
-                    _appCtrl.LogTrace(start, $"成交均價校正{target.UnclosedQty} != {data.Quantity}|{target.ToLog()}", UniqueName);
+                    _appCtrl.LogTrace(start, $"成交均價校正{target.DealPrice} != {data.AveragePrice}|{target.ToLog()}", UniqueName);
                     target.DealPrice = data.AveragePrice;
                 }
             }
