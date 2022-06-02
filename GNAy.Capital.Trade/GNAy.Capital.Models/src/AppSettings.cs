@@ -60,6 +60,15 @@ namespace GNAy.Capital.Models
         public List<DateTime> MarketClose { get; set; }
 
         /// <summary>
+        /// 期貨換月第幾星期
+        /// </summary>
+        public int TimeToSwitchQuoteWeek { get; set; }
+        /// <summary>
+        /// 期貨換月第幾天
+        /// </summary>
+        public string TimeToSwitchQuoteDay { get; set; }
+
+        /// <summary>
         /// 上市 0、上櫃 1、期貨 2、選擇權 3、興櫃 4、盤中零股-上市5、盤中零股-上櫃6
         /// </summary>
         public List<int> QuoteMarkets { get; set; }
@@ -95,6 +104,15 @@ namespace GNAy.Capital.Models
         /// 間隔幾秒備份報價資料
         /// </summary>
         public int QuoteSaveInterval { get; set; }
+
+        /// <summary>
+        /// 查詢期貨未平倉的間隔秒
+        /// </summary>
+        public int OpenInterestInterval { get; set; }
+        /// <summary>
+        /// 查詢期貨權益數的間隔秒
+        /// </summary>
+        public int FuturesRightsInterval { get; set; }
 
         /// <summary>
         /// 委託單的間隔毫秒
@@ -146,7 +164,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.528.3";
+            Version = "0.22.602.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -181,6 +199,9 @@ namespace GNAy.Capital.Models
             //    DateTime.ParseExact("13:45:00", "HH:mm:ss", CultureInfo.InvariantCulture),
             //};
 
+            TimeToSwitchQuoteWeek = 3;
+            TimeToSwitchQuoteDay = "Tuesday"; //"tue" //"2"
+
             QuoteMarkets = new List<int>();
             //QuoteMarkets = new List<int>() { (int)Market.EGroup.TSE, (int)Market.EGroup.OTC, (int)Market.EGroup.Futures, (int)Market.EGroup.Emerging }; //
             QuoteRequest = new List<string>();
@@ -193,6 +214,9 @@ namespace GNAy.Capital.Models
             QuoteFileClosePrefix = "Last_";
             QuoteFileRecoverPrefix = "Recover_";
             QuoteSaveInterval = 45;
+
+            OpenInterestInterval = 8;
+            FuturesRightsInterval = 28;
 
             OrderTimeInterval = 100;
             OrderMaxQty = 50;

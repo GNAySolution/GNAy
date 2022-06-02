@@ -1,6 +1,7 @@
 ﻿using GNAy.Capital.Models;
 using GNAy.Tools.WPF;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -15,9 +16,13 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
+        private readonly ConcurrentQueue<string> _waitToAdd;
+
+        private readonly SortedDictionary<string, FuturesRightsData> _dataMap;
         private readonly ObservableCollection<FuturesRightsData> _dataCollection;
 
         public int Count => _dataCollection.Count;
+        public FuturesRightsData this[string key] => _dataMap.TryGetValue(key, out FuturesRightsData data) ? data : null;
         public FuturesRightsData this[int index] => _dataCollection[index];
 
         /// <summary>
@@ -31,6 +36,9 @@ namespace GNAy.Capital.Trade.Controllers
             UniqueName = nameof(FuturesRightsController).Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
+            _waitToAdd = new ConcurrentQueue<string>();
+
+            _dataMap = new SortedDictionary<string, FuturesRightsData>();
             _appCtrl.MainForm.DataGridFuturesRights.SetHeadersByBindings(FuturesRightsData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _dataCollection = _appCtrl.MainForm.DataGridFuturesRights.SetAndGetItemsSource<FuturesRightsData>();
 
@@ -39,6 +47,88 @@ namespace GNAy.Capital.Trade.Controllers
 
         private FuturesRightsController() : this(null)
         { }
+
+        public void UpdateStatus(DateTime start)
+        {
+            const string methodName = nameof(UpdateStatus);
+
+            while (_waitToAdd.Count > 0)
+            {
+                _waitToAdd.TryDequeue(out string raw);
+
+                if (raw.StartsWith("##"))
+                {
+                    continue;
+                }
+
+                FuturesRightsData data = null;
+                bool found = false;
+
+                foreach (FuturesRightsData value in _dataMap.Values)
+                {
+                    if (value.RawInfo == raw)
+                    {
+                        found = true;
+
+                        break;
+                    }
+                }
+
+                if (found)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    data = new FuturesRightsData(raw);
+                    data.Updater = methodName;
+                    data.UpdateTime = data.CreatedTime;
+
+                    _dataMap[data.Account] = data;
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+
+                if (data == null)
+                {
+                    continue;
+                }
+
+                _appCtrl.MainForm.InvokeSync(delegate
+                {
+                    try
+                    {
+                        _dataCollection.Add(data);
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
+                });
+            }
+        }
+
+        public void AddAsync(string raw)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                if (raw.IndexOf("NO DATA", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return;
+                }
+
+                _waitToAdd.Enqueue(raw);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+        }
 
         public (DateTime, int, string, int) SendNextQuery(DateTime start)
         {

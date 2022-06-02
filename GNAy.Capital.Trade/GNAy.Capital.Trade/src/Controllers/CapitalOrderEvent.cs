@@ -99,7 +99,7 @@ namespace GNAy.Capital.Trade.Controllers
         private void m_pSKOrder_OnOpenInterest(string bstrData)
         {
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
-            _appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
+            //_appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
 
             _appCtrl.OpenInterest.AddOrUpdateAsync(bstrData);
         }
@@ -123,7 +123,7 @@ namespace GNAy.Capital.Trade.Controllers
             //_appCtrl.LogTrace($"bstrData={bstrData}", UniqueName);
             //_appCtrl.CAPCenter.AppendReply(string.Empty, bstrData);
 
-            //TODO: _appCtrl.FuturesRights.AddOrUpdateAsync(bstrData);
+            _appCtrl.FuturesRights.AddAsync(bstrData);
         }
 
         /// <summary>

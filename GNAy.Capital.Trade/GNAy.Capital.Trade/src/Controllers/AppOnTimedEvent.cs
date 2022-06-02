@@ -11,8 +11,9 @@ namespace GNAy.Capital.Trade.Controllers
     {
         public DateTime SignalTimeBG { get; private set; }
 
-        private int _secondsToQueryOpenInterest;
-        private int _secondsToQueryFuturesRights;
+        private int _openInterestInterval;
+        private int _futuresRightsInterval;
+
         private DateTime _lastTimeToSaveQuote;
 
         public void OnTimedEvent(DateTime signalTime)
@@ -23,14 +24,14 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     OpenInterest.UpdateStatus(signalTime);
 
-                    if ((signalTime - OpenInterest.QuerySent.Item1).TotalSeconds >= _secondsToQueryOpenInterest)
+                    if (_openInterestInterval > 0 && (signalTime - OpenInterest.QuerySent.Item1).TotalSeconds >= _openInterestInterval)
                     {
                         OpenInterest.SendNextQuery(signalTime);
 
                         if (CAPOrder.Count > 0 && OpenInterest.QuerySent.Item4 != 0)
                         {
-                            _secondsToQueryOpenInterest += 2;
-                            LogWarn(signalTime, $"_secondsToQueryOpenInterest={_secondsToQueryOpenInterest}", UniqueName);
+                            _openInterestInterval += 2;
+                            LogWarn(signalTime, $"_openInterestInterval={_openInterestInterval}", UniqueName);
                         }
                     }
                 }
@@ -44,17 +45,17 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (FuturesRights != null)
                 {
-                    //TODO: FuturesRights.UpdateStatus(signalTime);
+                    FuturesRights.UpdateStatus(signalTime);
 
-                    if ((signalTime - FuturesRights.QuerySent.Item1).TotalSeconds >= _secondsToQueryFuturesRights)
+                    if (_futuresRightsInterval > 0 && (signalTime - FuturesRights.QuerySent.Item1).TotalSeconds >= _futuresRightsInterval)
                     {
-                        //TODO: FuturesRights.SendNextQuery(signalTime);
+                        FuturesRights.SendNextQuery(signalTime);
 
-                        //if (CAPOrder.Count > 0 && FuturesRights.QuerySent.Item4 != 0)
-                        //{
-                        //    _secondsToQueryFuturesRights += 2;
-                        //    LogWarn(signalTime, $"_secondsToQueryFuturesRights={_secondsToQueryFuturesRights}", UniqueName);
-                        //}
+                        if (CAPOrder.Count > 0 && FuturesRights.QuerySent.Item4 != 0)
+                        {
+                            _futuresRightsInterval += 2;
+                            LogWarn(signalTime, $"_futuresRightsInterval={_futuresRightsInterval}", UniqueName);
+                        }
                     }
                 }
             }
