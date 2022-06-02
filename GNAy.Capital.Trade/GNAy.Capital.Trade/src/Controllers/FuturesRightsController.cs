@@ -83,7 +83,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     data = new FuturesRightsData(raw);
                     data.Updater = methodName;
-                    data.UpdateTime = data.CreatedTime;
+                    data.UpdateTime = DateTime.Now;
 
                     _dataMap[data.Account] = data;
                 }

@@ -20,11 +20,11 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                if (OpenInterest != null)
+                if (OpenInterest != null && _openInterestInterval > 0)
                 {
                     OpenInterest.UpdateStatus(signalTime);
 
-                    if (_openInterestInterval > 0 && (signalTime - OpenInterest.QuerySent.Item1).TotalSeconds >= _openInterestInterval)
+                    if ((signalTime - OpenInterest.QuerySent.Item1).TotalSeconds >= _openInterestInterval)
                     {
                         OpenInterest.SendNextQuery(signalTime);
 
@@ -43,11 +43,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (FuturesRights != null)
+                if (FuturesRights != null && _futuresRightsInterval > 0)
                 {
                     FuturesRights.UpdateStatus(signalTime);
 
-                    if (_futuresRightsInterval > 0 && (signalTime - FuturesRights.QuerySent.Item1).TotalSeconds >= _futuresRightsInterval)
+                    if ((signalTime - FuturesRights.QuerySent.Item1).TotalSeconds >= _futuresRightsInterval)
                     {
                         FuturesRights.SendNextQuery(signalTime);
 
