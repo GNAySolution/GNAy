@@ -43,16 +43,17 @@
                             <Button x:Name="ButtonRequestKLine" Content="查詢KLine" HorizontalAlignment="Left" Margin="152,150,0,0" VerticalAlignment="Top" Click="ButtonRequestKLine_Click"/>
                             <TextBox x:Name="TextBoxQuoteFolderTest" Text="報價資料夾測試用" ToolTip="測試儲存報價到此資料夾" HorizontalAlignment="Left" Margin="10,175,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                             <Button x:Name="ButtonSaveQuotesTest" Content="儲存報價資料" HorizontalAlignment="Left" Margin="135,174,0,0" VerticalAlignment="Top" Click="ButtonSaveQuotesTest_Click"/>
-                            <CheckBox x:Name="CheckBoxSendRealOrder" Content="SendRealOrder" HorizontalAlignment="Left" Margin="216,10,0,0" VerticalAlignment="Top" Checked="CheckBoxSendRealOrder_CheckedOrNot" Unchecked="CheckBoxSendRealOrder_CheckedOrNot"/>
-                            <CheckBox x:Name="CheckBoxLiveMode" Content="LiveMode" HorizontalAlignment="Left" Margin="216,32,0,0" VerticalAlignment="Top" Checked="CheckBoxLiveMode_CheckedOrNot" Unchecked="CheckBoxLiveMode_CheckedOrNot"/>
-                            <CheckBox x:Name="CheckBoxStartFromOpenInterest" Content="StartFromOpenInterest" HorizontalAlignment="Left" Margin="216,54,0,0" VerticalAlignment="Top" Checked="CheckBoxStartFromOpenInterest_CheckedOrNot" Unchecked="CheckBoxStartFromOpenInterest_CheckedOrNot"/>
-                            <Button x:Name="ButtonReadCertification" Content="讀取下單憑證" HorizontalAlignment="Left" Margin="216,78,0,0" VerticalAlignment="Top" Click="ButtonReadCertification_Click"/>
-                            <Button x:Name="ButtonGetOrderAccs" Content="取得下單帳號" HorizontalAlignment="Left" Margin="297,78,0,0" VerticalAlignment="Top" Click="ButtonGetOrderAccs_Click"/>
-                            <Button x:Name="ButtonUnlockOrder" Content="下單解鎖" HorizontalAlignment="Left" Margin="240,102,0,0" VerticalAlignment="Top" Click="ButtonUnlockOrder_Click"/>
-                            <Button x:Name="ButtonGetOpenInterest" Content="查期權未平倉" HorizontalAlignment="Left" Margin="297,102,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
-                            <Button x:Name="ButtonSetOrderMaxQty" Content="限制委託量" HorizontalAlignment="Left" Margin="228,126,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxQty_Click"/>
-                            <Button x:Name="ButtonSetOrderMaxCount" Content="限制委託筆數" HorizontalAlignment="Left" Margin="297,126,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxCount_Click"/>
-                            <Button x:Name="ButtonGetFuturesRights" Content="查期權權益數" HorizontalAlignment="Left" Margin="216,150,0,0" VerticalAlignment="Top" Click="ButtonGetFuturesRights_Click"/>
+                            <CheckBox x:Name="CheckBoxShowDataGrid" Content="ShowDataGrid" HorizontalAlignment="Left" Margin="216,10,0,0" VerticalAlignment="Top" Checked="CheckBoxShowDataGrid_CheckedOrNot" Unchecked="CheckBoxShowDataGrid_CheckedOrNot"/>
+                            <CheckBox x:Name="CheckBoxSendRealOrder" Content="SendRealOrder" HorizontalAlignment="Left" Margin="216,32,0,0" VerticalAlignment="Top" Checked="CheckBoxSendRealOrder_CheckedOrNot" Unchecked="CheckBoxSendRealOrder_CheckedOrNot"/>
+                            <CheckBox x:Name="CheckBoxLiveMode" Content="LiveMode" HorizontalAlignment="Left" Margin="216,56,0,0" VerticalAlignment="Top" Checked="CheckBoxLiveMode_CheckedOrNot" Unchecked="CheckBoxLiveMode_CheckedOrNot"/>
+                            <CheckBox x:Name="CheckBoxStartFromOpenInterest" Content="StartFromOpenInterest" HorizontalAlignment="Left" Margin="216,80,0,0" VerticalAlignment="Top" Checked="CheckBoxStartFromOpenInterest_CheckedOrNot" Unchecked="CheckBoxStartFromOpenInterest_CheckedOrNot"/>
+                            <Button x:Name="ButtonReadCertification" Content="讀取下單憑證" HorizontalAlignment="Left" Margin="216,102,0,0" VerticalAlignment="Top" Click="ButtonReadCertification_Click"/>
+                            <Button x:Name="ButtonGetOrderAccs" Content="取得下單帳號" HorizontalAlignment="Left" Margin="297,102,0,0" VerticalAlignment="Top" Click="ButtonGetOrderAccs_Click"/>
+                            <Button x:Name="ButtonUnlockOrder" Content="下單解鎖" HorizontalAlignment="Left" Margin="378,102,0,0" VerticalAlignment="Top" Click="ButtonUnlockOrder_Click"/>
+                            <Button x:Name="ButtonGetOpenInterest" Content="查期權未平倉" HorizontalAlignment="Left" Margin="216,126,0,0" VerticalAlignment="Top" Click="ButtonGetOpenInterest_Click"/>
+                            <Button x:Name="ButtonGetFuturesRights" Content="查期權權益數" HorizontalAlignment="Left" Margin="297,126,0,0" VerticalAlignment="Top" Click="ButtonGetFuturesRights_Click"/>
+                            <Button x:Name="ButtonSetOrderMaxQty" Content="限制委託量" HorizontalAlignment="Left" Margin="228,150,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxQty_Click"/>
+                            <Button x:Name="ButtonSetOrderMaxCount" Content="限制委託筆數" HorizontalAlignment="Left" Margin="297,150,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxCount_Click"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="行事曆">
@@ -545,8 +546,6 @@
                 <Label Content="收盤獲利或損失時減倉" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyWinClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxStrategyLossClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數" HorizontalAlignment="Left" Margin="841,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="真實下單或模擬" HorizontalAlignment="Left" Margin="966,57,0,0" VerticalAlignment="Top"/>
-                <CheckBox x:Name="CheckBoxStrategySendReal" Content="真實下單" HorizontalAlignment="Left" Margin="966,82,0,0" VerticalAlignment="Top"/>
                 <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
@@ -917,6 +916,8 @@
                 <ComboBox x:Name="ComboBoxOrderDayTrade" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,35,0,0" VerticalAlignment="Top" Width="120"/>
                 <Label Content="新倉平倉自動" HorizontalAlignment="Left" Margin="635,10,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxOrderPositionKind" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="635,35,0,0" VerticalAlignment="Top" Width="120"/>
+                <Label Content="真實下單或模擬" HorizontalAlignment="Left" Margin="760,10,0,0" VerticalAlignment="Top"/>
+                <CheckBox x:Name="CheckBoxStrategySendReal" Content="真實下單" HorizontalAlignment="Left" Margin="760,35,0,0" VerticalAlignment="Top"/>
                 <Button x:Name="ButtonSendTWOrder" Content="國內委託送出" HorizontalAlignment="Left" Margin="54,61,0,0" VerticalAlignment="Top" Click="ButtonSendTWOrder_Click"/>
                 <Button x:Name="ButtonStartStartegyNow" Content="立刻啟動策略" HorizontalAlignment="Left" Margin="54,82,0,0" VerticalAlignment="Top" Click="ButtonStartStartegyNow_Click"/>
                 <Label Content="委託價格" HorizontalAlignment="Left" Margin="135,57,0,0" VerticalAlignment="Top"/>

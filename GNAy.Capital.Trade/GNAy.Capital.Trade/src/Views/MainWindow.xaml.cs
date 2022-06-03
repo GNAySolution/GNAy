@@ -361,43 +361,16 @@ namespace GNAy.Capital.Trade
         {
             DateTime start = _appCtrl.StartTrace();
 
-            Task.Factory.StartNew(() =>
-            {
-                try
-                {
-                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(-3):MM/dd HH:mm}|{StartTime.AddDays(-3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-3))}", UniqueName);
-                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(-2):MM/dd HH:mm}|{StartTime.AddDays(-2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-2))}", UniqueName);
-                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(-1):MM/dd HH:mm}|{StartTime.AddDays(-1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(-1))}", UniqueName);
-                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(0):MM/dd HH:mm}|{StartTime.AddDays(+0).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(0))}|Today", UniqueName);
-                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(1):MM/dd HH:mm}|{StartTime.AddDays(+1).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(1))}", UniqueName);
-                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(2):MM/dd HH:mm}|{StartTime.AddDays(+2).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(2))}", UniqueName);
-                    _appCtrl.LogTrace(start, $"{StartTime.AddDays(3):MM/dd HH:mm}|{StartTime.AddDays(+3).DayOfWeek}|IsHoliday={_appCtrl.Config.IsHoliday(StartTime.AddDays(3))}", UniqueName);
-                    
-                    _appCtrl.LogTrace(start, $"Limit|{OrderPrice.Parse("10050", 10100, 10000, 0, 0)}", UniqueName);
-                    _appCtrl.LogTrace(start, $"M|{OrderPrice.Parse("M", 10100, 10000, 0, 0)}", UniqueName);
-                    _appCtrl.LogTrace(start, $"P|{OrderPrice.Parse("P", 10100, 10000, 0, 0)}", UniqueName);
-                    _appCtrl.LogTrace(start, $"M+50|{OrderPrice.Parse("M+50", 10100, 10000, 0, 0)}", UniqueName);
-                    _appCtrl.LogTrace(start, $"M-50|{OrderPrice.Parse("M-50", 10100, 10000, 0, 0)}", UniqueName);
-                    _appCtrl.LogTrace(start, $"P+0.5%|{OrderPrice.Parse("P+0.5%", 10100, 10000, 0, 0)}", UniqueName);
-                    _appCtrl.LogTrace(start, $"P-0.5%|{OrderPrice.Parse("P-0.5%", 10100, 10000, 0, 0)}", UniqueName);
-
-                    _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.FullName}", UniqueName);
-                    _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}", UniqueName);
-
-                    _appCtrl.LogTrace(start, $"AutoRun={_appCtrl.Config.AutoRun}", UniqueName);
-                }
-                catch (Exception ex)
-                {
-                    _appCtrl.LogException(start, ex, ex.StackTrace);
-                }
-                finally
-                {
-                    _appCtrl.EndTrace(start, UniqueName);
-                }
-            });
+            Task.Factory.StartNew(() => _appCtrl.SelfTest());
 
             try
             {
+                _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.FullName}", UniqueName);
+                _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}", UniqueName);
+
+                _appCtrl.LogTrace(start, $"AutoRun={_appCtrl.Config.AutoRun}", UniqueName);
+
+                CheckBoxShowDataGrid.IsChecked = _appCtrl.Settings.ShowDataGrid;
                 CheckBoxSendRealOrder.IsChecked = _appCtrl.Settings.SendRealOrder;
 
                 if (_appCtrl.Settings.LiveMode)
@@ -1132,6 +1105,27 @@ namespace GNAy.Capital.Trade
             }
         }
 
+        private void CheckBoxShowDataGrid_CheckedOrNot(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                _appCtrl.Settings.ShowDataGrid = CheckBoxShowDataGrid.IsChecked.Value;
+                _appCtrl.LogTrace(start, $"ShowDataGrid={_appCtrl.Settings.ShowDataGrid}", UniqueName);
+
+                //TODO
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
         private void CheckBoxSendRealOrder_CheckedOrNot(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
@@ -1551,6 +1545,27 @@ namespace GNAy.Capital.Trade
             }
         }
 
+        private void ButtonGetFuturesRights_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                OrderAccData acc = (OrderAccData)ComboBoxOrderAccs.SelectedItem;
+
+                if (acc.MarketType != Market.EType.Futures)
+                {
+                    return;
+                }
+
+                _appCtrl.CAPOrder.GetFuturesRights(acc.FullAccount);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+        }
+
         private void ButtonSetOrderMaxQty_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
@@ -1584,27 +1599,6 @@ namespace GNAy.Capital.Trade
             finally
             {
                 _appCtrl.EndTrace(start, UniqueName);
-            }
-        }
-
-        private void ButtonGetFuturesRights_Click(object sender, RoutedEventArgs e)
-        {
-            DateTime start = _appCtrl.StartTrace();
-
-            try
-            {
-                OrderAccData acc = (OrderAccData)ComboBoxOrderAccs.SelectedItem;
-
-                if (acc.MarketType != Market.EType.Futures)
-                {
-                    return;
-                }
-
-                _appCtrl.CAPOrder.GetFuturesRights(acc.FullAccount);
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
             }
         }
 
@@ -1800,7 +1794,6 @@ namespace GNAy.Capital.Trade
                 TextBoxCloseStrategyAfterStopWin.Text = data.CloseStrategyAfterStopWin;
                 TextBoxStrategyWinClose.Text = $"{data.WinCloseQty},{data.WinCloseSeconds}secs";
                 TextBoxStrategyLossClose.Text = $"{data.LossCloseQty},{data.LossCloseSeconds}secs";
-                CheckBoxStrategySendReal.IsChecked = data.SendRealOrder;
 
                 ComboBoxOrderAccs.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxOrderAccs.Items.Count; ++i)
@@ -1824,6 +1817,7 @@ namespace GNAy.Capital.Trade
                 ComboBoxOrderPositionKind.SelectedIndex = data.Position;
                 TextBoxOrderPrice.Text = data.OrderPriceBefore;
                 TextBoxOrderQty.Text = $"{data.OrderQty}";
+                CheckBoxStrategySendReal.IsChecked = data.SendRealOrder;
             }
             catch (Exception ex)
             {

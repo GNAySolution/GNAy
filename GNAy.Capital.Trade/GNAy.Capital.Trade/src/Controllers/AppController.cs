@@ -436,6 +436,66 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
+        public void SelfTest()
+        {
+            DateTime start = StartTrace();
+
+            try
+            {
+                LogTrace(start, $"ProcessPriority={Settings.ProcessPriority}|{Settings.ProcessPriority.ConvertTo<ProcessPriorityClass>()}", UniqueName);
+                LogTrace(start, $"{ProcessPriorityClass.AboveNormal}|{ProcessPriorityClass.AboveNormal.ToString().ConvertTo<ProcessPriorityClass>()}|{((int)ProcessPriorityClass.AboveNormal).ToString().ConvertTo<ProcessPriorityClass>()}", UniqueName);
+                LogTrace(start, $"{ProcessPriorityClass.BelowNormal}|{ProcessPriorityClass.BelowNormal.ToString().ConvertTo<ProcessPriorityClass>()}|{((int)ProcessPriorityClass.BelowNormal).ToString().ConvertTo<ProcessPriorityClass>()}", UniqueName);
+            }
+            catch (Exception ex)
+            {
+                LogException(start, ex, ex.StackTrace);
+            }
+
+            try
+            {
+                LogTrace(start, $"{CreatedTime.AddDays(-3):MM/dd HH:mm}|{CreatedTime.AddDays(-3).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(-3))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(-2):MM/dd HH:mm}|{CreatedTime.AddDays(-2).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(-2))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(-1):MM/dd HH:mm}|{CreatedTime.AddDays(-1).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(-1))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(0):MM/dd HH:mm}|{CreatedTime.AddDays(+0).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(0))}|Today", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(1):MM/dd HH:mm}|{CreatedTime.AddDays(+1).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(1))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(2):MM/dd HH:mm}|{CreatedTime.AddDays(+2).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(2))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(3):MM/dd HH:mm}|{CreatedTime.AddDays(+3).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(3))}", UniqueName);
+            }
+            catch (Exception ex)
+            {
+                LogException(start, ex, ex.StackTrace);
+            }
+
+            try
+            {
+                LogTrace(start, $"Limit|{OrderPrice.Parse("10050", 10100, 10000, 0, 0)}", UniqueName);
+                LogTrace(start, $"M|{OrderPrice.Parse("M", 10100, 10000, 0, 0)}", UniqueName);
+                LogTrace(start, $"P|{OrderPrice.Parse("P", 10100, 10000, 0, 0)}", UniqueName);
+                LogTrace(start, $"M+50|{OrderPrice.Parse("M+50", 10100, 10000, 0, 0)}", UniqueName);
+                LogTrace(start, $"M-50|{OrderPrice.Parse("M-50", 10100, 10000, 0, 0)}", UniqueName);
+                LogTrace(start, $"P+0.5%|{OrderPrice.Parse("P+0.5%", 10100, 10000, 0, 0)}", UniqueName);
+                LogTrace(start, $"P-0.5%|{OrderPrice.Parse("P-0.5%", 10100, 10000, 0, 0)}", UniqueName);
+            }
+            catch (Exception ex)
+            {
+                LogException(start, ex, ex.StackTrace);
+            }
+
+            try
+            {
+                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(-1)):yy/MM/dd}", UniqueName);
+                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(+0)):yy/MM/dd}|This Month", UniqueName);
+                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(+1)):yy/MM/dd}", UniqueName);
+                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(+2)):yy/MM/dd}", UniqueName);
+            }
+            catch (Exception ex)
+            {
+                LogException(start, ex, ex.StackTrace);
+            }
+
+            EndTrace(start, UniqueName);
+        }
+
         public bool InitialCapital()
         {
             DateTime start = StartTrace();

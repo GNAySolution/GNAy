@@ -55,35 +55,7 @@ namespace GNAy.Capital.Models
 
             AutoRun = IsHoliday(CreatedTime) ? settings.AutoRunInHoliday : settings.AutoRunInTradeDay;
 
-            DateToChangeFutures = DateTime.MaxValue;
-            if (settings.FuturesLastTradeWeek > 0 && !string.IsNullOrWhiteSpace(settings.FuturesLastTradeDay) && settings.DayToChangeFutures <= 0)
-            {
-                DayOfWeek dow = settings.FuturesLastTradeDay.ConvertTo<DayOfWeek>();
-                DateTime date = new DateTime(CreatedTime.Year, CreatedTime.Month, 1).AddDays(-1);
-                int weekCount = 0;
-
-                for (int i = 0; i < 31; ++i)
-                {
-                    date = date.AddDays(1);
-
-                    if (date.DayOfWeek == dow)
-                    {
-                        ++weekCount;
-                    }
-
-                    if (weekCount == settings.FuturesLastTradeWeek && date.DayOfWeek == dow)
-                    {
-                        DateToChangeFutures = date.AddDays(settings.DayToChangeFutures);
-
-                        break;
-                    }
-                }
-
-                if (DateToChangeFutures == DateTime.MaxValue)
-                {
-                    throw new ArgumentException($"FuturesLastTradeWeek={settings.FuturesLastTradeWeek}|FuturesLastTradeDay={settings.FuturesLastTradeDay}|DayToChangeFutures={settings.DayToChangeFutures}");
-                }
-            }
+            DateToChangeFutures = GetDateToChangeFutures(CreatedTime);
 
             QuoteSubscribed = new HashSet<string>();
             foreach (string product in settings.QuoteRequest)
@@ -206,6 +178,35 @@ namespace GNAy.Capital.Models
             //}
 
             //return result;
+        }
+
+        public DateTime GetDateToChangeFutures(DateTime targetMonth)
+        {
+            if (Settings.FuturesLastTradeWeek > 0 && !string.IsNullOrWhiteSpace(Settings.FuturesLastTradeDay) && Settings.DayToChangeFutures <= 0)
+            {
+                DayOfWeek dow = Settings.FuturesLastTradeDay.ConvertTo<DayOfWeek>();
+                DateTime date = new DateTime(targetMonth.Year, targetMonth.Month, 1).AddDays(-1);
+                int weekCount = 0;
+
+                for (int i = 0; i < 31; ++i)
+                {
+                    date = date.AddDays(1);
+
+                    if (date.DayOfWeek == dow)
+                    {
+                        ++weekCount;
+
+                        if (weekCount == Settings.FuturesLastTradeWeek && date.DayOfWeek == dow)
+                        {
+                            return date.AddDays(Settings.DayToChangeFutures);
+                        }
+                    }
+                }
+
+                throw new ArgumentException($"FuturesLastTradeWeek={Settings.FuturesLastTradeWeek}|FuturesLastTradeDay={Settings.FuturesLastTradeDay}|DayToChangeFutures={Settings.DayToChangeFutures}");
+            }
+
+            return DateTime.MaxValue;
         }
     }
 }
