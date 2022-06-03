@@ -1,8 +1,13 @@
 {
-  "Version": "0.22.602.1",
+  "Version": "1.22.602.1",
   "Description": "測試用設定",
-  "ProcessPriority": 32,
+  "ProcessPriority": "Normal",
   "Big5EncodingCodePage": 950,
+  "ShowDataGrid": true,
+  "DataGridAppLogRowsMax": 500,
+  "TimerIntervalBackground": -1,
+  "TimerIntervalUI1": 50,
+  "TimerIntervalUI2": 35000,
   "HolidayFilePath": "holidaySchedule_{yyy}.csv",
   "HolidayFileKeywords1": [
     "月",
@@ -13,10 +18,6 @@
     "無交易",
     "補假"
   ],
-  "DataGridAppLogRowsMax": 1000,
-  "TimerIntervalBackground": -1,
-  "TimerIntervalUI1": 50,
-  "TimerIntervalUI2": 35000,
   "AutoRunInTradeDay": true,
   "AutoRunInHoliday": false,
   "MarketStart": [
@@ -27,8 +28,9 @@
     "05:00:00",
     "13:45:00"
   ],
-  "TimeToSwitchQuoteWeek": 3,
-  "TimeToSwitchQuoteDay": "Tuesday",
+  "FuturesLastTradeWeek": 3,
+  "FuturesLastTradeDay": "Wednesday",
+  "DayToChangeFutures": -1,
   "QuoteMarkets": [],
   "QuoteRequest": [
     "TSEA",

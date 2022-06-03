@@ -19,13 +19,10 @@ namespace GNAy.Capital.Models
         public string Version { get; set; }
         public string Description { get; set; }
 
-        public int ProcessPriority { get; set; }
+        public string ProcessPriority { get; set; }
+
         public int Big5EncodingCodePage { get; set; }
-
-        public string HolidayFilePath { get; set; }
-        public List<string> HolidayFileKeywords1 { get; set; }
-        public List<string> HolidayFileKeywords2 { get; set; }
-
+        public bool ShowDataGrid { get; set; }
         public int DataGridAppLogRowsMax { get; set; }
 
         /// <summary>
@@ -40,6 +37,10 @@ namespace GNAy.Capital.Models
         /// 檢查行情報價斷線重連
         /// </summary>
         public int TimerIntervalUI2 { get; set; }
+
+        public string HolidayFilePath { get; set; }
+        public List<string> HolidayFileKeywords1 { get; set; }
+        public List<string> HolidayFileKeywords2 { get; set; }
 
         /// <summary>
         /// 排程啟動自動執行
@@ -60,13 +61,17 @@ namespace GNAy.Capital.Models
         public List<DateTime> MarketClose { get; set; }
 
         /// <summary>
-        /// 期貨換月第幾星期
+        /// 期貨近月到期第幾星期
         /// </summary>
-        public int TimeToSwitchQuoteWeek { get; set; }
+        public int FuturesLastTradeWeek { get; set; }
         /// <summary>
-        /// 期貨換月第幾天
+        /// 期貨近月到期第幾天
         /// </summary>
-        public string TimeToSwitchQuoteDay { get; set; }
+        public string FuturesLastTradeDay { get; set; }
+        /// <summary>
+        /// 期貨近月到期前幾天換月
+        /// </summary>
+        public int DayToChangeFutures { get; set; }
 
         /// <summary>
         /// 上市 0、上櫃 1、期貨 2、選擇權 3、興櫃 4、盤中零股-上市5、盤中零股-上櫃6
@@ -164,24 +169,25 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "0.22.602.1";
+            Version = "1.22.602.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
-            ProcessPriority = 0x20; //ProcessPriorityClass.Normal
+            ProcessPriority = "Normal"; //0x20; //ProcessPriorityClass.Normal
+
             Big5EncodingCodePage = 950; //"big5"
+            ShowDataGrid = true;
+            DataGridAppLogRowsMax = 500;
+
+            TimerIntervalBackground = -1;
+            TimerIntervalUI1 = 50;
+            TimerIntervalUI2 = 35 * 1000;
 
             HolidayFilePath = "holidaySchedule_{yyy}.csv";
             HolidayFileKeywords1 = new List<string>();
             //HolidayFileKeywords1 = new List<string>() { "月", "日" }; //
             HolidayFileKeywords2 = new List<string>();
             //HolidayFileKeywords2 = new List<string>() { "放假", "無交易", "補假" }; //
-
-            DataGridAppLogRowsMax = 1000;
-
-            TimerIntervalBackground = -1;
-            TimerIntervalUI1 = 50;
-            TimerIntervalUI2 = 35 * 1000;
 
             AutoRunInTradeDay = true;
             AutoRunInHoliday = false;
@@ -199,8 +205,9 @@ namespace GNAy.Capital.Models
             //    DateTime.ParseExact("13:45:00", "HH:mm:ss", CultureInfo.InvariantCulture),
             //};
 
-            TimeToSwitchQuoteWeek = 3;
-            TimeToSwitchQuoteDay = "Tuesday"; //"tue" //"2"
+            FuturesLastTradeWeek = 3;
+            FuturesLastTradeDay = "Wednesday"; //"wed" //"3"
+            DayToChangeFutures = -1;
 
             QuoteMarkets = new List<int>();
             //QuoteMarkets = new List<int>() { (int)Market.EGroup.TSE, (int)Market.EGroup.OTC, (int)Market.EGroup.Futures, (int)Market.EGroup.Emerging }; //

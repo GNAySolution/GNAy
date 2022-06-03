@@ -26,6 +26,21 @@ namespace GNAy.Tools.NET47
             }
         }
 
+        public static T ConvertTo<T>(this string obj) where T : Enum
+        {
+            string trim = obj.Trim(' ', '.').ToLower();
+
+            foreach (T value in Enum.GetValues(typeof(T)))
+            {
+                if (value.ToString().ToLower().StartsWith(trim) || trim == ((int)(object)value).ToString())
+                {
+                    return value;
+                }
+            }
+
+            throw new ArgumentException(obj);
+        }
+
         /// <summary>
         /// https://codertw.com/%E5%89%8D%E7%AB%AF%E9%96%8B%E7%99%BC/220001/
         /// </summary>

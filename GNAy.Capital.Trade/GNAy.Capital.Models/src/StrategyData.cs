@@ -408,7 +408,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _winCloseQty;
-        [Column("收盤獲利減倉量", "收獲量", WPFDisplayIndex = 34)]
+        [Column("收盤獲利減倉量", "收獲減倉", WPFDisplayIndex = 34)]
         public int WinCloseQty
         {
             get { return _winCloseQty; }
@@ -431,7 +431,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _lossCloseQty;
-        [Column("收盤損失減倉量", "收損量", WPFDisplayIndex = 36)]
+        [Column("收盤損失減倉量", "收損減倉", WPFDisplayIndex = 36)]
         public int LossCloseQty
         {
             get { return _lossCloseQty; }

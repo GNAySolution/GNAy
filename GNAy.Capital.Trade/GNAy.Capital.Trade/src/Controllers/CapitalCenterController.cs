@@ -205,10 +205,6 @@ namespace GNAy.Capital.Trade.Controllers
                 //        LogAPIMessage(start, nCode);
                 //    }
                 //}
-
-                string version = m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(userID); //取得目前註冊SKAPI 版本及位元
-                _appCtrl.LogTrace(start, $"SKAPIVersionAndBit={version}", UniqueName);
-                _appCtrl.MainForm.StatusBarItemBA2.Text = $"SKAPIVersionAndBit={version}";
             }
             catch (Exception ex)
             {
@@ -226,6 +222,22 @@ namespace GNAy.Capital.Trade.Controllers
             }
 
             return LoginUserResult;
+        }
+
+        public string GetSKAPIVersion()
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                return m_pSKCenter.SKCenterLib_GetSKAPIVersionAndBit(UserID); //取得目前註冊SKAPI 版本及位元
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+
+            return string.Empty;
         }
 
         public int LoginQuote(string dwp, bool startQuoteMonitor = true)

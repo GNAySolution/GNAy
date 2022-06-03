@@ -191,7 +191,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void SetMaxQty(int marketType = -1, int maxQty = -1)
         {
-            if (maxQty <= 0)
+            if (maxQty < 0)
             {
                 maxQty = _appCtrl.Settings.OrderMaxQty;
             }
@@ -233,7 +233,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void SetMaxCount(int marketType = -1, int maxCount = -1)
         {
-            if (maxCount <= 0)
+            if (maxCount < 0)
             {
                 maxCount = _appCtrl.Settings.OrderMaxCount;
             }

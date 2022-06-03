@@ -40,7 +40,7 @@ namespace GNAy.Capital.Trade.Controllers
         public FuturesRightsController FuturesRights { get; private set; }
 
         private readonly System.Timers.Timer _timerBG;
-        public bool CallTimedEventBySelf => _timerBG != null;
+        public bool CallTimedEventInBG => _timerBG != null;
 
         public AppController(MainWindow mainForm, Process ps)
         {
@@ -58,16 +58,14 @@ namespace GNAy.Capital.Trade.Controllers
 
             AppSettings newSetting = new AppSettings();
             Version newVer = new Version(newSetting.Version);
+
             if (Config.Version < newVer)
             {
-                LogError($"設定檔({Config.Archive.Name})版本過舊({Config.Version} < {newVer})", UniqueName);
+                LogWarn($"設定檔({Config.Archive.Name})版本過舊({Config.Version} < {newVer})", UniqueName);
                 //TODO: Migrate old config to new version.
             }
 
-            if (!Debugger.IsAttached)
-            {
-                ps.PriorityClass = (ProcessPriorityClass)Settings.ProcessPriority;
-            }
+            ps.PriorityClass = Settings.ProcessPriority.ConvertTo<ProcessPriorityClass>();
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;

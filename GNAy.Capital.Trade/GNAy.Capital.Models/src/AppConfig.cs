@@ -21,6 +21,8 @@ namespace GNAy.Capital.Models
 
         public readonly bool AutoRun;
 
+        public readonly DateTime DateToChangeFutures;
+
         public readonly HashSet<string> QuoteSubscribed;
         public readonly DirectoryInfo QuoteFolder;
 
@@ -52,6 +54,36 @@ namespace GNAy.Capital.Models
             Holidays.LoadHolidays(holidayPathLastYear, Big5Encoding, today.AddYears(-1).Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
 
             AutoRun = IsHoliday(CreatedTime) ? settings.AutoRunInHoliday : settings.AutoRunInTradeDay;
+
+            DateToChangeFutures = DateTime.MaxValue;
+            if (settings.FuturesLastTradeWeek > 0 && !string.IsNullOrWhiteSpace(settings.FuturesLastTradeDay) && settings.DayToChangeFutures <= 0)
+            {
+                DayOfWeek dow = settings.FuturesLastTradeDay.ConvertTo<DayOfWeek>();
+                DateTime date = new DateTime(CreatedTime.Year, CreatedTime.Month, 1).AddDays(-1);
+                int weekCount = 0;
+
+                for (int i = 0; i < 31; ++i)
+                {
+                    date = date.AddDays(1);
+
+                    if (date.DayOfWeek == dow)
+                    {
+                        ++weekCount;
+                    }
+
+                    if (weekCount == settings.FuturesLastTradeWeek && date.DayOfWeek == dow)
+                    {
+                        DateToChangeFutures = date.AddDays(settings.DayToChangeFutures);
+
+                        break;
+                    }
+                }
+
+                if (DateToChangeFutures == DateTime.MaxValue)
+                {
+                    throw new ArgumentException($"FuturesLastTradeWeek={settings.FuturesLastTradeWeek}|FuturesLastTradeDay={settings.FuturesLastTradeDay}|DayToChangeFutures={settings.DayToChangeFutures}");
+                }
+            }
 
             QuoteSubscribed = new HashSet<string>();
             foreach (string product in settings.QuoteRequest)
@@ -93,6 +125,27 @@ namespace GNAy.Capital.Models
                 SentOrderFolder = new DirectoryInfo(settings.SentOrderFolderPath);
                 SentOrderFolder.Create();
                 SentOrderFolder.Refresh();
+            }
+
+            if (settings.TimerIntervalUI1 <= 0)
+            {
+                throw new ArgumentException($"TimerIntervalUI1({settings.TimerIntervalUI1}) <= 0");
+            }
+            if (settings.TimerIntervalUI2 <= 0)
+            {
+                throw new ArgumentException($"TimerIntervalUI2({settings.TimerIntervalUI2}) <= 0");
+            }
+            if (settings.OpenInterestInterval <= 0)
+            {
+                throw new ArgumentException($"OpenInterestInterval({settings.OpenInterestInterval}) <= 0");
+            }
+            if (settings.FuturesRightsInterval <= 0)
+            {
+                throw new ArgumentException($"OpenInterestInterval({settings.FuturesRightsInterval}) <= 0");
+            }
+            if (settings.OrderTimeInterval <= 0)
+            {
+                throw new ArgumentException($"OrderTimeInterval({settings.OrderTimeInterval}) <= 0");
             }
 
             Archive = archive;

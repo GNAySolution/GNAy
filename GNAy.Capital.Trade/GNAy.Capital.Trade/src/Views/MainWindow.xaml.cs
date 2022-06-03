@@ -899,7 +899,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                if (!_appCtrl.CallTimedEventBySelf)
+                if (!_appCtrl.CallTimedEventInBG)
                 {
                     _appCtrl.OnTimedEvent(DateTime.Now);
                 }
@@ -949,7 +949,6 @@ namespace GNAy.Capital.Trade
 
                     StatusBarItemBA3.Text = $"{_appCtrl.CAPCenter.UserIDTimer.Item1:mm:ss}|{_appCtrl.CAPCenter.UserIDTimer.Item2}";
                     StatusBarItemBA4.Text = _appCtrl.CAPQuote.Timer;
-                    StatusBarItemCA4.Text = $"{_appCtrl.CAPQuote.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.CAPQuote.MarketCloseTime:MM/dd HH:mm}";
 
                     StatusBarItemAB5.Text = _appCtrl.CAPQuote.StatusStr;
                     StatusBarItemAB3.Text = $"{_appCtrl.CAPQuote.LastData.Name}|{_appCtrl.CAPQuote.LastData.UpdateTime:mm:ss.fff}|{_appCtrl.CAPQuote.LastData.Updater}";
@@ -1082,6 +1081,8 @@ namespace GNAy.Capital.Trade
 
                         return _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY;
                     }, 1 * 60 * 1000);
+
+                    this.InvokeSync(delegate { StatusBarItemCA4.Text = $"{_appCtrl.CAPQuote.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.CAPQuote.MarketCloseTime:MM/dd HH:mm}|{_appCtrl.Config.DateToChangeFutures:yy/MM/dd}"; });
 
                     if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
                     {
@@ -1271,6 +1272,11 @@ namespace GNAy.Capital.Trade
 
                 _appCtrl.InitialCapital();
                 _appCtrl.CAPCenter.LoginUser(TextBoxUserID.Text, DWPBox.Password);
+
+                string version = _appCtrl.CAPCenter.GetSKAPIVersion();
+
+                _appCtrl.LogTrace(start, $"SKAPIVersionAndBit={version}", UniqueName);
+                StatusBarItemBA2.Text = $"SKAPIVersionAndBit={version}";
             }
             catch (Exception ex)
             {
