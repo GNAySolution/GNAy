@@ -196,7 +196,7 @@ namespace GNAy.Capital.Models
                     {
                         ++weekCount;
 
-                        if (weekCount == Settings.FuturesLastTradeWeek && date.DayOfWeek == dow)
+                        if (weekCount == Settings.FuturesLastTradeWeek)
                         {
                             return date.AddDays(Settings.DayToChangeFutures);
                         }

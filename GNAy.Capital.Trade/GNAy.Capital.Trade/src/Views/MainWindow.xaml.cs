@@ -1114,7 +1114,20 @@ namespace GNAy.Capital.Trade
                 _appCtrl.Settings.ShowDataGrid = CheckBoxShowDataGrid.IsChecked.Value;
                 _appCtrl.LogTrace(start, $"ShowDataGrid={_appCtrl.Settings.ShowDataGrid}", UniqueName);
 
-                //TODO
+                if (_appCtrl.Settings.ShowDataGrid)
+                {
+                    DataGridAppLog.Visibility = Visibility.Visible;
+                    DataGridQuoteSubscribed.Visibility = Visibility.Visible;
+                    DataGridOrderDetail.Visibility = Visibility.Visible;
+                    DataGridFuturesRights.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    DataGridAppLog.Visibility = Visibility.Collapsed;
+                    DataGridQuoteSubscribed.Visibility = Visibility.Collapsed;
+                    DataGridOrderDetail.Visibility = Visibility.Collapsed;
+                    DataGridFuturesRights.Visibility = Visibility.Collapsed;
+                }
             }
             catch (Exception ex)
             {
