@@ -453,6 +453,8 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _lossCloseTime, value); }
         }
 
+        //TODO: AccountsWinLossClose
+
         public StrategyData MarketClosingData;
 
         private bool _sendRealOrder;

@@ -979,11 +979,12 @@ namespace GNAy.Capital.Trade
 
             DateTime start = _appCtrl.StartTrace();
 
-            int reConnect = 0;
-
             try
             {
-                StatusBarItemCA2.Text = $"{start:HH:mm:ss}|IsHoliday={_appCtrl.Config.IsHoliday(start)}";
+                bool isHoliday = _appCtrl.Config.IsHoliday(start);
+                int reConnect = 0;
+
+                StatusBarItemCA2.Text = $"{start:HH:mm:ss}|isHoliday={isHoliday}";
                 //ButtonSaveQuotesTest_Click(null, null);
 
                 foreach (DateTime timeToClose in _appCtrl.Settings.MarketClose)
@@ -1057,7 +1058,7 @@ namespace GNAy.Capital.Trade
 
                     this.InvokeSync(delegate { StatusBarItemCA4.Text = $"{_appCtrl.CAPQuote.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.CAPQuote.MarketCloseTime:MM/dd HH:mm}|{_appCtrl.Config.DateToChangeFutures:yy/MM/dd}"; });
 
-                    if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY) //Timeout
+                    if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY && !isHoliday) //Timeout
                     {
                         _appCtrl.CAPQuote.Disconnect();
                         //this.InvokeAsync(delegate { _timer2.Start(); }); //Retry to connect quote service.

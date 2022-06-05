@@ -153,18 +153,25 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (data.Quote == null)
             {
+                bool isHoliday = _appCtrl.Config.IsHoliday(start);
                 (int, SKSTOCKLONG) product = _appCtrl.CAPQuote.GetProductInfo(data.Symbol, start);
 
                 if (product.Item1 != 0)
                 {
-                    throw new ArgumentException($"data.Symbol={data.Symbol}|{data.ToLog()}");
+                    if (!isHoliday)
+                    {
+                        throw new ArgumentException($"data.Symbol={data.Symbol}|{data.ToLog()}");
+                    }
                 }
                 else if (!string.IsNullOrWhiteSpace(data.StopLossBefore) || !string.IsNullOrWhiteSpace(data.StopWinBefore) || !string.IsNullOrWhiteSpace(data.MoveStopWinBefore))
                 {
                     throw new ArgumentException($"商品 {data.Symbol} 無訂閱報價，無法進行策略監控|{data.ToLog()}");
                 }
 
-                MarketCheck(data, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
+                if (product.Item1 == 0)
+                {
+                    MarketCheck(data, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
+                }
 
                 return;
             }
