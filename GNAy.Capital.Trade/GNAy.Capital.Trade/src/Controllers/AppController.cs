@@ -483,10 +483,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(-1)):yy/MM/dd}", UniqueName);
-                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(+0)):yy/MM/dd}|This Month", UniqueName);
-                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(+1)):yy/MM/dd}", UniqueName);
-                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(+2)):yy/MM/dd}", UniqueName);
+                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(-1)):MM/dd (dddd)}", UniqueName);
+                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(+0)):MM/dd (dddd)}|This Month", UniqueName);
+                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(+1)):MM/dd (dddd)}", UniqueName);
+                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(+2)):MM/dd (dddd)}", UniqueName);
+                LogTrace(start, $"{Config.GetDateToChangeFutures(CreatedTime.AddMonths(+3)):MM/dd (dddd)}", UniqueName);
             }
             catch (Exception ex)
             {

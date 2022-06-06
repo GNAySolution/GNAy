@@ -62,7 +62,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, string.Format("{0}.csv", DateTime.Now.ToString(_appCtrl.Settings.TriggerFileSaveFormat)));
+                string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, string.Format("{0}.csv", start.ToString(_appCtrl.Settings.TriggerFileSaveFormat)));
                 _appCtrl.LogTrace(start, path, UniqueName);
 
                 using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
@@ -777,7 +777,7 @@ namespace GNAy.Capital.Trade.Controllers
                     string loadFile = _appCtrl.Settings.TriggerFileLoadFormat;
                     if (loadFile.Contains(AppSettings.Keyword_Holiday))
                     {
-                        loadFile = loadFile.Replace(AppSettings.Keyword_Holiday, _appCtrl.Config.IsHoliday(DateTime.Now.AddDays(1)).ToString());
+                        loadFile = loadFile.Replace(AppSettings.Keyword_Holiday, _appCtrl.Config.IsHoliday(start.AddDays(1)).ToString());
                     }
                     if (loadFile.Contains(AppSettings.Keyword_DayNight))
                     {

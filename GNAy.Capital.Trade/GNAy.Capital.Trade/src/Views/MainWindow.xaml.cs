@@ -874,7 +874,7 @@ namespace GNAy.Capital.Trade
             {
                 if (!_appCtrl.CallTimedEventInBG)
                 {
-                    _appCtrl.OnTimedEvent(DateTime.Now);
+                    _appCtrl.OnTimedEvent(start);
                 }
 
                 //https://stackoverflow.com/questions/9565740/display-duration-in-milliseconds

@@ -58,7 +58,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                string path = Path.Combine(dir.FullName, string.Format("{0}.csv", DateTime.Now.ToString(fileFormat)));
+                string path = Path.Combine(dir.FullName, string.Format("{0}.csv", start.ToString(fileFormat)));
                 _appCtrl.LogTrace(start, path, UniqueName);
 
                 using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
@@ -890,7 +890,7 @@ namespace GNAy.Capital.Trade.Controllers
                     string loadFile = _appCtrl.Settings.StrategyFileLoadFormat;
                     if (loadFile.Contains(AppSettings.Keyword_Holiday))
                     {
-                        loadFile = loadFile.Replace(AppSettings.Keyword_Holiday, _appCtrl.Config.IsHoliday(DateTime.Now.AddDays(1)).ToString());
+                        loadFile = loadFile.Replace(AppSettings.Keyword_Holiday, _appCtrl.Config.IsHoliday(start.AddDays(1)).ToString());
                     }
                     if (loadFile.Contains(AppSettings.Keyword_DayNight))
                     {
