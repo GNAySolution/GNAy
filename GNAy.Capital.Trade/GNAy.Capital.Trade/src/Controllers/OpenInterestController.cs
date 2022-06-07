@@ -190,12 +190,14 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private (bool, OpenInterestData) AddOrUpdate(string account, string symbol, OrderBS.Enum bs, OrderDayTrade.Enum dayTrade, string price, string quantity, DateTime start, [CallerMemberName] string memberName = "")
+        private (bool, OpenInterestData) AddOrUpdate(string account, string symbol, OrderBS.Enum bs, OrderDayTrade.Enum dayTrade, string price, string quantity1, string quantity2, DateTime start, [CallerMemberName] string memberName = "")
         {
             try
             {
                 decimal pri = decimal.Parse(price) / 100;
-                int qty = int.Parse(quantity);
+                int qty1 = int.Parse(quantity1);
+                int qty2 = int.Parse(quantity2);
+                int qty = dayTrade == OrderDayTrade.Enum.No ? qty1 - qty2 : qty2;
 
                 if (pri == 0 || qty <= 0)
                 {
@@ -316,10 +318,10 @@ namespace GNAy.Capital.Trade.Controllers
                 //格式1：(含複式單，市場別：TM)市場別, 帳號, 商品, 買方未平倉,買方當沖未平倉,賣方未平倉,賣方當沖未平倉, LOGIN_ID(V2.13.30新增)
                 //格式2：(不含複式單，市場別：TM，可自行計算損益)市場別, 帳號, 商品, 買賣別, 未平倉部位, 當沖未平倉部位, 平均成本(三位小數), 一點價值, 單口手續費, 交易稅(萬分之X), LOGIN_ID(V2.13.30新增)
                 //TF,OrderAccount,MTX05,1,0,1652500,0,0,0,UserID
-                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.No, cells[5], cells[3], start);
-                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.Yes, cells[5], cells[4], start);
-                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.No, cells[8], cells[6], start);
-                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.Yes, cells[8], cells[7], start);
+                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.No, cells[5], cells[3], cells[4], start);
+                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Buy, OrderDayTrade.Enum.Yes, cells[5], cells[3], cells[4], start);
+                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.No, cells[8], cells[6], cells[7], start);
+                AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.Yes, cells[8], cells[6], cells[7], start);
             }
 
             for (int i = Count - 1; i >= 0; --i)

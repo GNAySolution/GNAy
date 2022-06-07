@@ -370,7 +370,6 @@ namespace GNAy.Capital.Trade
 
                 _appCtrl.LogTrace(start, $"AutoRun={_appCtrl.Config.AutoRun}", UniqueName);
 
-                CheckBoxShowDataGrid.IsChecked = _appCtrl.Settings.ShowDataGrid;
                 CheckBoxSendRealOrder.IsChecked = _appCtrl.Settings.SendRealOrder;
 
                 if (_appCtrl.Settings.LiveMode)
@@ -1094,7 +1093,12 @@ namespace GNAy.Capital.Trade
                     Thread.Sleep(2 * 1000);
                     this.InvokeAsync(delegate
                     {
+                        CheckBoxShowDataGrid.IsChecked = _appCtrl.Settings.ShowDataGrid;
+                        CheckBoxShowDataGrid_CheckedOrNot(null, null);
+
                         CheckBoxLiveMode.IsChecked = _appCtrl.Settings.LiveMode;
+                        CheckBoxLiveMode_CheckedOrNot(null, null);
+
                         _timer2.Start();
                     });
                 });
