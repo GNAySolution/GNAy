@@ -1190,12 +1190,16 @@ namespace GNAy.Capital.Trade
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
                     //DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
                     //DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.AccountsWinLossClose)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
 
                     DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
                     //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
                     //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
 
                     DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+
+                    DataGridFuturesRights.Columns[FuturesRightsData.PropertyMap[nameof(FuturesRightsData.UserID)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    DataGridFuturesRights.Columns[FuturesRightsData.PropertyMap[nameof(FuturesRightsData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
                 }
                 else
                 {
@@ -1217,12 +1221,16 @@ namespace GNAy.Capital.Trade
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     //DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     //DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.AccountsWinLossClose)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
 
                     DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSDes)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
 
                     DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+
+                    DataGridFuturesRights.Columns[FuturesRightsData.PropertyMap[nameof(FuturesRightsData.UserID)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    DataGridFuturesRights.Columns[FuturesRightsData.PropertyMap[nameof(FuturesRightsData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                 }
             }
             catch (Exception ex)
@@ -1813,6 +1821,7 @@ namespace GNAy.Capital.Trade
                 TextBoxCloseStrategyAfterStopWin.Text = data.CloseStrategyAfterStopWin;
                 TextBoxStrategyWinClose.Text = $"{data.WinCloseQty},{data.WinCloseSeconds}secs";
                 TextBoxStrategyLossClose.Text = $"{data.LossCloseQty},{data.LossCloseSeconds}secs";
+                TextBoxAccountsWinLossClose.Text = data.AccountsWinLossClose;
 
                 ComboBoxOrderAccs.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxOrderAccs.Items.Count; ++i)
@@ -1934,6 +1943,7 @@ namespace GNAy.Capital.Trade
                     OpenStrategyAfterStopWin = TextBoxOpenStrategyAfterStopWin.Text,
                     CloseTriggerAfterStopWin = TextBoxCloseTriggerAfterStopWin.Text,
                     CloseStrategyAfterStopWin = TextBoxCloseStrategyAfterStopWin.Text,
+                    AccountsWinLossClose = TextBoxAccountsWinLossClose.Text,
                     SendRealOrder = CheckBoxStrategySendReal.IsChecked.Value,
                     Updater = methodName,
                     UpdateTime = DateTime.Now,

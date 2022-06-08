@@ -471,6 +471,10 @@
                             </DataGrid>
                         </Grid>
                     </TabItem>
+                    <TabItem Header="布林通道">
+                        <Grid Background="#FFE5E5E5">
+                        </Grid>
+                    </TabItem>
                     <TabItem Header="T字報價">
                         <Grid Background="#FFE5E5E5">
                         </Grid>
@@ -866,6 +870,7 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding LossCloseTime}"/>
+                                    <DataGridTextColumn Binding="{Binding AccountsWinLossClose}"/>
                                     <DataGridTextColumn Binding="{Binding SendRealOrder}"/>
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
                                 </DataGrid.Columns>
@@ -1125,6 +1130,7 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                     <DataGridTextColumn Binding="{Binding LossCloseTime}"/>
+                                    <DataGridTextColumn Binding="{Binding AccountsWinLossClose}"/>
                                     <DataGridTextColumn Binding="{Binding SendRealOrder}"/>
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
                                 </DataGrid.Columns>

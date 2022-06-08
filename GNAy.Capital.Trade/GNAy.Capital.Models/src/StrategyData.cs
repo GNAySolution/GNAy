@@ -453,12 +453,18 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _lossCloseTime, value); }
         }
 
-        //TODO: AccountsWinLossClose
+        private string _accountsWinLossClose;
+        [Column("帳號判斷獲利或損失", "帳獲損", WPFDisplayIndex = 38)]
+        public string AccountsWinLossClose
+        {
+            get { return _accountsWinLossClose; }
+            set { OnPropertyChanged(ref _accountsWinLossClose, value); }
+        }
 
         public StrategyData MarketClosingData;
 
         private bool _sendRealOrder;
-        [Column("真實下單", "實單", WPFDisplayIndex = 38)]
+        [Column("真實下單", "實單", WPFDisplayIndex = 39)]
         public bool SendRealOrder
         {
             get { return _sendRealOrder; }
@@ -466,7 +472,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 39)]
+        [Column("註解", WPFDisplayIndex = 40)]
         public string Comment
         {
             get { return _comment; }
@@ -528,6 +534,7 @@ namespace GNAy.Capital.Models
             LossCloseQty = 0;
             LossCloseSeconds = 0;
             LossCloseTime = DateTime.MinValue;
+            AccountsWinLossClose = string.Empty;
             MarketClosingData = null;
             SendRealOrder = false;
             Comment = string.Empty;
@@ -551,6 +558,7 @@ namespace GNAy.Capital.Models
             OpenStrategyAfterStopWin = OpenStrategyAfterStopWin.Replace(" ", string.Empty);
             CloseTriggerAfterStopWin = CloseTriggerAfterStopWin.Replace(" ", string.Empty);
             CloseStrategyAfterStopWin = CloseStrategyAfterStopWin.Replace(" ", string.Empty);
+            AccountsWinLossClose = AccountsWinLossClose.Replace(" ", string.Empty);
             Comment = Comment.Replace(" ", string.Empty);
 
             Updater = memberName;
