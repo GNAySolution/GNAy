@@ -1055,8 +1055,6 @@ namespace GNAy.Capital.Trade
                         return _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY;
                     }, 1 * 60 * 1000);
 
-                    this.InvokeSync(delegate { StatusBarItemCA4.Text = $"{_appCtrl.CAPQuote.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.CAPQuote.MarketCloseTime:MM/dd HH:mm}|{_appCtrl.Config.DateToChangeFutures:yy/MM/dd}"; });
-
                     if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY && !isHoliday) //Timeout
                     {
                         _appCtrl.CAPQuote.Disconnect();
@@ -1325,6 +1323,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 (LogLevel, string) apiMsg = _appCtrl.CAPQuote.IsConnected();
+
                 StatusBarItemAB4.Text = apiMsg.Item1 == LogLevel.Trace ? apiMsg.Item2 : $"{apiMsg.Item1}|{apiMsg.Item2}";
             }
             catch (Exception ex)
@@ -1380,6 +1379,8 @@ namespace GNAy.Capital.Trade
             try
             {
                 _appCtrl.CAPQuote.GetProductInfo();
+
+                StatusBarItemCA4.Text = $"{_appCtrl.CAPQuote.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.CAPQuote.MarketCloseTime:MM/dd HH:mm}|({_appCtrl.Config.DateToChangeFutures.DayOfWeek}) {_appCtrl.Config.DateToChangeFutures:MM/dd}";
                 StatusBarItemAB2.Text = $"Sub={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}|QuoteFile={_appCtrl.CAPQuote.FileNameBase}";
             }
             catch (Exception ex)

@@ -25,10 +25,7 @@
 - [x] 可設定模擬下單(SendRealOrder = false)，方便同時跑多種策略，觀察比較優劣
 - [x] 全自動(或半自動)運行，適合放在雲端主機上運行
 - [x] 直播模式(LiveMode = true)，隱藏隱私資料，只呈現損益，方便user實況(或錄影)播放自己的交易策略
-- [ ] 台股上市、上櫃股票，待實作
-- [ ] 國外期貨、選擇權，待實作
-- [ ] 中期目標是連續IOC等多樣化的CD單，並串接其他券商的API
-- [ ] 長期目標是把程式移植到iOS平台上，用iPhone或Mac操作
+- [ ] 開發中或計畫中的細項功能整理在Blog上，標籤TODO
 
 ###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/GNAy.Capital.Trade.dwp.config
 * 讀取帳號密碼的基本範例，專案不對帳密做儲存或特別處理，有需要請自行修改程式碼
