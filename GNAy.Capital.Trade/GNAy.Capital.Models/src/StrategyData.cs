@@ -552,13 +552,13 @@ namespace GNAy.Capital.Models
             MoveStopWinBefore = MoveStopWinBefore.Replace(" ", string.Empty);
             OrderReport = OrderReport.Replace(" ", string.Empty);
             DealReport = DealReport.Replace(" ", string.Empty);
-            OpenTriggerAfterStopLoss = OpenTriggerAfterStopLoss.Replace(" ", string.Empty);
-            OpenStrategyAfterStopLoss = OpenStrategyAfterStopLoss.Replace(" ", string.Empty);
-            OpenTriggerAfterStopWin = OpenTriggerAfterStopWin.Replace(" ", string.Empty);
-            OpenStrategyAfterStopWin = OpenStrategyAfterStopWin.Replace(" ", string.Empty);
-            CloseTriggerAfterStopWin = CloseTriggerAfterStopWin.Replace(" ", string.Empty);
-            CloseStrategyAfterStopWin = CloseStrategyAfterStopWin.Replace(" ", string.Empty);
-            AccountsWinLossClose = AccountsWinLossClose.Replace(" ", string.Empty);
+            OpenTriggerAfterStopLoss = OpenTriggerAfterStopLoss.Replace(" ", string.Empty).JoinSortedSet(',');
+            OpenStrategyAfterStopLoss = OpenStrategyAfterStopLoss.Replace(" ", string.Empty).JoinSortedSet(',');
+            OpenTriggerAfterStopWin = OpenTriggerAfterStopWin.Replace(" ", string.Empty).JoinSortedSet(',');
+            OpenStrategyAfterStopWin = OpenStrategyAfterStopWin.Replace(" ", string.Empty).JoinSortedSet(',');
+            CloseTriggerAfterStopWin = CloseTriggerAfterStopWin.Replace(" ", string.Empty).JoinSortedSet(',');
+            CloseStrategyAfterStopWin = CloseStrategyAfterStopWin.Replace(" ", string.Empty).JoinSortedSet(',');
+            AccountsWinLossClose = AccountsWinLossClose.Replace(" ", string.Empty).JoinSortedSet(',');
             Comment = Comment.Replace(" ", string.Empty);
 
             Updater = memberName;

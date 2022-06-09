@@ -182,21 +182,6 @@ namespace GNAy.Capital.Trade.Controllers
 
             MarketCheck(data, data.Quote);
 
-            DateTime closeTime = _appCtrl.CAPQuote.MarketCloseTime;
-
-            if (closeTime < DateTime.Now)
-            {
-                closeTime = _appCtrl.CAPQuote.IsAMMarket ? _appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM] : _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM];
-            }
-            if (data.WinCloseTime == DateTime.MinValue && data.WinCloseSeconds > 0)
-            {
-                data.WinCloseTime = closeTime.AddSeconds(-data.WinCloseSeconds);
-            }
-            if (data.LossCloseTime == DateTime.MinValue && data.LossCloseSeconds > 0)
-            {
-                data.LossCloseTime = closeTime.AddSeconds(-data.LossCloseSeconds);
-            }
-
             (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote);
 
             if (readyToSend)
@@ -311,6 +296,31 @@ namespace GNAy.Capital.Trade.Controllers
             else if (data.OrderQty + data.StopWinQty + data.MoveStopWinQty < 0)
             {
                 throw new ArgumentException($"移動停利減倉量({data.MoveStopWinQty}) + 停利減倉量({data.StopWinQty}) > 委託量({data.OrderQty})|{data.ToLog()}");
+            }
+
+            DateTime closeTime = _appCtrl.CAPQuote.MarketCloseTime;
+
+            if (closeTime < DateTime.Now)
+            {
+                closeTime = _appCtrl.CAPQuote.IsAMMarket ? _appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM] : _appCtrl.Settings.MarketClose[(int)Market.EDayNight.PM];
+            }
+            if (data.WinCloseTime == DateTime.MinValue && data.WinCloseSeconds > 0)
+            {
+                data.WinCloseTime = closeTime.AddSeconds(-data.WinCloseSeconds);
+            }
+            if (data.LossCloseTime == DateTime.MinValue && data.LossCloseSeconds > 0)
+            {
+                data.LossCloseTime = closeTime.AddSeconds(-data.LossCloseSeconds);
+            }
+
+            foreach (string account in data.AccountsWinLossClose.SplitWithoutWhiteSpace(','))
+            {
+                OrderAccData acc = _appCtrl.CAPOrder[account];
+
+                if (acc == null)
+                {
+                    throw new ArgumentException($"帳號判斷獲利或損失，查無帳號|account={account}|{data.ToLog()}");
+                }
             }
         }
 
@@ -439,12 +449,12 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void AfterStopLoss(StrategyData data, DateTime start)
         {
-            foreach (string primary in data.OpenTriggerAfterStopLoss.ForeachSet(','))
+            foreach (string primary in data.OpenTriggerAfterStopLoss.SplitWithoutWhiteSpace(','))
             {
                 OpenTrigger(data, primary, start);
             }
 
-            foreach (string primary in data.OpenStrategyAfterStopLoss.ForeachSet(','))
+            foreach (string primary in data.OpenStrategyAfterStopLoss.SplitWithoutWhiteSpace(','))
             {
                 OpenStrategy(data, primary, start);
             }
@@ -464,22 +474,22 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            foreach (string primary in data.CloseTriggerAfterStopWin.ForeachSet(','))
+            foreach (string primary in data.CloseTriggerAfterStopWin.SplitWithoutWhiteSpace(','))
             {
                 _appCtrl.Trigger.Cancel(primary, "策略取消");
             }
 
-            foreach (string primary in data.CloseStrategyAfterStopWin.ForeachSet(','))
+            foreach (string primary in data.CloseStrategyAfterStopWin.SplitWithoutWhiteSpace(','))
             {
                 Close(primary, 0, "策略停止");
             }
 
-            foreach (string primary in data.OpenTriggerAfterStopWin.ForeachSet(','))
+            foreach (string primary in data.OpenTriggerAfterStopWin.SplitWithoutWhiteSpace(','))
             {
                 OpenTrigger(data, primary, start);
             }
 
-            foreach (string primary in data.OpenStrategyAfterStopWin.ForeachSet(','))
+            foreach (string primary in data.OpenStrategyAfterStopWin.SplitWithoutWhiteSpace(','))
             {
                 OpenStrategy(data, primary, start);
             }
@@ -540,21 +550,52 @@ namespace GNAy.Capital.Trade.Controllers
                     data.MoveStopWinPrice = data.MarketPrice;
                 }
 
-                if (data.UnclosedQty > 0)
+                if (data.UnclosedQty > 0 && data.StatusEnum != StrategyStatus.Enum.MarketClosingSent && data.StatusEnum != StrategyStatus.Enum.MarketClosingOrderReport && data.StatusEnum != StrategyStatus.Enum.MarketClosingDealReport)
                 {
-                    if (data.UnclosedProfit > 0 && data.WinCloseSeconds > 0 && DateTime.Now >= data.WinCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
+                    if (data.WinCloseSeconds > 0 && DateTime.Now >= data.WinCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
                     {
-                        Close(data, data.WinCloseQty, "收盤獲利減倉", start);
+                        if (!string.IsNullOrWhiteSpace(data.AccountsWinLossClose))
+                        {
+                            decimal? sum = _appCtrl.FuturesRights.SumProfit(data.AccountsWinLossClose, start);
 
-                        saveData = true;
-                        return saveData;
+                            if (sum.HasValue && sum.Value > 0)
+                            {
+                                Close(data, data.WinCloseQty, "收盤帳號獲利減倉", start);
+
+                                saveData = true;
+                                return saveData;
+                            }
+                        }
+                        else if (data.UnclosedProfit > 0)
+                        {
+                            Close(data, data.WinCloseQty, "收盤策略獲利減倉", start);
+
+                            saveData = true;
+                            return saveData;
+                        }
                     }
-                    else if (data.UnclosedProfit <= 0 && data.LossCloseSeconds > 0 && DateTime.Now >= data.LossCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
+                    
+                    if (data.LossCloseSeconds > 0 && DateTime.Now >= data.LossCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
                     {
-                        Close(data, data.LossCloseQty, "收盤損失減倉", start);
+                        if (!string.IsNullOrWhiteSpace(data.AccountsWinLossClose))
+                        {
+                            decimal? sum = _appCtrl.FuturesRights.SumProfit(data.AccountsWinLossClose, start);
 
-                        saveData = true;
-                        return saveData;
+                            if (sum.HasValue && sum.Value <= 0)
+                            {
+                                Close(data, data.LossCloseQty, "收盤帳號損失減倉", start);
+
+                                saveData = true;
+                                return saveData;
+                            }
+                        }
+                        else if (data.UnclosedProfit <= 0)
+                        {
+                            Close(data, data.LossCloseQty, "收盤策略損失減倉", start);
+
+                            saveData = true;
+                            return saveData;
+                        }
                     }
                 }
 
@@ -797,12 +838,12 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            foreach (string primary in data.OpenStrategyAfterStopLoss.ForeachSet(','))
+            foreach (string primary in data.OpenStrategyAfterStopLoss.SplitWithoutWhiteSpace(','))
             {
                 SerialReset(this[primary]);
             }
 
-            foreach (string primary in data.OpenStrategyAfterStopWin.ForeachSet(','))
+            foreach (string primary in data.OpenStrategyAfterStopWin.SplitWithoutWhiteSpace(','))
             {
                 SerialReset(this[primary]);
             }

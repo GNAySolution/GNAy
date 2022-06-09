@@ -134,7 +134,7 @@ namespace GNAy.Capital.Trade.Controllers
                         continue;
                     }
 
-                    foreach (string pk in other.Start.ForeachSet(','))
+                    foreach (string pk in other.Start.SplitWithoutWhiteSpace(','))
                     {
                         if (pk == data.PrimaryKey)
                         {
@@ -175,14 +175,14 @@ namespace GNAy.Capital.Trade.Controllers
 
         private HashSet<string> OpenStrategy(TriggerData data, DateTime start)
         {
-            foreach (string primary in data.StrategyOpenOR.ForeachSet(','))
+            foreach (string primary in data.StrategyOpenOR.SplitWithoutWhiteSpace(','))
             {
                 OpenStrategy(data, primary, start);
             }
 
             HashSet<string> strategyAND = new HashSet<string>();
 
-            foreach (string primary in data.StrategyOpenAND.ForeachSet(','))
+            foreach (string primary in data.StrategyOpenAND.SplitWithoutWhiteSpace(','))
             {
                 string pk = $",{primary},";
                 bool openStrategy = true;
@@ -219,7 +219,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void CancelAfterExecuted(TriggerData executed, DateTime start, [CallerMemberName] string memberName = "")
         {
-            foreach (string cancel in executed.Cancel.ForeachSet(','))
+            foreach (string cancel in executed.Cancel.SplitWithoutWhiteSpace(','))
             {
                 TriggerData data = this[cancel];
 
@@ -246,7 +246,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void StartAfterExecuted(TriggerData executed)
         {
-            foreach (string primary in executed.Start.ForeachSet(','))
+            foreach (string primary in executed.Start.SplitWithoutWhiteSpace(','))
             {
                 Restart(primary);
             }
@@ -472,7 +472,7 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         data = this[i];
 
-                        foreach (string pk in data.Start.ForeachSet(','))
+                        foreach (string pk in data.Start.SplitWithoutWhiteSpace(','))
                         {
                             if (_dataMap.TryGetValue(pk, out TriggerData td) && td.StatusEnum != TriggerStatus.Enum.Executed && td.StatusEnum != TriggerStatus.Enum.Cancelled)
                             {

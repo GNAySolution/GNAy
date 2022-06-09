@@ -13,17 +13,35 @@ namespace GNAy.Tools.NET47
 {
     public static class Extensions
     {
-        public static IEnumerable<string> ForeachSet(this string obj, params char[] separator)
+        public static IEnumerable<string> SplitWithoutWhiteSpace(this string obj, params char[] separator)
         {
             if (string.IsNullOrWhiteSpace(obj))
             {
                 yield break;
             }
 
-            foreach (string cell in new HashSet<string>(obj.Split(separator)))
+            foreach (string cell in obj.Split(separator))
             {
                 yield return cell;
             }
+        }
+
+        public static IEnumerable<string> ForeachSortedSet(this string obj, params char[] separator)
+        {
+            if (string.IsNullOrWhiteSpace(obj))
+            {
+                yield break;
+            }
+
+            foreach (string cell in new SortedSet<string>(obj.Split(separator)))
+            {
+                yield return cell;
+            }
+        }
+
+        public static string JoinSortedSet(this string obj, char joinSeparator, params char[] setSeparator)
+        {
+            return setSeparator.Length <= 0 ? string.Join(joinSeparator.ToString(), obj.ForeachSortedSet(joinSeparator)) : string.Join(joinSeparator.ToString(), obj.ForeachSortedSet(setSeparator));
         }
 
         public static T ConvertTo<T>(this string obj) where T : Enum

@@ -288,12 +288,12 @@ namespace GNAy.Capital.Models
             Rule = Rule.Replace(" ", string.Empty);
             Symbol2Setting = Symbol2Setting.Replace(" ", string.Empty);
             Symbol2 = Symbol2.Replace(" ", string.Empty);
-            Cancel = Cancel.Replace(" ", string.Empty);
-            Start = Start.Replace(" ", string.Empty);
-            StrategyOpenOR = StrategyOpenOR.Replace(" ", string.Empty);
-            StrategyOpenAND = StrategyOpenAND.Replace(" ", string.Empty);
-            StrategyCloseOR = StrategyCloseOR.Replace(" ", string.Empty);
-            StrategyCloseAND = StrategyCloseAND.Replace(" ", string.Empty);
+            Cancel = Cancel.Replace(" ", string.Empty).JoinSortedSet(',');
+            Start = Start.Replace(" ", string.Empty).JoinSortedSet(',');
+            StrategyOpenOR = StrategyOpenOR.Replace(" ", string.Empty).JoinSortedSet(',');
+            StrategyOpenAND = StrategyOpenAND.Replace(" ", string.Empty).JoinSortedSet(',');
+            StrategyCloseOR = StrategyCloseOR.Replace(" ", string.Empty).JoinSortedSet(',');
+            StrategyCloseAND = StrategyCloseAND.Replace(" ", string.Empty).JoinSortedSet(',');
             Comment = Comment.Replace(" ", string.Empty);
 
             Updater = memberName;

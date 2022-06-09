@@ -1,4 +1,5 @@
 ﻿using GNAy.Capital.Models;
+using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
 using System;
 using System.Collections.Concurrent;
@@ -181,6 +182,41 @@ namespace GNAy.Capital.Trade.Controllers
             QuerySent = (DateTime.Now, -1, string.Empty, -1);
 
             return QuerySent;
+        }
+
+        public decimal? SumProfit(string accounts, DateTime start)
+        {
+            if (string.IsNullOrWhiteSpace(accounts))
+            {
+                return null;
+            }
+
+            decimal sum = 0;
+
+            foreach (string account in accounts.SplitWithoutWhiteSpace(','))
+            {
+                OrderAccData acc = _appCtrl.CAPOrder[account];
+
+                if (acc == null)
+                {
+                    _appCtrl.LogError(start, $"查無帳號|account={account}", UniqueName);
+
+                    return null;
+                }
+
+                FuturesRightsData data = this[acc.FullAccount];
+
+                if (data == null)
+                {
+                    _appCtrl.LogError(start, $"查無帳號|FullAccount={acc.FullAccount}", UniqueName);
+
+                    return null;
+                }
+
+                sum += data.F12;
+            }
+
+            return sum;
         }
     }
 }
