@@ -61,21 +61,15 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _updateTime, value, nameof(UpdateTime), nameof(UpdateDate)); }
         }
 
-        private int _status;
+        private StrategyStatus.Enum _statusEnum;
         [Column("狀態索引")]
-        public int Status
-        {
-            get { return _status; }
-            set { OnPropertiesChanged(ref _status, value, nameof(Status), nameof(StatusDes), nameof(StopLossAfterStr), nameof(StopWinAfter), nameof(MoveStopWinAfter)); }
-        }
         public StrategyStatus.Enum StatusEnum
         {
-            get { return (StrategyStatus.Enum)Status; }
-            set { Status = (int)value; }
+            get { return _statusEnum; }
+            set { OnPropertiesChanged(ref _statusEnum, value, nameof(StatusEnum), nameof(StatusDes), nameof(StopLossAfterStr), nameof(StopWinAfter), nameof(MoveStopWinAfter)); }
         }
-
         [Column("狀態描述", "狀態", WPFDisplayIndex = 2)]
-        public string StatusDes => StrategyStatus.Description[Status];
+        public string StatusDes => StrategyStatus.Description[(int)StatusEnum];
 
         private string _primaryKey;
         [Column("自定義唯一鍵", "唯一鍵", WPFDisplayIndex = 3)]
@@ -122,69 +116,37 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _symbol, value); }
         }
 
-        private short _bs;
-        [Column("買賣索引")]
-        public short BS
-        {
-            get { return _bs; }
-            set { OnPropertiesChanged(ref _bs, value, nameof(BS), nameof(BSDes)); }
-        }
+        private OrderBS.Enum _bsEnum;
+        [Column("買賣", WPFDisplayIndex = 7)]
         public OrderBS.Enum BSEnum
         {
-            get { return (OrderBS.Enum)BS; }
-            set { BS = (short)value; }
+            get { return _bsEnum; }
+            set { OnPropertyChanged(ref _bsEnum, value); }
         }
 
-        [Column("買賣描述", "買賣", WPFDisplayIndex = 7)]
-        public string BSDes => OrderBS.Description[BS];
-
-        private short _tradeType;
-        [Column("掛單索引")]
-        public short TradeType
-        {
-            get { return _tradeType; }
-            set { OnPropertiesChanged(ref _tradeType, value, nameof(TradeType), nameof(TradeTypeDes)); }
-        }
+        private OrderTradeType.Enum _tradeTypeEnum;
+        [Column("掛單", WPFDisplayIndex = 8)]
         public OrderTradeType.Enum TradeTypeEnum
         {
-            get { return (OrderTradeType.Enum)TradeType; }
-            set { TradeType = (short)value; }
+            get { return _tradeTypeEnum; }
+            set { OnPropertyChanged(ref _tradeTypeEnum, value); }
         }
 
-        [Column("掛單描述", "掛單", WPFDisplayIndex = 8)]
-        public string TradeTypeDes => OrderTradeType.Description[TradeType];
-
-        private short _dayTrade;
-        [Column("當沖索引")]
-        public short DayTrade
-        {
-            get { return _dayTrade; }
-            set { OnPropertiesChanged(ref _dayTrade, value, nameof(DayTrade), nameof(DayTradeDes)); }
-        }
+        private OrderDayTrade.Enum _dayTradeEnum;
+        [Column("當沖", WPFDisplayIndex = 9)]
         public OrderDayTrade.Enum DayTradeEnum
         {
-            get { return (OrderDayTrade.Enum)DayTrade; }
-            set { DayTrade = (short)value; }
+            get { return _dayTradeEnum; }
+            set { OnPropertyChanged(ref _dayTradeEnum, value); }
         }
 
-        [Column("當沖描述", "沖", WPFDisplayIndex = 9)]
-        public string DayTradeDes => OrderDayTrade.Description[DayTrade];
-
-        private short _position;
-        [Column("新倉平倉索引")]
-        public short Position
-        {
-            get { return _position; }
-            set { OnPropertiesChanged(ref _position, value, nameof(Position), nameof(PositionDes)); }
-        }
+        private OrderPosition.Enum _positionEnum;
+        [Column("新倉平倉", "新平", WPFDisplayIndex = 10)]
         public OrderPosition.Enum PositionEnum
         {
-            get { return (OrderPosition.Enum)Position; }
-            set { Position = (short)value; }
+            get { return _positionEnum; }
+            set { OnPropertyChanged(ref _positionEnum, value); }
         }
-
-        [Column("新倉平倉描述", "新平", WPFDisplayIndex = 10)]
-        public string PositionDes => OrderPosition.Description[Position];
 
         private decimal _marketPrice;
         [Column("委託送出前的市場成交價", "市場價格", CSVStringFormat = "0.00", WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}")]
@@ -636,10 +598,10 @@ namespace GNAy.Capital.Models
                 Account = Account,
                 Quote = Quote,
                 Symbol = Symbol,
-                BS = BS,
-                TradeType = TradeType,
-                DayTrade = DayTrade,
-                Position = Position,
+                BSEnum = BSEnum,
+                TradeTypeEnum = TradeTypeEnum,
+                DayTradeEnum = DayTradeEnum,
+                PositionEnum = PositionEnum,
                 OrderPriceBefore = OrderPriceBefore,
                 OrderPriceAfter = OrderPriceAfter,
                 OrderQty = OrderQty,
@@ -699,7 +661,7 @@ namespace GNAy.Capital.Models
                 Symbol = Symbol,
                 BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
                 TradeTypeEnum = OrderTradeType.Enum.IOC,
-                DayTrade = DayTrade,
+                DayTradeEnum = DayTradeEnum,
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,
@@ -760,7 +722,7 @@ namespace GNAy.Capital.Models
                 Symbol = Symbol,
                 BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
                 TradeTypeEnum = OrderTradeType.Enum.IOC,
-                DayTrade = DayTrade,
+                DayTradeEnum = DayTradeEnum,
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,
@@ -821,7 +783,7 @@ namespace GNAy.Capital.Models
                 Symbol = Symbol,
                 BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
                 TradeTypeEnum = OrderTradeType.Enum.IOC,
-                DayTrade = DayTrade,
+                DayTradeEnum = DayTradeEnum,
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,
@@ -882,7 +844,7 @@ namespace GNAy.Capital.Models
                 Symbol = Symbol,
                 BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
                 TradeTypeEnum = OrderTradeType.Enum.IOC,
-                DayTrade = DayTrade,
+                DayTradeEnum = DayTradeEnum,
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,

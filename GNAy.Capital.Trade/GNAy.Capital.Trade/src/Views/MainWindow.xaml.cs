@@ -1839,10 +1839,10 @@ namespace GNAy.Capital.Trade
                 }
 
                 ComboBoxOrderProduct.Text = data.Symbol;
-                ComboBoxOrderBuySell.SelectedIndex = data.BS;
-                ComboBoxOrderTradeType.SelectedIndex = data.TradeType;
-                ComboBoxOrderDayTrade.SelectedIndex = data.DayTrade;
-                ComboBoxOrderPositionKind.SelectedIndex = data.Position;
+                ComboBoxOrderBuySell.SelectedIndex = (int)data.BSEnum;
+                ComboBoxOrderTradeType.SelectedIndex = (int)data.TradeTypeEnum;
+                ComboBoxOrderDayTrade.SelectedIndex = (int)data.DayTradeEnum;
+                ComboBoxOrderPositionKind.SelectedIndex = (int)data.PositionEnum;
                 TextBoxOrderPrice.Text = data.OrderPriceBefore;
                 TextBoxOrderQty.Text = $"{data.OrderQty}";
                 CheckBoxStrategySendReal.IsChecked = data.SendRealOrder;
@@ -1928,10 +1928,10 @@ namespace GNAy.Capital.Trade
                     Branch = acc.Branch,
                     Account = acc.Account,
                     Symbol = ComboBoxOrderProduct.Text.Split(',')[0],
-                    BS = (short)ComboBoxOrderBuySell.SelectedIndex,
-                    TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
-                    DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
-                    Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
+                    BSEnum = (OrderBS.Enum)ComboBoxOrderBuySell.SelectedIndex,
+                    TradeTypeEnum = (OrderTradeType.Enum)ComboBoxOrderTradeType.SelectedIndex,
+                    DayTradeEnum = (OrderDayTrade.Enum)ComboBoxOrderDayTrade.SelectedIndex,
+                    PositionEnum = (OrderPosition.Enum)ComboBoxOrderPositionKind.SelectedIndex,
                     OrderPriceBefore = TextBoxOrderPrice.Text,
                     OrderQty = int.Parse(TextBoxOrderQty.Text),
                     StopLossBefore = TextBoxStrategyStopLoss.Text,
@@ -2043,10 +2043,10 @@ namespace GNAy.Capital.Trade
                     Branch = acc.Branch,
                     Account = acc.Account,
                     Symbol = ComboBoxOrderProduct.Text.Split(',')[0],
-                    BS = (short)ComboBoxOrderBuySell.SelectedIndex,
-                    TradeType = (short)ComboBoxOrderTradeType.SelectedIndex,
-                    DayTrade = (short)ComboBoxOrderDayTrade.SelectedIndex,
-                    Position = (short)ComboBoxOrderPositionKind.SelectedIndex,
+                    BSEnum = (OrderBS.Enum)ComboBoxOrderBuySell.SelectedIndex,
+                    TradeTypeEnum = (OrderTradeType.Enum)ComboBoxOrderTradeType.SelectedIndex,
+                    DayTradeEnum = (OrderDayTrade.Enum)ComboBoxOrderDayTrade.SelectedIndex,
+                    PositionEnum = (OrderPosition.Enum)ComboBoxOrderPositionKind.SelectedIndex,
                     OrderPriceBefore = TextBoxOrderPrice.Text,
                     OrderQty = int.Parse(TextBoxOrderQty.Text),
                     SendRealOrder = CheckBoxStrategySendReal.IsChecked.Value,

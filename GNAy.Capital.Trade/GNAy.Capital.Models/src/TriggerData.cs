@@ -85,21 +85,15 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _updateTime, value, nameof(UpdateTime), nameof(UpdateDate)); }
         }
 
-        private int _status;
+        private TriggerStatus.Enum _statusEnum;
         [Column("狀態索引")]
-        public int Status
-        {
-            get { return _status; }
-            set { OnPropertiesChanged(ref _status, value, nameof(Status), nameof(StatusDes)); }
-        }
         public TriggerStatus.Enum StatusEnum
         {
-            get { return (TriggerStatus.Enum)Status; }
-            set { Status = (int)value; }
+            get { return _statusEnum; }
+            set { OnPropertiesChanged(ref _statusEnum, value, nameof(StatusEnum), nameof(StatusDes)); }
         }
-
         [Column("狀態描述", "狀態", WPFDisplayIndex = 2)]
-        public string StatusDes => TriggerStatus.Description[Status];
+        public string StatusDes => TriggerStatus.Description[(int)StatusEnum];
 
         private string _primaryKey;
         [Column("自定義唯一鍵", "唯一鍵", WPFDisplayIndex = 3)]

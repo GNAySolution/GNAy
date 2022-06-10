@@ -325,10 +325,10 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 bstrFullAccount = order.FullAccount,
                 bstrStockNo = order.Symbol,
-                sBuySell = order.BS,
-                sTradeType = order.TradeType,
-                sDayTrade = order.DayTrade,
-                sNewClose = order.Position,
+                sBuySell = (short)order.BSEnum,
+                sTradeType = (short)order.TradeTypeEnum,
+                sDayTrade = (short)order.DayTradeEnum,
+                sNewClose = (short)order.PositionEnum,
                 bstrPrice = (order.OrderPriceBefore == OrderPrice.M || order.OrderPriceBefore == OrderPrice.P) ? order.OrderPriceBefore : order.OrderPriceAfter.ToString("0.00"),
                 nQty = order.OrderQty,
             };

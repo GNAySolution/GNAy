@@ -14,7 +14,7 @@ namespace GNAy.Capital.Models
     /// </summary>
     public class OrderBS
     {
-        public enum Enum : short
+        public enum Enum
         {
             [Description("Buy")]
             Buy, //0

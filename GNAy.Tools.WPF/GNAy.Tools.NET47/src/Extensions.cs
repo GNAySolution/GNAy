@@ -44,11 +44,11 @@ namespace GNAy.Tools.NET47
             return setSeparator.Length <= 0 ? string.Join(joinSeparator.ToString(), obj.ForeachSortedSet(joinSeparator)) : string.Join(joinSeparator.ToString(), obj.ForeachSortedSet(setSeparator));
         }
 
-        public static T ConvertTo<T>(this string obj) where T : Enum
+        public static Enum ConvertTo(this string obj, Type enumType)
         {
             string trim = obj.Trim(' ', '.').ToLower();
 
-            foreach (T value in Enum.GetValues(typeof(T)))
+            foreach (Enum value in Enum.GetValues(enumType))
             {
                 if (value.ToString().ToLower().StartsWith(trim) || trim == ((int)(object)value).ToString())
                 {
@@ -57,6 +57,11 @@ namespace GNAy.Tools.NET47
             }
 
             throw new ArgumentException(obj);
+        }
+
+        public static T ConvertTo<T>(this string obj) where T : Enum
+        {
+            return (T)ConvertTo(obj, typeof(T));
         }
 
         /// <summary>
@@ -355,6 +360,10 @@ namespace GNAy.Tools.NET47
             else if (propertyType == typeof(bool?))
             {
                 obj.SetValue(instance, bool.Parse(value));
+            }
+            else if (propertyType.BaseType != null && propertyType.BaseType == typeof(Enum))
+            {
+                obj.SetValue(instance, ConvertTo(value, propertyType));
             }
             else
             {

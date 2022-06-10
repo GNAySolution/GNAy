@@ -89,55 +89,31 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _symbol, value); }
         }
 
-        private short _bs;
-        [Column("買賣索引")]
-        public short BS
-        {
-            get { return _bs; }
-            set { OnPropertiesChanged(ref _bs, value, nameof(BS), nameof(BSDes)); }
-        }
+        private OrderBS.Enum _bsEnum;
+        [Column("買賣", WPFDisplayIndex = 6)]
         public OrderBS.Enum BSEnum
         {
-            get { return (OrderBS.Enum)BS; }
-            set { BS = (short)value; }
+            get { return _bsEnum; }
+            set { OnPropertyChanged(ref _bsEnum, value); }
         }
 
-        [Column("買賣描述", "買賣", WPFDisplayIndex = 6)]
-        public string BSDes => OrderBS.Description[BS];
-
-        private short _dayTrade;
-        [Column("當沖索引")]
-        public short DayTrade
-        {
-            get { return _dayTrade; }
-            set { OnPropertiesChanged(ref _dayTrade, value, nameof(DayTrade), nameof(DayTradeDes)); }
-        }
+        private OrderDayTrade.Enum _dayTradeEnum;
+        [Column("當沖", WPFDisplayIndex = 7)]
         public OrderDayTrade.Enum DayTradeEnum
         {
-            get { return (OrderDayTrade.Enum)DayTrade; }
-            set { DayTrade = (short)value; }
+            get { return _dayTradeEnum; }
+            set { OnPropertyChanged(ref _dayTradeEnum, value); }
         }
-
-        [Column("當沖描述", "沖", WPFDisplayIndex = 7)]
-        public string DayTradeDes => OrderDayTrade.Description[DayTrade];
 
         public string PrimaryKey => $"{Account}_{Symbol}_{BSEnum}_{DayTradeEnum}";
 
-        private short _position;
-        [Column("新倉平倉索引")]
-        public short Position
-        {
-            get { return _position; }
-            set { OnPropertiesChanged(ref _position, value, nameof(Position), nameof(PositionDes)); }
-        }
+        private OrderPosition.Enum _positionEnum;
+        [Column("新平", WPFDisplayIndex = 8)]
         public OrderPosition.Enum PositionEnum
         {
-            get { return (OrderPosition.Enum)Position; }
-            set { Position = (short)value; }
+            get { return _positionEnum; }
+            set { OnPropertyChanged(ref _positionEnum, value); }
         }
-
-        [Column("新倉平倉描述", "新平", WPFDisplayIndex = 8)]
-        public string PositionDes => OrderPosition.Description[Position];
 
         private decimal _marketPrice;
         [Column("平倉前的市場價格", "市場價格", CSVStringFormat = "0.00", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00}")]

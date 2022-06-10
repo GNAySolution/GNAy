@@ -723,10 +723,10 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding BSDes}"/>
-                                    <DataGridTextColumn Binding="{Binding TradeTypeDes}"/>
-                                    <DataGridTextColumn Binding="{Binding DayTradeDes}"/>
-                                    <DataGridTextColumn Binding="{Binding PositionDes}"/>
+                                    <DataGridTextColumn Binding="{Binding BSEnum}"/>
+                                    <DataGridTextColumn Binding="{Binding TradeTypeEnum}"/>
+                                    <DataGridTextColumn Binding="{Binding DayTradeEnum}"/>
+                                    <DataGridTextColumn Binding="{Binding PositionEnum}"/>
                                     <DataGridTextColumn Binding="{Binding MarketPrice}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
@@ -983,10 +983,10 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding BSDes}"/>
-                                    <DataGridTextColumn Binding="{Binding TradeTypeDes}"/>
-                                    <DataGridTextColumn Binding="{Binding DayTradeDes}"/>
-                                    <DataGridTextColumn Binding="{Binding PositionDes}"/>
+                                    <DataGridTextColumn Binding="{Binding BSEnum}"/>
+                                    <DataGridTextColumn Binding="{Binding TradeTypeEnum}"/>
+                                    <DataGridTextColumn Binding="{Binding DayTradeEnum}"/>
+                                    <DataGridTextColumn Binding="{Binding PositionEnum}"/>
                                     <DataGridTextColumn Binding="{Binding MarketPrice}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
@@ -1173,9 +1173,9 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding BSDes}"/>
-                                    <DataGridTextColumn Binding="{Binding DayTradeDes}"/>
-                                    <DataGridTextColumn Binding="{Binding PositionDes}"/>
+                                    <DataGridTextColumn Binding="{Binding BSEnum}"/>
+                                    <DataGridTextColumn Binding="{Binding DayTradeEnum}"/>
+                                    <DataGridTextColumn Binding="{Binding PositionEnum}"/>
                                     <DataGridTextColumn Binding="{Binding MarketPrice}">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">

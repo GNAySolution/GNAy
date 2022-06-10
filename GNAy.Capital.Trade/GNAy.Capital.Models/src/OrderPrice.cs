@@ -11,7 +11,7 @@ namespace GNAy.Capital.Models
 {
     public class OrderPrice
     {
-        public enum Enum : short
+        public enum Enum
         {
             [Description("市價")]
             M, //0
