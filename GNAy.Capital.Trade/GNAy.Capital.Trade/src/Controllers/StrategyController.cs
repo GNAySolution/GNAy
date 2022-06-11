@@ -988,7 +988,10 @@ namespace GNAy.Capital.Trade.Controllers
                     nextPK = Count + 1;
                 }
 
-                _appCtrl.MainForm.InvokeAsync(delegate { _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{nextPK}"; });
+                if (!_dataMap.ContainsKey($"{nextPK}"))
+                {
+                    _appCtrl.MainForm.InvokeAsync(delegate { _appCtrl.MainForm.TextBoxStrategyPrimaryKey.Text = $"{nextPK}"; });
+                }
             }
             catch (Exception ex)
             {

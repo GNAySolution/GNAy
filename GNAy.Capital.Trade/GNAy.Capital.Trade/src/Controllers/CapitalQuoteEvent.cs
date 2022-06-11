@@ -143,7 +143,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (!_dataIndexMap.TryGetValue(sMarketNo * 1000000 + nStockIdx, out QuoteData quote))
                 {
-                    _appCtrl.LogError($"!QuoteIndexMap.TryGetValue(nStockIdx, out QuoteData quote)|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}", UniqueName);
+                    _appCtrl.LogError($"!_dataIndexMap.TryGetValue(sMarketNo * 1000000 + nStockIdx, out QuoteData quote)|sMarketNo={sMarketNo}|nStockIdx={nStockIdx}", UniqueName);
                     return;
                 }
                 //else if (quote.MarketGroup != sMarketNo)

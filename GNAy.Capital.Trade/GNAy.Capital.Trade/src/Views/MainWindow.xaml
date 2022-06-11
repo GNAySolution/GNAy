@@ -564,10 +564,10 @@
                                 <DataGrid.RowStyle>
                                     <Style TargetType="DataGridRow">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Status}" Value="3">
+                                            <DataTrigger Binding="{Binding StatusEnum}" Value="Executed">
                                                 <Setter Property="Background" Value="Pink"></Setter>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding Status}" Value="1">
+                                            <DataTrigger Binding="{Binding StatusEnum}" Value="Cancelled">
                                                 <Setter Property="Background" Value="LightGray"></Setter>
                                             </DataTrigger>
                                         </Style.Triggers>

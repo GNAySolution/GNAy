@@ -1058,7 +1058,7 @@ namespace GNAy.Capital.Trade
                     if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY && !isHoliday) //Timeout
                     {
                         _appCtrl.CAPQuote.Disconnect();
-                        //this.InvokeAsync(delegate { _timer2.Start(); }); //Retry to connect quote service.
+                        //this.InvokeSync(delegate { _timer2.Start(); }); //Retry to connect quote service.
 
                         _timer1.Stop();
                         Thread.Sleep(1 * 1000);
@@ -1068,14 +1068,11 @@ namespace GNAy.Capital.Trade
                     }
 
                     Thread.Sleep(2 * 1000);
-                    this.InvokeSync(delegate
-                    {
-                        ButtonIsConnected_Click(null, null);
-                        //ButtonPrintProductList_Click(null, null);
-                        ButtonGetProductInfo_Click(null, null);
-                        ButtonSubQuotes_Click(null, null);
-                        ButtonGetOrderAccs_Click(null, null);
-                    });
+                    ButtonIsConnected_Click(null, null);
+                    //ButtonPrintProductList_Click(null, null);
+                    ButtonGetProductInfo_Click(null, null);
+                    ButtonSubQuotes_Click(null, null);
+                    ButtonGetOrderAccs_Click(null, null);
 
                     Thread.Sleep(2 * 1000);
                     SpinWait.SpinUntil(() => _appCtrl.CAPOrder.Count > 0, 4 * 1000);
@@ -1089,7 +1086,7 @@ namespace GNAy.Capital.Trade
                     _appCtrl.Strategy.RecoverSetting();
 
                     Thread.Sleep(2 * 1000);
-                    this.InvokeAsync(delegate
+                    this.InvokeSync(delegate
                     {
                         CheckBoxShowDataGrid.IsChecked = _appCtrl.Settings.ShowDataGrid;
                         CheckBoxShowDataGrid_CheckedOrNot(null, null);
@@ -1332,7 +1329,7 @@ namespace GNAy.Capital.Trade
             {
                 (LogLevel, string) apiMsg = _appCtrl.CAPQuote.IsConnected();
 
-                StatusBarItemAB4.Text = apiMsg.Item1 == LogLevel.Trace ? apiMsg.Item2 : $"{apiMsg.Item1}|{apiMsg.Item2}";
+                this.InvokeAsync(delegate { StatusBarItemAB4.Text = apiMsg.Item1 == LogLevel.Trace ? apiMsg.Item2 : $"{apiMsg.Item1}|{apiMsg.Item2}"; });
             }
             catch (Exception ex)
             {
@@ -1384,21 +1381,24 @@ namespace GNAy.Capital.Trade
         {
             DateTime start = _appCtrl.StartTrace();
 
-            try
+            this.InvokeSync(delegate
             {
-                _appCtrl.CAPQuote.GetProductInfo();
+                try
+                {
+                    _appCtrl.CAPQuote.GetProductInfo();
 
-                StatusBarItemCA4.Text = $"{_appCtrl.CAPQuote.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.CAPQuote.MarketCloseTime:MM/dd HH:mm}|({_appCtrl.Config.DateToChangeFutures.DayOfWeek}) {_appCtrl.Config.DateToChangeFutures:MM/dd}";
-                StatusBarItemAB2.Text = $"Sub={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}|QuoteFile={_appCtrl.CAPQuote.FileNameBase}";
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
+                    StatusBarItemCA4.Text = $"{_appCtrl.CAPQuote.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.CAPQuote.MarketCloseTime:MM/dd HH:mm}|({_appCtrl.Config.DateToChangeFutures.DayOfWeek}) {_appCtrl.Config.DateToChangeFutures:MM/dd}";
+                    StatusBarItemAB2.Text = $"Sub={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}|QuoteFile={_appCtrl.CAPQuote.FileNameBase}";
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
+                }
+            });
         }
 
         private void ButtonSubQuotes_Click(object sender, RoutedEventArgs e)
@@ -1409,12 +1409,15 @@ namespace GNAy.Capital.Trade
             {
                 _appCtrl.CAPQuote.SubscribeAsync();
 
-                ComboBoxTriggerProduct1.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
-                ComboBoxTriggerProduct1.Text = "2330";
-                ComboBoxTriggerProduct2.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
-                ComboBoxTriggerProduct2.Text = "2330";
-                ComboBoxOrderProduct.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
-                ComboBoxOrderProduct.Text = "2330";
+                this.InvokeAsync(delegate
+                {
+                    ComboBoxTriggerProduct1.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                    ComboBoxTriggerProduct1.Text = "2330";
+                    ComboBoxTriggerProduct2.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                    ComboBoxTriggerProduct2.Text = "2330";
+                    ComboBoxOrderProduct.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                    ComboBoxOrderProduct.Text = "2330";
+                });
             }
             catch (Exception ex)
             {
@@ -1515,18 +1518,21 @@ namespace GNAy.Capital.Trade
         {
             DateTime start = _appCtrl.StartTrace();
 
-            try
+            this.InvokeSync(delegate
             {
-                _appCtrl.CAPOrder.GetAccounts();
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
+                try
+                {
+                    _appCtrl.CAPOrder.GetAccounts();
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
+                }
+            });
         }
 
         private void ButtonUnlockOrder_Click(object sender, RoutedEventArgs e)

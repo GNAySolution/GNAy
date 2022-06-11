@@ -124,11 +124,6 @@ namespace GNAy.Capital.Trade.Controllers
 
                     _apiReplyCollection.Add(replay);
 
-                    //while (_apiReplyCollection.Count > _appCtrl.Settings.DataGridAppLogRowsMax * 2)
-                    //{
-                    //    _apiReplyCollection.RemoveAt(0);
-                    //}
-
                     if (!_appCtrl.MainForm.DataGridAPIReply.IsMouseOver)
                     {
                         _appCtrl.MainForm.DataGridAPIReply.ScrollToBorderEnd();

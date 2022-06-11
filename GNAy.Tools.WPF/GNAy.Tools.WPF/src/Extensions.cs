@@ -78,7 +78,7 @@ namespace GNAy.Tools.WPF
         {
             if (!obj.CheckAccess())
             {
-                obj.Dispatcher.BeginInvoke(new Action(() => act(obj)), priority);
+                obj.Dispatcher.InvokeAsync(delegate { act(obj); }, priority);
                 return;
             }
 
@@ -89,7 +89,7 @@ namespace GNAy.Tools.WPF
         {
             if (!obj.CheckAccess())
             {
-                obj.Dispatcher.BeginInvoke(new Action(() => act(obj, arg)), priority);
+                obj.Dispatcher.InvokeAsync(delegate { act(obj, arg); }, priority);
                 return;
             }
 
@@ -100,7 +100,7 @@ namespace GNAy.Tools.WPF
         {
             if (!obj.CheckAccess())
             {
-                obj.Dispatcher.BeginInvoke(new Action(() => act(obj, arg1, arg2)), priority);
+                obj.Dispatcher.InvokeAsync(delegate { act(obj, arg1, arg2); }, priority);
                 return;
             }
 
@@ -111,7 +111,7 @@ namespace GNAy.Tools.WPF
         {
             if (!obj.CheckAccess())
             {
-                obj.Dispatcher.BeginInvoke(new Action(() => act(obj, arg1, arg2, arg3)), priority);
+                obj.Dispatcher.InvokeAsync(delegate { act(obj, arg1, arg2, arg3); }, priority);
                 return;
             }
 
