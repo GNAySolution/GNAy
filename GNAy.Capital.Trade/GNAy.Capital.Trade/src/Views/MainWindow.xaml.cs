@@ -1002,18 +1002,29 @@ namespace GNAy.Capital.Trade
                 {
                     reConnect = 1 + StatusCode.BaseTraceValue;
                 }
-                else if (_appCtrl.CAPQuote != null && (_appCtrl.CAPQuote.Status == StatusCode.SK_WARNING_PRECHECK_RESULT_FAIL ||
+                else if (_appCtrl.CAPQuote != null)
+                {
+                    if (_appCtrl.CAPQuote.Status == StatusCode.SK_WARNING_PRECHECK_RESULT_FAIL ||
                     _appCtrl.CAPQuote.Status == StatusCode.SK_WARNING_PRECHECK_RESULT_EMPTY ||
                     _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_DISCONNECT ||
                     _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_FAIL_WITHOUTNETWORK ||
                     _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_CONNECTION_SOLCLIENTAPI_FAIL ||
-                    _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR))
-                {
-                    reConnect = _appCtrl.CAPQuote.Status + StatusCode.BaseErrorValue;
-                }
-                else if (_appCtrl.CAPQuote != null && _appCtrl.CAPQuote.Status > StatusCode.BaseTraceValue)
-                {
-                    reConnect = _appCtrl.CAPQuote.Status;
+                    _appCtrl.CAPQuote.Status == StatusCode.SK_SUBJECT_SOLACE_SESSION_EVENT_ERROR)
+                    {
+                        reConnect = _appCtrl.CAPQuote.Status + StatusCode.BaseErrorValue;
+                    }
+                    else if (_appCtrl.CAPQuote.Status > StatusCode.BaseTraceValue)
+                    {
+                        reConnect = _appCtrl.CAPQuote.Status;
+                    }
+                    else if (_appCtrl.CAPQuote.DataIndexErrorCount > 4)
+                    {
+                        _timer1.Stop();
+                        Thread.Sleep(1 * 1000);
+                        _appCtrl.Exit($"報價商品索引錯誤|_appCtrl.CAPQuote.DataIndexErrorCount({_appCtrl.CAPQuote.DataIndexErrorCount}) > 4", LogLevel.Error);
+
+                        return;
+                    }
                 }
 
                 if (reConnect == 0)
@@ -1387,7 +1398,14 @@ namespace GNAy.Capital.Trade
                 {
                     _appCtrl.CAPQuote.GetProductInfo();
 
-                    StatusBarItemCA4.Text = $"{_appCtrl.CAPQuote.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.CAPQuote.MarketCloseTime:MM/dd HH:mm}|({_appCtrl.Config.DateToChangeFutures.DayOfWeek}) {_appCtrl.Config.DateToChangeFutures:MM/dd}";
+                    string changeFutures = _appCtrl.Config.DateToChangeFutures.Date == DateTime.Today ? $"轉倉日" : $"{_appCtrl.Config.DateToChangeFutures.DayOfWeek}";
+
+                    if (DateTime.Today.AddDays(6) >= _appCtrl.Config.DateToChangeFutures.Date)
+                    {
+                        changeFutures = $"接近轉倉日";
+                    }
+
+                    StatusBarItemCA4.Text = $"{_appCtrl.CAPQuote.MarketStartTime:MM/dd HH:mm} ~ {_appCtrl.CAPQuote.MarketCloseTime:MM/dd HH:mm}|({changeFutures}) {_appCtrl.Config.DateToChangeFutures:MM/dd}";
                     StatusBarItemAB2.Text = $"Sub={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}|QuoteFile={_appCtrl.CAPQuote.FileNameBase}";
                 }
                 catch (Exception ex)

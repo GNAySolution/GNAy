@@ -50,6 +50,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         public string FileNameBase { get; private set; }
 
+        public int DataIndexErrorCount { get; private set; }
+
         private readonly Dictionary<int, SKSTOCKLONG> _dataRawMap;
 
         public QuoteData LastData { get; private set; }
@@ -76,6 +78,8 @@ namespace GNAy.Capital.Trade.Controllers
             Timer = string.Empty;
 
             FileNameBase = string.Empty;
+
+            DataIndexErrorCount = 0;
 
             _dataRawMap = new Dictionary<int, SKSTOCKLONG>();
 
