@@ -548,8 +548,8 @@
                 <TextBox x:Name="TextBoxCloseTriggerAfterStopWin" Text="停利後停止觸價" ToolTip="停利後停止觸價" HorizontalAlignment="Left" Margin="716,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxCloseStrategyAfterStopWin" Text="停利後停止策略" ToolTip="停利後停止策略" HorizontalAlignment="Left" Margin="716,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="收盤獲利或損失減倉" HorizontalAlignment="Left" Margin="841,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyWinClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <TextBox x:Name="TextBoxStrategyLossClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數" HorizontalAlignment="Left" Margin="841,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyWinClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數，?secs代表收盤前幾秒執行" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyLossClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數，?secs代表收盤前幾秒執行" HorizontalAlignment="Left" Margin="841,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="帳號判斷獲利或損失" HorizontalAlignment="Left" Margin="966,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxAccountsWinLossClose" Text="以帳號判斷獲利損失" ToolTip="以帳號整體判斷獲利或損失，收盤時對策略做減倉" HorizontalAlignment="Left" Margin="966,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">

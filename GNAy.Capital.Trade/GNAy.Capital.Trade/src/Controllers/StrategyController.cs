@@ -808,6 +808,29 @@ namespace GNAy.Capital.Trade.Controllers
                 throw new ArgumentException($"舊設定已啟動或取消，無法更新|{_old.StatusEnum} != StrategyStatus.Enum.Waiting|{_old.ToLog()}");
             }
 
+            string key1 = $"{data.FullAccount}_{data.Symbol}_{data.BSEnum}_{data.DayTradeEnum}_{data.OrderQty}_{data.SendRealOrder}";
+
+            for (int i = Count - 1; i >= 0; --i)
+            {
+                StrategyData target = this[i];
+
+                if (target == data)
+                {
+                    break;
+                }
+                else if (target.FullAccount != data.FullAccount)
+                {
+                    continue;
+                }
+
+                string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}_{target.OrderQty}_{target.SendRealOrder}";
+
+                if (key2 == key1)
+                {
+                    throw new NotSupportedException($"不支援重複相同委託量({target.OrderQty})的策略|{key2}|{target.ToLog()}");
+                }
+            }
+
             _waitToAdd.Enqueue(data);
         }
 

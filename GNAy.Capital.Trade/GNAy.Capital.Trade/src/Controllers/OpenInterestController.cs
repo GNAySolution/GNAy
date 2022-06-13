@@ -64,7 +64,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 SortedDictionary<string, (OpenInterestData, StrategyData)> map = new SortedDictionary<string, (OpenInterestData, StrategyData)>();
 
-                for (int i = _appCtrl.Strategy.Count - 1; i >= 0; --i)
+                for (int i = _appCtrl.Strategy.Count - 1; i >= 0; --i) //走訪策略，找出最匹配庫存的策略
                 {
                     try
                     {
@@ -105,7 +105,7 @@ namespace GNAy.Capital.Trade.Controllers
                             continue;
                         }
 
-                        //TODO: 有兩個相同委託量的策略
+                        throw new NotSupportedException($"不支援重複相同委託量({target.OrderQty})的策略|{key2}|{target.ToLog()}");
                     }
                     catch (Exception ex)
                     {
