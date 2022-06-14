@@ -20,8 +20,9 @@ namespace GNAy.Capital.Models
         public string Description { get; set; }
 
         public string ProcessPriority { get; set; }
-
         public int Big5EncodingCodePage { get; set; }
+
+        public string ScreenshotFolderPath { get; set; }
         public bool ShowDataGrid { get; set; }
         public int DataGridAppLogRowsMax { get; set; }
 
@@ -169,13 +170,14 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.602.1";
+            Version = "1.22.614.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
             ProcessPriority = "Normal"; //0x20; //ProcessPriorityClass.Normal
-
             Big5EncodingCodePage = 950; //"big5"
+
+            ScreenshotFolderPath = "Screenshot";
             ShowDataGrid = true;
             DataGridAppLogRowsMax = 500;
 

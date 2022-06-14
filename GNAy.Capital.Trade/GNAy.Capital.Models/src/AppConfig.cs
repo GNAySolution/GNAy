@@ -17,6 +17,8 @@ namespace GNAy.Capital.Models
 
         public readonly Encoding Big5Encoding;
 
+        public readonly DirectoryInfo ScreenshotFolder;
+
         public readonly SortedDictionary<DateTime, string> Holidays;
 
         public readonly bool AutoRun;
@@ -46,6 +48,10 @@ namespace GNAy.Capital.Models
 
             Big5Encoding = Encoding.GetEncoding(settings.Big5EncodingCodePage);
 
+            ScreenshotFolder = new DirectoryInfo(settings.ScreenshotFolderPath);
+            ScreenshotFolder.Create();
+            ScreenshotFolder.Refresh();
+
             Holidays = new SortedDictionary<DateTime, string>();
             DateTime today = DateTime.Today;
             string holidayPathThisYear = settings.HolidayFilePath.ToROCYear(today);
@@ -67,37 +73,21 @@ namespace GNAy.Capital.Models
                 QuoteSubscribed.Add(product.Trim());
             }
 
-            QuoteFolder = null;
-            if (!string.IsNullOrWhiteSpace(settings.QuoteFolderPath))
-            {
-                QuoteFolder = new DirectoryInfo(settings.QuoteFolderPath);
-                QuoteFolder.Create();
-                QuoteFolder.Refresh();
-            }
+            QuoteFolder = new DirectoryInfo(settings.QuoteFolderPath);
+            QuoteFolder.Create();
+            QuoteFolder.Refresh();
 
-            TriggerFolder = null;
-            if (!string.IsNullOrWhiteSpace(settings.TriggerFolderPath))
-            {
-                TriggerFolder = new DirectoryInfo(settings.TriggerFolderPath);
-                TriggerFolder.Create();
-                TriggerFolder.Refresh();
-            }
+            TriggerFolder = new DirectoryInfo(settings.TriggerFolderPath);
+            TriggerFolder.Create();
+            TriggerFolder.Refresh();
 
-            StrategyFolder = null;
-            if (!string.IsNullOrWhiteSpace(settings.StrategyFolderPath))
-            {
-                StrategyFolder = new DirectoryInfo(settings.StrategyFolderPath);
-                StrategyFolder.Create();
-                StrategyFolder.Refresh();
-            }
+            StrategyFolder = new DirectoryInfo(settings.StrategyFolderPath);
+            StrategyFolder.Create();
+            StrategyFolder.Refresh();
 
-            SentOrderFolder = null;
-            if (!string.IsNullOrWhiteSpace(settings.SentOrderFolderPath))
-            {
-                SentOrderFolder = new DirectoryInfo(settings.SentOrderFolderPath);
-                SentOrderFolder.Create();
-                SentOrderFolder.Refresh();
-            }
+            SentOrderFolder = new DirectoryInfo(settings.SentOrderFolderPath);
+            SentOrderFolder.Create();
+            SentOrderFolder.Refresh();
 
             if (settings.TimerIntervalUI1 <= 0)
             {

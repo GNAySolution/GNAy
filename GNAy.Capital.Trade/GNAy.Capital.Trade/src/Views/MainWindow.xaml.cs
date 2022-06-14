@@ -40,6 +40,8 @@ namespace GNAy.Capital.Trade
 
         private readonly Dictionary<TextBox, ComboBox> _editableCBMap;
 
+        private int orderDetailCount;
+
         private readonly DispatcherTimer _timer1;
         private readonly DispatcherTimer _timer2;
 
@@ -114,8 +116,7 @@ namespace GNAy.Capital.Trade
             TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
             StatusBarItemAB2.Text = $"Subscribed={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}";
 
-            ButtonSetOrderMaxQty.IsEnabled = false;
-            ButtonSetOrderMaxCount.IsEnabled = false;
+            orderDetailCount = 0;
 
             _timer1 = new DispatcherTimer(DispatcherPriority.ContextIdle)
             {
@@ -129,6 +130,9 @@ namespace GNAy.Capital.Trade
             _timer2.Tick += Timer2_Tick;
 
             _appCtrl.LogTrace(StartTime, Title, UniqueName);
+
+            ButtonSetOrderMaxQty.IsEnabled = false;
+            ButtonSetOrderMaxCount.IsEnabled = false;
         }
 
         private void Window_Activated(object sender, EventArgs e)
@@ -998,6 +1002,13 @@ namespace GNAy.Capital.Trade
                     }
                 }
 
+                if (_appCtrl.OrderDetail != null && _appCtrl.OrderDetail.Count > orderDetailCount)
+                {
+                    ButtonScreenshotWindow_Click(null, null);
+
+                    orderDetailCount = _appCtrl.OrderDetail.Count;
+                }
+
                 if (_appCtrl.Config.AutoRun && _appCtrl.CAPQuote == null)
                 {
                     reConnect = 1 + StatusCode.BaseTraceValue;
@@ -1040,15 +1051,12 @@ namespace GNAy.Capital.Trade
                     _appCtrl.CAPQuote?.Disconnect();
 
                     Thread.Sleep(2 * 1000);
-                    this.InvokeSync(delegate { ButtonLoginUser_Click(null, null); });
+                    ButtonLoginUser_Click(null, null);
 
                     Thread.Sleep(2 * 1000);
                     SpinWait.SpinUntil(() => _appCtrl.CAPCenter.LoginUserResult == 0 || (_appCtrl.CAPCenter.LoginUserResult >= 600 && _appCtrl.CAPCenter.LoginUserResult <= 699), 1 * 60 * 1000);
-                    this.InvokeSync(delegate
-                    {
-                        ButtonLoginQuote_Click(null, null);
-                        ButtonReadCertification_Click(null, null);
-                    });
+                    ButtonLoginQuote_Click(null, null);
+                    ButtonReadCertification_Click(null, null);
 
                     Thread.Sleep(4 * 1000);
                     SpinWait.SpinUntil(() =>
@@ -1097,7 +1105,7 @@ namespace GNAy.Capital.Trade
                     _appCtrl.Strategy.RecoverSetting();
 
                     Thread.Sleep(2 * 1000);
-                    this.InvokeSync(delegate
+                    this.InvokeAsync(delegate
                     {
                         CheckBoxShowDataGrid.IsChecked = _appCtrl.Settings.ShowDataGrid;
                         CheckBoxShowDataGrid_CheckedOrNot(null, null);
@@ -1274,62 +1282,68 @@ namespace GNAy.Capital.Trade
         {
             DateTime start = _appCtrl.StartTrace();
 
-            try
+            this.InvokeSync(delegate
             {
-                if (string.IsNullOrWhiteSpace(TextBoxUserID.Text) && string.IsNullOrWhiteSpace(DWPBox.Password))
+                try
                 {
-                    FileInfo dwpFile = new FileInfo($"{ProcessName}.dwp.config");
-
-                    if (dwpFile.Exists)
+                    if (string.IsNullOrWhiteSpace(TextBoxUserID.Text) && string.IsNullOrWhiteSpace(DWPBox.Password))
                     {
-                        foreach (string line in File.ReadAllLines(dwpFile.FullName, TextEncoding.UTF8WithoutBOM))
+                        FileInfo dwpFile = new FileInfo($"{ProcessName}.dwp.config");
+
+                        if (dwpFile.Exists)
                         {
-                            if (line.StartsWith("userid=", StringComparison.OrdinalIgnoreCase))
+                            foreach (string line in File.ReadAllLines(dwpFile.FullName, TextEncoding.UTF8WithoutBOM))
                             {
-                                TextBoxUserID.Text = line.Substring("userid=".Length).Trim().ToUpper();
-                            }
-                            else if (line.StartsWith("dwp=", StringComparison.OrdinalIgnoreCase))
-                            {
-                                DWPBox.Password = line.Substring("dwp=".Length).Trim();
+                                if (line.StartsWith("userid=", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    TextBoxUserID.Text = line.Substring("userid=".Length).Trim().ToUpper();
+                                }
+                                else if (line.StartsWith("dwp=", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    DWPBox.Password = line.Substring("dwp=".Length).Trim();
+                                }
                             }
                         }
                     }
+
+                    _appCtrl.InitialCapital();
+                    _appCtrl.CAPCenter.LoginUser(TextBoxUserID.Text, DWPBox.Password);
+
+                    string version = _appCtrl.CAPCenter.GetSKAPIVersion();
+
+                    _appCtrl.LogTrace(start, $"SKAPIVersionAndBit={version}", UniqueName);
+                    StatusBarItemBA2.Text = $"SKAPIVersionAndBit={version}";
                 }
-
-                _appCtrl.InitialCapital();
-                _appCtrl.CAPCenter.LoginUser(TextBoxUserID.Text, DWPBox.Password);
-
-                string version = _appCtrl.CAPCenter.GetSKAPIVersion();
-
-                _appCtrl.LogTrace(start, $"SKAPIVersionAndBit={version}", UniqueName);
-                StatusBarItemBA2.Text = $"SKAPIVersionAndBit={version}";
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
+                }
+            });
         }
 
         private void ButtonLoginQuote_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 
-            try
+            this.InvokeSync(delegate
             {
-                _appCtrl.CAPQuote.LoginAsync(DWPBox.Password);
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
+                try
+                {
+                    _appCtrl.CAPQuote.LoginAsync(DWPBox.Password);
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
+                }
+            });
         }
 
         private void ButtonIsConnected_Click(object sender, RoutedEventArgs e)
@@ -1518,18 +1532,21 @@ namespace GNAy.Capital.Trade
         {
             DateTime start = _appCtrl.StartTrace();
 
-            try
+            this.InvokeSync(delegate
             {
-                _appCtrl.CAPOrder.ReadCertification();
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
+                try
+                {
+                    _appCtrl.CAPOrder.ReadCertification();
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
+                }
+            });
         }
 
         private void ButtonGetOrderAccs_Click(object sender, RoutedEventArgs e)
@@ -1651,6 +1668,41 @@ namespace GNAy.Capital.Trade
             {
                 _appCtrl.EndTrace(start, UniqueName);
             }
+        }
+
+        private void ButtonScreenshotWindow_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            this.InvokeAsync(delegate
+            {
+                TabControlBB.SelectedIndex = 1;
+                TabControlCB.SelectedIndex = 1;
+
+                Task.Factory.StartNew(() =>
+                {
+                    Thread.Sleep(1 * 1000);
+
+                    this.InvokeAsync(delegate
+                    {
+                        try
+                        {
+                            StrategyData data = _appCtrl.OrderDetail.DataCollection.LastOrDefault();
+                            string fileName = data == null ? $"{DateTime.Now:yyMMdd_HHmmss}" : $"{data.UpdateTime:yyMMdd_HHmmss}";
+
+                            this.ScreenshotToFile<PngBitmapEncoder>(System.IO.Path.Combine(_appCtrl.Config.ScreenshotFolder.FullName, $"{fileName}.png"));
+                        }
+                        catch (Exception ex)
+                        {
+                            _appCtrl.LogException(start, ex, ex.StackTrace);
+                        }
+                        finally
+                        {
+                            _appCtrl.EndTrace(start, UniqueName);
+                        }
+                    });
+                });
+            });
         }
 
         private void ButtonCancelTrigger_Click(object sender, RoutedEventArgs e)
@@ -2176,24 +2228,6 @@ namespace GNAy.Capital.Trade
             try
             {
                 _appCtrl.CAPOrder.CancelBySeqNo((OrderAccData)ComboBoxOrderAccs.SelectedItem, ComboBoxOrderSeqNo.Text);
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
-        }
-
-        private void ButtonCancelOrderByBookNo_Click(object sender, RoutedEventArgs e)
-        {
-            DateTime start = _appCtrl.StartTrace();
-
-            try
-            {
-                //
             }
             catch (Exception ex)
             {

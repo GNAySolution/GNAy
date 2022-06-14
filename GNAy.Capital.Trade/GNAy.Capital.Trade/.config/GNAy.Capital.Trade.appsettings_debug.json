@@ -1,8 +1,9 @@
 {
-  "Version": "1.22.602.1",
+  "Version": "1.22.614.1",
   "Description": "測試用設定",
   "ProcessPriority": "Normal",
   "Big5EncodingCodePage": 950,
+  "ScreenshotFolderPath": "Screenshot",
   "ShowDataGrid": true,
   "DataGridAppLogRowsMax": 500,
   "TimerIntervalBackground": -1,

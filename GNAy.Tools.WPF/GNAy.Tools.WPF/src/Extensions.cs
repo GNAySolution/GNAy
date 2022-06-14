@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace GNAy.Tools.WPF
@@ -116,6 +118,37 @@ namespace GNAy.Tools.WPF
             }
 
             act(obj, arg1, arg2, arg3);
+        }
+
+        /// <summary>
+        /// https://stackoverflow.com/questions/5124825/generating-a-screenshot-of-a-wpf-window
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="fileName"></param>
+        public static void ScreenshotToFile<T>(this Visual obj, string fileName) where T : BitmapEncoder, new ()
+        {
+            DrawingVisual visual = new DrawingVisual();
+            Rect bounds = VisualTreeHelper.GetDescendantBounds(obj);
+
+            using (DrawingContext context = visual.RenderOpen())
+            {
+                context.DrawRectangle(new VisualBrush(obj), null, new Rect(new Point(), bounds.Size));
+            }
+
+            RenderTargetBitmap renderTarget = new RenderTargetBitmap((int)bounds.Width, (int)bounds.Height, 96, 96, PixelFormats.Pbgra32);
+            renderTarget.Render(visual);
+
+            T bitmapEncoder = new T();
+            bitmapEncoder.Frames.Add(BitmapFrame.Create(renderTarget));
+
+            FileInfo fInfo = new FileInfo(fileName);
+            fInfo.Directory.Create();
+
+            using (Stream stm = File.Create(fInfo.FullName))
+            {
+                bitmapEncoder.Save(stm);
+            }
         }
 
         /// <summary>
