@@ -170,7 +170,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.614.1";
+            Version = "1.22.617.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -181,8 +181,8 @@ namespace GNAy.Capital.Models
             ShowDataGrid = true;
             DataGridAppLogRowsMax = 500;
 
-            TimerIntervalBackground = -1;
-            TimerIntervalUI1 = 50;
+            TimerIntervalBackground = 50;
+            TimerIntervalUI1 = 300;
             TimerIntervalUI2 = 35 * 1000;
 
             HolidayFilePath = "holidaySchedule_{yyy}.csv";

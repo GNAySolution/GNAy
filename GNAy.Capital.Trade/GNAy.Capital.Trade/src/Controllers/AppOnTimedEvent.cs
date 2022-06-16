@@ -9,8 +9,6 @@ namespace GNAy.Capital.Trade.Controllers
 {
     public partial class AppController
     {
-        public DateTime SignalTimeBG { get; private set; }
-
         private int _openInterestInterval;
         private int _futuresRightsInterval;
 
@@ -94,22 +92,6 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 LogException(signalTime, ex, ex.StackTrace);
             }
-
-        }
-
-        /// <summary>
-        /// https://docs.microsoft.com/zh-tw/dotnet/api/system.timers.timer?view=net-6.0
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="e"></param>
-        private void OnTimedEvent(object source, ElapsedEventArgs e)
-        {
-            _timerBG.Stop();
-
-            SignalTimeBG = e.SignalTime;
-            OnTimedEvent(e.SignalTime);
-
-            _timerBG.Start();
         }
     }
 }

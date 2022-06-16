@@ -63,7 +63,7 @@ namespace GNAy.Capital.Trade
                         Environment.Exit(0);
                     }
                 }
-                catch
+                catch //排程高權限執行時，低權限手動執行去取高權限的MainModule會跳錯
                 { }
             }
 
@@ -875,7 +875,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                if (!_appCtrl.CallTimedEventInBG)
+                if (!_appCtrl.CallTimedEventFromBG)
                 {
                     _appCtrl.OnTimedEvent(start);
                 }
@@ -931,7 +931,7 @@ namespace GNAy.Capital.Trade
                     StatusBarItemCB3.Text = _appCtrl.CAPOrder.Notice;
                 }
 
-                StatusBarItemCA3.Text = $"BG={_appCtrl.SignalTimeBG:ss.fff}";
+                StatusBarItemCA3.Text = $"BG={_appCtrl.SignalTimeBG:ss.fff}|{_appCtrl.TimerBGStatus}";
 
                 if (TabControlAB.SelectedIndex == 0 && DataGridQuoteSubscribed.ItemsSource != null)
                 {

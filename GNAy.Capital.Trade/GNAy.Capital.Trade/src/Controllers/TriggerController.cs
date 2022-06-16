@@ -107,22 +107,26 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return (LogLevel.Trace, string.Empty);
                 }
-
-                decimal columnValue = data.GetColumnValue(data.Quote1);
-                decimal targetValue = data.GetTargetValue();
-                bool? matched = data.IsMatchedRule(columnValue, targetValue);
-
-                if (matched.HasValue && matched.Value)
+                else if (data.StatusEnum == TriggerStatus.Enum.Cancelled && data.StartTime.HasValue && data.StartTime.Value > DateTime.Now)
+                { }
+                else
                 {
-                    data.Comment = $"觸價條件({columnValue:0.00####} {data.Rule} {targetValue:0.00####})已滿足，重啟觸價失敗";
+                    decimal columnValue = data.GetColumnValue(data.Quote1);
+                    decimal targetValue = data.GetTargetValue();
+                    bool? matched = data.IsMatchedRule(columnValue, targetValue);
 
-                    return (LogLevel.Warn, $"觸價條件({columnValue:0.00####} {data.Rule} {targetValue:0.00####})已滿足，重啟觸價({primary})失敗");
-                }
-                else if (!matched.HasValue)
-                {
-                    data.Comment = $"重啟觸價失敗";
+                    if (matched.HasValue && matched.Value)
+                    {
+                        data.Comment = $"觸價條件({columnValue:0.00####} {data.Rule} {targetValue:0.00####})已滿足，重啟觸價失敗";
 
-                    return (LogLevel.Error, $"重啟觸價({primary})失敗");
+                        return (LogLevel.Warn, $"觸價條件({columnValue:0.00####} {data.Rule} {targetValue:0.00####})已滿足，重啟觸價({primary})失敗");
+                    }
+                    else if (!matched.HasValue)
+                    {
+                        data.Comment = $"重啟觸價失敗";
+
+                        return (LogLevel.Error, $"重啟觸價({primary})失敗");
+                    }
                 }
 
                 for (int i = Count - 1; i >= 0; --i)

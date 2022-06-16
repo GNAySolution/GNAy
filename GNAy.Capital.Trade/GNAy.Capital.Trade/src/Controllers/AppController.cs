@@ -25,6 +25,8 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         public readonly MainWindow MainForm;
 
+        public DateTime IsExiting { get; private set; }
+
         private readonly ObservableCollection<AppLogInDataGrid> _appLogCollection;
 
         public readonly AppConfig Config;
@@ -39,14 +41,18 @@ namespace GNAy.Capital.Trade.Controllers
         public StrategyController Strategy { get; private set; }
         public FuturesRightsController FuturesRights { get; private set; }
 
-        private readonly System.Timers.Timer _timerBG;
-        public bool CallTimedEventInBG => _timerBG != null;
+        private readonly Task _timerBG;
+        public bool CallTimedEventFromBG => _timerBG != null;
+        public TaskStatus TimerBGStatus => _timerBG == null ? TaskStatus.Canceled : _timerBG.Status;
+        public DateTime SignalTimeBG { get; private set; }
 
         public AppController(MainWindow mainForm, Process ps)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(AppController).Replace("Controller", "Ctrl");
             MainForm = mainForm;
+
+            IsExiting = DateTime.MinValue;
 
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
@@ -88,10 +94,26 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (Settings.TimerIntervalBackground > 0)
             {
-                _timerBG = new System.Timers.Timer(Settings.TimerIntervalBackground);
-                _timerBG.Elapsed += OnTimedEvent;
-                _timerBG.AutoReset = true;
-                _timerBG.Enabled = true;
+                _timerBG = Task.Factory.StartNew(() =>
+                {
+                    while (IsExiting == DateTime.MinValue)
+                    {
+                        Thread.Sleep(Settings.TimerIntervalBackground);
+
+                        if (IsExiting != DateTime.MinValue)
+                        {
+                            break;
+                        }
+                        else if (CAPCenter == null)
+                        {
+                            continue;
+                        }
+
+                        SignalTimeBG = DateTime.Now;
+
+                        OnTimedEvent(SignalTimeBG);
+                    }
+                });
             }
             else
             {
@@ -386,13 +408,10 @@ namespace GNAy.Capital.Trade.Controllers
             DateTime start = StartTrace(msg, UniqueName);
             int exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseErrorValue;
 
+            IsExiting = start;
+
             try
             {
-                if (_timerBG != null)
-                {
-                    _timerBG.Enabled = false;
-                }
-
                 if (level == null || level == LogLevel.Trace)
                 {
                     exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseTraceValue;
