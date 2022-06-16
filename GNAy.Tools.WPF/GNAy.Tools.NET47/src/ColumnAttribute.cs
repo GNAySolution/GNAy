@@ -20,6 +20,8 @@ namespace GNAy.Tools.NET47
         public int WPFVisibility { get; set; }
         public bool WPFCanUserReorder { get; set; }
         public bool WPFCanUserSort { get; set; }
+        public string WPFHorizontalAlignment { get; set; }
+        public string WPFForeground { get; set; }
 
         public ColumnAttribute(string csvName, string wpfName)
         {
@@ -34,6 +36,8 @@ namespace GNAy.Tools.NET47
             WPFVisibility = 0;
             WPFCanUserReorder = true;
             WPFCanUserSort = false;
+            WPFHorizontalAlignment = string.Empty; //"Left";
+            WPFForeground = string.Empty; //"MediumBlue";
         }
 
         public ColumnAttribute(string csvName) : this(csvName, csvName)

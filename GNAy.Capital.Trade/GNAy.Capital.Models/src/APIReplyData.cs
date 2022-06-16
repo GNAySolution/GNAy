@@ -29,7 +29,7 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _createdTime, value, nameof(CreatedTime), nameof(CreatedDate)); }
         }
 
-        [Column("執行緒", "緒", WPFDisplayIndex = 1)]
+        [Column("執行緒", "緒", WPFDisplayIndex = 1, WPFHorizontalAlignment = "Right")]
         public int ThreadID { get; set; }
 
         [Column("會員帳號", WPFDisplayIndex = 4)]
@@ -38,10 +38,10 @@ namespace GNAy.Capital.Models
         [Column("訊息", WPFDisplayIndex = 5)]
         public string Message { get; set; }
 
-        [Column("原始碼行號", "行", WPFDisplayIndex = 2)]
+        [Column("原始碼行號", "行", WPFDisplayIndex = 2, WPFHorizontalAlignment = "Right")]
         public int CallerLineNumber { get; set; }
 
-        [Column("呼叫端方法或屬性名稱", WPFDisplayIndex = 3)]
+        [Column("呼叫端方法或屬性名稱", WPFDisplayIndex = 3, WPFForeground = "MediumBlue")]
         public string CallerMemberName { get; set; }
 
         public APIReplyData([CallerMemberName] string memberName = "")

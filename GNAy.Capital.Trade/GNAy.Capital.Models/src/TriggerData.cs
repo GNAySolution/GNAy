@@ -92,11 +92,11 @@ namespace GNAy.Capital.Models
             get { return _statusEnum; }
             set { OnPropertiesChanged(ref _statusEnum, value, nameof(StatusEnum), nameof(StatusDes)); }
         }
-        [Column("狀態描述", "狀態", WPFDisplayIndex = 2)]
+        [Column("狀態描述", "狀態", WPFDisplayIndex = 2, WPFForeground = "MediumBlue")]
         public string StatusDes => TriggerStatus.Description[(int)StatusEnum];
 
         private string _primaryKey;
-        [Column("自定義唯一鍵", "唯一鍵", WPFDisplayIndex = 3)]
+        [Column("自定義唯一鍵", "唯一鍵", WPFDisplayIndex = 3, WPFHorizontalAlignment = "Center")]
         public string PrimaryKey
         {
             get { return _primaryKey; }
@@ -106,7 +106,7 @@ namespace GNAy.Capital.Models
         public QuoteData Quote1;
 
         private string _symbol1;
-        [Column("代碼1", WPFDisplayIndex = 4)]
+        [Column("代碼1", WPFDisplayIndex = 4, WPFForeground = "MediumBlue")]
         public string Symbol1
         {
             get { return _symbol1; }
@@ -122,7 +122,7 @@ namespace GNAy.Capital.Models
         public string ColumnProperty => Column.Property.Name;
 
         private decimal _columnValue;
-        [Column("欄位值", CSVStringFormat = "0.00####", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00####}")]
+        [Column("欄位值", CSVStringFormat = "0.00####", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00####}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public decimal ColumnValue
         {
             get { return _columnValue; }
@@ -130,7 +130,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _rule;
-        [Column("條件", WPFDisplayIndex = 8)]
+        [Column("條件", WPFDisplayIndex = 8, WPFHorizontalAlignment = "Center")]
         public string Rule
         {
             get { return _rule; }
@@ -138,7 +138,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _targetValue;
-        [Column("目標值", CSVStringFormat = "0.00####", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00####}")]
+        [Column("目標值", CSVStringFormat = "0.00####", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00####}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public decimal TargetValue
         {
             get { return _targetValue; }
@@ -147,7 +147,7 @@ namespace GNAy.Capital.Models
 
         public decimal Symbol2Offset;
         private string _symbol2Setting;
-        [Column("代碼2設定", WPFDisplayIndex = 10)]
+        [Column("代碼2設定", WPFDisplayIndex = 10, WPFHorizontalAlignment = "Right")]
         public string Symbol2Setting
         {
             get { return _symbol2Setting; }
@@ -161,7 +161,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _symbol2;
-        [Column("代碼2", WPFDisplayIndex = 11)]
+        [Column("代碼2", WPFDisplayIndex = 11, WPFForeground = "MediumBlue")]
         public string Symbol2
         {
             get { return _symbol2; }
@@ -187,7 +187,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyOpenOR;
-        [Column("滿足單一條件即執行策略新倉", "策略新倉OR", WPFDisplayIndex = 14)]
+        [Column("滿足單一條件即執行策略新倉", "策略新倉OR", WPFDisplayIndex = 14, WPFForeground = "MediumBlue")]
         public string StrategyOpenOR
         {
             get { return _strategyOpenOR; }
@@ -203,7 +203,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategyCloseOR;
-        [Column("滿足單一條件即執行策略平倉", "策略平倉OR", WPFDisplayIndex = 16)]
+        [Column("滿足單一條件即執行策略平倉", "策略平倉OR", WPFDisplayIndex = 16, WPFForeground = "MediumBlue")]
         public string StrategyCloseOR
         {
             get { return _strategyCloseOR; }
@@ -219,7 +219,7 @@ namespace GNAy.Capital.Models
         }
 
         private DateTime? _startTime;
-        [Column("監控開始", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 18, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("監控開始", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff", WPFDisplayIndex = 18, WPFStringFormat = "{0:MM/dd HH:mm:ss}", WPFForeground = "MediumBlue")]
         public DateTime? StartTime
         {
             get { return _startTime; }

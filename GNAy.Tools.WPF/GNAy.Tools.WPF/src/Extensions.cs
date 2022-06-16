@@ -207,9 +207,37 @@ namespace GNAy.Tools.WPF
                         //https://stackoverflow.com/questions/4577944/how-to-resize-wpf-datagrid-to-fit-its-content
                         column.Width = new DataGridLength(1.0, DataGridLengthUnitType.Auto);
 
-                        Style s = new Style(typeof(DataGridColumnHeader));
-                        s.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{column.DisplayIndex},{attr.CSVName},{bind.Path.Path},{bind.StringFormat}"));
-                        column.HeaderStyle = s;
+                        Style headerS = new Style(typeof(DataGridColumnHeader));
+                        headerS.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{column.DisplayIndex},{attr.CSVName},{bind.Path.Path},{bind.StringFormat}"));
+                        column.HeaderStyle = headerS;
+
+                        //https://stackoverflow.com/questions/53961533/datagrid-columns-element-style-in-codebehind-has-no-effect
+                        if (column is DataGridTextColumn col)
+                        {
+                            Style elementS = null;
+
+                            if (!string.IsNullOrWhiteSpace(attr.WPFHorizontalAlignment))
+                            {
+                                elementS = new Style();
+                                elementS.Setters.Add(new Setter(FrameworkElement.HorizontalAlignmentProperty, attr.WPFHorizontalAlignment.ConvertTo<HorizontalAlignment>()));
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(attr.WPFForeground))
+                            {
+                                if (elementS == null)
+                                {
+                                    elementS = new Style();
+                                }
+
+                                elementS.Setters.Add(new Setter(TextBlock.FontWeightProperty, FontWeights.DemiBold));
+                                elementS.Setters.Add(new Setter(TextBlock.ForegroundProperty, new BrushConverter().ConvertFromString(attr.WPFForeground)));
+                            }
+
+                            if (elementS != null)
+                            {
+                                col.ElementStyle = elementS;
+                            }
+                        }
                     }
                 }
             }

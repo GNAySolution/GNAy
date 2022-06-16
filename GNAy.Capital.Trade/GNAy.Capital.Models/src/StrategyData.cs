@@ -68,11 +68,11 @@ namespace GNAy.Capital.Models
             get { return _statusEnum; }
             set { OnPropertiesChanged(ref _statusEnum, value, nameof(StatusEnum), nameof(StatusDes), nameof(StopLossAfterStr), nameof(StopWinAfter), nameof(MoveStopWinAfter)); }
         }
-        [Column("狀態描述", "狀態", WPFDisplayIndex = 2)]
+        [Column("狀態描述", "狀態", WPFDisplayIndex = 2, WPFForeground = "MediumBlue")]
         public string StatusDes => StrategyStatus.Description[(int)StatusEnum];
 
         private string _primaryKey;
-        [Column("自定義唯一鍵", "唯一鍵", WPFDisplayIndex = 3)]
+        [Column("自定義唯一鍵", "唯一鍵", WPFDisplayIndex = 3, WPFHorizontalAlignment = "Center")]
         public string PrimaryKey
         {
             get { return _primaryKey; }
@@ -109,7 +109,7 @@ namespace GNAy.Capital.Models
         public QuoteData Quote;
 
         private string _symbol;
-        [Column("代碼", WPFDisplayIndex = 6)]
+        [Column("代碼", WPFDisplayIndex = 6, WPFForeground = "MediumBlue")]
         public string Symbol
         {
             get { return _symbol; }
@@ -149,7 +149,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _marketPrice;
-        [Column("委託送出前的市場成交價", "市場價格", CSVStringFormat = "0.00", WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}")]
+        [Column("委託送出前的市場成交價", "市場價格", CSVStringFormat = "0.00", WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public decimal MarketPrice
         {
             get { return _marketPrice; }
@@ -157,14 +157,14 @@ namespace GNAy.Capital.Models
         }
 
         private string _orderPriceBefore;
-        [Column("委託價設定", "委價設定", WPFDisplayIndex = 12)]
+        [Column("委託價設定", "委價設定", WPFDisplayIndex = 12, WPFHorizontalAlignment = "Right")]
         public string OrderPriceBefore
         {
             get { return _orderPriceBefore; }
             set { OnPropertyChanged(ref _orderPriceBefore, value); }
         }
         private decimal _orderPriceAfter;
-        [Column("委託價觸發", "委價觸發", CSVStringFormat = "0.00", WPFDisplayIndex = 13, WPFStringFormat = "{0:0.00}")]
+        [Column("委託價觸發", "委價觸發", CSVStringFormat = "0.00", WPFDisplayIndex = 13, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public decimal OrderPriceAfter
         {
             get { return _orderPriceAfter; }
@@ -172,7 +172,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _orderQty;
-        [Column("委託量", "委量", WPFDisplayIndex = 14)]
+        [Column("委託量", "委量", WPFDisplayIndex = 14, WPFHorizontalAlignment = "Right")]
         public int OrderQty
         {
             get { return _orderQty; }
@@ -182,7 +182,7 @@ namespace GNAy.Capital.Models
         public StrategyData OrderData;
 
         private string _stopLossBefore;
-        [Column("停損設定", WPFDisplayIndex = 15)]
+        [Column("停損設定", WPFDisplayIndex = 15, WPFHorizontalAlignment = "Right")]
         public string StopLossBefore
         {
             get { return _stopLossBefore; }
@@ -195,13 +195,13 @@ namespace GNAy.Capital.Models
             get { return _stopLossAfter; }
             set { OnPropertiesChanged(ref _stopLossAfter, value, nameof(StopLossAfter), nameof(StopLossAfterStr)); }
         }
-        [Column("停損觸發", CSVIndex = -1, WPFDisplayIndex = 16)]
+        [Column("停損觸發", CSVIndex = -1, WPFDisplayIndex = 16, WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public string StopLossAfterStr => StopLossAfter == 0 ? string.Empty : StopLossData == null ? $"*{StopLossAfter:0.00}" : $"{StopLossAfter:0.00}";
 
         public StrategyData StopLossData;
 
         private string _stopWinBefore;
-        [Column("停利設定", WPFDisplayIndex = 17)]
+        [Column("停利設定", WPFDisplayIndex = 17, WPFHorizontalAlignment = "Right")]
         public string StopWinBefore
         {
             get { return _stopWinBefore; }
@@ -221,13 +221,13 @@ namespace GNAy.Capital.Models
             get { return _stopWinQty; }
             set { OnPropertiesChanged(ref _stopWinQty, value, nameof(StopWinQty), nameof(StopWinAfter)); }
         }
-        [Column("停利觸發", CSVIndex = -1, WPFDisplayIndex = 18)]
+        [Column("停利觸發", CSVIndex = -1, WPFDisplayIndex = 18, WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public string StopWinAfter => StopWinPrice == 0 ? string.Empty : StopWinData == null ? $"*{StopWinPrice:0.00} ({StopWinQty})" : $"{StopWinPrice:0.00} ({StopWinQty})";
 
         public StrategyData StopWinData;
 
         private string _moveStopWinBefore;
-        [Column("移動停利設定", "移利設定", WPFDisplayIndex = 19)]
+        [Column("移動停利設定", "移利設定", WPFDisplayIndex = 19, WPFHorizontalAlignment = "Right")]
         public string MoveStopWinBefore
         {
             get { return _moveStopWinBefore; }
@@ -254,7 +254,7 @@ namespace GNAy.Capital.Models
             get { return _moveStopWinQty; }
             set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWinAfter)); }
         }
-        [Column("移動停利觸發", "移利觸發", CSVIndex = -1, WPFDisplayIndex = 20)]
+        [Column("移動停利觸發", "移利觸發", CSVIndex = -1, WPFDisplayIndex = 20, WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public string MoveStopWinAfter => MoveStopWinPrice == 0 || MoveStopWinOffset == 0 ? string.Empty : MoveStopWinData == null ? $"*{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})" : $"{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})";
 
         public StrategyData MoveStopWinData;
@@ -268,7 +268,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _dealPrice;
-        [Column("成交價格", "成價", CSVStringFormat = "0.00", WPFDisplayIndex = 22, WPFStringFormat = "{0:0.00}")]
+        [Column("成交價格", "成價", CSVStringFormat = "0.00", WPFDisplayIndex = 22, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal DealPrice
         {
             get { return _dealPrice; }
@@ -276,7 +276,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _dealQty;
-        [Column("成交量", "成量", WPFDisplayIndex = 23)]
+        [Column("成交量", "成量", WPFDisplayIndex = 23, WPFHorizontalAlignment = "Right")]
         public int DealQty
         {
             get { return _dealQty; }
@@ -292,7 +292,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _closedProfit;
-        [Column("已實現損益估計", "已損益", CSVStringFormat = "0.00", WPFDisplayIndex = 25, WPFStringFormat = "{0:0.00}")]
+        [Column("已實現損益估計", "已損益", CSVStringFormat = "0.00", WPFDisplayIndex = 25, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public decimal ClosedProfit
         {
             get { return _closedProfit; }
@@ -300,7 +300,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _unclosedQty;
-        [Column("未平倉量", "未平量", WPFDisplayIndex = 26)]
+        [Column("未平倉量", "未平量", WPFDisplayIndex = 26, WPFHorizontalAlignment = "Right")]
         public int UnclosedQty
         {
             get { return _unclosedQty; }
@@ -314,7 +314,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _unclosedProfit;
-        [Column("未實現損益估計", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 27, WPFStringFormat = "{0:0.00}")]
+        [Column("未實現損益估計", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 27, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public decimal UnclosedProfit
         {
             get { return _unclosedProfit; }
@@ -370,7 +370,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _winCloseQty;
-        [Column("收盤獲利減倉量", "收獲減倉", WPFDisplayIndex = 34)]
+        [Column("收盤獲利減倉量", "收獲減倉", WPFDisplayIndex = 34, WPFHorizontalAlignment = "Right")]
         public int WinCloseQty
         {
             get { return _winCloseQty; }
@@ -393,7 +393,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _lossCloseQty;
-        [Column("收盤損失減倉量", "收損減倉", WPFDisplayIndex = 36)]
+        [Column("收盤損失減倉量", "收損減倉", WPFDisplayIndex = 36, WPFHorizontalAlignment = "Right")]
         public int LossCloseQty
         {
             get { return _lossCloseQty; }

@@ -28,16 +28,16 @@ namespace GNAy.Capital.Models
         [Column("等級", WPFDisplayIndex = 1)]
         public override string Level { get; set; }
 
-        [Column("執行緒", "緒", WPFDisplayIndex = 2)]
+        [Column("執行緒", "緒", WPFDisplayIndex = 2, WPFHorizontalAlignment = "Right")]
         public int ThreadID { get; set; }
 
         [Column("訊息", WPFDisplayIndex = 5)]
         public override string Message { get; set; }
 
-        [Column("原始碼行號", "行", WPFDisplayIndex = 3)]
+        [Column("原始碼行號", "行", WPFDisplayIndex = 3, WPFHorizontalAlignment = "Right")]
         public int CallerLineNumber { get; set; }
 
-        [Column("呼叫端方法或屬性名稱", WPFDisplayIndex = 4)]
+        [Column("呼叫端方法或屬性名稱", WPFDisplayIndex = 4, WPFForeground = "MediumBlue")]
         public string CallerMemberName { get; set; }
 
         public AppLogInDataGrid([CallerMemberName] string memberName = "") : base(memberName)

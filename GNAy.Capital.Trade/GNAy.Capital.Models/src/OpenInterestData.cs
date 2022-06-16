@@ -54,7 +54,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _strategy;
-        [Column("策略唯一鍵", "策略", WPFDisplayIndex = 2)]
+        [Column("策略唯一鍵", "策略", WPFDisplayIndex = 2, WPFForeground = "MediumBlue")]
         public string Strategy
         {
             get { return _strategy; }
@@ -82,7 +82,7 @@ namespace GNAy.Capital.Models
         public QuoteData Quote;
 
         private string _symbol;
-        [Column("代碼", WPFDisplayIndex = 5)]
+        [Column("代碼", WPFDisplayIndex = 5, WPFForeground = "MediumBlue")]
         public string Symbol
         {
             get { return _symbol; }
@@ -116,7 +116,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _marketPrice;
-        [Column("平倉前的市場價格", "市場價格", CSVStringFormat = "0.00", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00}")]
+        [Column("平倉前的市場價格", "市場價格", CSVStringFormat = "0.00", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public decimal MarketPrice
         {
             get { return _marketPrice; }
@@ -124,7 +124,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _averagePrice;
-        [Column("成交均價", CSVStringFormat = "0.00", WPFDisplayIndex = 10, WPFStringFormat = "{0:0.00}")]
+        [Column("成交均價", CSVStringFormat = "0.00", WPFDisplayIndex = 10, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal AveragePrice
         {
             get { return _averagePrice; }
@@ -132,7 +132,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _quantity;
-        [Column("成交量", "成量", WPFDisplayIndex = 11)]
+        [Column("成交量", "成量", WPFDisplayIndex = 11, WPFHorizontalAlignment = "Right")]
         public int Quantity
         {
             get { return _quantity; }
@@ -140,7 +140,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _unclosedProfit;
-        [Column("未實現損益估計", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 12, WPFStringFormat = "{0:0.00}")]
+        [Column("未實現損益估計", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 12, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
         public decimal UnclosedProfit
         {
             get { return _unclosedProfit; }

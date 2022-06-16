@@ -1463,7 +1463,7 @@ namespace GNAy.Capital.Trade
 
                     if (today > dateToChangeFutures)
                     {
-                        dateToChangeFutures = dateToChangeFutures.AddMonths(1);
+                        dateToChangeFutures = _appCtrl.Config.GetDateToChangeFutures(today.AddMonths(+1));
                     }
 
                     string changeFutures = dateToChangeFutures == today ? $"轉倉日" : today.AddDays(6) >= dateToChangeFutures ? $"接近轉倉日" : $"{dateToChangeFutures.DayOfWeek}";

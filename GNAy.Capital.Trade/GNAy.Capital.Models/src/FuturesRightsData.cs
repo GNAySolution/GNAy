@@ -57,7 +57,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f0;
-        [Column("帳戶餘額", CSVIndex = -1, WPFDisplayIndex = 2, WPFStringFormat = "{0:0.00}")]
+        [Column("帳戶餘額", CSVIndex = -1, WPFDisplayIndex = 2, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F0
         {
             get { return _f0; }
@@ -66,7 +66,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f1;
-        [Column("浮動損益", CSVIndex = -1, WPFDisplayIndex = 3, WPFStringFormat = "{0:0.00}")]
+        [Column("浮動損益", CSVIndex = -1, WPFDisplayIndex = 3, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F1
         {
             get { return _f1; }
@@ -75,7 +75,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f2;
-        [Column("已實現費用", CSVIndex = -1, WPFDisplayIndex = 4, WPFStringFormat = "{0:0.00}")]
+        [Column("已實現費用", CSVIndex = -1, WPFDisplayIndex = 4, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F2
         {
             get { return _f2; }
@@ -84,7 +84,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f3;
-        [Column("交易稅", CSVIndex = -1, WPFDisplayIndex = 5, WPFStringFormat = "{0:0.00}")]
+        [Column("交易稅", CSVIndex = -1, WPFDisplayIndex = 5, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F3
         {
             get { return _f3; }
@@ -93,7 +93,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f4;
-        [Column("預扣權利金", CSVIndex = -1, WPFDisplayIndex = 6, WPFStringFormat = "{0:0.00}")]
+        [Column("預扣權利金", CSVIndex = -1, WPFDisplayIndex = 6, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F4
         {
             get { return _f4; }
@@ -102,7 +102,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f5;
-        [Column("權利金收付", CSVIndex = -1, WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00}")]
+        [Column("權利金收付", CSVIndex = -1, WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F5
         {
             get { return _f5; }
@@ -111,7 +111,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f6;
-        [Column("權益數", CSVIndex = -1, WPFDisplayIndex = 8, WPFStringFormat = "{0:0.00}")]
+        [Column("權益數", CSVIndex = -1, WPFDisplayIndex = 8, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F6
         {
             get { return _f6; }
@@ -120,7 +120,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f7;
-        [Column("超額保證金", CSVIndex = -1, WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00}")]
+        [Column("超額保證金", CSVIndex = -1, WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F7
         {
             get { return _f7; }
@@ -129,7 +129,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f8;
-        [Column("存提款", CSVIndex = -1, WPFDisplayIndex = 10, WPFStringFormat = "{0:0.00}")]
+        [Column("存提款", CSVIndex = -1, WPFDisplayIndex = 10, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F8
         {
             get { return _f8; }
@@ -138,7 +138,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f9;
-        [Column("買方市值", CSVIndex = -1, WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}")]
+        [Column("買方市值", CSVIndex = -1, WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F9
         {
             get { return _f9; }
@@ -147,7 +147,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f10;
-        [Column("賣方市值", CSVIndex = -1, WPFDisplayIndex = 12, WPFStringFormat = "{0:0.00}")]
+        [Column("賣方市值", CSVIndex = -1, WPFDisplayIndex = 12, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F10
         {
             get { return _f10; }
@@ -156,7 +156,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f11;
-        [Column("期貨平倉損益", CSVIndex = -1, WPFDisplayIndex = 13, WPFStringFormat = "{0:0.00}")]
+        [Column("期貨平倉損益", CSVIndex = -1, WPFDisplayIndex = 13, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F11
         {
             get { return _f11; }
@@ -165,7 +165,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f12;
-        [Column("盤中未實現", CSVIndex = -1, WPFDisplayIndex = 14, WPFStringFormat = "{0:0.00}")]
+        [Column("盤中未實現", CSVIndex = -1, WPFDisplayIndex = 14, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F12
         {
             get { return _f12; }
@@ -174,7 +174,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f13;
-        [Column("原始保證金1", CSVIndex = -1, WPFDisplayIndex = 15, WPFStringFormat = "{0:0.00}")]
+        [Column("原始保證金1", CSVIndex = -1, WPFDisplayIndex = 15, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F13
         {
             get { return _f13; }
@@ -183,7 +183,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f14;
-        [Column("維持保證金", CSVIndex = -1, WPFDisplayIndex = 16, WPFStringFormat = "{0:0.00}")]
+        [Column("維持保證金", CSVIndex = -1, WPFDisplayIndex = 16, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F14
         {
             get { return _f14; }
@@ -192,7 +192,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f15;
-        [Column("部位原始保證金", CSVIndex = -1, WPFDisplayIndex = 17, WPFStringFormat = "{0:0.00}")]
+        [Column("部位原始保證金", CSVIndex = -1, WPFDisplayIndex = 17, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F15
         {
             get { return _f15; }
@@ -201,7 +201,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f16;
-        [Column("部位維持保證金", CSVIndex = -1, WPFDisplayIndex = 18, WPFStringFormat = "{0:0.00}")]
+        [Column("部位維持保證金", CSVIndex = -1, WPFDisplayIndex = 18, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F16
         {
             get { return _f16; }
@@ -210,7 +210,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f17;
-        [Column("委託保證金", CSVIndex = -1, WPFDisplayIndex = 19, WPFStringFormat = "{0:0.00}")]
+        [Column("委託保證金", CSVIndex = -1, WPFDisplayIndex = 19, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F17
         {
             get { return _f17; }
@@ -219,7 +219,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f18;
-        [Column("超額最佳保證金", CSVIndex = -1, WPFDisplayIndex = 20, WPFStringFormat = "{0:0.00}")]
+        [Column("超額最佳保證金", CSVIndex = -1, WPFDisplayIndex = 20, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F18
         {
             get { return _f18; }
@@ -228,7 +228,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f19;
-        [Column("權利總值", CSVIndex = -1, WPFDisplayIndex = 21, WPFStringFormat = "{0:0.00}")]
+        [Column("權利總值", CSVIndex = -1, WPFDisplayIndex = 21, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F19
         {
             get { return _f19; }
@@ -237,7 +237,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f20;
-        [Column("預扣費用", CSVIndex = -1, WPFDisplayIndex = 22, WPFStringFormat = "{0:0.00}")]
+        [Column("預扣費用", CSVIndex = -1, WPFDisplayIndex = 22, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F20
         {
             get { return _f20; }
@@ -246,7 +246,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f21;
-        [Column("原始保證金2", CSVIndex = -1, WPFDisplayIndex = 23, WPFStringFormat = "{0:0.00}")]
+        [Column("原始保證金2", CSVIndex = -1, WPFDisplayIndex = 23, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F21
         {
             get { return _f21; }
@@ -255,7 +255,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f22;
-        [Column("昨日餘額", CSVIndex = -1, WPFDisplayIndex = 24, WPFStringFormat = "{0:0.00}")]
+        [Column("昨日餘額", CSVIndex = -1, WPFDisplayIndex = 24, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F22
         {
             get { return _f22; }
@@ -264,7 +264,7 @@ namespace GNAy.Capital.Models
 
         //Y ,
         private string _f23;
-        [Column("選擇權組合單加不加收保證金", CSVIndex = -1, WPFDisplayIndex = 25)]
+        [Column("選擇權組合單加不加收保證金", CSVIndex = -1, WPFDisplayIndex = 25, WPFHorizontalAlignment = "Center")]
         public string F23
         {
             get { return _f23; }
@@ -273,7 +273,7 @@ namespace GNAy.Capital.Models
 
         //000000000,
         private decimal _f24;
-        [Column("維持率", CSVIndex = -1, WPFDisplayIndex = 26, WPFStringFormat = "{0:0.00}")]
+        [Column("維持率", CSVIndex = -1, WPFDisplayIndex = 26, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F24
         {
             get { return _f24; }
@@ -282,7 +282,7 @@ namespace GNAy.Capital.Models
 
         //NTD,
         private string _currency;
-        [Column("幣別", CSVIndex = -1, WPFDisplayIndex = 27)]
+        [Column("幣別", CSVIndex = -1, WPFDisplayIndex = 27, WPFHorizontalAlignment = "Center")]
         public string Currency
         {
             get { return _currency; }
@@ -291,7 +291,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f26;
-        [Column("足額原始保證金", CSVIndex = -1, WPFDisplayIndex = 28, WPFStringFormat = "{0:0.00}")]
+        [Column("足額原始保證金", CSVIndex = -1, WPFDisplayIndex = 28, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F26
         {
             get { return _f26; }
@@ -300,7 +300,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f27;
-        [Column("足額維持保證金", CSVIndex = -1, WPFDisplayIndex = 29, WPFStringFormat = "{0:0.00}")]
+        [Column("足額維持保證金", CSVIndex = -1, WPFDisplayIndex = 29, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F27
         {
             get { return _f27; }
@@ -309,7 +309,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f28;
-        [Column("足額可用", CSVIndex = -1, WPFDisplayIndex = 30, WPFStringFormat = "{0:0.00}")]
+        [Column("足額可用", CSVIndex = -1, WPFDisplayIndex = 30, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F28
         {
             get { return _f28; }
@@ -318,7 +318,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f29;
-        [Column("抵繳金額", CSVIndex = -1, WPFDisplayIndex = 31, WPFStringFormat = "{0:0.00}")]
+        [Column("抵繳金額", CSVIndex = -1, WPFDisplayIndex = 31, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F29
         {
             get { return _f29; }
@@ -327,7 +327,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f30;
-        [Column("有價可用", CSVIndex = -1, WPFDisplayIndex = 32, WPFStringFormat = "{0:0.00}")]
+        [Column("有價可用", CSVIndex = -1, WPFDisplayIndex = 32, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F30
         {
             get { return _f30; }
@@ -336,7 +336,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f31;
-        [Column("可用餘額", CSVIndex = -1, WPFDisplayIndex = 33, WPFStringFormat = "{0:0.00}")]
+        [Column("可用餘額", CSVIndex = -1, WPFDisplayIndex = 33, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F31
         {
             get { return _f31; }
@@ -345,7 +345,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f32;
-        [Column("足額現金可用", CSVIndex = -1, WPFDisplayIndex = 34, WPFStringFormat = "{0:0.00}")]
+        [Column("足額現金可用", CSVIndex = -1, WPFDisplayIndex = 34, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F32
         {
             get { return _f32; }
@@ -354,7 +354,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f33;
-        [Column("有價價值", CSVIndex = -1, WPFDisplayIndex = 35, WPFStringFormat = "{0:0.00}")]
+        [Column("有價價值", CSVIndex = -1, WPFDisplayIndex = 35, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F33
         {
             get { return _f33; }
@@ -363,7 +363,7 @@ namespace GNAy.Capital.Models
 
         //100      ,
         private decimal _f34;
-        [Column("風險指標", CSVIndex = -1, WPFDisplayIndex = 36, WPFStringFormat = "{0:0.00}")]
+        [Column("風險指標", CSVIndex = -1, WPFDisplayIndex = 36, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F34
         {
             get { return _f34; }
@@ -372,7 +372,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f35;
-        [Column("選擇權到期差異", CSVIndex = -1, WPFDisplayIndex = 37, WPFStringFormat = "{0:0.00}")]
+        [Column("選擇權到期差異", CSVIndex = -1, WPFDisplayIndex = 37, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F35
         {
             get { return _f35; }
@@ -381,7 +381,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f36;
-        [Column("選擇權到期差損", CSVIndex = -1, WPFDisplayIndex = 38, WPFStringFormat = "{0:0.00}")]
+        [Column("選擇權到期差損", CSVIndex = -1, WPFDisplayIndex = 38, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F36
         {
             get { return _f36; }
@@ -390,7 +390,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000,
         private decimal _f37;
-        [Column("期貨到期損益", CSVIndex = -1, WPFDisplayIndex = 39, WPFStringFormat = "{0:0.00}")]
+        [Column("期貨到期損益", CSVIndex = -1, WPFDisplayIndex = 39, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F37
         {
             get { return _f37; }
@@ -399,7 +399,7 @@ namespace GNAy.Capital.Models
 
         //+0000000000000
         private decimal _f38;
-        [Column("加收保證金", CSVIndex = -1, WPFDisplayIndex = 40, WPFStringFormat = "{0:0.00}")]
+        [Column("加收保證金", CSVIndex = -1, WPFDisplayIndex = 40, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
         public decimal F38
         {
             get { return _f38; }
