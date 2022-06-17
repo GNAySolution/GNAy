@@ -3,7 +3,7 @@
 * 儲存庫裡的程式碼都是自己寫或參考網路上的，參考都有在註解內附上連結，表示感謝
 
 ## GNAy.Capital.Trade.csproj
-![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22050811.jpg)
+![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22061715.jpg)
 * https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Trade/GNAy.Capital.Trade.csproj
 * 程式交易使用群益API，交易輔助APP，策略交易框架與範例，提供多樣化的素材，方便user自行組合與測試交易策略
 * 基於群益API(SKCOM.dll)，需先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.38_x64
@@ -18,7 +18,7 @@
 * 使用群益API的前置條件，要先安裝憑證(CAP-*.pfx)，以及微軟Visual C++ 2010 Service Pack 1 MFC可轉散發套件安全性更新(vcredist_x64.exe)
 * https://docs.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
-###### https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22050811.jpg
+###### https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22061715.jpg
 * APP(開發中)操作介面示意圖
 - [x] 交易輔助APP，自定義台灣期貨、單隻腳選擇權，多樣化的觸價條件與停損停利策略
 - [x] 短期目標是幫助user快速做當沖或隔日沖
