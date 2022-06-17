@@ -74,6 +74,10 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
+                        else if (!string.IsNullOrWhiteSpace(_appCtrl.Settings.StrategyNotForOpenInterest) && _appCtrl.Settings.StrategyNotForOpenInterest.Split(',').FirstOrDefault(x => target.PrimaryKey.StartsWith(x)) != null)
+                        {
+                            continue;
+                        }
 
                         _strategyAccounts.Add(account);
 

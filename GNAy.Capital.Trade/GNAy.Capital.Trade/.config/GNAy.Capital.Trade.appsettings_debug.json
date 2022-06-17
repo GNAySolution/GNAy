@@ -1,5 +1,5 @@
 {
-  "Version": "1.22.617.1",
+  "Version": "1.22.617.3",
   "Description": "測試用設定",
   "ProcessPriority": "Normal",
   "Big5EncodingCodePage": 950,
@@ -74,9 +74,11 @@
   "TriggerFolderPath": "TriggerData",
   "TriggerFileLoadFormat": "T*{DayNight}.csv",
   "TriggerFileSaveFormat": "MMdd_HHmm",
+  "TriggerReadAndCancel": "ZT",
   "StrategyFolderPath": "StrategyData",
   "StrategyFileLoadFormat": "T*{Holiday}_{DayNight}.csv",
   "StrategyFileSaveFormat": "MMdd_HHmm",
+  "StrategyNotForOpenInterest": "ZS",
   "SentOrderFolderPath": "SentOrder",
   "SentOrderFileFormat": "yyMMdd_HHmmss_ffffff",
   "SendRealOrder": false,

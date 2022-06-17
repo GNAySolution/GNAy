@@ -139,6 +139,10 @@ namespace GNAy.Capital.Models
         public string TriggerFolderPath { get; set; }
         public string TriggerFileLoadFormat { get; set; }
         public string TriggerFileSaveFormat { get; set; }
+        /// <summary>
+        /// 頭關鍵字，讀檔後設定取消，只能從其他觸價或策略觸發
+        /// </summary>
+        public string TriggerReadAndCancel { get; set; }
 
         /// <summary>
         /// 策略資料夾
@@ -146,6 +150,10 @@ namespace GNAy.Capital.Models
         public string StrategyFolderPath { get; set; }
         public string StrategyFileLoadFormat { get; set; }
         public string StrategyFileSaveFormat { get; set; }
+        /// <summary>
+        /// 頭關鍵字，不會從未平倉啟動的策略
+        /// </summary>
+        public string StrategyNotForOpenInterest { get; set; }
 
         /// <summary>
         /// 送出的委託單，不論是否有收到委回成回
@@ -170,7 +178,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.617.1";
+            Version = "1.22.617.3";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -234,10 +242,12 @@ namespace GNAy.Capital.Models
             TriggerFolderPath = "TriggerData";
             TriggerFileLoadFormat = $"T*{Keyword_DayNight}.csv";
             TriggerFileSaveFormat = "MMdd_HHmm";
+            TriggerReadAndCancel = "ZT";
 
             StrategyFolderPath = "StrategyData";
             StrategyFileLoadFormat = $"T*{Keyword_Holiday}_{Keyword_DayNight}.csv";
             StrategyFileSaveFormat = "MMdd_HHmm";
+            StrategyNotForOpenInterest = "ZS";
 
             SentOrderFolderPath = "SentOrder";
             SentOrderFileFormat = "yyMMdd_HHmmss_ffffff";

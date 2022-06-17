@@ -96,23 +96,25 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _timerBG = Task.Factory.StartNew(() =>
                 {
-                    while (IsExiting == DateTime.MinValue)
+                    SpinWait.SpinUntil(() =>
                     {
                         Thread.Sleep(Settings.TimerIntervalBackground);
 
                         if (IsExiting != DateTime.MinValue)
                         {
-                            break;
+                            return LoopResult.Break;
                         }
                         else if (CAPCenter == null)
                         {
-                            continue;
+                            return LoopResult.Continue;
                         }
 
                         SignalTimeBG = DateTime.Now;
 
                         OnTimedEvent(SignalTimeBG);
-                    }
+
+                        return LoopResult.Continue;
+                    });
                 });
             }
             else

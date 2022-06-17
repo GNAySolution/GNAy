@@ -8,7 +8,7 @@ using System.Windows;
 // 變更這些屬性的值即可修改組件的相關
 // 資訊。
 [assembly: AssemblyTitle("GNAy.Capital.Trade")]
-[assembly: AssemblyDescription("策略交易群益API")]
+[assembly: AssemblyDescription("程式交易使用群益API")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("GNAy.Capital.Trade")]
@@ -51,5 +51,5 @@ using System.Windows;
 // 您可以指定所有的值，也可以使用 '*' 將組建和修訂編號
 // 設為預設，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.22.617.11")]
-[assembly: AssemblyFileVersion("1.22.617.11")]
+[assembly: AssemblyVersion("1.22.617.15")]
+[assembly: AssemblyFileVersion("1.22.617.15")]

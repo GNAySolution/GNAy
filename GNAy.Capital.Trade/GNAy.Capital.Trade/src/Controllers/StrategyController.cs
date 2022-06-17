@@ -822,6 +822,10 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     continue;
                 }
+                else if (!string.IsNullOrWhiteSpace(_appCtrl.Settings.StrategyNotForOpenInterest) && _appCtrl.Settings.StrategyNotForOpenInterest.Split(',').FirstOrDefault(x => data.PrimaryKey.StartsWith(x)) != null)
+                {
+                    continue;
+                }
 
                 string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}_{target.OrderQty}_{target.SendRealOrder}";
 

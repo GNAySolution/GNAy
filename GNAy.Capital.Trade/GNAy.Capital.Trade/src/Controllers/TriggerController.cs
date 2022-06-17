@@ -829,7 +829,12 @@ namespace GNAy.Capital.Trade.Controllers
                         data.StartTime = parseResult.Item2;
                         data.EndTime = parseResult.Item3;
 
-                        if ((!data.StartTime.HasValue || data.StartTime.Value <= DateTime.Now) && !_appCtrl.CAPQuote.LoadedOnTime)
+                        if (!string.IsNullOrWhiteSpace(_appCtrl.Settings.TriggerReadAndCancel) && _appCtrl.Settings.TriggerReadAndCancel.Split(',').FirstOrDefault(x => data.PrimaryKey.StartsWith(x)) != null)
+                        {
+                            data.StatusEnum = TriggerStatus.Enum.Cancelled;
+                            data.Comment = "關鍵字取消";
+                        }
+                        else if ((!data.StartTime.HasValue || data.StartTime.Value <= DateTime.Now) && !_appCtrl.CAPQuote.LoadedOnTime)
                         {
                             data.StatusEnum = TriggerStatus.Enum.Cancelled;
                             data.Comment = "沒有在開盤前執行登入動作，不執行此監控";
