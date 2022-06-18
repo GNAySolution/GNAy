@@ -1259,6 +1259,7 @@ namespace GNAy.Capital.Trade
                     DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnProperty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.TargetValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol2Setting)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol2)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
 
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
@@ -1268,8 +1269,11 @@ namespace GNAy.Capital.Trade
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderPriceBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderPriceAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopLossBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopLossAfterStr)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.MoveStopWinBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.MoveStopWinAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
                     DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.UnclosedQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
@@ -2212,7 +2216,7 @@ namespace GNAy.Capital.Trade
 
                 if (DataGridStrategyRule.SelectedCells.Count > 0 && DataGridStrategyRule.SelectedCells[0].Item is StrategyData data)
                 {
-                    if (data.PrimaryKey == TextBoxStrategyPrimaryKey.Text.Trim() && data.StatusEnum == StrategyStatus.Enum.Waiting)
+                    if (data.PrimaryKey == TextBoxStrategyPrimaryKey.Text.Trim() && data.UnclosedQty <= 0)
                     {
                         _appCtrl.Strategy.StartNow(data.PrimaryKey);
 
