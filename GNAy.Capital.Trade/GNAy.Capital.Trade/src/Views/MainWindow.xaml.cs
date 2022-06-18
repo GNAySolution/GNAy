@@ -2216,11 +2216,18 @@ namespace GNAy.Capital.Trade
 
                 if (DataGridStrategyRule.SelectedCells.Count > 0 && DataGridStrategyRule.SelectedCells[0].Item is StrategyData data)
                 {
-                    if (data.PrimaryKey == TextBoxStrategyPrimaryKey.Text.Trim() && data.UnclosedQty <= 0)
+                    if (data.PrimaryKey == TextBoxStrategyPrimaryKey.Text.Trim())
                     {
-                        _appCtrl.Strategy.StartNow(data.PrimaryKey);
+                        if (data.UnclosedQty <= 0)
+                        {
+                            _appCtrl.Strategy.StartNow(data.PrimaryKey);
 
-                        return;
+                            return;
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"策略({data.PrimaryKey})執行中，未平倉量({data.UnclosedQty}) > 0，無法手動啟動|{data.ToLog()}");
+                        }
                     }
                 }
 
