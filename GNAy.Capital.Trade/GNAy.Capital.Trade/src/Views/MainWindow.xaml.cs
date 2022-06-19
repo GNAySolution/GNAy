@@ -1186,121 +1186,93 @@ namespace GNAy.Capital.Trade
                 _appCtrl.Settings.LiveMode = CheckBoxLiveMode.IsChecked.Value;
                 _appCtrl.LogTrace(start, $"LiveMode={_appCtrl.Settings.LiveMode}", UniqueName);
 
-                if (_appCtrl.Settings.LiveMode)
+                Visibility vsb = _appCtrl.Settings.LiveMode ? Visibility.Collapsed : Visibility.Visible;
+
+                TextBoxUserID.Visibility = vsb;
+                ComboBoxOrderAccs.Visibility = vsb;
+
+                foreach (string propertyName in _appCtrl.Settings.LiveModeAPIReply)
                 {
-                    TextBoxUserID.Visibility = Visibility.Collapsed;
-                    ComboBoxOrderAccs.Visibility = Visibility.Collapsed;
-
-                    DataGridAPIReply.Columns[APIReplyData.PropertyMap[nameof(APIReplyData.UserID)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridAPIReply.Columns[APIReplyData.PropertyMap[nameof(APIReplyData.Message)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-
-                    //DataGridAppLog.Columns[AppLogInDataGrid.PropertyMap[nameof(AppLogInDataGrid.Message)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-
-                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol1)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnName)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnProperty)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.TargetValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol2Setting)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    //DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol2)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    //DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSEnum)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.MarketPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderPriceBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderPriceAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopLossBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopLossAfterStr)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.MoveStopWinBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.MoveStopWinAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.UnclosedQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.AccountsWinLossClose)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    //DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSEnum)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.MarketPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderPriceBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderPriceAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderReport)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealReport)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.UnclosedQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    //DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.BSEnum)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.MarketPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.AveragePrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Quantity)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-
-                    DataGridFuturesRights.Columns[FuturesRightsData.PropertyMap[nameof(FuturesRightsData.UserID)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
-                    DataGridFuturesRights.Columns[FuturesRightsData.PropertyMap[nameof(FuturesRightsData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Hidden;
+                    try
+                    {
+                        DataGridAPIReply.Columns[APIReplyData.PropertyMap[propertyName].Item1.WPFDisplayIndex].Visibility = vsb;
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
                 }
-                else
+
+                foreach (string propertyName in _appCtrl.Settings.LiveModeAppLog)
                 {
-                    TextBoxUserID.Visibility = Visibility.Visible;
-                    ComboBoxOrderAccs.Visibility = Visibility.Visible;
+                    try
+                    {
+                        DataGridAppLog.Columns[AppLogInDataGrid.PropertyMap[propertyName].Item1.WPFDisplayIndex].Visibility = vsb;
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
+                }
 
-                    DataGridAPIReply.Columns[APIReplyData.PropertyMap[nameof(APIReplyData.UserID)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridAPIReply.Columns[APIReplyData.PropertyMap[nameof(APIReplyData.Message)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                foreach (string propertyName in _appCtrl.Settings.LiveModeTriggerRule)
+                {
+                    try
+                    {
+                        DataGridTriggerRule.Columns[TriggerData.PropertyMap[propertyName].Item1.WPFDisplayIndex].Visibility = vsb;
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
+                }
 
-                    //DataGridAppLog.Columns[AppLogInDataGrid.PropertyMap[nameof(AppLogInDataGrid.Message)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                foreach (string propertyName in _appCtrl.Settings.LiveModeStrategyRule)
+                {
+                    try
+                    {
+                        DataGridStrategyRule.Columns[StrategyData.PropertyMap[propertyName].Item1.WPFDisplayIndex].Visibility = vsb;
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
+                }
 
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol1)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnName)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnProperty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.ColumnValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.TargetValue)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol2Setting)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridTriggerRule.Columns[TriggerData.PropertyMap[nameof(TriggerData.Symbol2)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                foreach (string propertyName in _appCtrl.Settings.LiveModeOrderDetail)
+                {
+                    try
+                    {
+                        DataGridOrderDetail.Columns[StrategyData.PropertyMap[propertyName].Item1.WPFDisplayIndex].Visibility = vsb;
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
+                }
 
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSEnum)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.MarketPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderPriceBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderPriceAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopLossBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopLossAfterStr)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.MoveStopWinBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.MoveStopWinAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.UnclosedQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.AccountsWinLossClose)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                foreach (string propertyName in _appCtrl.Settings.LiveModeOpenInterest)
+                {
+                    try
+                    {
+                        DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[propertyName].Item1.WPFDisplayIndex].Visibility = vsb;
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
+                }
 
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.FullAccount)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BSEnum)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.MarketPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderPriceBefore)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderPriceAfter)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.OrderReport)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealReport)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.UnclosedQty)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Symbol)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.BSEnum)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.MarketPrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.AveragePrice)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridOpenInterest.Columns[OpenInterestData.PropertyMap[nameof(OpenInterestData.Quantity)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-
-                    DataGridFuturesRights.Columns[FuturesRightsData.PropertyMap[nameof(FuturesRightsData.UserID)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
-                    DataGridFuturesRights.Columns[FuturesRightsData.PropertyMap[nameof(FuturesRightsData.Account)].Item1.WPFDisplayIndex].Visibility = Visibility.Visible;
+                foreach (string propertyName in _appCtrl.Settings.LiveModeFuturesRights)
+                {
+                    try
+                    {
+                        DataGridFuturesRights.Columns[FuturesRightsData.PropertyMap[propertyName].Item1.WPFDisplayIndex].Visibility = vsb;
+                    }
+                    catch (Exception ex)
+                    {
+                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                    }
                 }
             }
             catch (Exception ex)

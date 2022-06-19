@@ -53,6 +53,18 @@ namespace GNAy.Capital.Models
         public bool AutoRunInHoliday { get; set; }
 
         /// <summary>
+        /// 直播模式，隱藏隱私資料，只呈現損益，方便使用者實況(或錄影)播放自己的交易過程
+        /// </summary>
+        public bool LiveMode { get; set; }
+        public List<string> LiveModeAPIReply { get; set; }
+        public List<string> LiveModeAppLog { get; set; }
+        public List<string> LiveModeTriggerRule { get; set; }
+        public List<string> LiveModeStrategyRule { get; set; }
+        public List<string> LiveModeOrderDetail { get; set; }
+        public List<string> LiveModeOpenInterest { get; set; }
+        public List<string> LiveModeFuturesRights { get; set; }
+
+        /// <summary>
         /// 在台指期日盤夜盤開盤前啟動程式
         /// </summary>
         public List<DateTime> MarketStart { get; set; }
@@ -165,12 +177,6 @@ namespace GNAy.Capital.Models
         /// false=測試或跑回測，不實際下單
         /// </summary>
         public bool SendRealOrder { get; set; }
-
-        /// <summary>
-        /// 直播模式，隱藏隱私資料，只呈現損益，方便使用者實況(或錄影)播放自己的交易過程
-        /// </summary>
-        public bool LiveMode { get; set; }
-
         /// <summary>
         /// 程式啟動後，利用庫存判斷要啟動的策略
         /// </summary>
@@ -178,7 +184,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.617.3";
+            Version = "1.22.619.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -201,6 +207,22 @@ namespace GNAy.Capital.Models
 
             AutoRunInTradeDay = true;
             AutoRunInHoliday = false;
+
+            LiveMode = false;
+            LiveModeAPIReply = new List<string>();
+            //LiveModeAPIReply = new List<string>() { nameof(APIReplyData.UserID), nameof(APIReplyData.Message) }; //
+            LiveModeAppLog = new List<string>();
+            //LiveModeAppLog = new List<string>() { }; //
+            LiveModeTriggerRule = new List<string>();
+            //LiveModeTriggerRule = new List<string>() { nameof(TriggerData.ColumnName), nameof(TriggerData.ColumnProperty), nameof(TriggerData.ColumnValue), nameof(TriggerData.TargetValue), nameof(TriggerData.Symbol2Setting) }; //
+            LiveModeStrategyRule = new List<string>();
+            //LiveModeStrategyRule = new List<string>() { nameof(StrategyData.FullAccount), nameof(StrategyData.BSEnum), nameof(StrategyData.MarketPrice), nameof(StrategyData.OrderPriceBefore), nameof(StrategyData.OrderPriceAfter), nameof(StrategyData.OrderQty), nameof(StrategyData.StopLossBefore), nameof(StrategyData.StopLossAfterStr), nameof(StrategyData.StopWinBefore), nameof(StrategyData.StopWinAfter), nameof(StrategyData.MoveStopWinBefore), nameof(StrategyData.MoveStopWinAfter), nameof(StrategyData.DealPrice), nameof(StrategyData.UnclosedQty), nameof(StrategyData.AccountsWinLossClose) }; //
+            LiveModeOrderDetail = new List<string>();
+            //LiveModeOrderDetail = new List<string>() { nameof(StrategyData.FullAccount), nameof(StrategyData.BSEnum), nameof(StrategyData.MarketPrice), nameof(StrategyData.OrderPriceBefore), nameof(StrategyData.OrderPriceAfter), nameof(StrategyData.OrderQty), nameof(StrategyData.OrderReport), nameof(StrategyData.DealPrice), nameof(StrategyData.DealQty), nameof(StrategyData.DealReport), nameof(StrategyData.UnclosedQty) }; //
+            LiveModeOpenInterest = new List<string>();
+            //LiveModeOpenInterest = new List<string>() { nameof(OpenInterestData.Account), nameof(OpenInterestData.BSEnum), nameof(OpenInterestData.MarketPrice), nameof(OpenInterestData.AveragePrice), nameof(OpenInterestData.Quantity) }; //
+            LiveModeFuturesRights = new List<string>();
+            //LiveModeFuturesRights = new List<string>() { nameof(FuturesRightsData.UserID), nameof(FuturesRightsData.Account) }; //
 
             MarketStart = new List<DateTime>();
             //MarketStart = new List<DateTime>() //
@@ -253,8 +275,6 @@ namespace GNAy.Capital.Models
             SentOrderFileFormat = "yyMMdd_HHmmss_ffffff";
 
             SendRealOrder = false;
-            LiveMode = false;
-
             StartFromOpenInterest = false;
         }
     }

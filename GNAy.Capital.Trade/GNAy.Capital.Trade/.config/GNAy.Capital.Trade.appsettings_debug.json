@@ -1,5 +1,5 @@
 {
-  "Version": "1.22.617.3",
+  "Version": "1.22.619.1",
   "Description": "測試用設定",
   "ProcessPriority": "Normal",
   "Big5EncodingCodePage": 950,
@@ -21,6 +21,60 @@
   ],
   "AutoRunInTradeDay": true,
   "AutoRunInHoliday": false,
+  "LiveMode": false,
+  "LiveModeAPIReply": [
+    "UserID",
+    "Message"
+  ],
+  "LiveModeAppLog": [],
+  "LiveModeTriggerRule": [
+    "ColumnName",
+    "ColumnProperty",
+    "ColumnValue",
+    "TargetValue",
+    "Symbol2Setting"
+  ],
+  "LiveModeStrategyRule": [
+    "FullAccount",
+    "BSEnum",
+    "MarketPrice",
+    "OrderPriceBefore",
+    "OrderPriceAfter",
+    "OrderQty",
+    "StopLossBefore",
+    "StopLossAfterStr",
+    "StopWinBefore",
+    "StopWinAfter",
+    "MoveStopWinBefore",
+    "MoveStopWinAfter",
+    "DealPrice",
+    "UnclosedQty",
+    "AccountsWinLossClose"
+  ],
+  "LiveModeOrderDetail": [
+    "FullAccount",
+    "BSEnum",
+    "MarketPrice",
+    "OrderPriceBefore",
+    "OrderPriceAfter",
+    "OrderQty",
+    "OrderReport",
+    "DealPrice",
+    "DealQty",
+    "DealReport",
+    "UnclosedQty"
+  ],
+  "LiveModeOpenInterest": [
+    "Account",
+    "BSEnum",
+    "MarketPrice",
+    "AveragePrice",
+    "Quantity"
+  ],
+  "LiveModeFuturesRights": [
+    "UserID",
+    "Account"
+  ],
   "MarketStart": [
     "15:00:00",
     "08:45:00"
@@ -82,6 +136,5 @@
   "SentOrderFolderPath": "SentOrder",
   "SentOrderFileFormat": "yyMMdd_HHmmss_ffffff",
   "SendRealOrder": false,
-  "LiveMode": false,
   "StartFromOpenInterest": true
 }
