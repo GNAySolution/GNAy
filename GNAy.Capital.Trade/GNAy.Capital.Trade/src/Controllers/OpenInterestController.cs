@@ -179,8 +179,8 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (target.UnclosedQty > data.Quantity)
                 {
-                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{target.UnclosedQty} > 庫存{data.Quantity}|{target.ToLog()}", UniqueName);
-                    target.UnclosedQty = data.Quantity;
+                    _appCtrl.LogWarn(start, $"計算錯誤(可能是委託和查詢時間太接近)，策略未平倉量{target.UnclosedQty} > 庫存{data.Quantity}|{target.ToLog()}", UniqueName);
+                    //target.UnclosedQty = data.Quantity;
                 }
                 else if (target.UnclosedQty == data.Quantity && target.DealPrice != data.AveragePrice)
                 {

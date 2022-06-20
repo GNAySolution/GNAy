@@ -154,7 +154,35 @@ namespace GNAy.Capital.Trade.Controllers
                 data.Updater = memberName;
                 data.UpdateTime = DateTime.Now;
 
-                //TODO: strategyAND的其他觸價條件，已滿足的改為已執行
+                //strategyAND的其他觸價條件，已滿足的改為已執行
+                foreach (string strategy in data.StrategyOpenAND.SplitWithoutWhiteSpace(','))
+                {
+                    string pk = $",{strategy},";
+
+                    foreach (TriggerData other in _dataMap.Values)
+                    {
+                        if (other == data)
+                        {
+                            continue;
+                        }
+                        else if (!string.Format(",{0},", other.StrategyOpenAND).Contains(pk))
+                        {
+                            continue;
+                        }
+
+                        decimal columnValue = other.GetColumnValue(other.Quote1);
+                        decimal targetValue = other.GetTargetValue();
+                        bool? matched = other.IsMatchedRule(columnValue, targetValue);
+
+                        if (matched.HasValue && matched.Value)
+                        {
+                            other.StatusEnum = TriggerStatus.Enum.Executed;
+                            other.Comment = $"重啟|{data.ToLog()}";
+                            other.Updater = memberName;
+                            other.UpdateTime = DateTime.Now;
+                        }
+                    }
+                }
             }
 
             return (LogLevel.Trace, string.Empty);
@@ -186,9 +214,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             HashSet<string> strategyAND = new HashSet<string>();
 
-            foreach (string primary in data.StrategyOpenAND.SplitWithoutWhiteSpace(','))
+            foreach (string strategy in data.StrategyOpenAND.SplitWithoutWhiteSpace(','))
             {
-                string pk = $",{primary},";
+                string pk = $",{strategy},";
                 bool openStrategy = true;
 
                 foreach (TriggerData other in _dataMap.Values)
@@ -213,9 +241,9 @@ namespace GNAy.Capital.Trade.Controllers
                     continue;
                 }
 
-                strategyAND.Add(primary);
+                strategyAND.Add(strategy);
 
-                OpenStrategy(data, primary, start);
+                OpenStrategy(data, strategy, start);
             }
 
             return strategyAND;
