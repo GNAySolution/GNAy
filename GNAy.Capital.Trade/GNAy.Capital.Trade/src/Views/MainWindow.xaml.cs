@@ -1490,13 +1490,13 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonRecoverQuotes_Click(object sender, RoutedEventArgs e)
+        private void ButtonRequestTicks_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                _appCtrl.CAPQuote.RecoverDataAsync(TextBoxRecoverQuotes.Text);
+                _appCtrl.CAPQuote.RequestTicksAsync(TextBoxRequestTicks.Text);
             }
             catch (Exception ex)
             {

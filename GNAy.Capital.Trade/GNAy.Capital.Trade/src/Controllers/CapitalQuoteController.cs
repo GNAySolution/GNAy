@@ -629,7 +629,7 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
-        public void RecoverDataAsync(string products)
+        public void RequestTicksAsync(string products)
         {
             Task.Factory.StartNew(() =>
             {

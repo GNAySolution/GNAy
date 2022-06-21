@@ -38,8 +38,8 @@
                             <Button x:Name="ButtonDisconnect" Content="Disconnect" HorizontalAlignment="Left" Margin="144,78,0,0" VerticalAlignment="Top" Click="ButtonDisconnect_Click"/>
                             <Button x:Name="ButtonGetProductInfo" Content="商品基本資料" HorizontalAlignment="Left" Margin="54,102,0,0" VerticalAlignment="Top" Click="ButtonGetProductInfo_Click"/>
                             <Button x:Name="ButtonSubQuotes" Content="訂閱即時報價" HorizontalAlignment="Left" Margin="135,102,0,0" VerticalAlignment="Top" Click="ButtonSubQuotes_Click"/>
-                            <TextBox x:Name="TextBoxRecoverQuotes" Text="回補報價商品代碼" ToolTip="回補報價商品儲存到檔案" HorizontalAlignment="Left" Margin="10,127,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                            <Button x:Name="ButtonRecoverQuotes" Content="回補報價商品" ToolTip="回補報價商品儲存到檔案" HorizontalAlignment="Left" Margin="135,126,0,0" VerticalAlignment="Top" Click="ButtonRecoverQuotes_Click"/>
+                            <TextBox x:Name="TextBoxRequestTicks" Text="查詢今日報價代碼" ToolTip="查詢今日報價資料並儲存到檔案" HorizontalAlignment="Left" Margin="10,127,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                            <Button x:Name="ButtonRequestTicks" Content="查詢今日報價" ToolTip="查詢今日報價資料並儲存到檔案" HorizontalAlignment="Left" Margin="135,126,0,0" VerticalAlignment="Top" Click="ButtonRequestTicks_Click"/>
                             <Button x:Name="ButtonRequestKLine" Content="查詢KLine" HorizontalAlignment="Left" Margin="152,150,0,0" VerticalAlignment="Top" Click="ButtonRequestKLine_Click"/>
                             <TextBox x:Name="TextBoxQuoteFolderTest" Text="報價資料夾測試用" ToolTip="測試儲存報價到此資料夾" HorizontalAlignment="Left" Margin="10,175,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                             <Button x:Name="ButtonSaveQuotesTest" Content="儲存報價資料" HorizontalAlignment="Left" Margin="135,174,0,0" VerticalAlignment="Top" Click="ButtonSaveQuotesTest_Click"/>
