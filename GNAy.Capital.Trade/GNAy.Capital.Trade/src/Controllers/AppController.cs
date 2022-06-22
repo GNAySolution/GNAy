@@ -412,7 +412,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             IsExiting = start;
 
-            MainForm.ButtonScreenshotWindow_Click(null, null);
+            MainForm.ButtonScreenshotWindow_Click($"{start:yyMMdd_HHmmss}", null);
 
             Task.Factory.StartNew(() =>
             {

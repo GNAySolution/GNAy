@@ -1708,8 +1708,11 @@ namespace GNAy.Capital.Trade
 
             this.InvokeAsync(delegate
             {
-                TabControlBB.SelectedIndex = 1;
-                TabControlCB.SelectedIndex = 1;
+                if (!string.IsNullOrWhiteSpace(fileNameWithoutExt))
+                {
+                    TabControlBB.SelectedIndex = 1;
+                    TabControlCB.SelectedIndex = 1;
+                }
 
                 Task.Factory.StartNew(() =>
                 {
@@ -1721,7 +1724,7 @@ namespace GNAy.Capital.Trade
                         {
                             if (string.IsNullOrWhiteSpace(fileNameWithoutExt))
                             {
-                                fileNameWithoutExt = $"{DateTime.Now:yyMMdd_HHmmss}";
+                                fileNameWithoutExt = $"{start:yyMMdd_HHmmss}";
                             }
 
                             this.ScreenshotToFile<PngBitmapEncoder>(System.IO.Path.Combine(_appCtrl.Config.ScreenshotFolder.FullName, $"{fileNameWithoutExt}.png"));
