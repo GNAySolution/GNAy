@@ -167,15 +167,16 @@ namespace GNAy.Capital.Trade
 
             MessageBoxResult result = MessageBox.Show(messageBoxText, caption, MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
 
+            e.Cancel = true;
+
             if (result != MessageBoxResult.OK)
             {
-                e.Cancel = true;
                 return;
             }
 
             _timer1.Stop();
             _timer2.Stop();
-            _appCtrl.Exit();
+            _appCtrl.ExitAsync();
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -393,7 +394,7 @@ namespace GNAy.Capital.Trade
 
                     MessageBox.Show(messageBoxText, caption, MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK);
 
-                    _appCtrl.Exit(caption, LogLevel.Warn);
+                    _appCtrl.ExitAsync(caption, LogLevel.Warn);
 
                     return;
                 }
@@ -996,7 +997,7 @@ namespace GNAy.Capital.Trade
                     {
                         _timer1.Stop();
                         Thread.Sleep(1 * 1000);
-                        _appCtrl.Exit($"Time to exit.");
+                        _appCtrl.ExitAsync($"Time to exit.");
 
                         return;
                     }
@@ -1004,7 +1005,7 @@ namespace GNAy.Capital.Trade
 
                 if (_appCtrl.OrderDetail != null && _appCtrl.OrderDetail.Count > orderDetailCount)
                 {
-                    ButtonScreenshotWindow_Click(null, null);
+                    ButtonScreenshotWindow_Click($"{_appCtrl.OrderDetail.DataCollection[_appCtrl.OrderDetail.Count - 1].UpdateTime:yyMMdd_HHmmss}", null);
 
                     orderDetailCount = _appCtrl.OrderDetail.Count;
                 }
@@ -1032,7 +1033,7 @@ namespace GNAy.Capital.Trade
                     {
                         _timer1.Stop();
                         Thread.Sleep(1 * 1000);
-                        _appCtrl.Exit($"報價商品索引錯誤|_appCtrl.CAPQuote.DataIndexErrorCount({_appCtrl.CAPQuote.DataIndexErrorCount}) > 4", LogLevel.Error);
+                        _appCtrl.ExitAsync($"報價商品索引錯誤|_appCtrl.CAPQuote.DataIndexErrorCount({_appCtrl.CAPQuote.DataIndexErrorCount}) > 4", LogLevel.Error);
 
                         return;
                     }
@@ -1081,7 +1082,7 @@ namespace GNAy.Capital.Trade
 
                         _timer1.Stop();
                         Thread.Sleep(1 * 1000);
-                        _appCtrl.Exit($"{_appCtrl.CAPQuote.Status}|{_appCtrl.CAPQuote.StatusStr}");
+                        _appCtrl.ExitAsync($"{_appCtrl.CAPQuote.Status}|{_appCtrl.CAPQuote.StatusStr}");
 
                         return;
                     }
@@ -1699,9 +1700,11 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonScreenshotWindow_Click(object sender, RoutedEventArgs e)
+        public void ButtonScreenshotWindow_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
+
+            string fileNameWithoutExt = sender as string;
 
             this.InvokeAsync(delegate
             {
@@ -1716,10 +1719,12 @@ namespace GNAy.Capital.Trade
                     {
                         try
                         {
-                            StrategyData data = _appCtrl.OrderDetail.DataCollection.LastOrDefault();
-                            string fileName = data == null ? $"{DateTime.Now:yyMMdd_HHmmss}" : $"{data.UpdateTime:yyMMdd_HHmmss}";
+                            if (string.IsNullOrWhiteSpace(fileNameWithoutExt))
+                            {
+                                fileNameWithoutExt = $"{DateTime.Now:yyMMdd_HHmmss}";
+                            }
 
-                            this.ScreenshotToFile<PngBitmapEncoder>(System.IO.Path.Combine(_appCtrl.Config.ScreenshotFolder.FullName, $"{fileName}.png"));
+                            this.ScreenshotToFile<PngBitmapEncoder>(System.IO.Path.Combine(_appCtrl.Config.ScreenshotFolder.FullName, $"{fileNameWithoutExt}.png"));
                         }
                         catch (Exception ex)
                         {

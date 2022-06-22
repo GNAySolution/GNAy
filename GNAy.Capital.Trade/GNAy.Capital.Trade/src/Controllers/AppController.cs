@@ -405,56 +405,61 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void Exit(string msg = "", LogLevel level = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void ExitAsync(string msg = "", LogLevel level = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
         {
             DateTime start = StartTrace(msg, UniqueName);
             int exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseErrorValue;
 
             IsExiting = start;
 
-            try
+            MainForm.ButtonScreenshotWindow_Click(null, null);
+
+            Task.Factory.StartNew(() =>
             {
-                if (level == null || level == LogLevel.Trace)
+                try
                 {
-                    exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseTraceValue;
-                }
-                else if (level == LogLevel.Debug)
-                {
-                    exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseDebugValue;
-                }
-                else if (level == LogLevel.Info)
-                {
-                    exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseInfoValue;
-                }
-                else if (level == LogLevel.Warn)
-                {
-                    exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseWarnValue;
-                }
-
-                Log(level, string.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"exitCode={exitCode}|{msg}", UniqueName, null, lineNumber, memberName);
-
-                if (CAPQuote != null)
-                {
-                    if (!string.IsNullOrWhiteSpace(Settings.QuoteFileClosePrefix))
+                    if (level == null || level == LogLevel.Trace)
                     {
-                        CAPQuote.SaveData(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
+                        exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseTraceValue;
+                    }
+                    else if (level == LogLevel.Debug)
+                    {
+                        exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseDebugValue;
+                    }
+                    else if (level == LogLevel.Info)
+                    {
+                        exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseInfoValue;
+                    }
+                    else if (level == LogLevel.Warn)
+                    {
+                        exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseWarnValue;
                     }
 
-                    CAPQuote.Disconnect();
+                    Log(level, string.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"exitCode={exitCode}|{msg}", UniqueName, null, lineNumber, memberName);
+
+                    if (CAPQuote != null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(Settings.QuoteFileClosePrefix))
+                        {
+                            CAPQuote.SaveData(Config.QuoteFolder, false, Settings.QuoteFileClosePrefix);
+                        }
+
+                        CAPQuote.Disconnect();
+                    }
+
+                    EndTrace(start, UniqueName);
+
+                    Thread.Sleep(3 * 1000);
+                    Environment.Exit(exitCode);
                 }
+                catch (Exception ex)
+                {
+                    LogException(start, ex, ex.StackTrace);
 
-                EndTrace(start, UniqueName);
-
-                Thread.Sleep(3 * 1000);
-                Environment.Exit(exitCode);
-            }
-            catch (Exception ex)
-            {
-                LogException(start, ex, ex.StackTrace);
-
-                Thread.Sleep(3 * 1000);
-                Environment.Exit(exitCode);
-            }
+                    Thread.Sleep(3 * 1000);
+                    Environment.Exit(exitCode);
+                }
+            });
         }
 
         public void SelfTest()
@@ -574,7 +579,7 @@ namespace GNAy.Capital.Trade.Controllers
                 if (Config.AutoRun)
                 {
                     Thread.Sleep(1 * 1000);
-                    Exit(ex.Message, LogLevel.Error);
+                    ExitAsync(ex.Message, LogLevel.Error);
                 }
             }
             finally

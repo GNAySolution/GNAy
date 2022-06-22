@@ -185,7 +185,7 @@ namespace GNAy.Capital.Trade.Controllers
                     if (_appCtrl.Config.AutoRun)
                     {
                         Thread.Sleep(1 * 1000);
-                        _appCtrl.Exit(apiMsg.Item2, apiMsg.Item1);
+                        _appCtrl.ExitAsync(apiMsg.Item2, apiMsg.Item1);
                     }
 
                     return LoginUserResult;
@@ -208,7 +208,7 @@ namespace GNAy.Capital.Trade.Controllers
                 if (_appCtrl.Config.AutoRun)
                 {
                     Thread.Sleep(1 * 1000);
-                    _appCtrl.Exit(ex.Message, LogLevel.Error);
+                    _appCtrl.ExitAsync(ex.Message, LogLevel.Error);
                 }
             }
             finally

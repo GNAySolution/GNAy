@@ -105,7 +105,7 @@ namespace GNAy.Capital.Trade.Controllers
             //{
             //    m_pSKCenter = null;
             //    m_SKQuoteLib = null;
-            //    _appCtrl.Exit(apiMsg.Item2, apiMsg.Item1);
+            //    _appCtrl.ExitAsync(apiMsg.Item2, apiMsg.Item1);
             //}
         }
 

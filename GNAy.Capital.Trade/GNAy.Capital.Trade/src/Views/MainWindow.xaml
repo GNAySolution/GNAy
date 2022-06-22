@@ -54,7 +54,7 @@
                             <Button x:Name="ButtonGetFuturesRights" Content="查期權權益數" HorizontalAlignment="Left" Margin="297,126,0,0" VerticalAlignment="Top" Click="ButtonGetFuturesRights_Click"/>
                             <Button x:Name="ButtonSetOrderMaxQty" Content="限制委託量" HorizontalAlignment="Left" Margin="228,150,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxQty_Click"/>
                             <Button x:Name="ButtonSetOrderMaxCount" Content="限制委託筆數" HorizontalAlignment="Left" Margin="297,150,0,0" VerticalAlignment="Top" Click="ButtonSetOrderMaxCount_Click"/>
-                            <Button x:Name="ButtonScreenshotWindow" Content="ScreenshotWindow" HorizontalAlignment="Left" Margin="216,174,0,0" VerticalAlignment="Top" Click="ButtonScreenshotWindow_Click"/>
+                            <Button x:Name="ButtonScreenshotWindow" Content="視窗截圖存檔" HorizontalAlignment="Left" Margin="216,174,0,0" VerticalAlignment="Top" Click="ButtonScreenshotWindow_Click"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="行事曆">
