@@ -328,6 +328,8 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
+                _appCtrl.LogTrace(start, $"qty={qty}|{data.ToLog()}", UniqueName);
+
                 if (data.StatusEnum == StrategyStatus.Enum.Cancelled)
                 {
                     _appCtrl.LogTrace(start, $"已經取消|{data.ToLog()}", UniqueName);
@@ -351,7 +353,11 @@ namespace GNAy.Capital.Trade.Controllers
                 data.Updater = memberName;
                 data.UpdateTime = DateTime.Now;
 
-                _appCtrl.CAPOrder.Send(marketClosingOrder);
+                //負值減倉正值留倉
+                if (data.MarketClosingData == marketClosingOrder)
+                {
+                    _appCtrl.CAPOrder.Send(marketClosingOrder);
+                }
 
                 return true;
             }

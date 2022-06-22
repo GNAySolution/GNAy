@@ -854,15 +854,19 @@ namespace GNAy.Capital.Models
                 UpdateTime = DateTime.Now,
             };
 
-            //負值減倉正值留倉
+            //負值減倉
             order.OrderQty = (qty < 0) ? qty * -1 : UnclosedQty - qty;
 
-            if (order.OrderQty <= 0 || order.OrderQty > UnclosedQty)
+            if (order.OrderQty <= 0)
+            {
+                //正值留倉
+                order.OrderQty = 0;
+            }
+            else if (order.OrderQty > UnclosedQty)
             {
                 order.OrderQty = UnclosedQty;
+                MarketClosingData = order;
             }
-
-            MarketClosingData = order;
 
             return order;
         }
