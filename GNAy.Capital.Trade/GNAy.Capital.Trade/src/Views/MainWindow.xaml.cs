@@ -2003,7 +2003,7 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                _appCtrl.Strategy.Close(TextBoxStrategyPrimaryKey.Text);
+                _appCtrl.Strategy.Close(TextBoxStrategyPrimaryKey.Text, int.Parse(TextBoxOrderQty.Text));
             }
             catch (Exception ex)
             {

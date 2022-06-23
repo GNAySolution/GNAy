@@ -122,6 +122,8 @@ namespace GNAy.Capital.Trade.Controllers
                     try
                     {
                         _appCtrl.Strategy.StartNow(value.Item2, value.Item1);
+
+                        //TODO: 庫存啟動策略，取消觸價啟動
                     }
                     catch (Exception ex)
                     {

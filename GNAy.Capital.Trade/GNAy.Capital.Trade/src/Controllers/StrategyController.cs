@@ -374,7 +374,7 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        public bool Close(string primaryKey, int qty = 0, string comment = "手動停止")
+        public bool Close(string primaryKey, int qty, string comment = "手動停止")
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}|qty={qty}", UniqueName);
 

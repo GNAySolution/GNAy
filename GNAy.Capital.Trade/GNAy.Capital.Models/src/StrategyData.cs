@@ -867,6 +867,10 @@ namespace GNAy.Capital.Models
                 order.OrderQty = UnclosedQty;
                 MarketClosingData = order;
             }
+            else
+            {
+                MarketClosingData = order;
+            }
 
             return order;
         }
