@@ -545,7 +545,7 @@ namespace GNAy.Capital.Models
             MoveStopWinPrice = 0;
             MoveStopWinOffset = 0;
             MoveStopWinData = null;
-            ClosedProfit = 0;
+            //ClosedProfit = 0; //已實現損益會持續累加
             UnclosedQty = 0;
             MarketClosingData = null;
             Comment = string.Empty;

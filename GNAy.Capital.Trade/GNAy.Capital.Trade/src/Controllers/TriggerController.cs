@@ -34,6 +34,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private readonly ObservableCollection<TradeColumnTrigger> _triggerColumnCollection;
 
+        public string RecoverFile { get; private set; }
+
         public TriggerController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
@@ -51,6 +53,8 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _triggerColumnCollection.Add(column);
             }
+
+            RecoverFile = string.Empty;
         }
 
         private TriggerController() : this(null)
@@ -824,6 +828,8 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return;
                 }
+
+                RecoverFile = file.Name;
 
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;

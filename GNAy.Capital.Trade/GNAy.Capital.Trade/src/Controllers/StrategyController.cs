@@ -32,6 +32,7 @@ namespace GNAy.Capital.Trade.Controllers
         public StrategyData this[int index] => _dataCollection[index];
         public IReadOnlyList<StrategyData> DataCollection => _dataCollection;
 
+        public string RecoverFile { get; private set; }
         public string Notice { get; private set; }
 
         public StrategyController(AppController appCtrl)
@@ -46,6 +47,7 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.MainForm.DataGridStrategyRule.SetHeadersByBindings(StrategyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _dataCollection = _appCtrl.MainForm.DataGridStrategyRule.SetAndGetItemsSource<StrategyData>();
 
+            RecoverFile = string.Empty;
             Notice = string.Empty;
         }
 
@@ -980,6 +982,8 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
+                RecoverFile = file.Name;
+
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;
 
@@ -994,6 +998,7 @@ namespace GNAy.Capital.Trade.Controllers
                             continue;
                         }
 
+                        data.ClosedProfit = 0;
                         data.UnclosedQty = 0;
                         data.Reset(memberName);
 

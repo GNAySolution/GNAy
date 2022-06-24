@@ -942,10 +942,12 @@ namespace GNAy.Capital.Trade
                 if (TabControlBB.SelectedIndex == 0 && DataGridTriggerRule.ItemsSource != null)
                 {
                     StatusBarItemBB1.Text = $"({DataGridTriggerRule.Columns.Count},{DataGridTriggerRule.Items.Count})";
+                    StatusBarItemBB2.Text = _appCtrl.Trigger.RecoverFile;
                 }
                 else if (TabControlBB.SelectedIndex == 1 && DataGridStrategyRule.ItemsSource != null)
                 {
                     StatusBarItemBB1.Text = $"({DataGridStrategyRule.Columns.Count},{DataGridStrategyRule.Items.Count})";
+                    StatusBarItemBB2.Text = _appCtrl.Strategy.RecoverFile;
                 }
 
                 if (_appCtrl.Strategy != null)
