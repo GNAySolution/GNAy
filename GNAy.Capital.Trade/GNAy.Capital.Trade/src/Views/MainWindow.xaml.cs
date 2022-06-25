@@ -1713,7 +1713,7 @@ namespace GNAy.Capital.Trade
                 if (!string.IsNullOrWhiteSpace(fileNameWithoutExt))
                 {
                     TabControlBB.SelectedIndex = 1;
-                    TabControlCB.SelectedIndex = 1;
+                    TabControlCB.SelectedIndex = _appCtrl.Settings.SendRealOrder ? 1 : 0;
                 }
 
                 Task.Factory.StartNew(() =>

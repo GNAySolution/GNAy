@@ -53,13 +53,6 @@ namespace GNAy.Capital.Trade.Controllers
         private OpenInterestController() : this(null)
         { }
 
-        //private void CancelTrigger(StrategyData strategy)
-        //{
-        //    //
-
-        //    //TODO: 庫存啟動策略，取消觸價啟動
-        //}
-
         private void StartStrategy(string account, DateTime start)
         {
             try
@@ -129,8 +122,6 @@ namespace GNAy.Capital.Trade.Controllers
                     try
                     {
                         _appCtrl.Strategy.StartNow(value.Item2, value.Item1);
-
-                        //CancelTrigger(value.Item2);
                     }
                     catch (Exception ex)
                     {
@@ -315,7 +306,7 @@ namespace GNAy.Capital.Trade.Controllers
                         _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                     }
 
-                    //雲端手動啟動策略，本地端監控也要同步啟動
+                    //TODO: 雲端手動啟動策略，本地端監控也要同步啟動
 
                     StartStrategy(QuerySent.Item3, start);
 

@@ -66,7 +66,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, string.Format("{0}.csv", start.ToString(_appCtrl.Settings.TriggerFileSaveFormat)));
+                string path = Path.Combine(_appCtrl.Config.TriggerFolder.FullName, $"{start.ToString(_appCtrl.Settings.TriggerFileSaveFormat)}.csv");
                 _appCtrl.LogTrace(start, path, UniqueName);
 
                 using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
@@ -169,8 +169,17 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
-                        else if (!string.Format(",{0},", other.StrategyOpenAND).Contains(pk))
+                        else if (!$",{other.StrategyOpenAND},".Contains(pk))
                         {
+                            continue;
+                        }
+                        else if (other.StatusEnum == TriggerStatus.Enum.Cancelled && other.StartTime.HasValue && other.StartTime.Value > DateTime.Now)
+                        {
+                            other.StatusEnum = TriggerStatus.Enum.Monitoring;
+                            other.Comment = $"重啟|{data.ToLog()}";
+                            other.Updater = memberName;
+                            other.UpdateTime = DateTime.Now;
+
                             continue;
                         }
 
@@ -229,7 +238,7 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         continue;
                     }
-                    else if (!string.Format(",{0},", other.StrategyOpenAND).Contains(pk))
+                    else if (!$",{other.StrategyOpenAND},".Contains(pk))
                     {
                         continue;
                     }
@@ -275,6 +284,7 @@ namespace GNAy.Capital.Trade.Controllers
                     data.Comment = executed.ToLog();
                     data.Updater = memberName;
                     data.UpdateTime = DateTime.Now;
+
                     _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                 }
             }
@@ -307,6 +317,7 @@ namespace GNAy.Capital.Trade.Controllers
                 data.Comment = comment;
                 data.Updater = memberName;
                 data.UpdateTime = DateTime.Now;
+
                 _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
 
                 return true;
@@ -354,6 +365,33 @@ namespace GNAy.Capital.Trade.Controllers
             }
 
             return false;
+        }
+
+        public void CancelAfterOrderSent(StrategyData strategy, DateTime start)
+        {
+            string pk = $",{strategy.PrimaryKey},";
+
+            for (int i = Count - 1; i >= 0; --i)
+            {
+                try
+                {
+                    TriggerData data = this[i];
+
+                    if ($",{data.StrategyOpenOR},".Contains(pk) || $",{data.StrategyOpenAND},".Contains(pk))
+                    {
+                        CancelAfterExecuted(data, start);
+
+                        if (data.StatusEnum != TriggerStatus.Enum.Cancelled && data.StatusEnum != TriggerStatus.Enum.Executed)
+                        {
+                            Cancel(data, strategy.ToLog(), start);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+            }
         }
 
         private bool UpdateStatus(TriggerData data, QuoteData quote, DateTime start)
@@ -423,13 +461,13 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.LogTrace(start, $"{data.ToLog()}|{data.ColumnValue} {data.Rule} {data.TargetValue}", UniqueName);
 
                     saveData = true;
-                    HashSet<string> strategyAND = OpenStrategy(data, start);
+                    OpenStrategy(data, start);
                     //TODO: CloseStrategy(data, start);
 
-                    if (string.IsNullOrWhiteSpace(data.StrategyOpenAND) || strategyAND.Count > 0)
-                    {
-                        CancelAfterExecuted(data, start);
-                    }
+                    //if (string.IsNullOrWhiteSpace(data.StrategyOpenAND) || strategyAND.Count > 0)
+                    //{
+                    //    CancelAfterExecuted(data, start);
+                    //}
 
                     StartAfterExecuted(data);
                 }
@@ -829,7 +867,7 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
-                RecoverFile = file.Name;
+                RecoverFile = Path.Combine(file.Directory.Name, file.Name);
 
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;

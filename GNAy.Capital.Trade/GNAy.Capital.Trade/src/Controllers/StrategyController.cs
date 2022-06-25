@@ -60,7 +60,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                string path = Path.Combine(dir.FullName, string.Format("{0}.csv", start.ToString(fileFormat)));
+                string path = Path.Combine(dir.FullName, $"{start.ToString(fileFormat)}.csv");
                 _appCtrl.LogTrace(start, path, UniqueName);
 
                 using (StreamWriter sw = new StreamWriter(path, false, TextEncoding.UTF8WithoutBOM))
@@ -886,6 +886,39 @@ namespace GNAy.Capital.Trade.Controllers
             data.Reset();
         }
 
+        private void CancelTriggersAfterOrderSent(StrategyData data, DateTime start)
+        {
+            for (int i = Count - 1; i >= 0; --i)
+            {
+                try
+                {
+                    StrategyData target = this[i];
+                    string pk = $",{target.PrimaryKey},";
+
+                    if (target.FullAccount == data.FullAccount && target.Symbol == data.Symbol && target.BSEnum == data.BSEnum && target.OrderQty == data.OrderQty)
+                    {
+                        _appCtrl.Trigger.CancelAfterOrderSent(target, start);
+
+                        foreach (StrategyData father in _dataMap.Values)
+                        {
+                            if (father == target)
+                            {
+                                continue;
+                            }
+                            else if ($",{father.OpenStrategyAfterStopLoss},".Contains(pk) || $",{father.OpenStrategyAfterStopWin},".Contains(pk))
+                            {
+                                _appCtrl.Trigger.CancelAfterOrderSent(father, start);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
+            }
+        }
+
         public void StartNow(string primaryKey)
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
@@ -899,6 +932,8 @@ namespace GNAy.Capital.Trade.Controllers
             data.StatusEnum = StrategyStatus.Enum.OrderSent;
 
             _appCtrl.CAPOrder.Send(order);
+
+            CancelTriggersAfterOrderSent(data, start);
         }
 
         public void StartNow(StrategyData data, OpenInterestData openInterest)
@@ -923,6 +958,8 @@ namespace GNAy.Capital.Trade.Controllers
                 data.StatusEnum = StrategyStatus.Enum.OrderSent;
 
                 _appCtrl.CAPOrder.Send(order);
+
+                CancelTriggersAfterOrderSent(data, start);
 
                 data.DealPrice = openInterest.AveragePrice;
 
@@ -982,7 +1019,7 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
-                RecoverFile = file.Name;
+                RecoverFile = Path.Combine(file.Directory.Name, file.Name);
 
                 List<string> columnNames = new List<string>();
                 decimal nextPK = -1;

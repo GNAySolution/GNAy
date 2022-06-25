@@ -471,6 +471,13 @@ namespace GNAy.Capital.Trade.Controllers
                 LogTrace(start, $"ProcessPriority={Settings.ProcessPriority}|{Settings.ProcessPriority.ConvertTo<ProcessPriorityClass>()}", UniqueName);
                 LogTrace(start, $"{ProcessPriorityClass.AboveNormal}|{ProcessPriorityClass.AboveNormal.ToString().ConvertTo<ProcessPriorityClass>()}|{((int)ProcessPriorityClass.AboveNormal).ToString().ConvertTo<ProcessPriorityClass>()}", UniqueName);
                 LogTrace(start, $"{ProcessPriorityClass.BelowNormal}|{ProcessPriorityClass.BelowNormal.ToString().ConvertTo<ProcessPriorityClass>()}|{((int)ProcessPriorityClass.BelowNormal).ToString().ConvertTo<ProcessPriorityClass>()}", UniqueName);
+                LogTrace(start, $"{"Sunday".ConvertTo<DayOfWeek>()}", UniqueName);
+                LogTrace(start, $"{"monday".ConvertTo<DayOfWeek>()}", UniqueName);
+                LogTrace(start, $"{"Tue".ConvertTo<DayOfWeek>()}", UniqueName);
+                LogTrace(start, $"{"Wed.".ConvertTo<DayOfWeek>()}", UniqueName);
+                LogTrace(start, $"{"thu".ConvertTo<DayOfWeek>()}", UniqueName);
+                LogTrace(start, $"{"f.".ConvertTo<DayOfWeek>()}", UniqueName);
+                LogTrace(start, $"{"sATURDAY".ConvertTo<DayOfWeek>()}", UniqueName);
             }
             catch (Exception ex)
             {
