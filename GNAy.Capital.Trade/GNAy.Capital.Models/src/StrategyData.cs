@@ -382,7 +382,7 @@ namespace GNAy.Capital.Models
         public int WinCloseSeconds
         {
             get { return _winCloseSeconds; }
-            set { OnPropertyChanged(ref _winCloseSeconds, value); }
+            set { OnPropertyChanged(ref _winCloseSeconds, Math.Abs(value)); }
         }
         private DateTime _winCloseTime;
         [Column("收盤獲利減倉時間", "收獲時間", CSVIndex = -1, WPFDisplayIndex = 35, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
@@ -405,7 +405,7 @@ namespace GNAy.Capital.Models
         public int LossCloseSeconds
         {
             get { return _lossCloseSeconds; }
-            set { OnPropertyChanged(ref _lossCloseSeconds, value); }
+            set { OnPropertyChanged(ref _lossCloseSeconds, Math.Abs(value)); }
         }
         private DateTime _lossCloseTime;
         [Column("收盤損失減倉時間", "收損時間", CSVIndex = -1, WPFDisplayIndex = 37, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]

@@ -475,7 +475,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     int tradeDate = _dataCollection.Max(x => x.TradeDateRaw);
 
-                    if (start.Hour >= 14 && tradeDate <= int.Parse(start.ToString("yyyyMMdd")) && !IsAMMarket)
+                    if (start.Hour > _appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM].Hour && tradeDate <= int.Parse(start.ToString("yyyyMMdd")) && !IsAMMarket)
                     {
                         FileNameBase = $"{tradeDate}_{(int)Market.EDayNight.AM}";
                         _appCtrl.LogWarn(start, $"未訂閱或尚未收到夜盤商品基本資料|FileNameBase={FileNameBase}", UniqueName);

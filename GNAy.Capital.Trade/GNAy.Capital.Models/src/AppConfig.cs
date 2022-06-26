@@ -139,7 +139,7 @@ namespace GNAy.Capital.Models
                 return false;
             }
 
-            return Holidays.ContainsKey(date.AddDays(-1)) || time.Hour >= 5; //夜盤跨日到早上5點
+            return Holidays.ContainsKey(date.AddDays(-1)) || time.Hour >= Settings.MarketClose[(int)Market.EDayNight.PM].Hour; //夜盤跨日到早上5點
 
             //DateTime beforeDate = date.AddDays(-1);
 
@@ -158,7 +158,7 @@ namespace GNAy.Capital.Models
         /// <returns></returns>
         public bool IsAMMarket(DateTime time)
         {
-            return !IsHoliday(time) && time.Hour >= 8 && time.Hour < 14;
+            return !IsHoliday(time) && time.Hour >= Settings.MarketStart[(int)Market.EDayNight.AM].Hour && time.Hour <= Settings.MarketClose[(int)Market.EDayNight.AM].Hour;
 
             //bool result = false;
 

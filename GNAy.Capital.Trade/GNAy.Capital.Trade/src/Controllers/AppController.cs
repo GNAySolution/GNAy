@@ -475,9 +475,9 @@ namespace GNAy.Capital.Trade.Controllers
                 LogTrace(start, $"{"monday".ConvertTo<DayOfWeek>()}", UniqueName);
                 LogTrace(start, $"{"Tue".ConvertTo<DayOfWeek>()}", UniqueName);
                 LogTrace(start, $"{"Wed.".ConvertTo<DayOfWeek>()}", UniqueName);
-                LogTrace(start, $"{"thu".ConvertTo<DayOfWeek>()}", UniqueName);
-                LogTrace(start, $"{"f.".ConvertTo<DayOfWeek>()}", UniqueName);
-                LogTrace(start, $"{"sATURDAY".ConvertTo<DayOfWeek>()}", UniqueName);
+                LogTrace(start, $"{"tHURSDAY".ConvertTo<DayOfWeek>()}", UniqueName);
+                LogTrace(start, $"{"f".ConvertTo<DayOfWeek>()}", UniqueName);
+                LogTrace(start, $"{"6".ConvertTo<DayOfWeek>()}", UniqueName);
             }
             catch (Exception ex)
             {
