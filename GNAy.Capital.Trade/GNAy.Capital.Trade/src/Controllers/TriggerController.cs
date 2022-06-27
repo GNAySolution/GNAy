@@ -175,7 +175,7 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                         else if (other.StatusEnum == TriggerStatus.Enum.Cancelled && other.StartTime.HasValue && other.StartTime.Value > DateTime.Now)
                         {
-                            other.StatusEnum = TriggerStatus.Enum.Monitoring;
+                            other.StatusEnum = TriggerStatus.Enum.Waiting;
                             other.Comment = $"重啟|{data.ToLog()}";
                             other.Updater = memberName;
                             other.UpdateTime = DateTime.Now;

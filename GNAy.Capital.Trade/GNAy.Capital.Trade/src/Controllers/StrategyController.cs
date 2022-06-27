@@ -950,6 +950,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
+                data.UnclosedQty = 0;
+
                 SerialReset(data);
                 ParentCheck(data, true, start);
 

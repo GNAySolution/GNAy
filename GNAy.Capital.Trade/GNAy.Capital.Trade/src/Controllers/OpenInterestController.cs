@@ -17,7 +17,7 @@ namespace GNAy.Capital.Trade.Controllers
         public readonly string UniqueName;
         private readonly AppController _appCtrl;
 
-        private readonly HashSet<string> _strategyAccounts;
+        private readonly HashSet<string> _strategyKeys;
 
         private readonly ConcurrentQueue<string> _waitToAdd;
 
@@ -39,7 +39,7 @@ namespace GNAy.Capital.Trade.Controllers
             UniqueName = nameof(OpenInterestController).Replace("Controller", "Ctrl");
             _appCtrl = appCtrl;
 
-            _strategyAccounts = new HashSet<string>();
+            _strategyKeys = new HashSet<string>();
 
             _waitToAdd = new ConcurrentQueue<string>();
 
@@ -53,14 +53,16 @@ namespace GNAy.Capital.Trade.Controllers
         private OpenInterestController() : this(null)
         { }
 
-        private void StartStrategy(string account, DateTime start)
+        private void StartStrategy(OpenInterestData data, DateTime start)
         {
             try
             {
-                if (!_appCtrl.Settings.StartFromOpenInterest || _strategyAccounts.Contains(account) || _appCtrl.Strategy == null || _appCtrl.Strategy.Count <= 0)
+                if (data.PositionEnum == OrderPosition.Enum.Close || !_appCtrl.Settings.StartFromOpenInterest || _strategyKeys.Contains(data.PrimaryKey) || _appCtrl.Strategy == null || _appCtrl.Strategy.Count <= 0)
                 {
                     return;
                 }
+
+                string key1 = data.PrimaryKey;
 
                 SortedDictionary<string, (OpenInterestData, StrategyData)> map = new SortedDictionary<string, (OpenInterestData, StrategyData)>();
 
@@ -70,7 +72,7 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         StrategyData target = _appCtrl.Strategy[i];
 
-                        if (target.FullAccount != account)
+                        if (target.FullAccount != data.Account)
                         {
                             continue;
                         }
@@ -78,19 +80,23 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
-
-                        _strategyAccounts.Add(account);
-
-                        if (target.OrderData != null || target.UnclosedQty != 0)
+                        else if ($"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}" != key1)
                         {
                             continue;
                         }
 
-                        string key1 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}";
-                        string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}_{target.SendRealOrder}";
-                        OpenInterestData data = this[key1];
+                        _strategyKeys.Add(key1);
 
-                        if (data == null || data.PositionEnum == OrderPosition.Enum.Close || data.Quantity < target.OrderQty)
+                        //if (target.OrderData != null || target.UnclosedQty != 0)
+                        //{
+                        //    continue;
+                        //}
+
+                        //string key1 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}";
+                        string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}_{target.SendRealOrder}";
+                        //OpenInterestData data = this[key1];
+
+                        if (data.Quantity < target.OrderQty)
                         {
                             continue;
                         }
@@ -210,6 +216,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 OpenInterestData data = this[$"{account}_{symbol}_{bs}_{dayTrade}"];
                 bool addNew = data == null;
+                bool reopened = false;
 
                 if (addNew)
                 {
@@ -223,6 +230,10 @@ namespace GNAy.Capital.Trade.Controllers
                         DayTradeEnum = dayTrade,
                     };
                 }
+                else if (data.PositionEnum == OrderPosition.Enum.Close && data.AveragePrice != pri) //TODO
+                {
+                    reopened = true;
+                }
 
                 data.PositionEnum = OrderPosition.Enum.Open;
                 data.AveragePrice = pri;
@@ -232,7 +243,28 @@ namespace GNAy.Capital.Trade.Controllers
 
                 CheckStrategy(data, start);
 
-                if (!addNew)
+                if (!_appCtrl.Settings.SendRealOrder && (reopened || string.IsNullOrWhiteSpace(data.Strategy)))
+                {
+                    _strategyKeys.Remove(data.PrimaryKey);
+                    StartStrategy(data, start);
+                }
+                
+                if (addNew)
+                {
+                    //if (_appCtrl.Settings.SendRealOrder)
+                    //{
+                    //    if (_strategyKeys.FirstOrDefault(x => x.StartsWith(data.Account)) == null)
+                    //    {
+                    //        StartStrategy(data, start);
+                    //    }
+                    //}
+                    //if (!_appCtrl.Settings.SendRealOrder)
+                    //{
+                    //    _strategyKeys.Remove(data.PrimaryKey);
+                    //    StartStrategy(data, start);
+                    //}
+                }
+                else
                 {
                     return (addNew, data);
                 }
@@ -289,10 +321,8 @@ namespace GNAy.Capital.Trade.Controllers
                         continue;
                     }
 
-                    for (int i = Count - 1; i >= 0; --i)
+                    foreach (OpenInterestData data in _dataMap.Values)
                     {
-                        OpenInterestData data = this[i];
-
                         if (data.UpdateTime >= QuerySent.Item1 || data.Account != QuerySent.Item3 || data.PositionEnum == OrderPosition.Enum.Close)
                         {
                             continue;
@@ -308,7 +338,15 @@ namespace GNAy.Capital.Trade.Controllers
 
                     //TODO: 雲端手動啟動策略，本地端監控也要同步啟動
 
-                    StartStrategy(QuerySent.Item3, start);
+                    //StartStrategy(QuerySent.Item3, start);
+
+                    if (_appCtrl.Settings.SendRealOrder)
+                    {
+                        foreach (OpenInterestData data in _dataMap.Values)
+                        {
+                            StartStrategy(data, start);
+                        }
+                    }
 
                     continue;
                 }
@@ -330,10 +368,8 @@ namespace GNAy.Capital.Trade.Controllers
                 AddOrUpdate(cells[1], cells[2], OrderBS.Enum.Sell, OrderDayTrade.Enum.Yes, cells[8], cells[6], cells[7], start);
             }
 
-            for (int i = Count - 1; i >= 0; --i)
+            foreach (OpenInterestData data in _dataMap.Values)
             {
-                OpenInterestData data = this[i];
-
                 if (data.Quote == null || data.Quote.DealPrice == 0 || data.Quote.Simulate != QuoteData.RealTrade)
                 {
                     continue;

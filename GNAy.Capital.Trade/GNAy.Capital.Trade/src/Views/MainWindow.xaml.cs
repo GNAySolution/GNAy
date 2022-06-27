@@ -1713,7 +1713,11 @@ namespace GNAy.Capital.Trade
                 if (!string.IsNullOrWhiteSpace(fileNameWithoutExt))
                 {
                     TabControlBB.SelectedIndex = 1;
-                    TabControlCB.SelectedIndex = _appCtrl.Settings.SendRealOrder ? 1 : 0;
+
+                    if (_appCtrl.Settings.SendRealOrder)
+                    {
+                        TabControlCB.SelectedIndex = 1;
+                    }
                 }
 
                 Task.Factory.StartNew(() =>
@@ -2274,6 +2278,24 @@ namespace GNAy.Capital.Trade
             try
             {
                 _appCtrl.CAPOrder.CancelBySeqNo((OrderAccData)ComboBoxOrderAccs.SelectedItem, ComboBoxOrderSeqNo.Text);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void ButtonNextStrategy_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                //
             }
             catch (Exception ex)
             {
