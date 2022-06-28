@@ -53,6 +53,13 @@ namespace GNAy.Capital.Trade.Controllers
         private OpenInterestController() : this(null)
         { }
 
+        public void FilterFullAccount(string acc, DateTime start)
+        {
+            _appCtrl.LogTrace(start, $"acc={acc}", UniqueName);
+
+            _strategyKeys.Add(acc);
+        }
+
         private void StartStrategy(OpenInterestData data, DateTime start)
         {
             try
@@ -62,8 +69,9 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
-                string key1 = data.PrimaryKey;
+                _appCtrl.LogTrace(start, $"{data.ToLog()}", UniqueName);
 
+                string key1 = data.PrimaryKey;
                 SortedDictionary<string, (OpenInterestData, StrategyData)> map = new SortedDictionary<string, (OpenInterestData, StrategyData)>();
 
                 for (int i = _appCtrl.Strategy.Count - 1; i >= 0; --i) //走訪策略，找出最匹配庫存的策略
@@ -340,10 +348,15 @@ namespace GNAy.Capital.Trade.Controllers
 
                     //StartStrategy(QuerySent.Item3, start);
 
-                    if (_appCtrl.Settings.SendRealOrder)
+                    if (_appCtrl.Settings.SendRealOrder && !_strategyKeys.Contains(QuerySent.Item3))
                     {
                         foreach (OpenInterestData data in _dataMap.Values)
                         {
+                            if (data.Account != QuerySent.Item3 || data.PositionEnum == OrderPosition.Enum.Close)
+                            {
+                                continue;
+                            }
+
                             StartStrategy(data, start);
                         }
                     }

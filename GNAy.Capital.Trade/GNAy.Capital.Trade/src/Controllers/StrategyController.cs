@@ -886,8 +886,10 @@ namespace GNAy.Capital.Trade.Controllers
             data.Reset();
         }
 
-        private void CancelTriggersAfterOrderSent(StrategyData data, DateTime start)
+        private void CancelAfterOrderSent(StrategyData data, DateTime start)
         {
+            _appCtrl.OpenInterest.FilterFullAccount(data.FullAccount, start);
+
             for (int i = Count - 1; i >= 0; --i)
             {
                 try
@@ -933,7 +935,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             _appCtrl.CAPOrder.Send(order);
 
-            CancelTriggersAfterOrderSent(data, start);
+            CancelAfterOrderSent(data, start);
         }
 
         public void StartNow(StrategyData data, OpenInterestData openInterest)
@@ -961,7 +963,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 _appCtrl.CAPOrder.Send(order);
 
-                CancelTriggersAfterOrderSent(data, start);
+                CancelAfterOrderSent(data, start);
 
                 data.DealPrice = openInterest.AveragePrice;
 
