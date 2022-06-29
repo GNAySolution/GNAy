@@ -96,7 +96,7 @@ namespace GNAy.Capital.Models
         public string StatusDes => TriggerStatus.Description[(int)StatusEnum];
 
         private string _primaryKey;
-        [Column("自定義唯一鍵", "唯一鍵", WPFDisplayIndex = 3, WPFHorizontalAlignment = "Center")]
+        [Column("自定義唯一鍵", "唯一鍵", WPFDisplayIndex = 3, WPFHorizontalAlignment = WPFHorizontalAlignment.Center)]
         public string PrimaryKey
         {
             get { return _primaryKey; }
@@ -122,7 +122,7 @@ namespace GNAy.Capital.Models
         public string ColumnProperty => Column.Property.Name;
 
         private decimal _columnValue;
-        [Column("欄位值", CSVStringFormat = "0.00####", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00####}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
+        [Column("欄位值", CSVStringFormat = "0.00####", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00####}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public decimal ColumnValue
         {
             get { return _columnValue; }
@@ -130,7 +130,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _rule;
-        [Column("條件", WPFDisplayIndex = 8, WPFHorizontalAlignment = "Center")]
+        [Column("條件", WPFDisplayIndex = 8, WPFHorizontalAlignment = WPFHorizontalAlignment.Center)]
         public string Rule
         {
             get { return _rule; }
@@ -138,7 +138,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _targetValue;
-        [Column("目標值", CSVStringFormat = "0.00####", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00####}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
+        [Column("目標值", CSVStringFormat = "0.00####", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00####}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public decimal TargetValue
         {
             get { return _targetValue; }
@@ -147,7 +147,7 @@ namespace GNAy.Capital.Models
 
         public decimal Symbol2Offset;
         private string _symbol2Setting;
-        [Column("代碼2設定", WPFDisplayIndex = 10, WPFHorizontalAlignment = "Right")]
+        [Column("代碼2設定", WPFDisplayIndex = 10, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public string Symbol2Setting
         {
             get { return _symbol2Setting; }

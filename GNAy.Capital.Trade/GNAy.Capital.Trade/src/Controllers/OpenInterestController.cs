@@ -60,7 +60,7 @@ namespace GNAy.Capital.Trade.Controllers
             _strategyKeys.Add(acc);
         }
 
-        private void StartStrategy(OpenInterestData data, DateTime start)
+        private void StartStrategy(OpenInterestData data, string filterPrimaryKey, DateTime start)
         {
             try
             {
@@ -254,7 +254,7 @@ namespace GNAy.Capital.Trade.Controllers
                 if (!_appCtrl.Settings.SendRealOrder && (reopened || string.IsNullOrWhiteSpace(data.Strategy)))
                 {
                     _strategyKeys.Remove(data.PrimaryKey);
-                    StartStrategy(data, start);
+                    StartStrategy(data, string.Empty, start);
                 }
                 
                 if (addNew)
@@ -357,7 +357,7 @@ namespace GNAy.Capital.Trade.Controllers
                                 continue;
                             }
 
-                            StartStrategy(data, start);
+                            StartStrategy(data, string.Empty, start);
                         }
                     }
 
@@ -477,6 +477,27 @@ namespace GNAy.Capital.Trade.Controllers
             QuerySent = (DateTime.Now, -1, string.Empty, -1);
 
             return QuerySent;
+        }
+
+        public OpenInterestData MoveToNextStrategy(OpenInterestData data)
+        {
+            if (_appCtrl.Settings.SendRealOrder || data == null || string.IsNullOrWhiteSpace(data.PrimaryKey))
+            {
+                return null;
+            }
+
+            DateTime start = _appCtrl.StartTrace($"{data.ToLog()}", UniqueName);
+
+            try
+            {
+                //
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+
+            return null;
         }
     }
 }

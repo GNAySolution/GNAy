@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\WPFHorizontalAlignment.cs" />
     <Compile Include="src\Separator.cs" />
     <Compile Include="src\ColumnAttribute.cs" />
     <Compile Include="src\Extensions.cs" />
@@ -51,6 +52,7 @@
     <Compile Include="src\Models\AppLog.cs" />
     <Compile Include="src\Models\NotifyPropertyChanged.cs" />
     <Compile Include="src\TextEncoding.cs" />
+    <Compile Include="src\WPFVisibility.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="docs\" />

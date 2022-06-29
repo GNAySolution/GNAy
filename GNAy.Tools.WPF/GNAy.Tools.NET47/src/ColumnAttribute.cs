@@ -17,10 +17,10 @@ namespace GNAy.Tools.NET47
         public int WPFDisplayIndex { get; set; }
         public string WPFStringFormat { get; set; }
         public bool WPFIsReadOnly { get; set; }
-        public int WPFVisibility { get; set; }
+        public WPFVisibility WPFVisibility { get; set; }
         public bool WPFCanUserReorder { get; set; }
         public bool WPFCanUserSort { get; set; }
-        public string WPFHorizontalAlignment { get; set; }
+        public WPFHorizontalAlignment WPFHorizontalAlignment { get; set; }
         public string WPFForeground { get; set; }
 
         public ColumnAttribute(string csvName, string wpfName)
@@ -33,10 +33,10 @@ namespace GNAy.Tools.NET47
             WPFDisplayIndex = -1;
             WPFStringFormat = string.Empty;
             WPFIsReadOnly = true;
-            WPFVisibility = 0;
+            WPFVisibility = WPFVisibility.Visible;
             WPFCanUserReorder = true;
             WPFCanUserSort = false;
-            WPFHorizontalAlignment = string.Empty; //"Left";
+            WPFHorizontalAlignment = WPFHorizontalAlignment.Left;
             WPFForeground = string.Empty; //"MediumBlue";
         }
 

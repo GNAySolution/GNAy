@@ -200,7 +200,7 @@ namespace GNAy.Tools.WPF
                         column.DisplayIndex = attr.WPFDisplayIndex;
                         bind.StringFormat = attr.WPFStringFormat;
                         column.IsReadOnly = attr.WPFIsReadOnly;
-                        column.Visibility = (Visibility)attr.WPFVisibility;
+                        column.Visibility = attr.WPFVisibility.ToString().ConvertTo<Visibility>();
                         column.CanUserReorder = attr.WPFCanUserReorder;
                         column.CanUserSort = attr.WPFCanUserSort;
 
@@ -216,10 +216,10 @@ namespace GNAy.Tools.WPF
                         {
                             Style elementS = null;
 
-                            if (!string.IsNullOrWhiteSpace(attr.WPFHorizontalAlignment))
+                            if (attr.WPFHorizontalAlignment != NET47.WPFHorizontalAlignment.Left)
                             {
                                 elementS = new Style();
-                                elementS.Setters.Add(new Setter(FrameworkElement.HorizontalAlignmentProperty, attr.WPFHorizontalAlignment.ConvertTo<HorizontalAlignment>()));
+                                elementS.Setters.Add(new Setter(FrameworkElement.HorizontalAlignmentProperty, attr.WPFHorizontalAlignment.ToString().ConvertTo<HorizontalAlignment>()));
                             }
 
                             if (!string.IsNullOrWhiteSpace(attr.WPFForeground))

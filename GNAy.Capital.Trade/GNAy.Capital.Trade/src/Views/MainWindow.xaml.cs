@@ -967,6 +967,15 @@ namespace GNAy.Capital.Trade
                 else if (TabControlCB.SelectedIndex == 1 && DataGridOpenInterest.ItemsSource != null)
                 {
                     StatusBarItemCB1.Text = $"({DataGridOpenInterest.Columns.Count},{DataGridOpenInterest.Items.Count})";
+
+                    if (DataGridOpenInterest.SelectedCells.Count > 0 && DataGridOpenInterest.SelectedCells[0].Item is OpenInterestData data)
+                    {
+                        StatusBarItemCB2.Text = data.ToLog();
+                    }
+                    else
+                    {
+                        StatusBarItemCB2.Text = string.Empty;
+                    }
                 }
                 else if (TabControlCB.SelectedIndex == 2 && DataGridFuturesRights.ItemsSource != null)
                 {
@@ -1140,14 +1149,14 @@ namespace GNAy.Capital.Trade
                 {
                     DataGridAppLog.Visibility = Visibility.Visible;
                     DataGridQuoteSubscribed.Visibility = Visibility.Visible;
-                    DataGridOrderDetail.Visibility = Visibility.Visible;
+                    //DataGridOrderDetail.Visibility = Visibility.Visible;
                     DataGridFuturesRights.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     DataGridAppLog.Visibility = Visibility.Collapsed;
                     DataGridQuoteSubscribed.Visibility = Visibility.Collapsed;
-                    DataGridOrderDetail.Visibility = Visibility.Collapsed;
+                    //DataGridOrderDetail.Visibility = Visibility.Collapsed;
                     DataGridFuturesRights.Visibility = Visibility.Collapsed;
                 }
             }

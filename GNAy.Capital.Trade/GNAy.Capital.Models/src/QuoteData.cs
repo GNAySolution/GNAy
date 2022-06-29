@@ -78,7 +78,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _matchedTimeHHmmss;
-        [TradeColumn("成交時分秒", "成時分秒", CSVStringFormat = "000000", WPFDisplayIndex = 3, WPFStringFormat = "{0:000000}", WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("成交時分秒", "成時分秒", CSVStringFormat = "000000", WPFDisplayIndex = 3, WPFStringFormat = "{0:000000}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public int MatchedTimeHHmmss
         {
             get { return _matchedTimeHHmmss; }
@@ -86,7 +86,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _matchedTimefff;
-        [TradeColumn("成交微秒", "成微秒", CSVStringFormat = "000000", WPFDisplayIndex = 4, WPFStringFormat = "{0:000000}", WPFHorizontalAlignment = "Right")]
+        [TradeColumn("成交微秒", "成微秒", CSVStringFormat = "000000", WPFDisplayIndex = 4, WPFStringFormat = "{0:000000}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public int MatchedTimefff
         {
             get { return _matchedTimefff; }
@@ -97,7 +97,7 @@ namespace GNAy.Capital.Models
         public DateTime MatchedTime => DateTime.ParseExact(string.Format("{0}.{1}", MatchedTimeHHmmss.ToString().PadLeft(6, '0'), MatchedTimefff.ToString().PadLeft(6, '0')), "HHmmss.ffffff", CultureInfo.InvariantCulture);
 
         private decimal _dealPrice;
-        [TradeColumn("成交價", "成價", CSVStringFormat = "0.00", WPFDisplayIndex = 6, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue", IsTrigger = true)]
+        [TradeColumn("成交價", "成價", CSVStringFormat = "0.00", WPFDisplayIndex = 6, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue", IsTrigger = true)]
         public decimal DealPrice
         {
             get { return _dealPrice; }
@@ -105,21 +105,21 @@ namespace GNAy.Capital.Models
         }
 
         private int _dealQty;
-        [TradeColumn("成交量", "成量", WPFDisplayIndex = 28, WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("成交量", "成量", WPFDisplayIndex = 28, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public int DealQty
         {
             get { return _dealQty; }
             set { OnPropertyChanged(ref _dealQty, value); }
         }
 
-        [TradeColumn("漲跌", CSVStringFormat = "0.00", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue", IsTrigger = true)]
+        [TradeColumn("漲跌", CSVStringFormat = "0.00", WPFDisplayIndex = 7, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue", IsTrigger = true)]
         public decimal UpDown => (DealPrice != 0 && Reference != 0) ? DealPrice - Reference : 0;
 
-        [TradeColumn("漲跌幅", CSVStringFormat = "0.00", WPFDisplayIndex = 8, WPFStringFormat = "{0:0.00}%", WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("漲跌幅", CSVStringFormat = "0.00", WPFDisplayIndex = 8, WPFStringFormat = "{0:0.00}%", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public decimal UpDownPct => (DealPrice != 0 && Reference != 0) ? (DealPrice - Reference) / Reference * 100 : 0;
 
         private decimal _bestBuyPrice;
-        [TradeColumn("買價", CSVStringFormat = "0.00", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("買價", CSVStringFormat = "0.00", WPFDisplayIndex = 9, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public decimal BestBuyPrice
         {
             get { return _bestBuyPrice; }
@@ -127,7 +127,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _bestBuyQty;
-        [TradeColumn("買量", WPFDisplayIndex = 29, WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("買量", WPFDisplayIndex = 29, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public int BestBuyQty
         {
             get { return _bestBuyQty; }
@@ -135,7 +135,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _bestSellPrice;
-        [TradeColumn("賣價", CSVStringFormat = "0.00", WPFDisplayIndex = 10, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("賣價", CSVStringFormat = "0.00", WPFDisplayIndex = 10, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public decimal BestSellPrice
         {
             get { return _bestSellPrice; }
@@ -143,7 +143,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _bestSellyQty;
-        [TradeColumn("賣量", WPFDisplayIndex = 30, WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("賣量", WPFDisplayIndex = 30, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public int BestSellQty
         {
             get { return _bestSellyQty; }
@@ -151,43 +151,43 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _openPrice;
-        [TradeColumn("開盤價", CSVStringFormat = "0.00", WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("開盤價", CSVStringFormat = "0.00", WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public decimal OpenPrice
         {
             get { return _openPrice; }
             set { OnPropertiesChanged(ref _openPrice, value, nameof(OpenPrice), nameof(OpenUpDown), nameof(OpenLastCloseUpDown)); }
         }
 
-        [TradeColumn("開盤漲跌", "開盤漲", CSVStringFormat = "0.00", WPFDisplayIndex = 12, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue", IsTrigger = true)]
+        [TradeColumn("開盤漲跌", "開盤漲", CSVStringFormat = "0.00", WPFDisplayIndex = 12, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue", IsTrigger = true)]
         public decimal OpenUpDown => (OpenPrice != 0 && Reference != 0) ? OpenPrice - Reference : 0;
 
         private decimal _highPrice;
-        [TradeColumn("最高價", CSVStringFormat = "0.00", WPFDisplayIndex = 13, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("最高價", CSVStringFormat = "0.00", WPFDisplayIndex = 13, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public decimal HighPrice
         {
             get { return _highPrice; }
             set { OnPropertiesChanged(ref _highPrice, value, nameof(HighPrice), nameof(DealHigh), nameof(HighLow)); }
         }
 
-        [TradeColumn("成交最高價差", "成高差", CSVStringFormat = "0.00", WPFDisplayIndex = 14, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue", IsTrigger = true)]
+        [TradeColumn("成交最高價差", "成高差", CSVStringFormat = "0.00", WPFDisplayIndex = 14, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue", IsTrigger = true)]
         public decimal DealHigh => (HighPrice != 0) ? DealPrice - HighPrice : 0;
 
         private decimal _lowPrice;
-        [TradeColumn("最低價", CSVStringFormat = "0.00", WPFDisplayIndex = 15, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("最低價", CSVStringFormat = "0.00", WPFDisplayIndex = 15, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public decimal LowPrice
         {
             get { return _lowPrice; }
             set { OnPropertiesChanged(ref _lowPrice, value, nameof(LowPrice), nameof(DealLow), nameof(HighLow)); }
         }
 
-        [TradeColumn("成交最低價差", "成低差", CSVStringFormat = "0.00", WPFDisplayIndex = 16, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue", IsTrigger = true)]
+        [TradeColumn("成交最低價差", "成低差", CSVStringFormat = "0.00", WPFDisplayIndex = 16, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue", IsTrigger = true)]
         public decimal DealLow => (LowPrice != 0) ? DealPrice - LowPrice : 0;
 
-        [TradeColumn("最高最低價差", "高低差", CSVStringFormat = "0.00", WPFDisplayIndex = 17, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("最高最低價差", "高低差", CSVStringFormat = "0.00", WPFDisplayIndex = 17, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public decimal HighLow => HighPrice - LowPrice;
 
         private decimal _reference;
-        [TradeColumn("參考價", CSVStringFormat = "0.00", WPFDisplayIndex = 18, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue")]
+        [TradeColumn("參考價", CSVStringFormat = "0.00", WPFDisplayIndex = 18, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public decimal Reference
         {
             get { return _reference; }
@@ -195,18 +195,18 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _lastClosePrice;
-        [TradeColumn("前盤收盤價格", "前盤收價", CSVStringFormat = "0.00", WPFDisplayIndex = 19, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
+        [TradeColumn("前盤收盤價格", "前盤收價", CSVStringFormat = "0.00", WPFDisplayIndex = 19, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public decimal LastClosePrice
         {
             get { return _lastClosePrice; }
             set { OnPropertiesChanged(ref _lastClosePrice, value, nameof(LastClosePrice), nameof(OpenLastCloseUpDown)); }
         }
 
-        [TradeColumn("開盤與前盤收盤價差", "開前價差", CSVStringFormat = "0.00", WPFDisplayIndex = 20, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right", WPFForeground = "MediumBlue", IsTrigger = true)]
+        [TradeColumn("開盤與前盤收盤價差", "開前價差", CSVStringFormat = "0.00", WPFDisplayIndex = 20, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue", IsTrigger = true)]
         public decimal OpenLastCloseUpDown => (OpenPrice != 0 && LastClosePrice != 0) ? OpenPrice - LastClosePrice : 0;
 
         private int _simulate;
-        [TradeColumn("試撮", "試", WPFDisplayIndex = 21, WPFHorizontalAlignment = "Right")]
+        [TradeColumn("試撮", "試", WPFDisplayIndex = 21, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public int Simulate
         {
             get { return _simulate; }
@@ -214,7 +214,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _totalQty;
-        [TradeColumn("總量", WPFDisplayIndex = 22, WPFHorizontalAlignment = "Right", IsTrigger = true)]
+        [TradeColumn("總量", WPFDisplayIndex = 22, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
         public int TotalQty
         {
             get { return _totalQty; }
@@ -229,11 +229,11 @@ namespace GNAy.Capital.Models
             set { OnPropertiesChanged(ref _tradeDateRaw, value, nameof(TradeDateRaw), nameof(TradeDate)); }
         }
 
-        [TradeColumn("交易日", CSVIndex = -1, WPFDisplayIndex = 23, WPFStringFormat = "{0:MM/dd}", WPFHorizontalAlignment = "Right")]
+        [TradeColumn("交易日", CSVIndex = -1, WPFDisplayIndex = 23, WPFStringFormat = "{0:MM/dd}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public DateTime TradeDate => (TradeDateRaw <= 0) ? DateTime.MaxValue.Date : DateTime.ParseExact(TradeDateRaw.ToString().PadLeft(8, '0'), "yyyyMMdd", CultureInfo.InvariantCulture);
 
         private decimal _highPriceLimit;
-        [TradeColumn("漲停", CSVStringFormat = "0.00", WPFDisplayIndex = 26, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
+        [TradeColumn("漲停", CSVStringFormat = "0.00", WPFDisplayIndex = 26, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public decimal HighPriceLimit
         {
             get { return _highPriceLimit; }
@@ -241,7 +241,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _lowPriceLimit;
-        [TradeColumn("跌停", CSVStringFormat = "0.00", WPFDisplayIndex = 27, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = "Right")]
+        [TradeColumn("跌停", CSVStringFormat = "0.00", WPFDisplayIndex = 27, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public decimal LowPriceLimit
         {
             get { return _lowPriceLimit; }
@@ -249,7 +249,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _count;
-        [TradeColumn("筆數", WPFDisplayIndex = 25, WPFHorizontalAlignment = "Right")]
+        [TradeColumn("筆數", WPFDisplayIndex = 25, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public int Count
         {
             get { return _count; }
@@ -257,7 +257,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _index;
-        [TradeColumn("索引", WPFDisplayIndex = 31, WPFHorizontalAlignment = "Right")]
+        [TradeColumn("索引", WPFDisplayIndex = 31, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public int Index
         {
             get { return _index; }
@@ -265,7 +265,7 @@ namespace GNAy.Capital.Models
         }
 
         private short _page;
-        [TradeColumn("Page", "P", WPFDisplayIndex = 0, WPFHorizontalAlignment = "Right")]
+        [TradeColumn("Page", "P", WPFDisplayIndex = 0, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public short Page
         {
             get { return _page; }
@@ -289,7 +289,7 @@ namespace GNAy.Capital.Models
         public int PrimaryKey => MarketGroup * 1000000 + Index;
 
         private short _decimalPos;
-        [TradeColumn("小數位數", "D", WPFDisplayIndex = 33, WPFHorizontalAlignment = "Right")]
+        [TradeColumn("小數位數", "D", WPFDisplayIndex = 33, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public short DecimalPos
         {
             get { return _decimalPos; }
@@ -297,7 +297,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _totalQtyBefore;
-        [TradeColumn("昨量", WPFDisplayIndex = 34, WPFHorizontalAlignment = "Right")]
+        [TradeColumn("昨量", WPFDisplayIndex = 34, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public int TotalQtyBefore
         {
             get { return _totalQtyBefore; }

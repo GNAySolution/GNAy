@@ -886,6 +886,11 @@ namespace GNAy.Capital.Trade.Controllers
             data.Reset();
         }
 
+        public void ResetAllToZero(StrategyData data)
+        {
+            //TODO
+        }
+
         private void CancelAfterOrderSent(StrategyData data, DateTime start)
         {
             _appCtrl.OpenInterest.FilterFullAccount(data.FullAccount, start);
