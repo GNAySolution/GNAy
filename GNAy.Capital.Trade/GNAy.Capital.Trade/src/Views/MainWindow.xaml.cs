@@ -2306,7 +2306,7 @@ namespace GNAy.Capital.Trade
             {
                 if (DataGridOpenInterest.SelectedCells.Count > 0 && DataGridOpenInterest.SelectedCells[0].Item is OpenInterestData data)
                 {
-                    //
+                    _appCtrl.OpenInterest.MoveToNextStrategy(data);
                 }
             }
             catch (Exception ex)

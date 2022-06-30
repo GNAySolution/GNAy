@@ -478,7 +478,7 @@
                 <Label Content="委託序號" HorizontalAlignment="Left" Margin="452,80,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxOrderSeqNo" HorizontalAlignment="Left" Margin="510,82,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"/>
                 <Button x:Name="ButtonCancelOrderBySeqNo" Content="刪單by序號" HorizontalAlignment="Left" Margin="635,82,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderBySeqNo_Click"/>
-                <Button x:Name="ButtonNextStrategy" Content="下一個策略" HorizontalAlignment="Left" Margin="760,82,0,0" VerticalAlignment="Top" Click="ButtonNextStrategy_Click"/>
+                <Button x:Name="ButtonNextStrategy" Content="下一個策略" ToolTip="庫存未平倉，選擇下一個策略" HorizontalAlignment="Left" Margin="760,82,0,0" VerticalAlignment="Top" Click="ButtonNextStrategy_Click"/>
                 <TabControl x:Name="TabControlCB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="委託成交回報">
                         <Grid Background="#FFE5E5E5">

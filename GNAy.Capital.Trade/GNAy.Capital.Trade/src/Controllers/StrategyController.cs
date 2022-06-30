@@ -866,7 +866,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void SerialReset(StrategyData data)
+        private void SerialReset(StrategyData data, bool toZero)
         {
             if (data == null)
             {
@@ -875,20 +875,26 @@ namespace GNAy.Capital.Trade.Controllers
 
             foreach (string primary in data.OpenStrategyAfterStopLoss.SplitWithoutWhiteSpace(','))
             {
-                SerialReset(this[primary]);
+                SerialReset(this[primary], toZero);
             }
 
             foreach (string primary in data.OpenStrategyAfterStopWin.SplitWithoutWhiteSpace(','))
             {
-                SerialReset(this[primary]);
+                SerialReset(this[primary], toZero);
+            }
+
+            if (toZero)
+            {
+                data.UnclosedQty = 0;
+                data.UnclosedProfit = 0;
             }
 
             data.Reset();
         }
 
-        public void ResetAllToZero(StrategyData data)
+        public void ResetToZero(string primaryKey)
         {
-            //TODO
+            SerialReset(this[primaryKey], true);
         }
 
         private void CancelAfterOrderSent(StrategyData data, DateTime start)
@@ -931,7 +937,7 @@ namespace GNAy.Capital.Trade.Controllers
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
 
             StrategyData data = this[primaryKey.Replace(" ", string.Empty)];
-            SerialReset(data);
+            SerialReset(data, false);
             ParentCheck(data, true, start);
 
             StrategyData order = data.CreateOrder();
@@ -959,7 +965,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 data.UnclosedQty = 0;
 
-                SerialReset(data);
+                SerialReset(data, false);
                 ParentCheck(data, true, start);
 
                 StrategyData order = data.CreateOrder();

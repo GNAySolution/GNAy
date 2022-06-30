@@ -60,11 +60,15 @@ namespace GNAy.Capital.Trade.Controllers
             _strategyKeys.Add(acc);
         }
 
-        private void StartStrategy(OpenInterestData data, string filterPrimaryKey, DateTime start)
+        private void StartStrategy(OpenInterestData data, string filterStrategy, DateTime start)
         {
             try
             {
-                if (data.PositionEnum == OrderPosition.Enum.Close || !_appCtrl.Settings.StartFromOpenInterest || _strategyKeys.Contains(data.PrimaryKey) || _appCtrl.Strategy == null || _appCtrl.Strategy.Count <= 0)
+                if (string.IsNullOrWhiteSpace(filterStrategy) && _strategyKeys.Contains(data.PrimaryKey))
+                {
+                    return;
+                }
+                else if (data.PositionEnum == OrderPosition.Enum.Close || !_appCtrl.Settings.StartFromOpenInterest || _appCtrl.Strategy == null || _appCtrl.Strategy.Count <= 0)
                 {
                     return;
                 }
@@ -72,7 +76,7 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.LogTrace(start, $"{data.ToLog()}", UniqueName);
 
                 string key1 = data.PrimaryKey;
-                SortedDictionary<string, (OpenInterestData, StrategyData)> map = new SortedDictionary<string, (OpenInterestData, StrategyData)>();
+                SortedDictionary<string, (OpenInterestData, StrategyData)> mapA = new SortedDictionary<string, (OpenInterestData, StrategyData)>();
 
                 for (int i = _appCtrl.Strategy.Count - 1; i >= 0; --i) //走訪策略，找出最匹配庫存的策略
                 {
@@ -108,14 +112,14 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
-                        else if (!map.TryGetValue(key2, out (OpenInterestData, StrategyData) _old))
+                        else if (!mapA.TryGetValue(key2, out (OpenInterestData, StrategyData) _old))
                         {
-                            map[key2] = (data, target);
+                            mapA[key2] = (data, target);
                             continue;
                         }
                         else if (_old.Item2.OrderQty < target.OrderQty)
                         {
-                            map[key2] = (data, target);
+                            mapA[key2] = (data, target);
                             continue;
                         }
                         else if (_old.Item2.OrderQty > target.OrderQty)
@@ -131,17 +135,67 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                 }
 
-                foreach ((OpenInterestData, StrategyData) value in map.Values)
+                if (string.IsNullOrWhiteSpace(filterStrategy))
+                {
+                    foreach ((OpenInterestData, StrategyData) value in mapA.Values)
+                    {
+                        try
+                        {
+                            _appCtrl.Strategy.StartNow(value.Item2, value.Item1);
+                        }
+                        catch (Exception ex)
+                        {
+                            _appCtrl.LogException(start, ex, ex.StackTrace);
+                        }
+                    }
+
+                    return;
+                }
+
+                SortedDictionary<string, (OpenInterestData, StrategyData)> mapB = new SortedDictionary<string, (OpenInterestData, StrategyData)>();
+
+                for (int i = _appCtrl.Strategy.Count - 1; i >= 0; --i)
                 {
                     try
                     {
-                        _appCtrl.Strategy.StartNow(value.Item2, value.Item1);
+                        StrategyData target = _appCtrl.Strategy[i];
+
+                        if (target.FullAccount != data.Account)
+                        {
+                            continue;
+                        }
+
+                        string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}_{bool.TrueString}";
+
+                        if (mapA.TryGetValue(key2, out (OpenInterestData, StrategyData) value) && value.Item2.OrderQty == target.OrderQty)
+                        {
+                            mapB[target.PrimaryKey] = (data, target);
+                        }
                     }
                     catch (Exception ex)
                     {
                         _appCtrl.LogException(start, ex, ex.StackTrace);
                     }
                 }
+
+                if (mapB.Count == 1)
+                {
+                    return;
+                }
+
+                List<string> list = mapB.Keys.ToList();
+                int index = list.IndexOf(filterStrategy);
+
+                if (index < 0)
+                {
+                    return;
+                }
+
+                index = index + 1 >= list.Count ? 0 : index + 1;
+
+                (OpenInterestData, StrategyData) found = mapB[list[index]];
+
+                _appCtrl.Strategy.StartNow(found.Item2, found.Item1);
             }
             catch (Exception ex)
             {
@@ -165,14 +219,14 @@ namespace GNAy.Capital.Trade.Controllers
                 StrategyData target = _appCtrl.Strategy.DataCollection.FirstOrDefault(x =>
                     x.StatusEnum != StrategyStatus.Enum.Waiting &&
                     x.StatusEnum != StrategyStatus.Enum.Cancelled &&
-                    x.StatusEnum != StrategyStatus.Enum.OrderError &&
+                    //x.StatusEnum != StrategyStatus.Enum.OrderError &&
                     x.FullAccount == data.Account &&
                     x.Symbol == data.Symbol &&
                     x.BSEnum == data.BSEnum &&
                     x.DayTradeEnum == data.DayTradeEnum &&
                     x.OrderData != null &&
                     x.UnclosedQty != 0 &&
-                    x.SendRealOrder);
+                    x.SendRealOrder == _appCtrl.Settings.SendRealOrder);
 
                 if (target == null)
                 {
@@ -191,12 +245,17 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{target.UnclosedQty} < 0|{target.ToLog()}", UniqueName);
                     target.UnclosedQty = 0;
                 }
-                else if (target.UnclosedQty > data.Quantity)
-                {
-                    _appCtrl.LogWarn(start, $"計算錯誤(可能是委託和查詢時間太接近)，策略未平倉量{target.UnclosedQty} > 庫存{data.Quantity}|{target.ToLog()}", UniqueName);
-                    //target.UnclosedQty = data.Quantity;
-                }
-                else if (target.UnclosedQty == data.Quantity && target.DealPrice != data.AveragePrice)
+                //else if (target.UnclosedQty > data.Quantity)
+                //{
+                //    _appCtrl.LogWarn(start, $"計算錯誤(可能是委託和查詢時間太接近)，策略未平倉量{target.UnclosedQty} > 庫存{data.Quantity}|{target.ToLog()}", UniqueName);
+                //    //target.UnclosedQty = data.Quantity;
+                //}
+                //else if (target.UnclosedQty == data.Quantity && target.DealPrice != data.AveragePrice)
+                //{
+                //    _appCtrl.LogTrace(start, $"成交均價校正{target.DealPrice} != {data.AveragePrice}|{target.ToLog()}", UniqueName);
+                //    target.DealPrice = data.AveragePrice;
+                //}
+                else if (target.UnclosedQty >= data.Quantity && target.DealPrice != data.AveragePrice)
                 {
                     _appCtrl.LogTrace(start, $"成交均價校正{target.DealPrice} != {data.AveragePrice}|{target.ToLog()}", UniqueName);
                     target.DealPrice = data.AveragePrice;
@@ -257,22 +316,7 @@ namespace GNAy.Capital.Trade.Controllers
                     StartStrategy(data, string.Empty, start);
                 }
                 
-                if (addNew)
-                {
-                    //if (_appCtrl.Settings.SendRealOrder)
-                    //{
-                    //    if (_strategyKeys.FirstOrDefault(x => x.StartsWith(data.Account)) == null)
-                    //    {
-                    //        StartStrategy(data, start);
-                    //    }
-                    //}
-                    //if (!_appCtrl.Settings.SendRealOrder)
-                    //{
-                    //    _strategyKeys.Remove(data.PrimaryKey);
-                    //    StartStrategy(data, start);
-                    //}
-                }
-                else
+                if (!addNew)
                 {
                     return (addNew, data);
                 }
@@ -343,10 +387,6 @@ namespace GNAy.Capital.Trade.Controllers
 
                         _appCtrl.LogTrace(start, data.ToLog(), UniqueName);
                     }
-
-                    //TODO: 雲端手動啟動策略，本地端監控也要同步啟動
-
-                    //StartStrategy(QuerySent.Item3, start);
 
                     if (_appCtrl.Settings.SendRealOrder && !_strategyKeys.Contains(QuerySent.Item3))
                     {
@@ -481,7 +521,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public OpenInterestData MoveToNextStrategy(OpenInterestData data)
         {
-            if (_appCtrl.Settings.SendRealOrder || data == null || string.IsNullOrWhiteSpace(data.PrimaryKey))
+            if (_appCtrl.Settings.SendRealOrder || data == null || string.IsNullOrWhiteSpace(data.Strategy))
             {
                 return null;
             }
@@ -490,7 +530,9 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                //
+                _appCtrl.Strategy.ResetToZero(data.Strategy);
+
+                StartStrategy(data, data.Strategy, start);
             }
             catch (Exception ex)
             {
