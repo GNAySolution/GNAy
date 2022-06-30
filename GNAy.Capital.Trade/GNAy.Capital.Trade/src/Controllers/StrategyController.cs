@@ -981,7 +981,10 @@ namespace GNAy.Capital.Trade.Controllers
                 order.DealPrice = openInterest.AveragePrice;
                 order.SendRealOrder = sendRealOrder;
 
-                openInterest.Strategy = data.PrimaryKey;
+                if (sendRealOrder)
+                {
+                    openInterest.Strategy = data.PrimaryKey;
+                }
             }
             catch (Exception ex)
             {

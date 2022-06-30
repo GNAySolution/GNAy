@@ -99,14 +99,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         _strategyKeys.Add(key1);
 
-                        //if (target.OrderData != null || target.UnclosedQty != 0)
-                        //{
-                        //    continue;
-                        //}
-
-                        //string key1 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}";
                         string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}_{target.SendRealOrder}";
-                        //OpenInterestData data = this[key1];
 
                         if (data.Quantity < target.OrderQty)
                         {
@@ -141,6 +134,12 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         try
                         {
+                            if (Count > 1 && !_appCtrl.Settings.SendRealOrder && value.Item2.SendRealOrder)
+                            {
+                                filterStrategy = value.Item2.PrimaryKey;
+                                break;
+                            }
+
                             _appCtrl.Strategy.StartNow(value.Item2, value.Item1);
                         }
                         catch (Exception ex)
@@ -149,7 +148,10 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                     }
 
-                    return;
+                    if (string.IsNullOrWhiteSpace(filterStrategy))
+                    {
+                        return;
+                    }
                 }
 
                 SortedDictionary<string, (OpenInterestData, StrategyData)> mapB = new SortedDictionary<string, (OpenInterestData, StrategyData)>();
@@ -297,7 +299,7 @@ namespace GNAy.Capital.Trade.Controllers
                         DayTradeEnum = dayTrade,
                     };
                 }
-                else if (data.PositionEnum == OrderPosition.Enum.Close && data.AveragePrice != pri) //TODO
+                else if (data.PositionEnum == OrderPosition.Enum.Close && data.AveragePrice != pri)
                 {
                     reopened = true;
                 }
