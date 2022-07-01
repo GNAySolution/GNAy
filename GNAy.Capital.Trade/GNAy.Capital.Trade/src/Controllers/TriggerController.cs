@@ -107,7 +107,13 @@ namespace GNAy.Capital.Trade.Controllers
 
             lock (data.SyncRoot)
             {
-                if (data.StatusEnum == TriggerStatus.Enum.Waiting || data.StatusEnum == TriggerStatus.Enum.Monitoring)
+                if (!_appCtrl.Settings.SendRealOrder && _appCtrl.Settings.StrategyFromOpenInterest && (!string.IsNullOrWhiteSpace(data.StrategyOpenOR) || !string.IsNullOrWhiteSpace(data.StrategyOpenAND)))
+                {
+                    data.Comment = $"從庫存未平倉啟動策略(StrategyFromOpenInterest)";
+
+                    return (LogLevel.Warn, $"從庫存未平倉啟動策略(StrategyFromOpenInterest)");
+                }
+                else if (data.StatusEnum == TriggerStatus.Enum.Waiting || data.StatusEnum == TriggerStatus.Enum.Monitoring)
                 {
                     return (LogLevel.Trace, string.Empty);
                 }
@@ -905,6 +911,11 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             data.StatusEnum = TriggerStatus.Enum.Cancelled;
                             data.Comment = "關鍵字取消";
+                        }
+                        else if (!_appCtrl.Settings.SendRealOrder && _appCtrl.Settings.StrategyFromOpenInterest && (!string.IsNullOrWhiteSpace(data.StrategyOpenOR) || !string.IsNullOrWhiteSpace(data.StrategyOpenAND)))
+                        {
+                            data.StatusEnum = TriggerStatus.Enum.Cancelled;
+                            data.Comment = "從庫存未平倉啟動策略(StrategyFromOpenInterest)";
                         }
                         else if ((!data.StartTime.HasValue || data.StartTime.Value <= DateTime.Now) && !_appCtrl.CAPQuote.LoadedOnTime)
                         {

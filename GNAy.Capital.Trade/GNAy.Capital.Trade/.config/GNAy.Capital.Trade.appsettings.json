@@ -1,5 +1,5 @@
 {
-  "Version": "1.22.619.1",
+  "Version": "1.22.701.1",
   "Description": "測試用設定",
   "ProcessPriority": "Normal",
   "Big5EncodingCodePage": 950,
@@ -133,8 +133,8 @@
   "StrategyFileLoadFormat": "T*{Holiday}_{DayNight}.csv",
   "StrategyFileSaveFormat": "MMdd_HHmm",
   "StrategyNotForOpenInterest": "ZS",
+  "StrategyFromOpenInterest": true,
   "SentOrderFolderPath": "SentOrder",
   "SentOrderFileFormat": "yyMMdd_HHmmss_ffffff",
   "SendRealOrder": false,
-  "StartFromOpenInterest": true
 }

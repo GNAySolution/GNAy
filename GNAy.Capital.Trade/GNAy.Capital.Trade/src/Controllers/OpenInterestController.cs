@@ -68,7 +68,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return;
                 }
-                else if (data.PositionEnum == OrderPosition.Enum.Close || !_appCtrl.Settings.StartFromOpenInterest || _appCtrl.Strategy == null || _appCtrl.Strategy.Count <= 0)
+                else if (data.PositionEnum == OrderPosition.Enum.Close || !_appCtrl.Settings.StrategyFromOpenInterest || _appCtrl.Strategy == null || _appCtrl.Strategy.Count <= 0)
                 {
                     return;
                 }
@@ -134,11 +134,11 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         try
                         {
-                            if (Count > 1 && !_appCtrl.Settings.SendRealOrder && value.Item2.SendRealOrder)
-                            {
-                                filterStrategy = value.Item2.PrimaryKey;
-                                break;
-                            }
+                            //if (Count > 1 && !_appCtrl.Settings.SendRealOrder && value.Item2.SendRealOrder)
+                            //{
+                            //    filterStrategy = value.Item2.PrimaryKey;
+                            //    break;
+                            //}
 
                             _appCtrl.Strategy.StartNow(value.Item2, value.Item1);
                         }
@@ -148,10 +148,10 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                     }
 
-                    if (string.IsNullOrWhiteSpace(filterStrategy))
-                    {
+                    //if (string.IsNullOrWhiteSpace(filterStrategy))
+                    //{
                         return;
-                    }
+                    //}
                 }
 
                 SortedDictionary<string, (OpenInterestData, StrategyData)> mapB = new SortedDictionary<string, (OpenInterestData, StrategyData)>();

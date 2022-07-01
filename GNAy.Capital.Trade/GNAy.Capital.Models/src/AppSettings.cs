@@ -163,9 +163,13 @@ namespace GNAy.Capital.Models
         public string StrategyFileLoadFormat { get; set; }
         public string StrategyFileSaveFormat { get; set; }
         /// <summary>
-        /// 頭關鍵字，不會從未平倉啟動的策略
+        /// 頭關鍵字，不會從庫存未平倉啟動的策略
         /// </summary>
         public string StrategyNotForOpenInterest { get; set; }
+        /// <summary>
+        /// 從庫存未平倉啟動策略
+        /// </summary>
+        public bool StrategyFromOpenInterest { get; set; }
 
         /// <summary>
         /// 送出的委託單，不論是否有收到委回成回
@@ -177,14 +181,10 @@ namespace GNAy.Capital.Models
         /// false=測試或跑回測，不實際下單
         /// </summary>
         public bool SendRealOrder { get; set; }
-        /// <summary>
-        /// 程式啟動後，利用庫存判斷要啟動的策略
-        /// </summary>
-        public bool StartFromOpenInterest { get; set; }
 
         public AppSettings()
         {
-            Version = "1.22.619.1";
+            Version = "1.22.701.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -270,12 +270,12 @@ namespace GNAy.Capital.Models
             StrategyFileLoadFormat = $"T*{Keyword_Holiday}_{Keyword_DayNight}.csv";
             StrategyFileSaveFormat = "MMdd_HHmm";
             StrategyNotForOpenInterest = "ZS";
+            StrategyFromOpenInterest = false;
 
             SentOrderFolderPath = "SentOrder";
             SentOrderFileFormat = "yyMMdd_HHmmss_ffffff";
 
             SendRealOrder = false;
-            StartFromOpenInterest = false;
         }
     }
 }

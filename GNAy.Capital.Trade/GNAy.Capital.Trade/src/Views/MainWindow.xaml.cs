@@ -383,7 +383,7 @@ namespace GNAy.Capital.Trade
                     ComboBoxOrderAccs.Visibility = Visibility.Collapsed;
                 }
 
-                CheckBoxStartFromOpenInterest.IsChecked = _appCtrl.Settings.StartFromOpenInterest;
+                CheckBoxStrategyFromOpenInterest.IsChecked = _appCtrl.Settings.StrategyFromOpenInterest;
 
                 if (!_appCtrl.Config.Archive.Exists)
                 {
@@ -1297,14 +1297,14 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void CheckBoxStartFromOpenInterest_CheckedOrNot(object sender, RoutedEventArgs e)
+        private void CheckBoxStrategyFromOpenInterest_CheckedOrNot(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                _appCtrl.Settings.StartFromOpenInterest = CheckBoxStartFromOpenInterest.IsChecked.Value;
-                _appCtrl.LogTrace(start, $"StartFromOpenInterest={_appCtrl.Settings.StartFromOpenInterest}", UniqueName);
+                _appCtrl.Settings.StrategyFromOpenInterest = CheckBoxStrategyFromOpenInterest.IsChecked.Value;
+                _appCtrl.LogTrace(start, $"StrategyFromOpenInterest={_appCtrl.Settings.StrategyFromOpenInterest}", UniqueName);
             }
             catch (Exception ex)
             {
