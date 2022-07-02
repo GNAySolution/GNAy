@@ -2208,21 +2208,39 @@ namespace GNAy.Capital.Trade
 
                     return;
                 }
-
-                if (DataGridStrategyRule.SelectedCells.Count > 0 && DataGridStrategyRule.SelectedCells[0].Item is StrategyData data)
+                else if (DataGridStrategyRule.SelectedCells.Count > 0)
                 {
-                    if (data.PrimaryKey == TextBoxStrategyPrimaryKey.Text.Trim())
-                    {
-                        if (data.UnclosedQty <= 0)
-                        {
-                            _appCtrl.Strategy.StartNow(data.PrimaryKey);
+                    SortedSet<string> keys = new SortedSet<string>();
 
-                            return;
-                        }
-                        else
+                    foreach (DataGridCellInfo cell in DataGridStrategyRule.SelectedCells)
+                    {
+                        if (cell.Item is StrategyData data)
                         {
-                            throw new ArgumentException($"策略({data.PrimaryKey})執行中，未平倉量({data.UnclosedQty}) > 0，無法手動啟動|{data.ToLog()}");
+                            if (data.UnclosedQty <= 0)
+                            {
+                                if (keys.Contains(data.PrimaryKey))
+                                {
+                                    keys.Clear();
+                                    break;
+                                }
+
+                                keys.Add(data.PrimaryKey);
+                            }
+                            else
+                            {
+                                _appCtrl.LogError(start, $"策略({data.PrimaryKey})執行中，未平倉量({data.UnclosedQty}) > 0，無法手動啟動|{data.ToLog()}", UniqueName);
+                            }
                         }
+                    }
+
+                    if (keys.Count > 0)
+                    {
+                        foreach (string key in keys)
+                        {
+                            _appCtrl.Strategy.StartNow(key);
+                        }
+
+                        return;
                     }
                 }
 

@@ -15,6 +15,7 @@ namespace GNAy.Capital.Models
     {
         public const string Keyword_Holiday = "{Holiday}";
         public const string Keyword_DayNight = "{DayNight}";
+        public const string Keyword_DayOfWeek = "{DayOfWeek}";
 
         public string Version { get; set; }
         public string Description { get; set; }

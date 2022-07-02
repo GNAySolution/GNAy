@@ -531,6 +531,30 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
+                else if (data.StatusEnum == StrategyStatus.Enum.Monitoring)
+                {
+                    data.MarketPrice = quote.DealPrice;
+
+                    if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice >= data.OrderPriceAfter) || data.MarketPrice <= data.OrderPriceAfter)
+                    {
+                        if (data.OrderData != null)
+                        {
+                            _appCtrl.LogError(start, $"監控中的策略已經存在委託單|{data.ToLog()}|{data.OrderData.ToLog()}", UniqueName);
+
+                            data.StatusEnum = StrategyStatus.Enum.OrderSent;
+                        }
+                        else
+                        {
+                            StrategyData order = data.CreateOrder();
+
+                            data.StatusEnum = StrategyStatus.Enum.OrderSent;
+
+                            _appCtrl.CAPOrder.Send(order);
+                        }
+                    }
+
+                    return saveData;
+                }
                 else if (data.UnclosedQty <= 0)
                 {
                     return saveData;
@@ -940,6 +964,26 @@ namespace GNAy.Capital.Trade.Controllers
             SerialReset(data, false);
             ParentCheck(data, true, start);
 
+            if (!decimal.TryParse(data.OrderPriceBefore, out _) && data.OrderPriceBefore.Trim().Length > 1)
+            {
+                if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY || data.Quote == null || data.Quote.Simulate != QuoteData.RealTrade || data.Quote.DealPrice == 0)
+                {
+                    data.StatusEnum = StrategyStatus.Enum.Monitoring;
+
+                    CancelAfterOrderSent(data, start);
+
+                    return;
+                }
+                else if ((data.BSEnum == OrderBS.Enum.Buy && data.Quote.DealPrice < data.OrderPriceAfter) || data.Quote.DealPrice > data.OrderPriceAfter)
+                {
+                    data.StatusEnum = StrategyStatus.Enum.Monitoring;
+
+                    CancelAfterOrderSent(data, start);
+
+                    return;
+                }
+            }
+
             StrategyData order = data.CreateOrder();
 
             data.StatusEnum = StrategyStatus.Enum.OrderSent;
@@ -1019,14 +1063,22 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.Config.StrategyFolder.Refresh();
 
                     string loadFile = _appCtrl.Settings.StrategyFileLoadFormat;
+
                     if (loadFile.Contains(AppSettings.Keyword_Holiday))
                     {
                         loadFile = loadFile.Replace(AppSettings.Keyword_Holiday, _appCtrl.Config.IsHoliday(start.AddDays(1)).ToString());
                     }
+
                     if (loadFile.Contains(AppSettings.Keyword_DayNight))
                     {
                         loadFile = loadFile.Replace(AppSettings.Keyword_DayNight, _appCtrl.CAPQuote.IsAMMarket ? $"{Market.EDayNight.AM}" : $"{Market.EDayNight.PM}");
                     }
+
+                    if (loadFile.Contains(AppSettings.Keyword_DayOfWeek))
+                    {
+                        //
+                    }
+
                     file = _appCtrl.Config.StrategyFolder.GetFiles(loadFile).LastOrDefault();
 
                     _appCtrl.StartTrace($"{file?.FullName}", UniqueName);

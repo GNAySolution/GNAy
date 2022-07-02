@@ -855,14 +855,22 @@ namespace GNAy.Capital.Trade.Controllers
                     _appCtrl.Config.TriggerFolder.Refresh();
 
                     string loadFile = _appCtrl.Settings.TriggerFileLoadFormat;
+
                     if (loadFile.Contains(AppSettings.Keyword_Holiday))
                     {
                         loadFile = loadFile.Replace(AppSettings.Keyword_Holiday, _appCtrl.Config.IsHoliday(start.AddDays(1)).ToString());
                     }
+
                     if (loadFile.Contains(AppSettings.Keyword_DayNight))
                     {
                         loadFile = loadFile.Replace(AppSettings.Keyword_DayNight, _appCtrl.CAPQuote.IsAMMarket ? $"{Market.EDayNight.AM}" : $"{Market.EDayNight.PM}");
                     }
+
+                    if (loadFile.Contains(AppSettings.Keyword_DayOfWeek))
+                    {
+                        //
+                    }
+
                     file = _appCtrl.Config.TriggerFolder.GetFiles(loadFile).LastOrDefault();
 
                     _appCtrl.StartTrace($"{file?.FullName}", UniqueName);
