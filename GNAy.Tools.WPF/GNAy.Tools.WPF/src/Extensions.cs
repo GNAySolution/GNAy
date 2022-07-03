@@ -216,7 +216,7 @@ namespace GNAy.Tools.WPF
                         {
                             Style elementS = null;
 
-                            if (attr.WPFHorizontalAlignment != NET47.WPFHorizontalAlignment.Left)
+                            if (attr.WPFHorizontalAlignment != WPFHorizontalAlignment.Left)
                             {
                                 elementS = new Style();
                                 elementS.Setters.Add(new Setter(FrameworkElement.HorizontalAlignmentProperty, attr.WPFHorizontalAlignment.ToString().ConvertTo<HorizontalAlignment>()));

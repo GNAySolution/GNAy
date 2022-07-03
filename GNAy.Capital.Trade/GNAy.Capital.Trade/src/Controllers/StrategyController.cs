@@ -535,7 +535,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     data.MarketPrice = quote.DealPrice;
 
-                    if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice >= data.OrderPriceAfter) || data.MarketPrice <= data.OrderPriceAfter)
+                    if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice >= data.OrderPriceAfter) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice <= data.OrderPriceAfter))
                     {
                         if (data.OrderData != null)
                         {
@@ -552,6 +552,9 @@ namespace GNAy.Capital.Trade.Controllers
                             _appCtrl.CAPOrder.Send(order);
                         }
                     }
+
+                    data.Updater = methodName;
+                    data.UpdateTime = DateTime.Now;
 
                     return saveData;
                 }
@@ -974,7 +977,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     return;
                 }
-                else if ((data.BSEnum == OrderBS.Enum.Buy && data.Quote.DealPrice < data.OrderPriceAfter) || data.Quote.DealPrice > data.OrderPriceAfter)
+                else if ((data.BSEnum == OrderBS.Enum.Buy && data.Quote.DealPrice < data.OrderPriceAfter) || (data.BSEnum == OrderBS.Enum.Sell && data.Quote.DealPrice > data.OrderPriceAfter))
                 {
                     data.StatusEnum = StrategyStatus.Enum.Monitoring;
 
