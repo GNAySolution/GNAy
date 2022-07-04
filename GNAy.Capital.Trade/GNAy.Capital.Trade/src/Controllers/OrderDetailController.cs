@@ -99,13 +99,22 @@ namespace GNAy.Capital.Trade.Controllers
 
             _appCtrl.Strategy.MarketCheck(data, data.Quote);
 
+            StrategyData parent = data.Parent;
+
             data.MarketPrice = data.Quote.DealPrice;
 
-            (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote);
+            if (parent == null)
+            {
+                (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote);
 
-            data.OrderPriceAfter = orderPriceAfter.Item2;
-            _appCtrl.LogTrace(start, $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
-            Notice = $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}";
+                data.OrderPriceAfter = orderPriceAfter.Item2;
+                _appCtrl.LogTrace(start, $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);
+                Notice = $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}";
+            }
+            else
+            {
+                data.OrderPriceAfter = data.MarketPrice;
+            }
 
             data.DealPrice = data.OrderPriceAfter;
             data.DealQty = data.OrderQty;
@@ -116,8 +125,6 @@ namespace GNAy.Capital.Trade.Controllers
                 data.UnclosedQty = data.DealQty;
                 data.UnclosedProfit = 0;
             }
-
-            StrategyData parent = data.Parent;
 
             if (parent != null)
             {
