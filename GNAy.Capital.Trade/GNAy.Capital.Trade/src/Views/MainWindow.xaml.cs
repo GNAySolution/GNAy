@@ -2194,7 +2194,7 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonStartStartegyNow_Click(object sender, RoutedEventArgs e)
+        private void ButtonStartStrategyNow_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 
@@ -2316,7 +2316,7 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonNextStrategy_Click(object sender, RoutedEventArgs e)
+        private void ButtonStrategyFromOpenInterest_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 

@@ -254,8 +254,14 @@ namespace GNAy.Capital.Models
             get { return _moveStopWinQty; }
             set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWinAfter)); }
         }
+        private string _moveStopWinAfter =>
+            MoveStopWinPrice == 0 || MoveStopWinOffset == 0 ? string.Empty :
+            BSEnum == OrderBS.Enum.Buy && MoveStopWinOffset < 0 ? $"{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})" :
+            BSEnum == OrderBS.Enum.Buy && MoveStopWinOffset > 0 ? $"{MoveStopWinPrice:0.00} ({OrderPriceAfter + MoveStopWinOffset:0.00})({MoveStopWinQty})" :
+            BSEnum == OrderBS.Enum.Sell && MoveStopWinOffset > 0 ? $"{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})" :
+            $"{MoveStopWinPrice:0.00} ({OrderPriceAfter + MoveStopWinOffset:0.00})({MoveStopWinQty})";
         [Column("移動停利觸發", "移利觸發", CSVIndex = -1, WPFDisplayIndex = 20, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
-        public string MoveStopWinAfter => MoveStopWinPrice == 0 || MoveStopWinOffset == 0 ? string.Empty : MoveStopWinData == null ? $"*{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})" : $"{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})";
+        public string MoveStopWinAfter => MoveStopWinPrice == 0 || MoveStopWinOffset == 0 ? string.Empty : MoveStopWinData == null ? $"*{_moveStopWinAfter})" : $"{_moveStopWinAfter})";
 
         public StrategyData MoveStopWinData;
 

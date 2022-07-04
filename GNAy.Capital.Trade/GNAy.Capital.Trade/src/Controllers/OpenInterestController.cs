@@ -207,6 +207,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void CheckStrategy(OpenInterestData data, DateTime start)
         {
+            return; //TODO
+
             try
             {
                 if (!_appCtrl.Settings.SendRealOrder)
@@ -523,23 +525,23 @@ namespace GNAy.Capital.Trade.Controllers
 
         public OpenInterestData MoveToNextStrategy(OpenInterestData data)
         {
-            if (_appCtrl.Settings.SendRealOrder || data == null || string.IsNullOrWhiteSpace(data.Strategy))
-            {
-                return null;
-            }
+            //if (_appCtrl.Settings.SendRealOrder || data == null || string.IsNullOrWhiteSpace(data.Strategy))
+            //{
+            //    return null;
+            //}
 
-            DateTime start = _appCtrl.StartTrace($"{data.ToLog()}", UniqueName);
+            //DateTime start = _appCtrl.StartTrace($"{data.ToLog()}", UniqueName);
 
-            try
-            {
-                _appCtrl.Strategy.ResetToZero(data.Strategy);
+            //try
+            //{
+            //    _appCtrl.Strategy.ResetToZero(data.Strategy);
 
-                StartStrategy(data, data.Strategy, start);
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-            }
+            //    StartStrategy(data, data.Strategy, start);
+            //}
+            //catch (Exception ex)
+            //{
+            //    _appCtrl.LogException(start, ex, ex.StackTrace);
+            //}
 
             return null;
         }

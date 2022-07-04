@@ -275,18 +275,6 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 data.MoveStopWinOffset = decimal.Parse(moveStopWinBefore);
-
-                if (data.BSEnum == OrderBS.Enum.Buy)
-                {
-                    if (data.MoveStopWinOffset >= 0)
-                    {
-                        throw new ArgumentException($"移動停利位移({data.MoveStopWinOffset}) >= 0|{data.ToLog()}");
-                    }
-                }
-                else if (data.MoveStopWinOffset <= 0)
-                {
-                    throw new ArgumentException($"移動停利位移({data.MoveStopWinOffset}) <= 0|{data.ToLog()}");
-                }
             }
 
             if (data.MoveStopWinQty == 0)
@@ -537,19 +525,19 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice >= data.OrderPriceAfter) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice <= data.OrderPriceAfter))
                     {
-                        if (data.OrderData != null)
-                        {
-                            _appCtrl.LogError(start, $"監控中的策略已經存在委託單|{data.ToLog()}|{data.OrderData.ToLog()}", UniqueName);
-
-                            data.StatusEnum = StrategyStatus.Enum.OrderSent;
-                        }
-                        else
+                        if (data.OrderData == null)
                         {
                             StrategyData order = data.CreateOrder();
 
                             data.StatusEnum = StrategyStatus.Enum.OrderSent;
 
                             _appCtrl.CAPOrder.Send(order);
+                        }
+                        else
+                        {
+                            _appCtrl.LogError(start, $"監控中的策略已經存在委託單|{data.ToLog()}|{data.OrderData.ToLog()}", UniqueName);
+
+                            data.StatusEnum = StrategyStatus.Enum.OrderSent;
                         }
                     }
 
@@ -698,7 +686,8 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (data.BSEnum == OrderBS.Enum.Buy)
                     {
-                        if (data.MarketPrice <= data.MoveStopWinPrice + data.MoveStopWinOffset)
+                        if ((data.MoveStopWinOffset < 0 && data.MarketPrice <= data.MoveStopWinPrice + data.MoveStopWinOffset) ||
+                            (data.MoveStopWinOffset > 0 && data.MarketPrice <= data.OrderPriceAfter + data.MoveStopWinOffset))
                         {
                             StrategyData moveStopWinOrder = data.CreateMoveStopWinOrder();
 
@@ -715,7 +704,8 @@ namespace GNAy.Capital.Trade.Controllers
                             AfterStopWin(data, true, start);
                         }
                     }
-                    else if (data.MarketPrice >= data.MoveStopWinPrice + data.MoveStopWinOffset)
+                    else if ((data.MoveStopWinOffset > 0 && data.MarketPrice >= data.MoveStopWinPrice + data.MoveStopWinOffset) ||
+                            (data.MoveStopWinOffset < 0 && data.MarketPrice >= data.OrderPriceAfter + data.MoveStopWinOffset))
                     {
                         StrategyData moveStopWinOrder = data.CreateMoveStopWinOrder();
 
@@ -998,6 +988,8 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void StartNow(StrategyData data, OpenInterestData openInterest)
         {
+            return; //TODO
+
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}|{openInterest?.ToLog()}", UniqueName);
 
             QuoteData quoteBK = data.Quote;
