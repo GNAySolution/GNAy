@@ -207,67 +207,68 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void CheckStrategy(OpenInterestData data, DateTime start)
         {
-            return; //TODO
-
-            try
+            if (!_appCtrl.Settings.SendRealOrder)
             {
-                if (!_appCtrl.Settings.SendRealOrder)
-                {
-                    return;
-                }
-                else if (_appCtrl.Strategy == null)
-                {
-                    return;
-                }
-
-                StrategyData target = _appCtrl.Strategy.DataCollection.FirstOrDefault(x =>
-                    x.StatusEnum != StrategyStatus.Enum.Waiting &&
-                    x.StatusEnum != StrategyStatus.Enum.Cancelled &&
-                    //x.StatusEnum != StrategyStatus.Enum.OrderError &&
-                    x.FullAccount == data.Account &&
-                    x.Symbol == data.Symbol &&
-                    x.BSEnum == data.BSEnum &&
-                    x.DayTradeEnum == data.DayTradeEnum &&
-                    x.OrderData != null &&
-                    x.UnclosedQty != 0 &&
-                    x.SendRealOrder == _appCtrl.Settings.SendRealOrder);
-
-                if (target == null)
-                {
-                    return;
-                }
-
-                data.Strategy = target.PrimaryKey;
-
-                if (data.PositionEnum == OrderPosition.Enum.Close)
-                {
-                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{target.UnclosedQty} != 0|{target.ToLog()}", UniqueName);
-                    target.UnclosedQty = 0;
-                }
-                else if (target.UnclosedQty < 0)
-                {
-                    _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{target.UnclosedQty} < 0|{target.ToLog()}", UniqueName);
-                    target.UnclosedQty = 0;
-                }
-                //else if (target.UnclosedQty > data.Quantity)
-                //{
-                //    _appCtrl.LogWarn(start, $"計算錯誤(可能是委託和查詢時間太接近)，策略未平倉量{target.UnclosedQty} > 庫存{data.Quantity}|{target.ToLog()}", UniqueName);
-                //    //target.UnclosedQty = data.Quantity;
-                //}
-                //else if (target.UnclosedQty == data.Quantity && target.DealPrice != data.AveragePrice)
-                //{
-                //    _appCtrl.LogTrace(start, $"成交均價校正{target.DealPrice} != {data.AveragePrice}|{target.ToLog()}", UniqueName);
-                //    target.DealPrice = data.AveragePrice;
-                //}
-                else if (target.UnclosedQty >= data.Quantity && target.DealPrice != data.AveragePrice)
-                {
-                    _appCtrl.LogTrace(start, $"成交均價校正{target.DealPrice} != {data.AveragePrice}|{target.ToLog()}", UniqueName);
-                    target.DealPrice = data.AveragePrice;
-                }
+                return;
             }
-            catch (Exception ex)
+            else if (_appCtrl.Strategy == null)
             {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
+                return;
+            }
+
+            data.Strategy = string.Empty;
+
+            for (int i = _appCtrl.Strategy.Count - 1; i >= 0; --i)
+            {
+                try
+                {
+                    StrategyData target = _appCtrl.Strategy[i];
+
+                    if (target.StatusEnum == StrategyStatus.Enum.Waiting || target.StatusEnum == StrategyStatus.Enum.Cancelled || target.StatusEnum == StrategyStatus.Enum.Monitoring)
+                    {
+                        continue;
+                    }
+                    else if (target.FullAccount != data.Account || target.Symbol != data.Symbol || target.BSEnum != data.BSEnum || target.DayTradeEnum != data.DayTradeEnum)
+                    {
+                        continue;
+                    }
+                    else if (target.OrderData == null || target.UnclosedQty == 0 || !target.SendRealOrder)
+                    {
+                        continue;
+                    }
+
+                    data.Strategy = string.IsNullOrWhiteSpace(data.Strategy) ? target.PrimaryKey : $"{target.PrimaryKey},{data.Strategy}";
+
+                    if (data.PositionEnum == OrderPosition.Enum.Close)
+                    {
+                        _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{target.UnclosedQty} != 0|{target.ToLog()}", UniqueName);
+                        target.UnclosedQty = 0;
+                    }
+                    else if (target.UnclosedQty < 0)
+                    {
+                        _appCtrl.LogError(start, $"計算錯誤，策略未平倉量{target.UnclosedQty} < 0|{target.ToLog()}", UniqueName);
+                        target.UnclosedQty = 0;
+                    }
+                    //else if (target.UnclosedQty > data.Quantity)
+                    //{
+                    //    _appCtrl.LogWarn(start, $"計算錯誤(可能是委託和查詢時間太接近)，策略未平倉量{target.UnclosedQty} > 庫存{data.Quantity}|{target.ToLog()}", UniqueName);
+                    //    //target.UnclosedQty = data.Quantity;
+                    //}
+                    //else if (target.UnclosedQty == data.Quantity && target.DealPrice != data.AveragePrice)
+                    //{
+                    //    _appCtrl.LogTrace(start, $"成交均價校正{target.DealPrice} != {data.AveragePrice}|{target.ToLog()}", UniqueName);
+                    //    target.DealPrice = data.AveragePrice;
+                    //}
+                    else if (target.DealPrice != data.AveragePrice)
+                    {
+                        _appCtrl.LogTrace(start, $"成交均價校正{target.DealPrice} != {data.AveragePrice}|{target.ToLog()}", UniqueName);
+                        target.DealPrice = data.AveragePrice;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                }
             }
         }
 
