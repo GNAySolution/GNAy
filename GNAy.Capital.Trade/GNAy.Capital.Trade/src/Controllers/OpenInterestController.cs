@@ -524,7 +524,7 @@ namespace GNAy.Capital.Trade.Controllers
             return QuerySent;
         }
 
-        public OpenInterestData MoveToNextStrategy(OpenInterestData data)
+        public OpenInterestData StartStrategies(OpenInterestData data, string keys)
         {
             //if (_appCtrl.Settings.SendRealOrder || data == null || string.IsNullOrWhiteSpace(data.Strategy))
             //{
