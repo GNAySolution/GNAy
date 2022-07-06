@@ -505,11 +505,11 @@ namespace GNAy.Capital.Trade.Controllers
 
                 order.StatusEnum = StrategyStatus.Enum.OrderSent;
 
-                //if (_appCtrl.Settings.SendRealOrder && order.SendRealOrder)
-                //{
-                //    Task.Factory.StartNew(() => SendAsync(order, start, memberName));
-                //}
-                //else
+                if (_appCtrl.Settings.SendRealOrder && order.SendRealOrder)
+                {
+                    Task.Factory.StartNew(() => SendAsync(order, start, memberName));
+                }
+                else
                 {
                     SendAsync(order, start, memberName);
                 }

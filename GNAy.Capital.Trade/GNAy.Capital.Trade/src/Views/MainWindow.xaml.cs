@@ -1326,9 +1326,24 @@ namespace GNAy.Capital.Trade
                 {
                     if (string.IsNullOrWhiteSpace(TextBoxUserID.Text) && string.IsNullOrWhiteSpace(DWPBox.Password))
                     {
-                        FileInfo dwpFile = new FileInfo($"{ProcessName}.dwp.config");
+                        FileInfo dwpFile = null;
 
-                        if (dwpFile.Exists)
+                        foreach (string arg in Environment.GetCommandLineArgs())
+                        {
+                            if (!string.IsNullOrWhiteSpace(arg) && arg.StartsWith("-DWPPath=", StringComparison.OrdinalIgnoreCase))
+                            {
+                                string sub = arg.Substring("-DWPPath=".Length);
+
+                                if (File.Exists(sub))
+                                {
+                                    dwpFile = new FileInfo(sub);
+                                }
+
+                                break;
+                            }
+                        }
+
+                        if (dwpFile != null && dwpFile.Exists)
                         {
                             foreach (string line in File.ReadAllLines(dwpFile.FullName, TextEncoding.UTF8WithoutBOM))
                             {
@@ -1341,6 +1356,10 @@ namespace GNAy.Capital.Trade
                                     DWPBox.Password = line.Substring("dwp=".Length).Trim();
                                 }
                             }
+                        }
+                        else
+                        {
+                            return;
                         }
                     }
 
