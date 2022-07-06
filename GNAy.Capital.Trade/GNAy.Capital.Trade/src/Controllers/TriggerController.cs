@@ -868,7 +868,10 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (loadFile.Contains(AppSettings.Keyword_DayOfWeek))
                     {
-                        //
+                        int tradeDate = _appCtrl.CAPQuote.DataCollection.Max(x => x.TradeDateRaw);
+                        DayOfWeek dow = DateTime.ParseExact(tradeDate.ToString(), "yyyyMMdd", CultureInfo.InvariantCulture).DayOfWeek;
+
+                        loadFile = loadFile.Replace(AppSettings.Keyword_DayOfWeek, dow.ToString());
                     }
 
                     file = _appCtrl.Config.TriggerFolder.GetFiles(loadFile).LastOrDefault();

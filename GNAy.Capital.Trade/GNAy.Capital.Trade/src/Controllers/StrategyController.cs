@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -530,6 +531,7 @@ namespace GNAy.Capital.Trade.Controllers
                             StrategyData order = data.CreateOrder();
 
                             data.StatusEnum = StrategyStatus.Enum.OrderSent;
+                            order.OrderPriceBefore = OrderPrice.P;
 
                             _appCtrl.CAPOrder.Send(order);
                         }
@@ -1071,7 +1073,10 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (loadFile.Contains(AppSettings.Keyword_DayOfWeek))
                     {
-                        //
+                        int tradeDate = _appCtrl.CAPQuote.DataCollection.Max(x => x.TradeDateRaw);
+                        DayOfWeek dow = DateTime.ParseExact(tradeDate.ToString(), "yyyyMMdd", CultureInfo.InvariantCulture).DayOfWeek;
+
+                        loadFile = loadFile.Replace(AppSettings.Keyword_DayOfWeek, dow.ToString());
                     }
 
                     file = _appCtrl.Config.StrategyFolder.GetFiles(loadFile).LastOrDefault();

@@ -185,7 +185,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.706.1";
+            Version = "1.22.706.3";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -258,7 +258,7 @@ namespace GNAy.Capital.Models
             OpenInterestInterval = 8;
             FuturesRightsInterval = 28;
 
-            OrderTimeInterval = 200;
+            OrderTimeInterval = 100;
             OrderMaxQty = 50;
             OrderMaxCount = 50;
 
