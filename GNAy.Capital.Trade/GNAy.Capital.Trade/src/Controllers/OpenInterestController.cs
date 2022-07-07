@@ -60,11 +60,11 @@ namespace GNAy.Capital.Trade.Controllers
             _strategyKeys.Add(acc);
         }
 
-        private void StartStrategy(OpenInterestData data, string filterStrategy, DateTime start)
+        private void StartStrategy(OpenInterestData data, DateTime start)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(filterStrategy) && _strategyKeys.Contains(data.PrimaryKey))
+                if (_strategyKeys.Contains(data.PrimaryKey))
                 {
                     return;
                 }
@@ -128,8 +128,8 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                 }
 
-                if (string.IsNullOrWhiteSpace(filterStrategy))
-                {
+                //if (string.IsNullOrWhiteSpace(filterStrategy))
+                //{
                     foreach ((OpenInterestData, StrategyData) value in mapA.Values)
                     {
                         try
@@ -152,52 +152,52 @@ namespace GNAy.Capital.Trade.Controllers
                     //{
                         return;
                     //}
-                }
+                //}
 
-                SortedDictionary<string, (OpenInterestData, StrategyData)> mapB = new SortedDictionary<string, (OpenInterestData, StrategyData)>();
+                //SortedDictionary<string, (OpenInterestData, StrategyData)> mapB = new SortedDictionary<string, (OpenInterestData, StrategyData)>();
 
-                for (int i = _appCtrl.Strategy.Count - 1; i >= 0; --i)
-                {
-                    try
-                    {
-                        StrategyData target = _appCtrl.Strategy[i];
+                //for (int i = _appCtrl.Strategy.Count - 1; i >= 0; --i)
+                //{
+                //    try
+                //    {
+                //        StrategyData target = _appCtrl.Strategy[i];
 
-                        if (target.FullAccount != data.Account)
-                        {
-                            continue;
-                        }
+                //        if (target.FullAccount != data.Account)
+                //        {
+                //            continue;
+                //        }
 
-                        string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}_{bool.TrueString}";
+                //        string key2 = $"{target.FullAccount}_{target.Symbol}_{target.BSEnum}_{target.DayTradeEnum}_{bool.TrueString}";
 
-                        if (mapA.TryGetValue(key2, out (OpenInterestData, StrategyData) value) && value.Item2.OrderQty == target.OrderQty)
-                        {
-                            mapB[target.PrimaryKey] = (data, target);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
-                    }
-                }
+                //        if (mapA.TryGetValue(key2, out (OpenInterestData, StrategyData) value) && value.Item2.OrderQty == target.OrderQty)
+                //        {
+                //            mapB[target.PrimaryKey] = (data, target);
+                //        }
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        _appCtrl.LogException(start, ex, ex.StackTrace);
+                //    }
+                //}
 
-                if (mapB.Count == 1)
-                {
-                    return;
-                }
+                //if (mapB.Count == 1)
+                //{
+                //    return;
+                //}
 
-                List<string> list = mapB.Keys.ToList();
-                int index = list.IndexOf(filterStrategy);
+                //List<string> list = mapB.Keys.ToList();
+                //int index = list.IndexOf(filterStrategy);
 
-                if (index < 0)
-                {
-                    return;
-                }
+                //if (index < 0)
+                //{
+                //    return;
+                //}
 
-                index = index + 1 >= list.Count ? 0 : index + 1;
+                //index = index + 1 >= list.Count ? 0 : index + 1;
 
-                (OpenInterestData, StrategyData) found = mapB[list[index]];
+                //(OpenInterestData, StrategyData) found = mapB[list[index]];
 
-                _appCtrl.Strategy.StartNow(found.Item2, found.Item1);
+                //_appCtrl.Strategy.StartNow(found.Item2, found.Item1);
             }
             catch (Exception ex)
             {
@@ -318,7 +318,7 @@ namespace GNAy.Capital.Trade.Controllers
                 if (!_appCtrl.Settings.SendRealOrder && (reopened || string.IsNullOrWhiteSpace(data.Strategy)))
                 {
                     _strategyKeys.Remove(data.PrimaryKey);
-                    StartStrategy(data, string.Empty, start);
+                    StartStrategy(data, start);
                 }
                 
                 if (!addNew)
@@ -402,7 +402,7 @@ namespace GNAy.Capital.Trade.Controllers
                                 continue;
                             }
 
-                            StartStrategy(data, string.Empty, start);
+                            StartStrategy(data, start);
                         }
                     }
 
