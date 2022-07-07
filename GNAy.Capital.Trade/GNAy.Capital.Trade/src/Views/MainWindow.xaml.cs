@@ -2037,7 +2037,38 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                _appCtrl.Strategy.Close(TextBoxStrategyPrimaryKey.Text, int.Parse(TextBoxOrderQty.Text));
+                int qty = string.IsNullOrWhiteSpace(TextBoxOrderQty.Text) ? 0 : int.Parse(TextBoxOrderQty.Text);
+
+                if (DataGridStrategyRule.SelectedCells.Count > 0)
+                {
+                    SortedSet<string> keys = new SortedSet<string>();
+
+                    foreach (DataGridCellInfo cell in DataGridStrategyRule.SelectedCells)
+                    {
+                        if (cell.Item is StrategyData data && data.UnclosedQty > 0)
+                        {
+                            if (keys.Contains(data.PrimaryKey))
+                            {
+                                keys.Clear();
+                                break;
+                            }
+
+                            keys.Add(data.PrimaryKey);
+                        }
+                    }
+
+                    if (keys.Count > 0)
+                    {
+                        foreach (string key in keys)
+                        {
+                            _appCtrl.Strategy.Close(key, qty);
+                        }
+
+                        return;
+                    }
+                }
+
+                _appCtrl.Strategy.Close(TextBoxStrategyPrimaryKey.Text, qty);
             }
             catch (Exception ex)
             {
