@@ -849,7 +849,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     continue;
                 }
-                else if (!string.IsNullOrWhiteSpace(_appCtrl.Settings.StrategyNotForOpenInterest) && _appCtrl.Settings.StrategyNotForOpenInterest.Split(',').FirstOrDefault(x => data.PrimaryKey.StartsWith(x)) != null)
+                else if (_appCtrl.Settings.StrategyNotForOpenInterest.SplitWithoutWhiteSpace(',').FirstOrDefault(x => data.PrimaryKey.StartsWith(x)) != null)
                 {
                     continue;
                 }

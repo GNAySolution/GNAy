@@ -918,7 +918,7 @@ namespace GNAy.Capital.Trade.Controllers
                         data.StartTime = parseResult.Item2;
                         data.EndTime = parseResult.Item3;
 
-                        if (!string.IsNullOrWhiteSpace(_appCtrl.Settings.TriggerReadAndCancel) && _appCtrl.Settings.TriggerReadAndCancel.Split(',').FirstOrDefault(x => data.PrimaryKey.StartsWith(x)) != null)
+                        if (_appCtrl.Settings.TriggerReadAndCancel.SplitWithoutWhiteSpace(',').FirstOrDefault(x => data.PrimaryKey.StartsWith(x)) != null)
                         {
                             data.StatusEnum = TriggerStatus.Enum.Cancelled;
                             data.Comment = "關鍵字取消";

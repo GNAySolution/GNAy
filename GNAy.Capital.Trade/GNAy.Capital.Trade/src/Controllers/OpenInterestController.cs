@@ -1,4 +1,5 @@
 ﻿using GNAy.Capital.Models;
+using GNAy.Tools.NET47;
 using GNAy.Tools.WPF;
 using System;
 using System.Collections.Concurrent;
@@ -88,7 +89,7 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             continue;
                         }
-                        else if (!string.IsNullOrWhiteSpace(_appCtrl.Settings.StrategyNotForOpenInterest) && _appCtrl.Settings.StrategyNotForOpenInterest.Split(',').FirstOrDefault(x => target.PrimaryKey.StartsWith(x)) != null)
+                        else if (_appCtrl.Settings.StrategyNotForOpenInterest.SplitWithoutWhiteSpace(',').FirstOrDefault(x => target.PrimaryKey.StartsWith(x)) != null)
                         {
                             continue;
                         }
@@ -526,23 +527,43 @@ namespace GNAy.Capital.Trade.Controllers
 
         public OpenInterestData StartStrategies(OpenInterestData data, string keys)
         {
-            //if (_appCtrl.Settings.SendRealOrder || data == null || string.IsNullOrWhiteSpace(data.Strategy))
-            //{
-            //    return null;
-            //}
+            if (_appCtrl.Settings.SendRealOrder || data == null || string.IsNullOrWhiteSpace(keys))
+            {
+                return null;
+            }
 
-            //DateTime start = _appCtrl.StartTrace($"{data.ToLog()}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"keys={keys}|{data?.ToLog()}", UniqueName);
 
-            //try
-            //{
-            //    _appCtrl.Strategy.ResetToZero(data.Strategy);
+            try
+            {
+                int qtyTotal = 0;
+                string[] keyArr = keys.Split(',');
 
-            //    StartStrategy(data, data.Strategy, start);
-            //}
-            //catch (Exception ex)
-            //{
-            //    _appCtrl.LogException(start, ex, ex.StackTrace);
-            //}
+                foreach (string key in keyArr)
+                {
+                    StrategyData target = _appCtrl.Strategy[key];
+
+                    qtyTotal += target.OrderQty;
+                }
+
+                if (qtyTotal > data.Quantity)
+                {
+                    throw new ArgumentException($"qtyTotal({qtyTotal}) > data.Quantity({data.Quantity})|keys={keys}|{data.ToLog()}");
+                }
+
+                foreach (string key in data.Strategy.SplitWithoutWhiteSpace(','))
+                {
+                    _appCtrl.Strategy.ResetToZero(key);
+                }
+
+                //    StartStrategy(data, data.Strategy, start);
+
+                //TODO
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
 
             return null;
         }
