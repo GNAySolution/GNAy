@@ -1026,9 +1026,14 @@ namespace GNAy.Capital.Trade.Controllers
                 order.DealPrice = openInterest.AveragePrice;
                 order.SendRealOrder = sendRealOrder;
 
-                if (sendRealOrder)
+                if (string.IsNullOrWhiteSpace(openInterest.Strategy))
                 {
                     openInterest.Strategy = data.PrimaryKey;
+                }
+                else
+                {
+                    openInterest.Strategy = $"{data.PrimaryKey},{openInterest.Strategy}";
+                    openInterest.Strategy = openInterest.Strategy.JoinSortedSet(',');
                 }
             }
             catch (Exception ex)

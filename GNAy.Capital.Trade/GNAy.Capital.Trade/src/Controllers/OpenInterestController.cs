@@ -61,6 +61,11 @@ namespace GNAy.Capital.Trade.Controllers
             _strategyKeys.Add(acc);
         }
 
+        private void StartStrategy(OpenInterestData data, StrategyData target, DateTime start)
+        {
+            //TODO
+        }
+
         private void StartStrategy(OpenInterestData data, DateTime start)
         {
             try
@@ -527,23 +532,24 @@ namespace GNAy.Capital.Trade.Controllers
 
         public OpenInterestData StartStrategies(OpenInterestData data, string keys)
         {
-            if (_appCtrl.Settings.SendRealOrder || data == null || string.IsNullOrWhiteSpace(keys))
+            if (data.PositionEnum == OrderPosition.Enum.Close || !_appCtrl.Settings.StrategyFromOpenInterest || string.IsNullOrWhiteSpace(keys))
             {
                 return null;
             }
 
-            DateTime start = _appCtrl.StartTrace($"keys={keys}|{data?.ToLog()}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"keys={keys}|{data.ToLog()}", UniqueName);
 
             try
             {
                 int qtyTotal = 0;
-                string[] keyArr = keys.Split(',');
+                List<StrategyData> targets = new List<StrategyData>();
 
-                foreach (string key in keyArr)
+                foreach (string key in keys.ForeachSortedSet(','))
                 {
                     StrategyData target = _appCtrl.Strategy[key];
 
                     qtyTotal += target.OrderQty;
+                    targets.Add(target);
                 }
 
                 if (qtyTotal > data.Quantity)
@@ -554,11 +560,15 @@ namespace GNAy.Capital.Trade.Controllers
                 foreach (string key in data.Strategy.SplitWithoutWhiteSpace(','))
                 {
                     _appCtrl.Strategy.ResetToZero(key);
+                    _strategyKeys.Remove(key);
                 }
 
-                //    StartStrategy(data, data.Strategy, start);
+                data.Strategy = string.Empty;
 
-                //TODO
+                foreach (StrategyData target in targets)
+                {
+                    StartStrategy(data, target, start);
+                }
             }
             catch (Exception ex)
             {
