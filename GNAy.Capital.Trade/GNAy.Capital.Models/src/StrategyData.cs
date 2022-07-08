@@ -261,7 +261,7 @@ namespace GNAy.Capital.Models
             BSEnum == OrderBS.Enum.Sell && MoveStopWinOffset > 0 ? $"{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})" :
             $"{MoveStopWinPrice:0.00} ({OrderPriceAfter + MoveStopWinOffset:0.00})({MoveStopWinQty})";
         [Column("移動停利觸發", "移利觸發", CSVIndex = -1, WPFDisplayIndex = 20, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
-        public string MoveStopWinAfter => MoveStopWinPrice == 0 || MoveStopWinOffset == 0 ? string.Empty : MoveStopWinData == null ? $"*{_moveStopWinAfter})" : $"{_moveStopWinAfter})";
+        public string MoveStopWinAfter => MoveStopWinPrice == 0 || MoveStopWinOffset == 0 ? string.Empty : MoveStopWinData == null ? $"*{_moveStopWinAfter}" : $"{_moveStopWinAfter}";
 
         public StrategyData MoveStopWinData;
 

@@ -990,8 +990,6 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void StartNow(StrategyData data, OpenInterestData openInterest)
         {
-            return; //TODO
-
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}|{openInterest?.ToLog()}", UniqueName);
 
             QuoteData quoteBK = data.Quote;
@@ -1004,14 +1002,20 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                data.UnclosedQty = 0;
+                if (!decimal.TryParse(data.OrderPriceBefore, out _) && data.OrderPriceBefore.Trim().Length > 1)
+                {
+                    decimal offset = decimal.Parse(data.OrderPriceBefore.Substring(1));
 
-                SerialReset(data, false);
+                    data.Quote.DealPrice -= offset;
+                }
+
+                SerialReset(data, true);
                 ParentCheck(data, true, start);
 
                 StrategyData order = data.CreateOrder();
 
                 data.StatusEnum = StrategyStatus.Enum.OrderSent;
+                order.OrderPriceBefore = OrderPrice.P;
 
                 _appCtrl.CAPOrder.Send(order);
 
