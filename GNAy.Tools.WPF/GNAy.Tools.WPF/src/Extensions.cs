@@ -249,27 +249,23 @@ namespace GNAy.Tools.WPF
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static ICollectionView GetViewSource<T>(this ObservableCollection<T> obj)
+        public static ICollectionView GetView<T>(this ObservableCollection<T> obj)
         {
-            CollectionViewSource s = new CollectionViewSource()
-            {
-                Source = obj,
-            };
-
-            return s.View;
+            CollectionViewSource vs = new CollectionViewSource() { Source = obj, };
+            return vs.View;
         }
 
-        public static ObservableCollection<T> SetAndGetItemsSource<T>(this ItemsControl obj)
+        public static ObservableCollection<T> SetViewAndGetObservation<T>(this ItemsControl obj)
         {
             ObservableCollection<T> oc = new ObservableCollection<T>();
-            obj.ItemsSource = oc.GetViewSource();
+            obj.ItemsSource = oc.GetView();
             return oc;
         }
 
-        public static ObservableCollection<T> SetAndGetItemsSource<T>(this ItemsControl obj, IEnumerable<T> collection)
+        public static ObservableCollection<T> SetViewAndGetObservation<T>(this ItemsControl obj, IEnumerable<T> collection)
         {
             ObservableCollection<T> oc = new ObservableCollection<T>(collection);
-            obj.ItemsSource = oc.GetViewSource();
+            obj.ItemsSource = oc.GetView();
             return oc;
         }
 

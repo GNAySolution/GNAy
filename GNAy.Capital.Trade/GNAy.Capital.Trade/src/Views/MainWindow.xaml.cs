@@ -5,6 +5,7 @@ using GNAy.Tools.WPF;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -39,6 +40,7 @@ namespace GNAy.Capital.Trade
         private readonly AppController _appCtrl;
 
         private readonly Dictionary<TextBox, ComboBox> _editableCBMap;
+        private readonly Dictionary<DataGrid, ICollectionView> _dataGridViewMap;
 
         private int orderDetailCount;
 
@@ -111,6 +113,8 @@ namespace GNAy.Capital.Trade
                 partTB.GotFocus += TextBox_GotFocus;
                 _editableCBMap[partTB] = ComboBoxOrderSeqNo;
             }
+
+            _dataGridViewMap = new Dictionary<DataGrid, ICollectionView>();
 
             StatusBarItemAA1.Text = StartTime.ToString("MM/dd HH:mm");
             TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
@@ -1145,19 +1149,39 @@ namespace GNAy.Capital.Trade
                 _appCtrl.Settings.ShowDataGrid = CheckBoxShowDataGrid.IsChecked.Value;
                 _appCtrl.LogTrace(start, $"ShowDataGrid={_appCtrl.Settings.ShowDataGrid}", UniqueName);
 
+                if (!_dataGridViewMap.ContainsKey(DataGridAppLog) && DataGridAppLog.ItemsSource is ICollectionView)
+                {
+                    _dataGridViewMap[DataGridAppLog] = (ICollectionView)DataGridAppLog.ItemsSource;
+                }
+                if (!_dataGridViewMap.ContainsKey(DataGridQuoteSubscribed) && DataGridQuoteSubscribed.ItemsSource is ICollectionView)
+                {
+                    _dataGridViewMap[DataGridQuoteSubscribed] = (ICollectionView)DataGridQuoteSubscribed.ItemsSource;
+                }
+                if (!_dataGridViewMap.ContainsKey(DataGridFuturesRights) && DataGridFuturesRights.ItemsSource is ICollectionView)
+                {
+                    _dataGridViewMap[DataGridFuturesRights] = (ICollectionView)DataGridFuturesRights.ItemsSource;
+                }
+
                 if (_appCtrl.Settings.ShowDataGrid)
                 {
-                    DataGridAppLog.Visibility = Visibility.Visible;
-                    DataGridQuoteSubscribed.Visibility = Visibility.Visible;
-                    //DataGridOrderDetail.Visibility = Visibility.Visible;
-                    DataGridFuturesRights.Visibility = Visibility.Visible;
+                    if (_dataGridViewMap.TryGetValue(DataGridAppLog, out ICollectionView view))
+                    {
+                        DataGridAppLog.ItemsSource = view;
+                    }
+                    if (_dataGridViewMap.TryGetValue(DataGridQuoteSubscribed, out view))
+                    {
+                        DataGridQuoteSubscribed.ItemsSource = view;
+                    }
+                    if (_dataGridViewMap.TryGetValue(DataGridFuturesRights, out view))
+                    {
+                        DataGridFuturesRights.ItemsSource = view;
+                    }
                 }
                 else
                 {
-                    DataGridAppLog.Visibility = Visibility.Collapsed;
-                    DataGridQuoteSubscribed.Visibility = Visibility.Collapsed;
-                    //DataGridOrderDetail.Visibility = Visibility.Collapsed;
-                    DataGridFuturesRights.Visibility = Visibility.Collapsed;
+                    DataGridAppLog.ItemsSource = null;
+                    DataGridQuoteSubscribed.ItemsSource = null;
+                    DataGridFuturesRights.ItemsSource = null;
                 }
             }
             catch (Exception ex)
@@ -1503,11 +1527,11 @@ namespace GNAy.Capital.Trade
 
                 this.InvokeAsync(delegate
                 {
-                    ComboBoxTriggerProduct1.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                    ComboBoxTriggerProduct1.SetViewAndGetObservation(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
                     ComboBoxTriggerProduct1.Text = "2330";
-                    ComboBoxTriggerProduct2.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                    ComboBoxTriggerProduct2.SetViewAndGetObservation(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
                     ComboBoxTriggerProduct2.Text = "2330";
-                    ComboBoxOrderProduct.SetAndGetItemsSource(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
+                    ComboBoxOrderProduct.SetViewAndGetObservation(_appCtrl.CAPQuote.DataCollection.Select(x => $"{x.Symbol},{x.Name},{x.MarketGroupEnum}"));
                     ComboBoxOrderProduct.Text = "2330";
                 });
             }

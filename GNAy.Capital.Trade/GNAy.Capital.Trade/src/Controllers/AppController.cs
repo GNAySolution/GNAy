@@ -58,7 +58,7 @@ namespace GNAy.Capital.Trade.Controllers
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 
             mainForm.DataGridAppLog.SetHeadersByBindings(AppLogInDataGrid.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
-            _appLogCollection = mainForm.DataGridAppLog.SetAndGetItemsSource<AppLogInDataGrid>();
+            _appLogCollection = mainForm.DataGridAppLog.SetViewAndGetObservation<AppLogInDataGrid>();
 
             Config = LoadSettings();
 

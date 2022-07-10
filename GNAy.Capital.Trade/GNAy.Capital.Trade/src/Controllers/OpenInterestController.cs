@@ -46,7 +46,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             _dataMap = new SortedDictionary<string, OpenInterestData>();
             _appCtrl.MainForm.DataGridOpenInterest.SetHeadersByBindings(OpenInterestData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
-            _dataCollection = _appCtrl.MainForm.DataGridOpenInterest.SetAndGetItemsSource<OpenInterestData>();
+            _dataCollection = _appCtrl.MainForm.DataGridOpenInterest.SetViewAndGetObservation<OpenInterestData>();
 
             QuerySent = (DateTime.Now, -1, string.Empty, -1);
         }

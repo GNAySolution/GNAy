@@ -43,7 +43,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             _apiReplyMap = new Dictionary<int, APIReplyData>();
             _appCtrl.MainForm.DataGridAPIReply.SetHeadersByBindings(APIReplyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
-            _apiReplyCollection = _appCtrl.MainForm.DataGridAPIReply.SetAndGetItemsSource<APIReplyData>();
+            _apiReplyCollection = _appCtrl.MainForm.DataGridAPIReply.SetViewAndGetObservation<APIReplyData>();
         }
 
         private CapitalCenterController() : this(null)

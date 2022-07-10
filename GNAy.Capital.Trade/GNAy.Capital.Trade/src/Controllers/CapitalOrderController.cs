@@ -48,18 +48,18 @@ namespace GNAy.Capital.Trade.Controllers
 
             ReadCertResult = -1;
 
-            _dataCollection = _appCtrl.MainForm.ComboBoxOrderAccs.SetAndGetItemsSource<OrderAccData>();
+            _dataCollection = _appCtrl.MainForm.ComboBoxOrderAccs.SetViewAndGetObservation<OrderAccData>();
 
-            _buySell = _appCtrl.MainForm.ComboBoxOrderBuySell.SetAndGetItemsSource(OrderBS.Description);
+            _buySell = _appCtrl.MainForm.ComboBoxOrderBuySell.SetViewAndGetObservation(OrderBS.Description);
             _appCtrl.MainForm.ComboBoxOrderBuySell.SelectedIndex = (int)OrderBS.Enum.Buy;
 
-            _tradeTypes = _appCtrl.MainForm.ComboBoxOrderTradeType.SetAndGetItemsSource(OrderTradeType.Description);
+            _tradeTypes = _appCtrl.MainForm.ComboBoxOrderTradeType.SetViewAndGetObservation(OrderTradeType.Description);
             _appCtrl.MainForm.ComboBoxOrderTradeType.SelectedIndex = (int)OrderTradeType.Enum.ROD;
 
-            _dayTrade = _appCtrl.MainForm.ComboBoxOrderDayTrade.SetAndGetItemsSource(OrderDayTrade.Description);
+            _dayTrade = _appCtrl.MainForm.ComboBoxOrderDayTrade.SetViewAndGetObservation(OrderDayTrade.Description);
             _appCtrl.MainForm.ComboBoxOrderDayTrade.SelectedIndex = (int)OrderDayTrade.Enum.No;
 
-            _positionKinds = _appCtrl.MainForm.ComboBoxOrderPositionKind.SetAndGetItemsSource(OrderPosition.Description);
+            _positionKinds = _appCtrl.MainForm.ComboBoxOrderPositionKind.SetViewAndGetObservation(OrderPosition.Description);
             _appCtrl.MainForm.ComboBoxOrderPositionKind.SelectedIndex = (int)OrderPosition.Enum.Open;
 
             Notice = string.Empty;

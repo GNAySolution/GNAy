@@ -46,7 +46,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             _dataMap = new SortedDictionary<string, StrategyData>();
             _appCtrl.MainForm.DataGridStrategyRule.SetHeadersByBindings(StrategyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
-            _dataCollection = _appCtrl.MainForm.DataGridStrategyRule.SetAndGetItemsSource<StrategyData>();
+            _dataCollection = _appCtrl.MainForm.DataGridStrategyRule.SetViewAndGetObservation<StrategyData>();
 
             RecoverFile = string.Empty;
             Notice = string.Empty;
