@@ -425,18 +425,21 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void OpenStrategy(StrategyData data, string primary, DateTime start)
+        private void OpenStrategy(StrategyData source, string targetKey, DateTime start)
         {
             try
             {
-                StrategyData target = _appCtrl.Strategy[primary];
+                if (targetKey == source.PrimaryKey)
+                {
+                    return;
+                }
 
-                _appCtrl.Strategy.StartNow(target.PrimaryKey);
+                _appCtrl.Strategy.StartNow(_appCtrl.Strategy[targetKey]);
             }
             catch (Exception ex)
             {
                 _appCtrl.LogException(start, ex, ex.StackTrace);
-                _appCtrl.LogError(start, $"執行策略({primary})失敗|{data.ToLog()}", UniqueName);
+                _appCtrl.LogError(start, $"執行策略({targetKey})失敗|{source.ToLog()}", UniqueName);
             }
             finally
             {
@@ -516,7 +519,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (data.StopLossData != null || data.MarketClosingData != null)
+                else if (data.MarketClosingData != null)
                 {
                     return saveData;
                 }
@@ -548,8 +551,31 @@ namespace GNAy.Capital.Trade.Controllers
 
                     return saveData;
                 }
-                else if (data.UnclosedQty <= 0)
+                else if (data.StopLossData != null || data.UnclosedQty <= 0)
                 {
+                    string pk = $",{data.PrimaryKey},";
+
+                    if ($",{data.OpenStrategyAfterStopLoss},".Contains(pk) || $",{data.OpenStrategyAfterStopWin},".Contains(pk))
+                    {
+                        data.MarketPrice = quote.DealPrice;
+
+                        if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice <= (data.OrderPriceAfter - 10)) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice >= (data.OrderPriceAfter + 10)))
+                        {
+                            data.StatusEnum = StrategyStatus.Enum.Monitoring;
+                            data.OrderData = null;
+                            data.StopLossData = null;
+                            data.StopWinData = null;
+                            data.MoveStopWinData = null;
+                            data.ClosedProfit = 0;
+                            data.UnclosedQty = 0;
+                            data.MarketClosingData = null;
+                            data.Comment = "自己重啟自己";
+
+                            data.Updater = methodName;
+                            data.UpdateTime = DateTime.Now;
+                        }
+                    }
+
                     return saveData;
                 }
                 else if (data.StatusEnum == StrategyStatus.Enum.Waiting)
@@ -951,11 +977,10 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void StartNow(string primaryKey)
+        private void StartNow(StrategyData data)
         {
-            DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
 
-            StrategyData data = this[primaryKey.Replace(" ", string.Empty)];
             SerialReset(data, false);
             ParentCheck(data, true, start);
 
@@ -986,6 +1011,11 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.CAPOrder.Send(order);
 
             CancelAfterOrderSent(data, start);
+        }
+
+        public void StartNow(string primaryKey)
+        {
+            StartNow(this[primaryKey.Replace(" ", string.Empty)]);
         }
 
         public void StartNow(StrategyData data, OpenInterestData openInterest)
