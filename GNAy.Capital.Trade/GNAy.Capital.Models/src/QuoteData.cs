@@ -24,7 +24,7 @@ namespace GNAy.Capital.Models
         public static readonly string CSVColumnNames = string.Join(",", ColumnGetters.Values.Select(x => x.Item1.CSVName));
 
         private string _creator;
-        [TradeColumn("建立者")]
+        [TradeColumn("建立者", CSVIndex = -1)]
         public string Creator
         {
             get { return _creator; }
@@ -35,7 +35,7 @@ namespace GNAy.Capital.Models
         public DateTime CreatedDate => CreatedTime.Date;
 
         private DateTime _createdTime;
-        [TradeColumn("時間", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        [TradeColumn("時間", CSVIndex = -1)]
         public DateTime CreatedTime
         {
             get { return _createdTime; }

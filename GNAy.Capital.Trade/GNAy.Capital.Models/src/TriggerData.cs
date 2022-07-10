@@ -48,7 +48,7 @@ namespace GNAy.Capital.Models
         public readonly object SyncRoot;
 
         private string _creator;
-        [Column("建立者")]
+        [Column("建立者", CSVIndex = -1)]
         public string Creator
         {
             get { return _creator; }
@@ -59,7 +59,7 @@ namespace GNAy.Capital.Models
         public DateTime CreatedDate => CreatedTime.Date;
 
         private DateTime _createdTime;
-        [Column("時間", CSVStringFormat = "yyyy/MM/dd HH:mm:ss.ffffff")]
+        [Column("時間", CSVIndex = -1)]
         public DateTime CreatedTime
         {
             get { return _createdTime; }
