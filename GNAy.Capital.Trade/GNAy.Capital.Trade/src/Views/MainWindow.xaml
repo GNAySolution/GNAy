@@ -401,6 +401,7 @@
                                     <DataGridTextColumn Binding="{Binding DealPrice}"/>
                                     <DataGridTextColumn Binding="{Binding DealQty}"/>
                                     <DataGridTextColumn Binding="{Binding DealReport}"/>
+                                    <DataGridTextColumn Binding="{Binding ClosedProfitTotal}"/>
                                     <DataGridTextColumn Binding="{Binding ClosedProfit}"/>
                                     <DataGridTextColumn Binding="{Binding UnclosedQty}"/>
                                     <DataGridTextColumn Binding="{Binding UnclosedProfit}"/>
@@ -515,6 +516,7 @@
                                     <DataGridTextColumn Binding="{Binding DealPrice}"/>
                                     <DataGridTextColumn Binding="{Binding DealQty}"/>
                                     <DataGridTextColumn Binding="{Binding DealReport}"/>
+                                    <DataGridTextColumn Binding="{Binding ClosedProfitTotal}"/>
                                     <DataGridTextColumn Binding="{Binding ClosedProfit}"/>
                                     <DataGridTextColumn Binding="{Binding UnclosedQty}"/>
                                     <DataGridTextColumn Binding="{Binding UnclosedProfit}"/>
