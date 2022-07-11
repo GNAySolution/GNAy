@@ -452,7 +452,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 data.MarketPrice = data.Quote.DealPrice;
-                data.UnclosedProfit = (data.MarketPrice - data.AveragePrice) * data.Quantity * (data.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                data.UnclosedProfit = (data.MarketPrice - data.AveragePrice) * data.Quantity * data.ProfitDirection;
                 data.Updater = methodName;
                 //data.UpdateTime = DateTime.Now;
             }

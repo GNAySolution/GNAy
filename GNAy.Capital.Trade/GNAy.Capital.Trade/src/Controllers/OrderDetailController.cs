@@ -136,9 +136,9 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (data == parent.StopLossData || data == parent.StopWinData || data == parent.MoveStopWinData || data == parent.MarketClosingData)
                 {
-                    data.ClosedProfit = (data.DealPrice - parent.DealPrice) * data.DealQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                    data.ClosedProfit = (data.DealPrice - parent.DealPrice) * data.DealQty * parent.OrderData.ProfitDirection;
                     data.UnclosedQty = parent.UnclosedQty - data.DealQty;
-                    data.UnclosedProfit = (data.DealPrice - parent.DealPrice) * data.UnclosedQty * (parent.OrderData.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                    data.UnclosedProfit = (data.DealPrice - parent.DealPrice) * data.UnclosedQty * parent.OrderData.ProfitDirection;
 
                     parent.ClosedProfit += data.ClosedProfit;
                     parent.UnclosedQty = data.UnclosedQty;

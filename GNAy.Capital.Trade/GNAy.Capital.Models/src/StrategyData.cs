@@ -123,6 +123,7 @@ namespace GNAy.Capital.Models
             get { return _bsEnum; }
             set { OnPropertyChanged(ref _bsEnum, value); }
         }
+        public int ProfitDirection => BSEnum == OrderBS.Enum.Buy ? 1 : -1;
 
         private OrderTradeType.Enum _tradeTypeEnum;
         [Column("掛單", WPFDisplayIndex = 8)]

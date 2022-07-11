@@ -495,6 +495,8 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
+        //TODO: private void SendStopWin
+
         private bool UpdateStatus(StrategyData data, QuoteData quote, DateTime start)
         {
             const string methodName = nameof(UpdateStatus);
@@ -565,6 +567,7 @@ namespace GNAy.Capital.Trade.Controllers
                             data.OrderData = null;
                             data.StopLossData = null;
                             data.StopWinData = null;
+                            data.MoveStopWinPrice = data.OrderPriceAfter;
                             data.MoveStopWinData = null;
                             data.ClosedProfit = 0;
                             data.UnclosedQty = 0;
@@ -585,7 +588,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 data.MarketPrice = quote.DealPrice;
-                data.UnclosedProfit = (data.MarketPrice - data.DealPrice) * data.UnclosedQty * (data.BSEnum == OrderBS.Enum.Buy ? 1 : -1);
+                data.UnclosedProfit = (data.MarketPrice - data.DealPrice) * data.UnclosedQty * data.ProfitDirection;
                 data.Updater = methodName;
                 data.UpdateTime = DateTime.Now;
 
