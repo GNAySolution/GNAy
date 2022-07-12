@@ -495,7 +495,39 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        //TODO: private void SendStopWin
+        private void SendStopWin(StrategyData data, bool isMoveStopWin, DateTime start)
+        {
+            if (isMoveStopWin)
+            {
+                StrategyData moveStopWinOrder = data.CreateMoveStopWinOrder();
+
+                data.StatusEnum = StrategyStatus.Enum.MoveStopWinSent;
+
+                if (data.MoveStopWinQty == 0)
+                { } //滿足條件但不減倉
+                else
+                {
+                    _appCtrl.CAPOrder.Send(moveStopWinOrder);
+                }
+
+                AfterStopWin(data, isMoveStopWin, start);
+            }
+            else
+            {
+                StrategyData stopWinOrder = data.CreateStopWinOrder();
+
+                data.StatusEnum = StrategyStatus.Enum.StopWinSent;
+
+                if (data.StopWinQty == 0)
+                { } //滿足條件但不減倉
+                else
+                {
+                    _appCtrl.CAPOrder.Send(stopWinOrder);
+                }
+
+                AfterStopWin(data, isMoveStopWin, start);
+            }
+        }
 
         private bool UpdateStatus(StrategyData data, QuoteData quote, DateTime start)
         {
@@ -670,19 +702,8 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                         else if (data.MarketPrice >= data.StopWinPrice && data.StopWinQty <= 0)
                         {
-                            StrategyData stopWinOrder = data.CreateStopWinOrder();
-
-                            data.StatusEnum = StrategyStatus.Enum.StopWinSent;
-
-                            if (data.StopWinQty == 0)
-                            { } //滿足條件但不減倉
-                            else
-                            {
-                                _appCtrl.CAPOrder.Send(stopWinOrder);
-                            }
-
                             saveData = true;
-                            AfterStopWin(data, false, start);
+                            SendStopWin(data, false, start);
                         }
                     }
                     else if (data.MarketPrice >= data.StopLossAfter) //data.BSEnum == OrderBS.Enum.Sell
@@ -698,19 +719,8 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else if (data.MarketPrice <= data.StopWinPrice && data.StopWinQty <= 0)
                     {
-                        StrategyData stopWinOrder = data.CreateStopWinOrder();
-
-                        data.StatusEnum = StrategyStatus.Enum.StopWinSent;
-
-                        if (data.StopWinQty == 0)
-                        { } //滿足條件但不減倉
-                        else
-                        {
-                            _appCtrl.CAPOrder.Send(stopWinOrder);
-                        }
-
                         saveData = true;
-                        AfterStopWin(data, false, start);
+                        SendStopWin(data, false, start);
                     }
                 }
                 else if (data.MoveStopWinQty <= 0 && data.MoveStopWinData == null && data.StopWinData != null && data.StopWinData.OrderQty < data.OrderQty)
@@ -720,37 +730,15 @@ namespace GNAy.Capital.Trade.Controllers
                         if ((data.MoveStopWinOffset < 0 && data.MarketPrice <= data.MoveStopWinPrice + data.MoveStopWinOffset) ||
                             (data.MoveStopWinOffset > 0 && data.MarketPrice <= data.OrderPriceAfter + data.MoveStopWinOffset))
                         {
-                            StrategyData moveStopWinOrder = data.CreateMoveStopWinOrder();
-
-                            data.StatusEnum = StrategyStatus.Enum.MoveStopWinSent;
-
-                            if (data.MoveStopWinQty == 0)
-                            { } //滿足條件但不減倉
-                            else
-                            {
-                                _appCtrl.CAPOrder.Send(moveStopWinOrder);
-                            }
-
                             saveData = true;
-                            AfterStopWin(data, true, start);
+                            SendStopWin(data, true, start);
                         }
                     }
                     else if ((data.MoveStopWinOffset > 0 && data.MarketPrice >= data.MoveStopWinPrice + data.MoveStopWinOffset) ||
                             (data.MoveStopWinOffset < 0 && data.MarketPrice >= data.OrderPriceAfter + data.MoveStopWinOffset))
                     {
-                        StrategyData moveStopWinOrder = data.CreateMoveStopWinOrder();
-
-                        data.StatusEnum = StrategyStatus.Enum.MoveStopWinSent;
-
-                        if (data.MoveStopWinQty == 0)
-                        { } //滿足條件但不減倉
-                        else
-                        {
-                            _appCtrl.CAPOrder.Send(moveStopWinOrder);
-                        }
-
                         saveData = true;
-                        AfterStopWin(data, true, start);
+                        SendStopWin(data, true, start);
                     }
                 }
             }
