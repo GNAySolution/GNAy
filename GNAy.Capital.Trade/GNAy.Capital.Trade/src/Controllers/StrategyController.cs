@@ -585,6 +585,11 @@ namespace GNAy.Capital.Trade.Controllers
 
                     return saveData;
                 }
+                else if (data.StatusEnum == StrategyStatus.Enum.Waiting)
+                {
+                    data.MarketPrice = quote.DealPrice;
+                    return saveData;
+                }
                 else if (data.StopLossData != null || data.UnclosedQty <= 0)
                 {
                     string pk = $",{data.PrimaryKey},";
@@ -611,11 +616,6 @@ namespace GNAy.Capital.Trade.Controllers
                         }
                     }
 
-                    return saveData;
-                }
-                else if (data.StatusEnum == StrategyStatus.Enum.Waiting)
-                {
-                    data.MarketPrice = quote.DealPrice;
                     return saveData;
                 }
 
@@ -911,12 +911,18 @@ namespace GNAy.Capital.Trade.Controllers
 
             foreach (string primary in data.OpenStrategyAfterStopLoss.SplitWithoutWhiteSpace(','))
             {
-                SerialReset(this[primary], toZero);
+                if (primary != data.PrimaryKey)
+                {
+                    SerialReset(this[primary], toZero);
+                }
             }
 
             foreach (string primary in data.OpenStrategyAfterStopWin.SplitWithoutWhiteSpace(','))
             {
-                SerialReset(this[primary], toZero);
+                if (primary != data.PrimaryKey)
+                {
+                    SerialReset(this[primary], toZero);
+                }
             }
 
             if (toZero)
