@@ -14,6 +14,9 @@ namespace GNAy.Capital.Models
     [Serializable]
     public class StrategyData : NotifyPropertyChanged
     {
+        public const int StopWin1 = 1;
+        public const int StopWin2 = 2;
+
         public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> PropertyMap = typeof(StrategyData).GetColumnAttrMapByProperty<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.SetProperty);
         public static readonly SortedDictionary<int, (ColumnAttribute, PropertyInfo)> ColumnGetters = typeof(StrategyData).GetColumnAttrMapByIndex<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
         public static readonly Dictionary<string, (ColumnAttribute, PropertyInfo)> ColumnSetters = typeof(StrategyData).GetColumnAttrMapByName<ColumnAttribute>(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
@@ -66,7 +69,7 @@ namespace GNAy.Capital.Models
         public StrategyStatus.Enum StatusEnum
         {
             get { return _statusEnum; }
-            set { OnPropertiesChanged(ref _statusEnum, value, nameof(StatusEnum), nameof(StatusDes), nameof(StopLossAfterStr), nameof(StopWinAfter), nameof(MoveStopWinAfter)); }
+            set { OnPropertiesChanged(ref _statusEnum, value, nameof(StatusEnum), nameof(StatusDes), nameof(StopLossAfterStr), nameof(StopWin1After), nameof(StopWin2After)); }
         }
         [Column("狀態描述", "狀態", WPFDisplayIndex = 2, WPFForeground = "MediumBlue")]
         public string StatusDes => StrategyStatus.Description[(int)StatusEnum];
@@ -180,10 +183,18 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _orderQty, value); }
         }
 
+        private decimal _bestClosePrice;
+        [Column("最佳平倉價格", "最平價", CSVStringFormat = "0.00", WPFDisplayIndex = 15, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
+        public decimal BestClosePrice
+        {
+            get { return _bestClosePrice; }
+            set { OnPropertiesChanged(ref _bestClosePrice, value, nameof(BestClosePrice), nameof(StopWin1After), nameof(StopWin2After)); }
+        }
+
         public StrategyData OrderData;
 
         private string _stopLossBefore;
-        [Column("停損設定", WPFDisplayIndex = 15, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        [Column("停損設定", WPFDisplayIndex = 16, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public string StopLossBefore
         {
             get { return _stopLossBefore; }
@@ -196,78 +207,96 @@ namespace GNAy.Capital.Models
             get { return _stopLossAfter; }
             set { OnPropertiesChanged(ref _stopLossAfter, value, nameof(StopLossAfter), nameof(StopLossAfterStr)); }
         }
-        [Column("停損觸發", CSVIndex = -1, WPFDisplayIndex = 16, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
+        [Column("停損觸發", CSVIndex = -1, WPFDisplayIndex = 17, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public string StopLossAfterStr => StopLossAfter == 0 ? string.Empty : StopLossData == null ? $"*{StopLossAfter:0.00}" : $"{StopLossAfter:0.00}";
 
         public StrategyData StopLossData;
 
-        private string _stopWinBefore;
-        [Column("停利設定", WPFDisplayIndex = 17, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
-        public string StopWinBefore
+        private string _stopWinPriceBefore;
+        [Column("停利價設定", WPFDisplayIndex = 18, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        public string StopWinPriceBefore
         {
-            get { return _stopWinBefore; }
-            set { OnPropertyChanged(ref _stopWinBefore, value); }
+            get { return _stopWinPriceBefore; }
+            set { OnPropertyChanged(ref _stopWinPriceBefore, value); }
         }
-        private decimal _stopWinPrice;
-        [Column("停利價格", CSVStringFormat = "0.00")]
-        public decimal StopWinPrice
+        private decimal _stopWinPriceAfter;
+        [Column("停利價觸發", CSVStringFormat = "0.00")]
+        public decimal StopWinPriceAfter
         {
-            get { return _stopWinPrice; }
-            set { OnPropertiesChanged(ref _stopWinPrice, value, nameof(StopWinPrice), nameof(StopWinAfter)); }
+            get { return _stopWinPriceAfter; }
+            set { OnPropertiesChanged(ref _stopWinPriceAfter, value, nameof(StopWinPriceAfter), nameof(StopWinPriceAfterStr)); }
         }
-        private int _stopWinQty;
-        [Column("停利減倉")]
-        public int StopWinQty
-        {
-            get { return _stopWinQty; }
-            set { OnPropertiesChanged(ref _stopWinQty, value, nameof(StopWinQty), nameof(StopWinAfter)); }
-        }
-        [Column("停利觸發", CSVIndex = -1, WPFDisplayIndex = 18, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
-        public string StopWinAfter => StopWinPrice == 0 ? string.Empty : StopWinData == null ? $"*{StopWinPrice:0.00} ({StopWinQty})" : $"{StopWinPrice:0.00} ({StopWinQty})";
+        [Column("停利價觸發", CSVIndex = -1, WPFDisplayIndex = 19, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
+        public string StopWinPriceAfterStr => StopWinPriceAfter == 0 ? string.Empty : StopWinTriggered ? $"{StopWinPriceAfter:0.00}" : $"*{StopWinPriceAfter:0.00}";
 
-        public StrategyData StopWinData;
+        public bool StopWinTriggered;
 
-        private string _moveStopWinBefore;
-        [Column("移動停利設定", "移利設定", WPFDisplayIndex = 19, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
-        public string MoveStopWinBefore
+        private string _stopWin1Before;
+        [Column("停利1設定", WPFDisplayIndex = 20, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        public string StopWin1Before
         {
-            get { return _moveStopWinBefore; }
-            set { OnPropertyChanged(ref _moveStopWinBefore, value); }
+            get { return _stopWin1Before; }
+            set { OnPropertyChanged(ref _stopWin1Before, value); }
         }
-        private decimal _moveStopWinPrice;
-        [Column("移動停利價格", CSVStringFormat = "0.00")]
-        public decimal MoveStopWinPrice
+        private decimal _stopWin1Offset;
+        [Column("停利1位移", CSVStringFormat = "0.00")]
+        public decimal StopWin1Offset
         {
-            get { return _moveStopWinPrice; }
-            set { OnPropertiesChanged(ref _moveStopWinPrice, value, nameof(MoveStopWinPrice), nameof(MoveStopWinAfter)); }
+            get { return _stopWin1Offset; }
+            set { OnPropertiesChanged(ref _stopWin1Offset, value, nameof(StopWin1Offset), nameof(StopWin1After)); }
         }
-        private decimal _moveStopWinOffset;
-        [Column("移動停利位移", CSVStringFormat = "0.00")]
-        public decimal MoveStopWinOffset
+        private int _stopWin1Qty;
+        [Column("停利1減倉")]
+        public int StopWin1Qty
         {
-            get { return _moveStopWinOffset; }
-            set { OnPropertiesChanged(ref _moveStopWinOffset, value, nameof(MoveStopWinOffset), nameof(MoveStopWinAfter)); }
+            get { return _stopWin1Qty; }
+            set { OnPropertiesChanged(ref _stopWin1Qty, value, nameof(StopWin1Qty), nameof(StopWin1After)); }
         }
-        private int _moveStopWinQty;
-        [Column("移動停利減倉")]
-        public int MoveStopWinQty
-        {
-            get { return _moveStopWinQty; }
-            set { OnPropertiesChanged(ref _moveStopWinQty, value, nameof(MoveStopWinQty), nameof(MoveStopWinAfter)); }
-        }
-        private string _moveStopWinAfter =>
-            MoveStopWinPrice == 0 || MoveStopWinOffset == 0 ? string.Empty :
-            BSEnum == OrderBS.Enum.Buy && MoveStopWinOffset < 0 ? $"{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})" :
-            BSEnum == OrderBS.Enum.Buy && MoveStopWinOffset > 0 ? $"{MoveStopWinPrice:0.00} ({OrderPriceAfter + MoveStopWinOffset:0.00})({MoveStopWinQty})" :
-            BSEnum == OrderBS.Enum.Sell && MoveStopWinOffset > 0 ? $"{MoveStopWinPrice:0.00} ({MoveStopWinPrice + MoveStopWinOffset:0.00})({MoveStopWinQty})" :
-            $"{MoveStopWinPrice:0.00} ({OrderPriceAfter + MoveStopWinOffset:0.00})({MoveStopWinQty})";
-        [Column("移動停利觸發", "移利觸發", CSVIndex = -1, WPFDisplayIndex = 20, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
-        public string MoveStopWinAfter => MoveStopWinPrice == 0 || MoveStopWinOffset == 0 ? string.Empty : MoveStopWinData == null ? $"*{_moveStopWinAfter}" : $"{_moveStopWinAfter}";
+        private string _stopWin1After =>
+            BestClosePrice == 0 || StopWin1Offset == 0 ? string.Empty :
+            BSEnum == OrderBS.Enum.Buy && StopWin1Offset < 0 ? $"{BestClosePrice + StopWin1Offset:0.00} ({StopWin1Qty})" :
+            BSEnum == OrderBS.Enum.Buy && StopWin1Offset > 0 ? $"{OrderPriceAfter + StopWin1Offset:0.00} ({StopWin1Qty})" :
+            BSEnum == OrderBS.Enum.Sell && StopWin1Offset > 0 ? $"{BestClosePrice + StopWin1Offset:0.00} ({StopWin1Qty})" :
+            $"{OrderPriceAfter + StopWin1Offset:0.00} ({StopWin1Qty})";
+        [Column("停利1觸發", CSVIndex = -1, WPFDisplayIndex = 21, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
+        public string StopWin1After => BestClosePrice == 0 || StopWin1Offset == 0 ? string.Empty : StopWin1Data == null ? $"*{_stopWin1After}" : $"{_stopWin1After}";
 
-        public StrategyData MoveStopWinData;
+        public StrategyData StopWin1Data;
+
+        private string _stopWin2Before;
+        [Column("停利2設定", WPFDisplayIndex = 22, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        public string StopWin2Before
+        {
+            get { return _stopWin2Before; }
+            set { OnPropertyChanged(ref _stopWin2Before, value); }
+        }
+        private decimal _stopWin2Offset;
+        [Column("停利2位移", CSVStringFormat = "0.00")]
+        public decimal StopWin2Offset
+        {
+            get { return _stopWin2Offset; }
+            set { OnPropertiesChanged(ref _stopWin2Offset, value, nameof(StopWin2Offset), nameof(StopWin2After)); }
+        }
+        private int _stopWin2Qty;
+        [Column("停利2減倉")]
+        public int StopWin2Qty
+        {
+            get { return _stopWin2Qty; }
+            set { OnPropertiesChanged(ref _stopWin2Qty, value, nameof(StopWin2Qty), nameof(StopWin2After)); }
+        }
+        private string _stopWin2After =>
+            BestClosePrice == 0 || StopWin2Offset == 0 ? string.Empty :
+            BSEnum == OrderBS.Enum.Buy && StopWin2Offset < 0 ? $"{BestClosePrice + StopWin2Offset:0.00} ({StopWin2Qty})" :
+            BSEnum == OrderBS.Enum.Buy && StopWin2Offset > 0 ? $"{OrderPriceAfter + StopWin2Offset:0.00} ({StopWin2Qty})" :
+            BSEnum == OrderBS.Enum.Sell && StopWin2Offset > 0 ? $"{BestClosePrice + StopWin2Offset:0.00} ({StopWin2Qty})" :
+            $"{OrderPriceAfter + StopWin2Offset:0.00} ({StopWin2Qty})";
+        [Column("停利2觸發", CSVIndex = -1, WPFDisplayIndex = 23, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
+        public string StopWin2After => BestClosePrice == 0 || StopWin2Offset == 0 ? string.Empty : StopWin2Data == null ? $"*{_stopWin2After}" : $"{_stopWin2After}";
+
+        public StrategyData StopWin2Data;
 
         private string _orderReport;
-        [Column("13碼委託序號或錯誤訊息", "委託回報", WPFDisplayIndex = 21)]
+        [Column("13碼委託序號或錯誤訊息", "委託回報", WPFDisplayIndex = 24)]
         public string OrderReport
         {
             get { return _orderReport; }
@@ -275,7 +304,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _dealPrice;
-        [Column("成交價格", "成價", CSVStringFormat = "0.00", WPFDisplayIndex = 22, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        [Column("成交價格", "成價", CSVStringFormat = "0.00", WPFDisplayIndex = 25, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public decimal DealPrice
         {
             get { return _dealPrice; }
@@ -283,7 +312,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _dealQty;
-        [Column("成交量", "成量", WPFDisplayIndex = 23, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        [Column("成交量", "成量", WPFDisplayIndex = 26, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public int DealQty
         {
             get { return _dealQty; }
@@ -291,7 +320,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _dealReport;
-        [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 24)]
+        [Column("成交序號或錯誤訊息", "成交序號", WPFDisplayIndex = 27)]
         public string DealReport
         {
             get { return _dealReport; }
@@ -299,7 +328,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _closedProfitTotal;
-        [Column("累計已實現損益估計", "累損益", CSVStringFormat = "0.00", WPFDisplayIndex = 25, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        [Column("累計已實現損益估計", "累損益", CSVStringFormat = "0.00", WPFDisplayIndex = 28, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public decimal ClosedProfitTotal
         {
             get { return _closedProfitTotal; }
@@ -307,7 +336,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _closedProfit;
-        [Column("已實現損益估計", "已損益", CSVStringFormat = "0.00", WPFDisplayIndex = 26, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
+        [Column("已實現損益估計", "已損益", CSVStringFormat = "0.00", WPFDisplayIndex = 29, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public decimal ClosedProfit
         {
             get { return _closedProfit; }
@@ -321,7 +350,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _unclosedQty;
-        [Column("未平倉量", "未平量", WPFDisplayIndex = 27, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        [Column("未平倉量", "未平量", WPFDisplayIndex = 30, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public int UnclosedQty
         {
             get { return _unclosedQty; }
@@ -335,7 +364,7 @@ namespace GNAy.Capital.Models
         }
 
         private decimal _unclosedProfit;
-        [Column("未實現損益估計", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 28, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
+        [Column("未實現損益估計", "未損益", CSVStringFormat = "0.00", WPFDisplayIndex = 31, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public decimal UnclosedProfit
         {
             get { return _unclosedProfit; }
@@ -343,7 +372,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _openTriggerAfterStopLoss;
-        [Column("停損後接續執行觸價", "停損後觸價", WPFDisplayIndex = 29)]
+        [Column("停損後接續執行觸價", "停損後觸價", WPFDisplayIndex = 32)]
         public string OpenTriggerAfterStopLoss
         {
             get { return _openTriggerAfterStopLoss; }
@@ -351,7 +380,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _openStrategyAfterStopLoss;
-        [Column("停損後接續執行策略", "停損後策略", WPFDisplayIndex = 30)]
+        [Column("停損後接續執行策略", "停損後策略", WPFDisplayIndex = 33)]
         public string OpenStrategyAfterStopLoss
         {
             get { return _openStrategyAfterStopLoss; }
@@ -359,7 +388,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _openTriggerAfterStopWin;
-        [Column("停利後接續執行觸價", "停利後觸價", WPFDisplayIndex = 31)]
+        [Column("停利後接續執行觸價", "停利後觸價", WPFDisplayIndex = 34)]
         public string OpenTriggerAfterStopWin
         {
             get { return _openTriggerAfterStopWin; }
@@ -367,7 +396,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _openStrategyAfterStopWin;
-        [Column("停利後接續執行策略", "停利後策略", WPFDisplayIndex = 32)]
+        [Column("停利後接續執行策略", "停利後策略", WPFDisplayIndex = 35)]
         public string OpenStrategyAfterStopWin
         {
             get { return _openStrategyAfterStopWin; }
@@ -375,7 +404,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _closeTriggerAfterStopWin;
-        [Column("停利後停止觸價", "停止觸價", WPFDisplayIndex = 33)]
+        [Column("停利後停止觸價", "停止觸價", WPFDisplayIndex = 36)]
         public string CloseTriggerAfterStopWin
         {
             get { return _closeTriggerAfterStopWin; }
@@ -383,7 +412,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _closeStrategyAfterStopWin;
-        [Column("停利後停止策略", "停止策略", WPFDisplayIndex = 34)]
+        [Column("停利後停止策略", "停止策略", WPFDisplayIndex = 37)]
         public string CloseStrategyAfterStopWin
         {
             get { return _closeStrategyAfterStopWin; }
@@ -391,7 +420,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _winCloseQty;
-        [Column("收盤獲利減倉量", "收獲減倉", WPFDisplayIndex = 35, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        [Column("收盤獲利減倉量", "收獲減倉", WPFDisplayIndex = 38, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public int WinCloseQty
         {
             get { return _winCloseQty; }
@@ -406,7 +435,7 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _winCloseSeconds, Math.Abs(value)); }
         }
         private DateTime _winCloseTime;
-        [Column("收盤獲利減倉時間", "收獲時間", CSVIndex = -1, WPFDisplayIndex = 36, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("收盤獲利減倉時間", "收獲時間", CSVIndex = -1, WPFDisplayIndex = 39, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
         public DateTime WinCloseTime
         {
             get { return _winCloseTime; }
@@ -414,7 +443,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _lossCloseQty;
-        [Column("收盤損失減倉量", "收損減倉", WPFDisplayIndex = 37, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        [Column("收盤損失減倉量", "收損減倉", WPFDisplayIndex = 40, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public int LossCloseQty
         {
             get { return _lossCloseQty; }
@@ -429,7 +458,7 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _lossCloseSeconds, Math.Abs(value)); }
         }
         private DateTime _lossCloseTime;
-        [Column("收盤損失減倉時間", "收損時間", CSVIndex = -1, WPFDisplayIndex = 38, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
+        [Column("收盤損失減倉時間", "收損時間", CSVIndex = -1, WPFDisplayIndex = 41, WPFStringFormat = "{0:MM/dd HH:mm:ss}")]
         public DateTime LossCloseTime
         {
             get { return _lossCloseTime; }
@@ -437,7 +466,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _accountsWinLossClose;
-        [Column("帳號判斷獲利或損失", "帳獲損", WPFDisplayIndex = 39)]
+        [Column("帳號判斷獲利或損失", "帳獲損", WPFDisplayIndex = 42)]
         public string AccountsWinLossClose
         {
             get { return _accountsWinLossClose; }
@@ -447,7 +476,7 @@ namespace GNAy.Capital.Models
         public StrategyData MarketClosingData;
 
         private bool _sendRealOrder;
-        [Column("真實下單", "實單", WPFDisplayIndex = 40)]
+        [Column("真實下單", "實單", WPFDisplayIndex = 43)]
         public bool SendRealOrder
         {
             get { return _sendRealOrder; }
@@ -455,7 +484,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 41)]
+        [Column("註解", WPFDisplayIndex = 44)]
         public string Comment
         {
             get { return _comment; }
@@ -486,18 +515,21 @@ namespace GNAy.Capital.Models
             OrderPriceAfter = 0;
             OrderQty = -1;
             OrderData = null;
+            BestClosePrice = 0;
             StopLossBefore = string.Empty;
             StopLossAfter = 0;
             StopLossData = null;
-            StopWinBefore = string.Empty;
-            StopWinPrice = 0;
-            StopWinQty = 0;
-            StopWinData = null;
-            MoveStopWinBefore = string.Empty;
-            MoveStopWinPrice = 0;
-            MoveStopWinOffset = 0;
-            MoveStopWinQty = 0;
-            MoveStopWinData = null;
+            StopWinPriceBefore = string.Empty;
+            StopWinPriceAfter = 0;
+            StopWinTriggered = false;
+            StopWin1Before = string.Empty;
+            StopWin1Offset = 0;
+            StopWin1Qty = 0;
+            StopWin1Data = null;
+            StopWin2Before = string.Empty;
+            StopWin2Offset = 0;
+            StopWin2Qty = 0;
+            StopWin2Data = null;
             OrderReport = string.Empty;
             DealPrice = 0;
             DealQty = 0;
@@ -532,8 +564,9 @@ namespace GNAy.Capital.Models
             Symbol = Symbol.Replace(" ", string.Empty);
             OrderPriceBefore = OrderPriceBefore.Replace(" ", string.Empty);
             StopLossBefore = StopLossBefore.Replace(" ", string.Empty);
-            StopWinBefore = StopWinBefore.Replace(" ", string.Empty);
-            MoveStopWinBefore = MoveStopWinBefore.Replace(" ", string.Empty);
+            StopWinPriceBefore = StopWinPriceBefore.Replace(" ", string.Empty);
+            StopWin1Before = StopWin1Before.Replace(" ", string.Empty);
+            StopWin2Before = StopWin2Before.Replace(" ", string.Empty);
             OrderReport = OrderReport.Replace(" ", string.Empty);
             DealReport = DealReport.Replace(" ", string.Empty);
             OpenTriggerAfterStopLoss = OpenTriggerAfterStopLoss.Replace(" ", string.Empty).JoinSortedSet(',');
@@ -560,13 +593,15 @@ namespace GNAy.Capital.Models
             MarketPrice = 0;
             OrderPriceAfter = 0;
             OrderData = null;
+            BestClosePrice = 0;
             StopLossAfter = 0;
             StopLossData = null;
-            StopWinPrice = 0;
-            StopWinData = null;
-            MoveStopWinPrice = 0;
-            MoveStopWinOffset = 0;
-            MoveStopWinData = null;
+            StopWinPriceAfter = 0;
+            StopWinTriggered = false;
+            StopWin1Offset = 0;
+            StopWin1Data = null;
+            StopWin2Offset = 0;
+            StopWin2Data = null;
             ClosedProfit = 0;
             UnclosedQty = 0;
             MarketClosingData = null;
@@ -698,15 +733,19 @@ namespace GNAy.Capital.Models
             return order;
         }
 
-        public StrategyData CreateStopWinOrder([CallerMemberName] string memberName = "")
+        public StrategyData CreateStopWinOrder(int number, [CallerMemberName] string memberName = "")
         {
             if (Parent != null)
             {
                 throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
             }
-            else if (StopWinData != null)
+            else if (number == StopWin1 && StopWin1Data != null)
             {
-                throw new ArgumentException($"StopWinData != null|{StopWinData.ToLog()}");
+                throw new ArgumentException($"StopWin{number}Data != null|{StopWin1Data.ToLog()}");
+            }
+            else if (number != StopWin1 && StopWin2Data != null)
+            {
+                throw new ArgumentException($"StopWin{number}Data != null|{StopWin2Data.ToLog()}");
             }
             else if (string.IsNullOrWhiteSpace(PrimaryKey))
             {
@@ -748,74 +787,20 @@ namespace GNAy.Capital.Models
                 PositionEnum = OrderPosition.Enum.Close,
                 OrderPriceBefore = OrderPrice.P,
                 OrderPriceAfter = 0,
-                OrderQty = Math.Abs(StopWinQty),
+                OrderQty = Math.Abs(number == StopWin1 ? StopWin1Qty : StopWin2Qty),
                 SendRealOrder = SendRealOrder,
                 Updater = memberName,
                 UpdateTime = DateTime.Now,
             };
 
-            StopWinData = order;
-
-            return order;
-        }
-
-        public StrategyData CreateMoveStopWinOrder([CallerMemberName] string memberName = "")
-        {
-            if (Parent != null)
+            if (number == StopWin1)
             {
-                throw new ArgumentException($"Parent != null|{Parent.ToLog()}");
+                StopWin1Data = order;
             }
-            else if (MoveStopWinData != null)
+            else
             {
-                throw new ArgumentException($"MoveStopWinData != null|{MoveStopWinData.ToLog()}");
+                StopWin2Data = order;
             }
-            else if (string.IsNullOrWhiteSpace(PrimaryKey))
-            {
-                throw new ArgumentException($"未設定唯一鍵|{ToLog()}");
-            }
-            else if (string.IsNullOrWhiteSpace(Branch))
-            {
-                throw new ArgumentException($"未設定分公司|{ToLog()}");
-            }
-            else if (string.IsNullOrWhiteSpace(Account))
-            {
-                throw new ArgumentException($"未設定下單帳號|{ToLog()}");
-            }
-            else if (string.IsNullOrWhiteSpace(Symbol))
-            {
-                throw new ArgumentException($"未設定代碼|{ToLog()}");
-            }
-            else if (PositionEnum == OrderPosition.Enum.Close)
-            {
-                throw new ArgumentException($"PositionEnum == OrderPosition.Enum.Close|{ToLog()}");
-            }
-            else if (OrderQty <= 0)
-            {
-                throw new ArgumentException($"委託量({OrderQty}) <= 0|{ToLog()}");
-            }
-
-            StrategyData order = new StrategyData()
-            {
-                Parent = this,
-                PrimaryKey = $"{PrimaryKey}_{DateTime.Now:HHmmss}_{StrategyStatus.Enum.MoveStopWinSent}",
-                MarketType = MarketType,
-                Branch = Branch,
-                Account = Account,
-                Quote = Quote,
-                Symbol = Symbol,
-                BSEnum = BSEnum == OrderBS.Enum.Buy ? OrderBS.Enum.Sell : OrderBS.Enum.Buy,
-                TradeTypeEnum = OrderTradeType.Enum.IOC,
-                DayTradeEnum = DayTradeEnum,
-                PositionEnum = OrderPosition.Enum.Close,
-                OrderPriceBefore = OrderPrice.P,
-                OrderPriceAfter = 0,
-                OrderQty = Math.Abs(MoveStopWinQty),
-                SendRealOrder = SendRealOrder,
-                Updater = memberName,
-                UpdateTime = DateTime.Now,
-            };
-
-            MoveStopWinData = order;
 
             return order;
         }

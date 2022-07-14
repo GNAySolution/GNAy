@@ -462,9 +462,6 @@ namespace GNAy.Capital.Trade.Controllers
                         case StrategyStatus.Enum.StopWinSent:
                             parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.StopWinOrderReport : StrategyStatus.Enum.StopWinError;
                             break;
-                        case StrategyStatus.Enum.MoveStopWinSent:
-                            parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.MoveStopWinOrderReport : StrategyStatus.Enum.MoveStopWinError;
-                            break;
                         case StrategyStatus.Enum.MarketClosingSent:
                             parent.StatusEnum = order.StatusEnum == StrategyStatus.Enum.OrderReport ? StrategyStatus.Enum.MarketClosingOrderReport : StrategyStatus.Enum.MarketClosingError;
                             break;
@@ -538,9 +535,6 @@ namespace GNAy.Capital.Trade.Controllers
                             break;
                         case StrategyStatus.Enum.StopWinSent:
                             parent.StatusEnum = StrategyStatus.Enum.StopWinError;
-                            break;
-                        case StrategyStatus.Enum.MoveStopWinSent:
-                            parent.StatusEnum = StrategyStatus.Enum.MoveStopWinError;
                             break;
                         case StrategyStatus.Enum.MarketClosingSent:
                             parent.StatusEnum = StrategyStatus.Enum.MarketClosingError;

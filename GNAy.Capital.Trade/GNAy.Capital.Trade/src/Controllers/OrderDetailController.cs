@@ -67,9 +67,9 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 throw new ArgumentException($"委託量({data.OrderQty}) <= 0|{data.ToLog()}");
             }
-            else if (data.OrderData != null || data.StopLossData != null || data.StopWinData != null || data.MoveStopWinData != null || data.MarketClosingData != null)
+            else if (data.OrderData != null || data.StopLossData != null || data.StopWin1Data != null || data.StopWin2Data != null || data.MarketClosingData != null)
             {
-                throw new ArgumentException($"委託單資料結構異常|{data.OrderData != null}|{data.StopLossData != null}|{data.StopWinData != null}|{data.MoveStopWinData != null}|{data.MarketClosingData != null}|{data.ToLog()}");
+                throw new ArgumentException($"委託單資料結構異常|{data.OrderData != null}|{data.StopLossData != null}|{data.StopWin1Data != null}|{data.StopWin2Data != null}|{data.MarketClosingData != null}|{data.ToLog()}");
             }
 
             data.SendRealOrder = _appCtrl.Settings.SendRealOrder && data.SendRealOrder;
@@ -134,7 +134,7 @@ namespace GNAy.Capital.Trade.Controllers
                     parent.ClosedProfit += data.ClosedProfit;
                     parent.UnclosedQty = data.UnclosedQty;
                 }
-                else if (data == parent.StopLossData || data == parent.StopWinData || data == parent.MoveStopWinData || data == parent.MarketClosingData)
+                else if (data == parent.StopLossData || data == parent.StopWin1Data || data == parent.StopWin2Data || data == parent.MarketClosingData)
                 {
                     data.ClosedProfit = (data.DealPrice - parent.DealPrice) * data.DealQty * parent.OrderData.ProfitDirection;
                     data.UnclosedQty = parent.UnclosedQty - data.DealQty;

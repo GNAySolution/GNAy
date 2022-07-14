@@ -61,29 +61,17 @@ namespace GNAy.Capital.Models
             [Description("停利錯誤")]
             StopWinError, //14,
 
-            [Description("移動停利送出")]
-            MoveStopWinSent, //15,
-
-            [Description("移動停利回報")]
-            MoveStopWinOrderReport, //16,
-
-            [Description("移動停利成交")]
-            MoveStopWinDealReport, //17,
-
-            [Description("移動停利錯誤")]
-            MoveStopWinError, //18,
-
             [Description("收盤送出")]
-            MarketClosingSent, //19,
+            MarketClosingSent, //15,
 
             [Description("收盤回報")]
-            MarketClosingOrderReport, //20,
+            MarketClosingOrderReport, //16,
 
             [Description("收盤成交")]
-            MarketClosingDealReport, //21,
+            MarketClosingDealReport, //17,
 
             [Description("收盤錯誤")]
-            MarketClosingError, //22,
+            MarketClosingError, //18,
         }
 
         public static ReadOnlyCollection<string> Description = new List<string>()
@@ -106,11 +94,6 @@ namespace GNAy.Capital.Models
             Enum.StopWinOrderReport.GetDescription(),
             Enum.StopWinDealReport.GetDescription(),
             Enum.StopWinError.GetDescription(),
-            //
-            Enum.MoveStopWinSent.GetDescription(),
-            Enum.MoveStopWinOrderReport.GetDescription(),
-            Enum.MoveStopWinDealReport.GetDescription(),
-            Enum.MoveStopWinError.GetDescription(),
             //
             Enum.MarketClosingSent.GetDescription(),
             Enum.MarketClosingOrderReport.GetDescription(),

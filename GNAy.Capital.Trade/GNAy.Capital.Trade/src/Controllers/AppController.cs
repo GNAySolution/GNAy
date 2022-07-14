@@ -558,12 +558,15 @@ namespace GNAy.Capital.Trade.Controllers
                     MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealQty)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridStrategyRule.Columns[StrategyData.PropertyMap[nameof(StrategyData.DealReport)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
 
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.BestClosePrice)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopLossBefore)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopLossAfterStr)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinBefore)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinAfter)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.MoveStopWinBefore)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.MoveStopWinAfter)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinPriceBefore)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWinPriceAfter)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWin1Before)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWin1After)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWin2Before)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StopWin2After)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.ClosedProfitTotal)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.OpenTriggerAfterStopLoss)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.OpenStrategyAfterStopLoss)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;

@@ -166,7 +166,7 @@ namespace GNAy.Capital.Trade.Controllers
                         throw new ArgumentException($"data.Symbol={data.Symbol}|{data.ToLog()}");
                     }
                 }
-                else if (!string.IsNullOrWhiteSpace(data.StopLossBefore) || !string.IsNullOrWhiteSpace(data.StopWinBefore) || !string.IsNullOrWhiteSpace(data.MoveStopWinBefore))
+                else if (!string.IsNullOrWhiteSpace(data.StopLossBefore) || !string.IsNullOrWhiteSpace(data.StopWin1Before) || !string.IsNullOrWhiteSpace(data.StopWin1Before))
                 {
                     throw new ArgumentException($"商品 {data.Symbol} 無訂閱報價，無法進行策略監控|{data.ToLog()}");
                 }
@@ -218,19 +218,9 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(data.StopWinBefore))
+            if (!string.IsNullOrWhiteSpace(data.StopWinPriceBefore))
             {
-                string stopWinBefore = data.StopWinBefore;
-
-                if (stopWinBefore.Contains("(") || stopWinBefore.Contains(","))
-                {
-                    string[] cells = stopWinBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                    stopWinBefore = cells[0];
-                    data.StopWinQty = int.Parse(cells[1]);
-                }
-
-                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(stopWinBefore, data.Quote);
+                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(data.StopWinPriceBefore, data.Quote);
 
                 if (data.BSEnum == OrderBS.Enum.Buy)
                 {
@@ -246,47 +236,62 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (readyToSend)
                 {
-                    data.StopWinPrice = stopWinPriceAfter.Item2;
-                    _appCtrl.LogTrace(start, $"停利價計算前={stopWinBefore}|計算後={stopWinPriceAfter.Item1}", UniqueName);
-                    Notice = $"停利價計算前={stopWinBefore}|計算後={stopWinPriceAfter.Item1}";
+                    data.StopWinPriceAfter = stopWinPriceAfter.Item2;
+                    _appCtrl.LogTrace(start, $"停利價計算前={data.StopWinPriceBefore}|計算後={stopWinPriceAfter.Item1}", UniqueName);
+                    Notice = $"停利價計算前={data.StopWinPriceBefore}|計算後={stopWinPriceAfter.Item1}";
                 }
             }
 
-            if (data.StopWinQty == 0)
-            { } //滿足條件但不減倉
-            else if (data.StopWinQty > 0)
+            if (!string.IsNullOrWhiteSpace(data.StopWin1Before))
             {
-                throw new ArgumentException($"停利減倉量({data.StopWinQty})應為負值或0|{data.ToLog()}");
-            }
-            else if (data.OrderQty + data.StopWinQty < 0)
-            {
-                throw new ArgumentException($"停利減倉量({data.StopWinQty}) > 委託量({data.OrderQty})|{data.ToLog()}");
-            }
+                string stopWinBefore = data.StopWin1Before;
 
-            if (!string.IsNullOrWhiteSpace(data.MoveStopWinBefore))
-            {
-                string moveStopWinBefore = data.MoveStopWinBefore;
-
-                if (moveStopWinBefore.Contains("(") || moveStopWinBefore.Contains(","))
+                if (stopWinBefore.Contains("(") || stopWinBefore.Contains(","))
                 {
-                    string[] cells = moveStopWinBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] cells = stopWinBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    moveStopWinBefore = cells[0];
-                    data.MoveStopWinQty = int.Parse(cells[1]);
+                    stopWinBefore = cells[0];
+                    data.StopWin1Qty = int.Parse(cells[1]);
                 }
 
-                data.MoveStopWinOffset = decimal.Parse(moveStopWinBefore);
+                data.StopWin1Offset = decimal.Parse(stopWinBefore);
             }
 
-            if (data.MoveStopWinQty == 0)
+            if (data.StopWin1Qty == 0)
             { } //滿足條件但不減倉
-            else if (data.MoveStopWinQty > 0)
+            else if (data.StopWin1Qty > 0)
             {
-                throw new ArgumentException($"移動停利減倉量({data.MoveStopWinQty})應為負值或0|{data.ToLog()}");
+                throw new ArgumentException($"停利1減倉量({data.StopWin1Qty})應為負值或0|{data.ToLog()}");
             }
-            else if (data.OrderQty + data.StopWinQty + data.MoveStopWinQty < 0)
+            else if (data.OrderQty + data.StopWin1Qty < 0)
             {
-                throw new ArgumentException($"移動停利減倉量({data.MoveStopWinQty}) + 停利減倉量({data.StopWinQty}) > 委託量({data.OrderQty})|{data.ToLog()}");
+                throw new ArgumentException($"停利1減倉量({data.StopWin1Qty}) > 委託量({data.OrderQty})|{data.ToLog()}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(data.StopWin2Before))
+            {
+                string stopWinBefore = data.StopWin2Before;
+
+                if (stopWinBefore.Contains("(") || stopWinBefore.Contains(","))
+                {
+                    string[] cells = stopWinBefore.Split(new char[] { '(', ')', ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    stopWinBefore = cells[0];
+                    data.StopWin2Qty = int.Parse(cells[1]);
+                }
+
+                data.StopWin2Offset = decimal.Parse(stopWinBefore);
+            }
+
+            if (data.StopWin2Qty == 0)
+            { } //滿足條件但不減倉
+            else if (data.StopWin2Qty > 0)
+            {
+                throw new ArgumentException($"停利2減倉量({data.StopWin2Qty})應為負值或0|{data.ToLog()}");
+            }
+            else if (data.OrderQty + data.StopWin1Qty + data.StopWin2Qty < 0)
+            {
+                throw new ArgumentException($"停利2減倉量({data.StopWin2Qty}) + 停利1減倉量({data.StopWin1Qty}) > 委託量({data.OrderQty})|{data.ToLog()}");
             }
 
             DateTime closeTime = _appCtrl.CAPQuote.MarketCloseTime;
@@ -460,16 +465,16 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void AfterStopWin(StrategyData data, bool isMoveStopWin, DateTime start)
+        private void AfterStopWin(StrategyData data, int number, DateTime start)
         {
-            if (isMoveStopWin)
+            if (number == StrategyData.StopWin1)
             {
-                if (data.MoveStopWinQty == 0)
+                if (data.StopWin2Qty != 0)
                 {
                     return;
                 }
             }
-            else if (data.MoveStopWinQty != 0)
+            else if (data.StopWin2Qty == 0)
             {
                 return;
             }
@@ -495,38 +500,38 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void SendStopWin(StrategyData data, bool isMoveStopWin, DateTime start)
+        private void SendStopWin(StrategyData data, int number, DateTime start)
         {
-            if (isMoveStopWin)
+            if (number == StrategyData.StopWin1)
             {
-                StrategyData moveStopWinOrder = data.CreateMoveStopWinOrder();
-
-                data.StatusEnum = StrategyStatus.Enum.MoveStopWinSent;
-
-                if (data.MoveStopWinQty == 0)
-                { } //滿足條件但不減倉
-                else
-                {
-                    _appCtrl.CAPOrder.Send(moveStopWinOrder);
-                }
-
-                AfterStopWin(data, isMoveStopWin, start);
-            }
-            else
-            {
-                StrategyData stopWinOrder = data.CreateStopWinOrder();
+                StrategyData stopWinOrder = data.CreateStopWinOrder(number);
 
                 data.StatusEnum = StrategyStatus.Enum.StopWinSent;
 
-                if (data.StopWinQty == 0)
+                if (data.StopWin1Qty == 0)
                 { } //滿足條件但不減倉
                 else
                 {
                     _appCtrl.CAPOrder.Send(stopWinOrder);
                 }
 
-                AfterStopWin(data, isMoveStopWin, start);
+                AfterStopWin(data, number, start);
+
+                return;
             }
+
+            StrategyData moveStopWinOrder = data.CreateStopWinOrder(number);
+
+            data.StatusEnum = StrategyStatus.Enum.StopWinSent;
+
+            if (data.StopWin2Qty == 0)
+            { } //滿足條件但不減倉
+            else
+            {
+                _appCtrl.CAPOrder.Send(moveStopWinOrder);
+            }
+
+            AfterStopWin(data, number, start);
         }
 
         private bool UpdateStatus(StrategyData data, QuoteData quote, DateTime start)
@@ -602,10 +607,11 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             data.StatusEnum = StrategyStatus.Enum.Monitoring;
                             data.OrderData = null;
+                            data.BestClosePrice = data.OrderPriceAfter;
                             data.StopLossData = null;
-                            data.StopWinData = null;
-                            data.MoveStopWinPrice = data.OrderPriceAfter;
-                            data.MoveStopWinData = null;
+                            data.StopWinTriggered = false;
+                            data.StopWin1Data = null;
+                            data.StopWin2Data = null;
                             data.ClosedProfit = 0;
                             data.UnclosedQty = 0;
                             data.MarketClosingData = null;
@@ -626,14 +632,14 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (data.BSEnum == OrderBS.Enum.Buy)
                 {
-                    if (data.MoveStopWinPrice < data.MarketPrice)
+                    if (data.BestClosePrice < data.MarketPrice)
                     {
-                        data.MoveStopWinPrice = data.MarketPrice;
+                        data.BestClosePrice = data.MarketPrice;
                     }
                 }
-                else if ((data.MoveStopWinPrice > data.MarketPrice || data.MoveStopWinPrice == 0) && data.MarketPrice != 0)
+                else if ((data.BestClosePrice > data.MarketPrice || data.BestClosePrice == 0) && data.MarketPrice != 0)
                 {
-                    data.MoveStopWinPrice = data.MarketPrice;
+                    data.BestClosePrice = data.MarketPrice;
                 }
 
                 if (data.UnclosedQty > 0 && data.StatusEnum != StrategyStatus.Enum.MarketClosingSent && data.StatusEnum != StrategyStatus.Enum.MarketClosingOrderReport && data.StatusEnum != StrategyStatus.Enum.MarketClosingDealReport)
@@ -700,45 +706,67 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             AfterStopLoss(data, start);
                         }
-                        else if (data.MarketPrice >= data.StopWinPrice && data.StopWinQty <= 0)
+                        else if (!data.StopWinTriggered && data.MarketPrice >= data.StopWinPriceAfter)
                         {
-                            saveData = true;
-                            SendStopWin(data, false, start);
+                            data.StopWinTriggered = true;
+                        }
+                        else if (data.StopWinTriggered && data.StopWin1Qty <= 0)
+                        {
+                            if ((data.StopWin1Offset < 0 && data.MarketPrice <= data.BestClosePrice + data.StopWin1Offset) ||
+                                (data.StopWin1Offset > 0 && data.MarketPrice <= data.OrderPriceAfter + data.StopWin1Offset))
+                            {
+                                saveData = true;
+                                SendStopWin(data, StrategyData.StopWin1, start);
+                            }
                         }
                     }
-                    else if (data.MarketPrice >= data.StopLossAfter) //data.BSEnum == OrderBS.Enum.Sell
+                    else if (data.BSEnum == OrderBS.Enum.Sell)
                     {
-                        StrategyData stopLossOrder = data.CreateStopLossOrder();
+                        if (data.MarketPrice >= data.StopLossAfter)
+                        {
+                            StrategyData stopLossOrder = data.CreateStopLossOrder();
 
-                        data.StatusEnum = StrategyStatus.Enum.StopLossSent;
+                            data.StatusEnum = StrategyStatus.Enum.StopLossSent;
 
-                        _appCtrl.CAPOrder.Send(stopLossOrder);
+                            _appCtrl.CAPOrder.Send(stopLossOrder);
 
-                        saveData = true;
-                        AfterStopLoss(data, start);
-                    }
-                    else if (data.MarketPrice <= data.StopWinPrice && data.StopWinQty <= 0)
-                    {
-                        saveData = true;
-                        SendStopWin(data, false, start);
+                            saveData = true;
+                            AfterStopLoss(data, start);
+                        }
+                        else if (!data.StopWinTriggered && data.MarketPrice <= data.StopWinPriceAfter)
+                        {
+                            data.StopWinTriggered = true;
+                        }
+                        else if (data.StopWinTriggered && data.StopWin1Qty <= 0)
+                        {
+                            if ((data.StopWin1Offset > 0 && data.MarketPrice >= data.BestClosePrice + data.StopWin1Offset) ||
+                            (data.StopWin1Offset < 0 && data.MarketPrice >= data.OrderPriceAfter + data.StopWin1Offset))
+                            {
+                                saveData = true;
+                                SendStopWin(data, StrategyData.StopWin1, start);
+                            }
+                        }
                     }
                 }
-                else if (data.MoveStopWinQty <= 0 && data.MoveStopWinData == null && data.StopWinData != null && data.StopWinData.OrderQty < data.OrderQty)
+                else if (data.StopWin2Qty <= 0 && data.StopWin2Data == null && data.StopWin1Data != null && data.StopWin1Data.OrderQty < data.OrderQty)
                 {
                     if (data.BSEnum == OrderBS.Enum.Buy)
                     {
-                        if ((data.MoveStopWinOffset < 0 && data.MarketPrice <= data.MoveStopWinPrice + data.MoveStopWinOffset) ||
-                            (data.MoveStopWinOffset > 0 && data.MarketPrice <= data.OrderPriceAfter + data.MoveStopWinOffset))
+                        if ((data.StopWin2Offset < 0 && data.MarketPrice <= data.BestClosePrice + data.StopWin2Offset) ||
+                            (data.StopWin2Offset > 0 && data.MarketPrice <= data.OrderPriceAfter + data.StopWin2Offset))
                         {
                             saveData = true;
-                            SendStopWin(data, true, start);
+                            SendStopWin(data, StrategyData.StopWin2, start);
                         }
                     }
-                    else if ((data.MoveStopWinOffset > 0 && data.MarketPrice >= data.MoveStopWinPrice + data.MoveStopWinOffset) ||
-                            (data.MoveStopWinOffset < 0 && data.MarketPrice >= data.OrderPriceAfter + data.MoveStopWinOffset))
+                    else if (data.BSEnum == OrderBS.Enum.Sell)
                     {
-                        saveData = true;
-                        SendStopWin(data, true, start);
+                        if ((data.StopWin2Offset > 0 && data.MarketPrice >= data.BestClosePrice + data.StopWin2Offset) ||
+                            (data.StopWin2Offset < 0 && data.MarketPrice >= data.OrderPriceAfter + data.StopWin2Offset))
+                        {
+                            saveData = true;
+                            SendStopWin(data, StrategyData.StopWin2, start);
+                        }
                     }
                 }
             }

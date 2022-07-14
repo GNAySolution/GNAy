@@ -301,11 +301,12 @@
                 <Button x:Name="ButtonSaveStrategyRule" Content="儲存策略" HorizontalAlignment="Left" Margin="34,82,0,0" VerticalAlignment="Top" Click="ButtonSaveStrategyRule_Click"/>
                 <Label Content="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyPrimaryKey" Text="自定義策略唯一鍵" ToolTip="自定義策略唯一鍵" HorizontalAlignment="Left" Margin="91,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="停損價差(%)" HorizontalAlignment="Left" Margin="216,57,0,0" VerticalAlignment="Top"/>
+                <Label Content="停損停利價差(%)" HorizontalAlignment="Left" Margin="216,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxStrategyStopLoss" Text="停損價差(%)" ToolTip="停損價差(%)" HorizontalAlignment="Left" Margin="216,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Label Content="停利價差(%)" HorizontalAlignment="Left" Margin="341,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxStrategyStopWin" Text="停利價差(%)" ToolTip="停利價差(%)" HorizontalAlignment="Left" Margin="341,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <TextBox x:Name="TextBoxStrategyMoveStopWin" Text="移動停利價差(%)" ToolTip="移動停利價差(%)" HorizontalAlignment="Left" Margin="341,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyStopWin" Text="停利價差(%)" ToolTip="停利價差(%)" HorizontalAlignment="Left" Margin="216,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <Label Content="移動停利(%)設定" HorizontalAlignment="Left" Margin="341,57,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TextBoxStrategyMoveStopWin1" Text="移動停利(%)1設定" ToolTip="移動停利(%)1設定" HorizontalAlignment="Left" Margin="341,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyMoveStopWin2" Text="移動停利(%)2設定" ToolTip="移動停利(%)2設定" HorizontalAlignment="Left" Margin="341,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="停損後執行" HorizontalAlignment="Left" Margin="466,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxOpenTriggerAfterStopLoss" Text="停損後執行觸價" ToolTip="停損後接續執行觸價" HorizontalAlignment="Left" Margin="466,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxOpenStrategyAfterStopLoss" Text="停損後執行策略" ToolTip="停損後接續執行策略" HorizontalAlignment="Left" Margin="466,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
@@ -391,12 +392,15 @@
                                     <DataGridTextColumn Binding="{Binding OrderPriceBefore}"/>
                                     <DataGridTextColumn Binding="{Binding OrderPriceAfter}"/>
                                     <DataGridTextColumn Binding="{Binding OrderQty}"/>
+                                    <DataGridTextColumn Binding="{Binding BestClosePrice}"/>
                                     <DataGridTextColumn Binding="{Binding StopLossBefore}"/>
                                     <DataGridTextColumn Binding="{Binding StopLossAfterStr}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWinBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWinAfter}"/>
-                                    <DataGridTextColumn Binding="{Binding MoveStopWinBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding MoveStopWinAfter}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWinPriceBefore}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWinPriceAfterStr}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWin1Before}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWin1After}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWin2Before}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWin2After}"/>
                                     <DataGridTextColumn Binding="{Binding OrderReport}"/>
                                     <DataGridTextColumn Binding="{Binding DealPrice}"/>
                                     <DataGridTextColumn Binding="{Binding DealQty}"/>
@@ -506,12 +510,15 @@
                                     <DataGridTextColumn Binding="{Binding OrderPriceBefore}"/>
                                     <DataGridTextColumn Binding="{Binding OrderPriceAfter}"/>
                                     <DataGridTextColumn Binding="{Binding OrderQty}"/>
+                                    <DataGridTextColumn Binding="{Binding BestClosePrice}"/>
                                     <DataGridTextColumn Binding="{Binding StopLossBefore}"/>
                                     <DataGridTextColumn Binding="{Binding StopLossAfterStr}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWinBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWinAfter}"/>
-                                    <DataGridTextColumn Binding="{Binding MoveStopWinBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding MoveStopWinAfter}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWinPriceBefore}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWinPriceAfterStr}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWin1Before}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWin1After}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWin2Before}"/>
+                                    <DataGridTextColumn Binding="{Binding StopWin2After}"/>
                                     <DataGridTextColumn Binding="{Binding OrderReport}"/>
                                     <DataGridTextColumn Binding="{Binding DealPrice}"/>
                                     <DataGridTextColumn Binding="{Binding DealQty}"/>
