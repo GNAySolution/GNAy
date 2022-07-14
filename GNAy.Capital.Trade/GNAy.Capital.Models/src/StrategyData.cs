@@ -254,9 +254,9 @@ namespace GNAy.Capital.Models
         }
         private string _stopWin1After =>
             BestClosePrice == 0 || StopWin1Offset == 0 ? string.Empty :
-            BSEnum == OrderBS.Enum.Buy && StopWin1Offset < 0 ? $"{BestClosePrice + StopWin1Offset:0.00} ({StopWin1Qty})" :
+            BSEnum == OrderBS.Enum.Buy && StopWin1Offset <= 0 ? $"{BestClosePrice + StopWin1Offset:0.00} ({StopWin1Qty})" :
             BSEnum == OrderBS.Enum.Buy && StopWin1Offset > 0 ? $"{OrderPriceAfter + StopWin1Offset:0.00} ({StopWin1Qty})" :
-            BSEnum == OrderBS.Enum.Sell && StopWin1Offset > 0 ? $"{BestClosePrice + StopWin1Offset:0.00} ({StopWin1Qty})" :
+            BSEnum == OrderBS.Enum.Sell && StopWin1Offset >= 0 ? $"{BestClosePrice + StopWin1Offset:0.00} ({StopWin1Qty})" :
             $"{OrderPriceAfter + StopWin1Offset:0.00} ({StopWin1Qty})";
         [Column("停利1觸發", CSVIndex = -1, WPFDisplayIndex = 21, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public string StopWin1After => BestClosePrice == 0 || StopWin1Offset == 0 ? string.Empty : StopWin1Data == null ? $"*{_stopWin1After}" : $"{_stopWin1After}";
@@ -286,9 +286,9 @@ namespace GNAy.Capital.Models
         }
         private string _stopWin2After =>
             BestClosePrice == 0 || StopWin2Offset == 0 ? string.Empty :
-            BSEnum == OrderBS.Enum.Buy && StopWin2Offset < 0 ? $"{BestClosePrice + StopWin2Offset:0.00} ({StopWin2Qty})" :
+            BSEnum == OrderBS.Enum.Buy && StopWin2Offset <= 0 ? $"{BestClosePrice + StopWin2Offset:0.00} ({StopWin2Qty})" :
             BSEnum == OrderBS.Enum.Buy && StopWin2Offset > 0 ? $"{OrderPriceAfter + StopWin2Offset:0.00} ({StopWin2Qty})" :
-            BSEnum == OrderBS.Enum.Sell && StopWin2Offset > 0 ? $"{BestClosePrice + StopWin2Offset:0.00} ({StopWin2Qty})" :
+            BSEnum == OrderBS.Enum.Sell && StopWin2Offset >= 0 ? $"{BestClosePrice + StopWin2Offset:0.00} ({StopWin2Qty})" :
             $"{OrderPriceAfter + StopWin2Offset:0.00} ({StopWin2Qty})";
         [Column("停利2觸發", CSVIndex = -1, WPFDisplayIndex = 23, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public string StopWin2After => BestClosePrice == 0 || StopWin2Offset == 0 ? string.Empty : StopWin2Data == null ? $"*{_stopWin2After}" : $"{_stopWin2After}";
@@ -475,8 +475,16 @@ namespace GNAy.Capital.Models
 
         public StrategyData MarketClosingData;
 
+        private int _startTimesMax;
+        [Column("啟動次數限制", "限", WPFDisplayIndex = 43, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        public int StartTimesMax
+        {
+            get { return _startTimesMax; }
+            set { OnPropertyChanged(ref _startTimesMax, value); }
+        }
+
         private bool _sendRealOrder;
-        [Column("真實下單", "實單", WPFDisplayIndex = 43)]
+        [Column("真實下單", "實單", WPFDisplayIndex = 44, WPFForeground = "MediumBlue")]
         public bool SendRealOrder
         {
             get { return _sendRealOrder; }
@@ -484,7 +492,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 44)]
+        [Column("註解", WPFDisplayIndex = 45)]
         public string Comment
         {
             get { return _comment; }
@@ -552,6 +560,7 @@ namespace GNAy.Capital.Models
             LossCloseTime = DateTime.MinValue;
             AccountsWinLossClose = string.Empty;
             MarketClosingData = null;
+            StartTimesMax = 9;
             SendRealOrder = false;
             Comment = string.Empty;
         }
@@ -884,7 +893,7 @@ namespace GNAy.Capital.Models
 
         public string ToLog()
         {
-            return $"{StatusDes},{PrimaryKey},{MarketType},{Account},{Symbol},{BSEnum},{PositionEnum},{OrderPriceBefore},{OrderPriceAfter:0.00},{OrderQty},{SendRealOrder},{Comment}";
+            return $"{StatusDes},{PrimaryKey},{MarketType},{Account},{Symbol},{BSEnum},{PositionEnum},{OrderPriceBefore},{OrderPriceAfter:0.00},{OrderQty},{StartTimesMax},{SendRealOrder},{Comment}";
         }
 
         public string ToCSVString()

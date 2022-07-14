@@ -420,6 +420,7 @@
                                     <DataGridTextColumn Binding="{Binding LossCloseQty}"/>
                                     <DataGridTextColumn Binding="{Binding LossCloseTime}"/>
                                     <DataGridTextColumn Binding="{Binding AccountsWinLossClose}"/>
+                                    <DataGridTextColumn Binding="{Binding StartTimesMax}"/>
                                     <DataGridTextColumn Binding="{Binding SendRealOrder}"/>
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
                                 </DataGrid.Columns>
@@ -538,6 +539,7 @@
                                     <DataGridTextColumn Binding="{Binding LossCloseQty}"/>
                                     <DataGridTextColumn Binding="{Binding LossCloseTime}"/>
                                     <DataGridTextColumn Binding="{Binding AccountsWinLossClose}"/>
+                                    <DataGridTextColumn Binding="{Binding StartTimesMax}"/>
                                     <DataGridTextColumn Binding="{Binding SendRealOrder}"/>
                                     <DataGridTextColumn Binding="{Binding Comment}"/>
                                 </DataGrid.Columns>

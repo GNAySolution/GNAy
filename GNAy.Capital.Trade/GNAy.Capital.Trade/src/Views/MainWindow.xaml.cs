@@ -2313,6 +2313,13 @@ namespace GNAy.Capital.Trade
                     {
                         foreach (string key in keys)
                         {
+                            StrategyData data = _appCtrl.Strategy[key];
+
+                            if (data.StartTimesMax <= 0)
+                            {
+                                data.StartTimesMax = 1;
+                            }
+
                             _appCtrl.Strategy.StartNow(key);
                         }
 
@@ -2329,6 +2336,13 @@ namespace GNAy.Capital.Trade
                     try
                     {
                         Thread.Sleep(_appCtrl.Settings.TimerIntervalBackground * 3);
+
+                        StrategyData data = _appCtrl.Strategy[primaryKey];
+
+                        if (data.StartTimesMax <= 0)
+                        {
+                            data.StartTimesMax = 1;
+                        }
 
                         _appCtrl.Strategy.StartNow(primaryKey);
                     }

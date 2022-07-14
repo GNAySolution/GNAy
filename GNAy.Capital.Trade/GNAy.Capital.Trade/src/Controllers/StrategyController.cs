@@ -562,6 +562,15 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
+                else if (data.StartTimesMax <= 0)
+                {
+                    data.StatusEnum = StrategyStatus.Enum.Cancelled;
+                    data.Comment = "啟動次數限制";
+                    data.Updater = methodName;
+                    data.UpdateTime = DateTime.Now;
+
+                    return saveData;
+                }
                 else if (data.StatusEnum == StrategyStatus.Enum.Monitoring)
                 {
                     data.MarketPrice = quote.DealPrice;
@@ -593,6 +602,7 @@ namespace GNAy.Capital.Trade.Controllers
                 else if (data.StatusEnum == StrategyStatus.Enum.Waiting)
                 {
                     data.MarketPrice = quote.DealPrice;
+
                     return saveData;
                 }
                 else if (data.StopLossData != null || data.UnclosedQty <= 0)
@@ -710,9 +720,10 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             data.StopWinTriggered = true;
                         }
-                        else if (data.StopWinTriggered && data.StopWin1Qty <= 0)
+                        
+                        if (data.StopWinTriggered && data.StopWin1Qty <= 0)
                         {
-                            if ((data.StopWin1Offset < 0 && data.MarketPrice <= data.BestClosePrice + data.StopWin1Offset) ||
+                            if ((data.StopWin1Offset <= 0 && data.MarketPrice <= data.BestClosePrice + data.StopWin1Offset) ||
                                 (data.StopWin1Offset > 0 && data.MarketPrice <= data.OrderPriceAfter + data.StopWin1Offset))
                             {
                                 saveData = true;
@@ -737,9 +748,10 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             data.StopWinTriggered = true;
                         }
-                        else if (data.StopWinTriggered && data.StopWin1Qty <= 0)
+                        
+                        if (data.StopWinTriggered && data.StopWin1Qty <= 0)
                         {
-                            if ((data.StopWin1Offset > 0 && data.MarketPrice >= data.BestClosePrice + data.StopWin1Offset) ||
+                            if ((data.StopWin1Offset >= 0 && data.MarketPrice >= data.BestClosePrice + data.StopWin1Offset) ||
                             (data.StopWin1Offset < 0 && data.MarketPrice >= data.OrderPriceAfter + data.StopWin1Offset))
                             {
                                 saveData = true;
@@ -752,7 +764,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (data.BSEnum == OrderBS.Enum.Buy)
                     {
-                        if ((data.StopWin2Offset < 0 && data.MarketPrice <= data.BestClosePrice + data.StopWin2Offset) ||
+                        if ((data.StopWin2Offset <= 0 && data.MarketPrice <= data.BestClosePrice + data.StopWin2Offset) ||
                             (data.StopWin2Offset > 0 && data.MarketPrice <= data.OrderPriceAfter + data.StopWin2Offset))
                         {
                             saveData = true;
@@ -761,7 +773,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else if (data.BSEnum == OrderBS.Enum.Sell)
                     {
-                        if ((data.StopWin2Offset > 0 && data.MarketPrice >= data.BestClosePrice + data.StopWin2Offset) ||
+                        if ((data.StopWin2Offset >= 0 && data.MarketPrice >= data.BestClosePrice + data.StopWin2Offset) ||
                             (data.StopWin2Offset < 0 && data.MarketPrice >= data.OrderPriceAfter + data.StopWin2Offset))
                         {
                             saveData = true;
@@ -1008,6 +1020,15 @@ namespace GNAy.Capital.Trade.Controllers
 
             SerialReset(data, false);
             ParentCheck(data, true, start);
+
+            if (data.StartTimesMax > 0)
+            {
+                --data.StartTimesMax;
+            }
+            else
+            {
+                throw new ArgumentException($"啟動次數限制(StartTimesMax)={data.StartTimesMax}|{data.ToLog()}");
+            }
 
             if (!decimal.TryParse(data.OrderPriceBefore, out _) && data.OrderPriceBefore.Trim().Length > 1)
             {
