@@ -45,7 +45,7 @@ namespace GNAy.Capital.Trade.Controllers
             _waitToAdd = new ConcurrentQueue<TriggerData>();
 
             _dataMap = new SortedDictionary<string, TriggerData>();
-            _appCtrl.MainForm.DataGridTriggerRule.SetHeadersByBindings(TriggerData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
+            _appCtrl.MainForm.DataGridTriggerRule.SetColumns(TriggerData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _dataCollection = _appCtrl.MainForm.DataGridTriggerRule.SetViewAndGetObservation<TriggerData>();
 
             _triggerColumnCollection = _appCtrl.MainForm.ComboBoxTriggerColumn.SetViewAndGetObservation<TradeColumnTrigger>();

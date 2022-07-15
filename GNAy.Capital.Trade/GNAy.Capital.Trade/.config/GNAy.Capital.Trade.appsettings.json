@@ -1,5 +1,5 @@
 {
-  "Version": "1.22.706.3",
+  "Version": "1.22.715.1",
   "Description": "測試用設定",
   "ProcessPriority": "Normal",
   "Big5EncodingCodePage": 950,
@@ -43,10 +43,12 @@
     "OrderQty",
     "StopLossBefore",
     "StopLossAfterStr",
-    "StopWinBefore",
-    "StopWinAfter",
-    "MoveStopWinBefore",
-    "MoveStopWinAfter",
+    "StopWinPriceBefore",
+    "StopWinPriceAfterStr",
+    "StopWin1Before",
+    "StopWin1After",
+    "StopWin2Before",
+    "StopWin2After",
     "DealPrice",
     "UnclosedQty",
     "AccountsWinLossClose"

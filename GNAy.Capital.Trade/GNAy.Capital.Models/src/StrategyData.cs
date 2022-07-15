@@ -252,14 +252,14 @@ namespace GNAy.Capital.Models
             get { return _stopWin1Qty; }
             set { OnPropertiesChanged(ref _stopWin1Qty, value, nameof(StopWin1Qty), nameof(StopWin1After)); }
         }
-        private string _stopWin1After =>
+        private string StopWin1AfterRaw =>
             BestClosePrice == 0 || StopWin1Offset == 0 ? string.Empty :
             BSEnum == OrderBS.Enum.Buy && StopWin1Offset <= 0 ? $"{BestClosePrice + StopWin1Offset:0.00} ({StopWin1Qty})" :
             BSEnum == OrderBS.Enum.Buy && StopWin1Offset > 0 ? $"{OrderPriceAfter + StopWin1Offset:0.00} ({StopWin1Qty})" :
             BSEnum == OrderBS.Enum.Sell && StopWin1Offset >= 0 ? $"{BestClosePrice + StopWin1Offset:0.00} ({StopWin1Qty})" :
             $"{OrderPriceAfter + StopWin1Offset:0.00} ({StopWin1Qty})";
         [Column("停利1觸發", CSVIndex = -1, WPFDisplayIndex = 21, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
-        public string StopWin1After => BestClosePrice == 0 || StopWin1Offset == 0 ? string.Empty : StopWin1Data == null ? $"*{_stopWin1After}" : $"{_stopWin1After}";
+        public string StopWin1After => BestClosePrice == 0 || StopWin1Offset == 0 ? string.Empty : StopWin1Data == null ? $"*{StopWin1AfterRaw}" : $"{StopWin1AfterRaw}";
 
         public StrategyData StopWin1Data;
 
@@ -284,14 +284,14 @@ namespace GNAy.Capital.Models
             get { return _stopWin2Qty; }
             set { OnPropertiesChanged(ref _stopWin2Qty, value, nameof(StopWin2Qty), nameof(StopWin2After)); }
         }
-        private string _stopWin2After =>
+        private string StopWin2AfterRaw =>
             BestClosePrice == 0 || StopWin2Offset == 0 ? string.Empty :
             BSEnum == OrderBS.Enum.Buy && StopWin2Offset <= 0 ? $"{BestClosePrice + StopWin2Offset:0.00} ({StopWin2Qty})" :
             BSEnum == OrderBS.Enum.Buy && StopWin2Offset > 0 ? $"{OrderPriceAfter + StopWin2Offset:0.00} ({StopWin2Qty})" :
             BSEnum == OrderBS.Enum.Sell && StopWin2Offset >= 0 ? $"{BestClosePrice + StopWin2Offset:0.00} ({StopWin2Qty})" :
             $"{OrderPriceAfter + StopWin2Offset:0.00} ({StopWin2Qty})";
         [Column("停利2觸發", CSVIndex = -1, WPFDisplayIndex = 23, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
-        public string StopWin2After => BestClosePrice == 0 || StopWin2Offset == 0 ? string.Empty : StopWin2Data == null ? $"*{_stopWin2After}" : $"{_stopWin2After}";
+        public string StopWin2After => BestClosePrice == 0 || StopWin2Offset == 0 ? string.Empty : StopWin2Data == null ? $"*{StopWin2AfterRaw}" : $"{StopWin2AfterRaw}";
 
         public StrategyData StopWin2Data;
 
@@ -327,16 +327,16 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _dealReport, value); }
         }
 
-        private decimal _closedProfitTotal;
-        [Column("累計已實現損益估計", "累損益", CSVStringFormat = "0.00", WPFDisplayIndex = 28, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
-        public decimal ClosedProfitTotal
+        private string _closedProfitTotal;
+        [Column("累計已實現損益估計", "累損益", CSVStringFormat = "0.00", WPFDisplayIndex = 28, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
+        public string ClosedProfitTotal
         {
             get { return _closedProfitTotal; }
             set { OnPropertyChanged(ref _closedProfitTotal, value); }
         }
 
         private decimal _closedProfit;
-        [Column("已實現損益估計", "已損益", CSVStringFormat = "0.00", WPFDisplayIndex = 29, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
+        [Column("已實現損益估計", "已損益", CSVStringFormat = "0.00", WPFDisplayIndex = 29, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
         public decimal ClosedProfit
         {
             get { return _closedProfit; }
@@ -344,7 +344,7 @@ namespace GNAy.Capital.Models
             {
                 if (OnPropertyChanged(ref _closedProfit, value))
                 {
-                    ClosedProfitTotal += value;
+                    ClosedProfitTotal = string.IsNullOrWhiteSpace(ClosedProfitTotal) ? $"{value:0.00}" : string.Join(",", ClosedProfitTotal, $"{value:0.00}");
                 }
             }
         }
@@ -542,7 +542,7 @@ namespace GNAy.Capital.Models
             DealPrice = 0;
             DealQty = 0;
             DealReport = string.Empty;
-            ClosedProfitTotal = 0;
+            ClosedProfitTotal = string.Empty;
             ClosedProfit = 0;
             UnclosedQty = 0;
             UnclosedProfit = 0;

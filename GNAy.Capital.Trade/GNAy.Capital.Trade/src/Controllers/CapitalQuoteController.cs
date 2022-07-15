@@ -87,7 +87,7 @@ namespace GNAy.Capital.Trade.Controllers
             _dataIndexMap = new Dictionary<int, QuoteData>();
             _dataSymbolMap = new Dictionary<string, QuoteData>();
 
-            _appCtrl.MainForm.DataGridQuoteSubscribed.SetHeadersByBindings(QuoteData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
+            _appCtrl.MainForm.DataGridQuoteSubscribed.SetColumns(QuoteData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _dataCollection = _appCtrl.MainForm.DataGridQuoteSubscribed.SetViewAndGetObservation<QuoteData>();
         }
 

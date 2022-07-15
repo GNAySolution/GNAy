@@ -185,7 +185,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.706.3";
+            Version = "1.22.715.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -217,7 +217,7 @@ namespace GNAy.Capital.Models
             LiveModeTriggerRule = new List<string>();
             //LiveModeTriggerRule = new List<string>() { nameof(TriggerData.ColumnName), nameof(TriggerData.ColumnProperty), nameof(TriggerData.ColumnValue), nameof(TriggerData.TargetValue), nameof(TriggerData.Symbol2Setting) }; //
             LiveModeStrategyRule = new List<string>();
-            //LiveModeStrategyRule = new List<string>() { nameof(StrategyData.FullAccount), nameof(StrategyData.BSEnum), nameof(StrategyData.MarketPrice), nameof(StrategyData.OrderPriceBefore), nameof(StrategyData.OrderPriceAfter), nameof(StrategyData.OrderQty), nameof(StrategyData.StopLossBefore), nameof(StrategyData.StopLossAfterStr), nameof(StrategyData.StopWinBefore), nameof(StrategyData.StopWinAfter), nameof(StrategyData.MoveStopWinBefore), nameof(StrategyData.MoveStopWinAfter), nameof(StrategyData.DealPrice), nameof(StrategyData.UnclosedQty), nameof(StrategyData.AccountsWinLossClose) }; //
+            //LiveModeStrategyRule = new List<string>() { nameof(StrategyData.FullAccount), nameof(StrategyData.BSEnum), nameof(StrategyData.MarketPrice), nameof(StrategyData.OrderPriceBefore), nameof(StrategyData.OrderPriceAfter), nameof(StrategyData.OrderQty), nameof(StrategyData.StopLossBefore), nameof(StrategyData.StopLossAfterStr), nameof(StrategyData.StopWinPriceBefore), nameof(StrategyData.StopWinPriceAfterStr), nameof(StrategyData.StopWin1Before), nameof(StrategyData.StopWin1After), nameof(StrategyData.StopWin2Before), nameof(StrategyData.StopWin2After), nameof(StrategyData.DealPrice), nameof(StrategyData.UnclosedQty), nameof(StrategyData.AccountsWinLossClose) }; //
             LiveModeOrderDetail = new List<string>();
             //LiveModeOrderDetail = new List<string>() { nameof(StrategyData.FullAccount), nameof(StrategyData.BSEnum), nameof(StrategyData.MarketPrice), nameof(StrategyData.OrderPriceBefore), nameof(StrategyData.OrderPriceAfter), nameof(StrategyData.OrderQty), nameof(StrategyData.OrderReport), nameof(StrategyData.DealPrice), nameof(StrategyData.DealQty), nameof(StrategyData.DealReport), nameof(StrategyData.UnclosedQty) }; //
             LiveModeOpenInterest = new List<string>();

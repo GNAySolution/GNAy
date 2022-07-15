@@ -182,63 +182,94 @@ namespace GNAy.Tools.WPF
             }
         }
 
-        /// <summary>
-        /// https://stackoverflow.com/questions/4615081/how-to-add-a-tooltip-for-a-datagrid-header-where-the-header-text-is-generated-d
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
-        /// <param name="propertyNameMap"></param>
-        public static void SetHeadersByBindings<T>(this DataGrid obj, IDictionary<string, T> propertyNameMap) where T : ColumnAttribute
+        private static void SetColumn<T>(this DataGridBoundColumn obj, Binding bind, T attr) where T : ColumnAttribute
         {
+            obj.Header = attr.WPFName;
+            obj.DisplayIndex = attr.WPFDisplayIndex;
+            bind.StringFormat = attr.WPFStringFormat;
+            obj.IsReadOnly = attr.WPFIsReadOnly;
+            obj.Visibility = attr.WPFVisibility.ToString().ConvertTo<Visibility>();
+            obj.CanUserReorder = attr.WPFCanUserReorder;
+            obj.CanUserSort = attr.WPFCanUserSort;
+
+            //https://stackoverflow.com/questions/4577944/how-to-resize-wpf-datagrid-to-fit-its-content
+            obj.Width = new DataGridLength(1.0, DataGridLengthUnitType.Auto);
+
+            //https://stackoverflow.com/questions/4615081/how-to-add-a-tooltip-for-a-datagrid-header-where-the-header-text-is-generated-d
+            Style headerS = new Style(typeof(DataGridColumnHeader));
+            headerS.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{obj.DisplayIndex},{attr.CSVName},{bind.Path.Path},{bind.StringFormat}"));
+            obj.HeaderStyle = headerS;
+
+            //https://stackoverflow.com/questions/53961533/datagrid-columns-element-style-in-codebehind-has-no-effect
+            if (obj is DataGridTextColumn col)
+            {
+                Style elementS = null;
+
+                if (attr.WPFHorizontalAlignment != WPFHorizontalAlignment.Left)
+                {
+                    elementS = new Style();
+                    elementS.Setters.Add(new Setter(FrameworkElement.HorizontalAlignmentProperty, attr.WPFHorizontalAlignment.ToString().ConvertTo<HorizontalAlignment>()));
+                }
+
+                if (!string.IsNullOrWhiteSpace(attr.WPFForeground))
+                {
+                    if (elementS == null)
+                    {
+                        elementS = new Style();
+                    }
+
+                    elementS.Setters.Add(new Setter(TextBlock.FontWeightProperty, FontWeights.DemiBold));
+                    elementS.Setters.Add(new Setter(TextBlock.ForegroundProperty, new BrushConverter().ConvertFromString(attr.WPFForeground)));
+                }
+
+                if (elementS != null)
+                {
+                    col.ElementStyle = elementS;
+                }
+            }
+        }
+
+        public static void SetColumn<T>(this DataGridBoundColumn obj, T attr) where T : ColumnAttribute
+        {
+            if (obj.Binding is Binding bind)
+            {
+                obj.SetColumn(bind, attr);
+            }
+        }
+
+        public static void SetColumns<T>(this DataGrid obj, IDictionary<string, T> propertyNameMap) where T : ColumnAttribute
+        {
+            HashSet<string> existedBindings = new HashSet<string>();
+
             foreach (DataGridColumn column in obj.Columns)
             {
-                if (column is DataGridBoundColumn bound && bound.Binding is Binding bind)
+                if (column is DataGridBoundColumn bound && bound.Binding is Binding bind && propertyNameMap.ContainsKey(bind.Path.Path))
                 {
-                    if (propertyNameMap.TryGetValue(bind.Path.Path, out T attr))
-                    {
-                        column.Header = attr.WPFName;
-                        column.DisplayIndex = attr.WPFDisplayIndex;
-                        bind.StringFormat = attr.WPFStringFormat;
-                        column.IsReadOnly = attr.WPFIsReadOnly;
-                        column.Visibility = attr.WPFVisibility.ToString().ConvertTo<Visibility>();
-                        column.CanUserReorder = attr.WPFCanUserReorder;
-                        column.CanUserSort = attr.WPFCanUserSort;
+                    existedBindings.Add(bind.Path.Path);
+                }
+            }
 
-                        //https://stackoverflow.com/questions/4577944/how-to-resize-wpf-datagrid-to-fit-its-content
-                        column.Width = new DataGridLength(1.0, DataGridLengthUnitType.Auto);
+            foreach (KeyValuePair<string, T> pair in propertyNameMap)
+            {
+                if (pair.Value.WPFDisplayIndex < 0 || existedBindings.Contains(pair.Key))
+                {
+                    continue;
+                }
 
-                        Style headerS = new Style(typeof(DataGridColumnHeader));
-                        headerS.Setters.Add(new Setter(ToolTipService.ToolTipProperty, $"{column.DisplayIndex},{attr.CSVName},{bind.Path.Path},{bind.StringFormat}"));
-                        column.HeaderStyle = headerS;
+                //https://stackoverflow.com/questions/6885711/wpf-c-bind-datagrid-column-with-code-behind
+                DataGridTextColumn column = new DataGridTextColumn()
+                {
+                    Binding = new Binding(pair.Key),
+                };
 
-                        //https://stackoverflow.com/questions/53961533/datagrid-columns-element-style-in-codebehind-has-no-effect
-                        if (column is DataGridTextColumn col)
-                        {
-                            Style elementS = null;
+                obj.Columns.Add(column);
+            }
 
-                            if (attr.WPFHorizontalAlignment != WPFHorizontalAlignment.Left)
-                            {
-                                elementS = new Style();
-                                elementS.Setters.Add(new Setter(FrameworkElement.HorizontalAlignmentProperty, attr.WPFHorizontalAlignment.ToString().ConvertTo<HorizontalAlignment>()));
-                            }
-
-                            if (!string.IsNullOrWhiteSpace(attr.WPFForeground))
-                            {
-                                if (elementS == null)
-                                {
-                                    elementS = new Style();
-                                }
-
-                                elementS.Setters.Add(new Setter(TextBlock.FontWeightProperty, FontWeights.DemiBold));
-                                elementS.Setters.Add(new Setter(TextBlock.ForegroundProperty, new BrushConverter().ConvertFromString(attr.WPFForeground)));
-                            }
-
-                            if (elementS != null)
-                            {
-                                col.ElementStyle = elementS;
-                            }
-                        }
-                    }
+            foreach (DataGridColumn column in obj.Columns)
+            {
+                if (column is DataGridBoundColumn bound && bound.Binding is Binding bind && propertyNameMap.TryGetValue(bind.Path.Path, out T attr))
+                {
+                    bound.SetColumn(bind, attr);
                 }
             }
         }

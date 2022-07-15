@@ -87,16 +87,7 @@
                 <TabControl x:Name="TabControlBA" Margin="0,0,0,30" SelectedIndex="0">
                     <TabItem Header="API回覆">
                         <Grid Background="#FFE5E5E5">
-                            <DataGrid x:Name="DataGridAPIReply" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding CreatedTime}"/>
-                                    <DataGridTextColumn Binding="{Binding ThreadID}"/>
-                                    <DataGridTextColumn Binding="{Binding CallerLineNumber}"/>
-                                    <DataGridTextColumn Binding="{Binding CallerMemberName}"/>
-                                    <DataGridTextColumn Binding="{Binding UserID}"/>
-                                    <DataGridTextColumn Binding="{Binding Message}"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <DataGrid x:Name="DataGridAPIReply" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True"/>
                         </Grid>
                     </TabItem>
                 </TabControl>
@@ -126,7 +117,6 @@
                         <Grid Background="#FFE5E5E5">
                             <DataGrid x:Name="DataGridAppLog" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding CreatedTime}"/>
                                     <DataGridTextColumn Binding="{Binding Level}">
                                         <!--https://stackoverflow.com/questions/5549617/change-datagrid-cell-colour-based-on-values-->
                                         <DataGridTextColumn.ElementStyle>
@@ -142,10 +132,6 @@
                                             </Style>
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
-                                    <DataGridTextColumn Binding="{Binding ThreadID}"/>
-                                    <DataGridTextColumn Binding="{Binding CallerLineNumber}"/>
-                                    <DataGridTextColumn Binding="{Binding CallerMemberName}"/>
-                                    <DataGridTextColumn Binding="{Binding Message}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
@@ -197,45 +183,6 @@
                                         </Style.Triggers>
                                     </Style>
                                 </DataGrid.RowStyle>
-                                <DataGrid.Columns>
-                                    <!--https://blog.csdn.net/yiyi0608/article/details/75597476-->
-                                    <DataGridTextColumn Binding="{Binding Page}"/>
-                                    <DataGridTextColumn Binding="{Binding Symbol}"/>
-                                    <DataGridTextColumn Binding="{Binding Name}"/>
-                                    <DataGridTextColumn Binding="{Binding MatchedTimeHHmmss}"/>
-                                    <DataGridTextColumn Binding="{Binding MatchedTimefff}"/>
-                                    <DataGridTextColumn Binding="{Binding DealPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding DealQty}"/>
-                                    <DataGridTextColumn Binding="{Binding UpDown}"/>
-                                    <DataGridTextColumn Binding="{Binding UpDownPct}"/>
-                                    <DataGridTextColumn Binding="{Binding BestBuyPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding BestBuyQty}"/>
-                                    <DataGridTextColumn Binding="{Binding BestSellPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding BestSellQty}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenUpDown}"/>
-                                    <DataGridTextColumn Binding="{Binding HighPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding DealHigh}"/>
-                                    <DataGridTextColumn Binding="{Binding LowPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding DealLow}"/>
-                                    <DataGridTextColumn Binding="{Binding HighLow}"/>
-                                    <DataGridTextColumn Binding="{Binding Reference}"/>
-                                    <DataGridTextColumn Binding="{Binding LastClosePrice}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenLastCloseUpDown}"/>
-                                    <DataGridTextColumn Binding="{Binding Simulate}"/>
-                                    <DataGridTextColumn Binding="{Binding TotalQty}"/>
-                                    <DataGridTextColumn Binding="{Binding TradeDate}"/>
-                                    <DataGridTextColumn Binding="{Binding Updater}"/>
-                                    <DataGridTextColumn Binding="{Binding UpdateTime}"/>
-                                    <DataGridTextColumn Binding="{Binding Count}"/>
-                                    <DataGridTextColumn Binding="{Binding HighPriceLimit}"/>
-                                    <DataGridTextColumn Binding="{Binding LowPriceLimit}"/>
-                                    <DataGridTextColumn Binding="{Binding Index}"/>
-                                    <DataGridTextColumn Binding="{Binding MarketGroupEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding DecimalPos}"/>
-                                    <DataGridTextColumn Binding="{Binding TotalQtyBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding Recovered}"/>
-                                </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
                     </TabItem>
@@ -342,29 +289,6 @@
                                         </Style.Triggers>
                                     </Style>
                                 </DataGrid.RowStyle>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding Updater}"/>
-                                    <DataGridTextColumn Binding="{Binding UpdateTime}"/>
-                                    <DataGridTextColumn Binding="{Binding StatusDes}"/>
-                                    <DataGridTextColumn Binding="{Binding PrimaryKey}"/>
-                                    <DataGridTextColumn Binding="{Binding Symbol1}"/>
-                                    <DataGridTextColumn Binding="{Binding ColumnName}"/>
-                                    <DataGridTextColumn Binding="{Binding ColumnProperty}"/>
-                                    <DataGridTextColumn Binding="{Binding ColumnValue}"/>
-                                    <DataGridTextColumn Binding="{Binding Rule}"/>
-                                    <DataGridTextColumn Binding="{Binding TargetValue}"/>
-                                    <DataGridTextColumn Binding="{Binding Symbol2Setting}"/>
-                                    <DataGridTextColumn Binding="{Binding Symbol2}"/>
-                                    <DataGridTextColumn Binding="{Binding Cancel}"/>
-                                    <DataGridTextColumn Binding="{Binding Start}"/>
-                                    <DataGridTextColumn Binding="{Binding StrategyOpenOR}"/>
-                                    <DataGridTextColumn Binding="{Binding StrategyOpenAND}"/>
-                                    <DataGridTextColumn Binding="{Binding StrategyCloseOR}"/>
-                                    <DataGridTextColumn Binding="{Binding StrategyCloseAND}"/>
-                                    <DataGridTextColumn Binding="{Binding StartTime}"/>
-                                    <DataGridTextColumn Binding="{Binding EndTime}"/>
-                                    <DataGridTextColumn Binding="{Binding Comment}"/>
-                                </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
                     </TabItem>
@@ -376,54 +300,6 @@
                                         <EventSetter Event="MouseDoubleClick" Handler="DataGridStrategyRuleCell_MouseDoubleClick"/>
                                     </Style>
                                 </DataGrid.Resources>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding Updater}"/>
-                                    <DataGridTextColumn Binding="{Binding UpdateTime}"/>
-                                    <DataGridTextColumn Binding="{Binding StatusDes}"/>
-                                    <DataGridTextColumn Binding="{Binding PrimaryKey}"/>
-                                    <DataGridTextColumn Binding="{Binding MarketName}"/>
-                                    <DataGridTextColumn Binding="{Binding FullAccount}"/>
-                                    <DataGridTextColumn Binding="{Binding Symbol}"/>
-                                    <DataGridTextColumn Binding="{Binding BSEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding TradeTypeEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding DayTradeEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding PositionEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding MarketPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding OrderPriceBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding OrderPriceAfter}"/>
-                                    <DataGridTextColumn Binding="{Binding OrderQty}"/>
-                                    <DataGridTextColumn Binding="{Binding BestClosePrice}"/>
-                                    <DataGridTextColumn Binding="{Binding StopLossBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding StopLossAfterStr}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWinPriceBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWinPriceAfterStr}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWin1Before}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWin1After}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWin2Before}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWin2After}"/>
-                                    <DataGridTextColumn Binding="{Binding OrderReport}"/>
-                                    <DataGridTextColumn Binding="{Binding DealPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding DealQty}"/>
-                                    <DataGridTextColumn Binding="{Binding DealReport}"/>
-                                    <DataGridTextColumn Binding="{Binding ClosedProfitTotal}"/>
-                                    <DataGridTextColumn Binding="{Binding ClosedProfit}"/>
-                                    <DataGridTextColumn Binding="{Binding UnclosedQty}"/>
-                                    <DataGridTextColumn Binding="{Binding UnclosedProfit}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenTriggerAfterStopLoss}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenStrategyAfterStopLoss}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenTriggerAfterStopWin}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenStrategyAfterStopWin}"/>
-                                    <DataGridTextColumn Binding="{Binding CloseTriggerAfterStopWin}"/>
-                                    <DataGridTextColumn Binding="{Binding CloseStrategyAfterStopWin}"/>
-                                    <DataGridTextColumn Binding="{Binding WinCloseQty}"/>
-                                    <DataGridTextColumn Binding="{Binding WinCloseTime}"/>
-                                    <DataGridTextColumn Binding="{Binding LossCloseQty}"/>
-                                    <DataGridTextColumn Binding="{Binding LossCloseTime}"/>
-                                    <DataGridTextColumn Binding="{Binding AccountsWinLossClose}"/>
-                                    <DataGridTextColumn Binding="{Binding StartTimesMax}"/>
-                                    <DataGridTextColumn Binding="{Binding SendRealOrder}"/>
-                                    <DataGridTextColumn Binding="{Binding Comment}"/>
-                                </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
                     </TabItem>
@@ -495,127 +371,17 @@
                                         <EventSetter Event="MouseDoubleClick" Handler="DataGridOrderDetailCell_MouseDoubleClick"/>
                                     </Style>
                                 </DataGrid.Resources>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding Updater}"/>
-                                    <DataGridTextColumn Binding="{Binding UpdateTime}"/>
-                                    <DataGridTextColumn Binding="{Binding StatusDes}"/>
-                                    <DataGridTextColumn Binding="{Binding PrimaryKey}"/>
-                                    <DataGridTextColumn Binding="{Binding MarketName}"/>
-                                    <DataGridTextColumn Binding="{Binding FullAccount}"/>
-                                    <DataGridTextColumn Binding="{Binding Symbol}"/>
-                                    <DataGridTextColumn Binding="{Binding BSEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding TradeTypeEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding DayTradeEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding PositionEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding MarketPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding OrderPriceBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding OrderPriceAfter}"/>
-                                    <DataGridTextColumn Binding="{Binding OrderQty}"/>
-                                    <DataGridTextColumn Binding="{Binding BestClosePrice}"/>
-                                    <DataGridTextColumn Binding="{Binding StopLossBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding StopLossAfterStr}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWinPriceBefore}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWinPriceAfterStr}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWin1Before}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWin1After}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWin2Before}"/>
-                                    <DataGridTextColumn Binding="{Binding StopWin2After}"/>
-                                    <DataGridTextColumn Binding="{Binding OrderReport}"/>
-                                    <DataGridTextColumn Binding="{Binding DealPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding DealQty}"/>
-                                    <DataGridTextColumn Binding="{Binding DealReport}"/>
-                                    <DataGridTextColumn Binding="{Binding ClosedProfitTotal}"/>
-                                    <DataGridTextColumn Binding="{Binding ClosedProfit}"/>
-                                    <DataGridTextColumn Binding="{Binding UnclosedQty}"/>
-                                    <DataGridTextColumn Binding="{Binding UnclosedProfit}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenTriggerAfterStopLoss}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenStrategyAfterStopLoss}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenTriggerAfterStopWin}"/>
-                                    <DataGridTextColumn Binding="{Binding OpenStrategyAfterStopWin}"/>
-                                    <DataGridTextColumn Binding="{Binding CloseTriggerAfterStopWin}"/>
-                                    <DataGridTextColumn Binding="{Binding CloseStrategyAfterStopWin}"/>
-                                    <DataGridTextColumn Binding="{Binding WinCloseQty}"/>
-                                    <DataGridTextColumn Binding="{Binding WinCloseTime}"/>
-                                    <DataGridTextColumn Binding="{Binding LossCloseQty}"/>
-                                    <DataGridTextColumn Binding="{Binding LossCloseTime}"/>
-                                    <DataGridTextColumn Binding="{Binding AccountsWinLossClose}"/>
-                                    <DataGridTextColumn Binding="{Binding StartTimesMax}"/>
-                                    <DataGridTextColumn Binding="{Binding SendRealOrder}"/>
-                                    <DataGridTextColumn Binding="{Binding Comment}"/>
-                                </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
                     </TabItem>
                     <TabItem Header="庫存未平倉">
                         <Grid Background="#FFE5E5E5">
-                            <DataGrid x:Name="DataGridOpenInterest" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding Updater}"/>
-                                    <DataGridTextColumn Binding="{Binding UpdateTime}"/>
-                                    <DataGridTextColumn Binding="{Binding Strategy}"/>
-                                    <DataGridTextColumn Binding="{Binding MarketName}"/>
-                                    <DataGridTextColumn Binding="{Binding Account}"/>
-                                    <DataGridTextColumn Binding="{Binding Symbol}"/>
-                                    <DataGridTextColumn Binding="{Binding BSEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding DayTradeEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding PositionEnum}"/>
-                                    <DataGridTextColumn Binding="{Binding MarketPrice}"/>
-                                    <DataGridTextColumn Binding="{Binding AveragePrice}"/>
-                                    <DataGridTextColumn Binding="{Binding Quantity}"/>
-                                    <DataGridTextColumn Binding="{Binding UnclosedProfit}"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <DataGrid x:Name="DataGridOpenInterest" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="權益數">
                         <Grid Background="#FFE5E5E5">
-                            <DataGrid x:Name="DataGridFuturesRights" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding Updater}"/>
-                                    <DataGridTextColumn Binding="{Binding UpdateTime}"/>
-                                    <DataGridTextColumn Binding="{Binding F0}"/>
-                                    <DataGridTextColumn Binding="{Binding F1}"/>
-                                    <DataGridTextColumn Binding="{Binding F2}"/>
-                                    <DataGridTextColumn Binding="{Binding F3}"/>
-                                    <DataGridTextColumn Binding="{Binding F4}"/>
-                                    <DataGridTextColumn Binding="{Binding F5}"/>
-                                    <DataGridTextColumn Binding="{Binding F6}"/>
-                                    <DataGridTextColumn Binding="{Binding F7}"/>
-                                    <DataGridTextColumn Binding="{Binding F8}"/>
-                                    <DataGridTextColumn Binding="{Binding F9}"/>
-                                    <DataGridTextColumn Binding="{Binding F10}"/>
-                                    <DataGridTextColumn Binding="{Binding F11}"/>
-                                    <DataGridTextColumn Binding="{Binding F12}"/>
-                                    <DataGridTextColumn Binding="{Binding F13}"/>
-                                    <DataGridTextColumn Binding="{Binding F14}"/>
-                                    <DataGridTextColumn Binding="{Binding F15}"/>
-                                    <DataGridTextColumn Binding="{Binding F16}"/>
-                                    <DataGridTextColumn Binding="{Binding F17}"/>
-                                    <DataGridTextColumn Binding="{Binding F18}"/>
-                                    <DataGridTextColumn Binding="{Binding F19}"/>
-                                    <DataGridTextColumn Binding="{Binding F20}"/>
-                                    <DataGridTextColumn Binding="{Binding F21}"/>
-                                    <DataGridTextColumn Binding="{Binding F22}"/>
-                                    <DataGridTextColumn Binding="{Binding F23}"/>
-                                    <DataGridTextColumn Binding="{Binding F24}"/>
-                                    <DataGridTextColumn Binding="{Binding Currency}"/>
-                                    <DataGridTextColumn Binding="{Binding F26}"/>
-                                    <DataGridTextColumn Binding="{Binding F27}"/>
-                                    <DataGridTextColumn Binding="{Binding F28}"/>
-                                    <DataGridTextColumn Binding="{Binding F29}"/>
-                                    <DataGridTextColumn Binding="{Binding F30}"/>
-                                    <DataGridTextColumn Binding="{Binding F31}"/>
-                                    <DataGridTextColumn Binding="{Binding F32}"/>
-                                    <DataGridTextColumn Binding="{Binding F33}"/>
-                                    <DataGridTextColumn Binding="{Binding F34}"/>
-                                    <DataGridTextColumn Binding="{Binding F35}"/>
-                                    <DataGridTextColumn Binding="{Binding F36}"/>
-                                    <DataGridTextColumn Binding="{Binding F37}"/>
-                                    <DataGridTextColumn Binding="{Binding F38}"/>
-                                    <DataGridTextColumn Binding="{Binding UserID}"/>
-                                    <DataGridTextColumn Binding="{Binding Account}"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <DataGrid x:Name="DataGridFuturesRights" Margin="0" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Extended" SelectionUnit="Cell" IsSynchronizedWithCurrentItem="True"/>
                         </Grid>
                     </TabItem>
                 </TabControl>

@@ -38,7 +38,7 @@ namespace GNAy.Capital.Trade.Controllers
             _waitToAdd = new ConcurrentQueue<string>();
 
             _dataMap = new SortedDictionary<string, StrategyData>();
-            _appCtrl.MainForm.DataGridOrderDetail.SetHeadersByBindings(StrategyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
+            _appCtrl.MainForm.DataGridOrderDetail.SetColumns(StrategyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _dataCollection = _appCtrl.MainForm.DataGridOrderDetail.SetViewAndGetObservation<StrategyData>();
 
             Notice = string.Empty;

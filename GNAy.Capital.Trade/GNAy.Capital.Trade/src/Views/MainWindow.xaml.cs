@@ -1235,7 +1235,7 @@ namespace GNAy.Capital.Trade
                     }
                     catch (Exception ex)
                     {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                        _appCtrl.LogException(start, ex, $"{propertyName}|{ex.StackTrace}");
                     }
                 }
 
@@ -1247,7 +1247,7 @@ namespace GNAy.Capital.Trade
                     }
                     catch (Exception ex)
                     {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                        _appCtrl.LogException(start, ex, $"{propertyName}|{ex.StackTrace}");
                     }
                 }
 
@@ -1259,7 +1259,7 @@ namespace GNAy.Capital.Trade
                     }
                     catch (Exception ex)
                     {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                        _appCtrl.LogException(start, ex, $"{propertyName}|{ex.StackTrace}");
                     }
                 }
 
@@ -1271,7 +1271,7 @@ namespace GNAy.Capital.Trade
                     }
                     catch (Exception ex)
                     {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                        _appCtrl.LogException(start, ex, $"{propertyName}|{ex.StackTrace}");
                     }
                 }
 
@@ -1283,7 +1283,7 @@ namespace GNAy.Capital.Trade
                     }
                     catch (Exception ex)
                     {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                        _appCtrl.LogException(start, ex, $"{propertyName}|{ex.StackTrace}");
                     }
                 }
 
@@ -1295,7 +1295,7 @@ namespace GNAy.Capital.Trade
                     }
                     catch (Exception ex)
                     {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                        _appCtrl.LogException(start, ex, $"{propertyName}|{ex.StackTrace}");
                     }
                 }
 
@@ -1307,7 +1307,7 @@ namespace GNAy.Capital.Trade
                     }
                     catch (Exception ex)
                     {
-                        _appCtrl.LogException(start, ex, ex.StackTrace);
+                        _appCtrl.LogException(start, ex, $"{propertyName}|{ex.StackTrace}");
                     }
                 }
             }

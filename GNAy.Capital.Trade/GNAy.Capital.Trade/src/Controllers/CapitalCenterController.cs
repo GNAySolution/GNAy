@@ -42,7 +42,7 @@ namespace GNAy.Capital.Trade.Controllers
             UserIDTimer = (DateTime.MinValue, string.Empty);
 
             _apiReplyMap = new Dictionary<int, APIReplyData>();
-            _appCtrl.MainForm.DataGridAPIReply.SetHeadersByBindings(APIReplyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
+            _appCtrl.MainForm.DataGridAPIReply.SetColumns(APIReplyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _apiReplyCollection = _appCtrl.MainForm.DataGridAPIReply.SetViewAndGetObservation<APIReplyData>();
         }
 
