@@ -52,4 +52,4 @@ using System.Windows;
 // 設為預設，如下所示:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.22.715.11")]
-[assembly: AssemblyFileVersion("1.22.715.11")]
+[assembly: AssemblyFileVersion("1.22.716.11")]

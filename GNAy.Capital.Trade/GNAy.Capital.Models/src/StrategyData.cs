@@ -69,7 +69,7 @@ namespace GNAy.Capital.Models
         public StrategyStatus.Enum StatusEnum
         {
             get { return _statusEnum; }
-            set { OnPropertiesChanged(ref _statusEnum, value, nameof(StatusEnum), nameof(StatusDes), nameof(StopLossAfterStr), nameof(StopWin1After), nameof(StopWin2After)); }
+            set { OnPropertiesChanged(ref _statusEnum, value, nameof(StatusEnum), nameof(StatusDes), nameof(StopLossAfter), nameof(StopWinPriceAfter), nameof(StopWin1After), nameof(StopWin2After)); }
         }
         [Column("狀態描述", "狀態", WPFDisplayIndex = 2, WPFForeground = "MediumBlue")]
         public string StatusDes => StrategyStatus.Description[(int)StatusEnum];
@@ -202,13 +202,13 @@ namespace GNAy.Capital.Models
         }
         private decimal _stopLossAfter;
         [Column("停損觸發", CSVStringFormat = "0.00")]
-        public decimal StopLossAfter
+        public decimal StopLossAfterRaw
         {
             get { return _stopLossAfter; }
-            set { OnPropertiesChanged(ref _stopLossAfter, value, nameof(StopLossAfter), nameof(StopLossAfterStr)); }
+            set { OnPropertiesChanged(ref _stopLossAfter, value, nameof(StopLossAfterRaw), nameof(StopLossAfter)); }
         }
         [Column("停損觸發", CSVIndex = -1, WPFDisplayIndex = 17, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
-        public string StopLossAfterStr => StopLossAfter == 0 ? string.Empty : StopLossData == null ? $"*{StopLossAfter:0.00}" : $"{StopLossAfter:0.00}";
+        public string StopLossAfter => StopLossAfterRaw == 0 ? string.Empty : StopLossData == null ? $"*{StopLossAfterRaw:0.00}" : $"{StopLossAfterRaw:0.00}";
 
         public StrategyData StopLossData;
 
@@ -221,13 +221,13 @@ namespace GNAy.Capital.Models
         }
         private decimal _stopWinPriceAfter;
         [Column("停利價觸發", CSVStringFormat = "0.00")]
-        public decimal StopWinPriceAfter
+        public decimal StopWinPriceAfterRaw
         {
             get { return _stopWinPriceAfter; }
-            set { OnPropertiesChanged(ref _stopWinPriceAfter, value, nameof(StopWinPriceAfter), nameof(StopWinPriceAfterStr)); }
+            set { OnPropertiesChanged(ref _stopWinPriceAfter, value, nameof(StopWinPriceAfterRaw), nameof(StopWinPriceAfter)); }
         }
         [Column("停利價觸發", CSVIndex = -1, WPFDisplayIndex = 19, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
-        public string StopWinPriceAfterStr => StopWinPriceAfter == 0 ? string.Empty : StopWinTriggered ? $"{StopWinPriceAfter:0.00}" : $"*{StopWinPriceAfter:0.00}";
+        public string StopWinPriceAfter => StopWinPriceAfterRaw == 0 ? string.Empty : StopWinTriggered ? $"{StopWinPriceAfterRaw:0.00}" : $"*{StopWinPriceAfterRaw:0.00}";
 
         public bool StopWinTriggered;
 
@@ -525,10 +525,10 @@ namespace GNAy.Capital.Models
             OrderData = null;
             BestClosePrice = 0;
             StopLossBefore = string.Empty;
-            StopLossAfter = 0;
+            StopLossAfterRaw = 0;
             StopLossData = null;
             StopWinPriceBefore = string.Empty;
-            StopWinPriceAfter = 0;
+            StopWinPriceAfterRaw = 0;
             StopWinTriggered = false;
             StopWin1Before = string.Empty;
             StopWin1Offset = 0;
@@ -603,9 +603,9 @@ namespace GNAy.Capital.Models
             OrderPriceAfter = 0;
             OrderData = null;
             BestClosePrice = 0;
-            StopLossAfter = 0;
+            StopLossAfterRaw = 0;
             StopLossData = null;
-            StopWinPriceAfter = 0;
+            StopWinPriceAfterRaw = 0;
             StopWinTriggered = false;
             StopWin1Offset = 0;
             StopWin1Data = null;

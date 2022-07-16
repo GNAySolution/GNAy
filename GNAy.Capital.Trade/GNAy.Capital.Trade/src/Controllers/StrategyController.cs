@@ -212,7 +212,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (readyToSend)
                 {
-                    data.StopLossAfter = stopLossPriceAfter.Item2;
+                    data.StopLossAfterRaw = stopLossPriceAfter.Item2;
                     _appCtrl.LogTrace(start, $"停損價計算前={data.StopLossBefore}|計算後={stopLossPriceAfter.Item1}", UniqueName);
                     Notice = $"停損價計算前={data.StopLossBefore}|計算後={stopLossPriceAfter.Item1}";
                 }
@@ -236,7 +236,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (readyToSend)
                 {
-                    data.StopWinPriceAfter = stopWinPriceAfter.Item2;
+                    data.StopWinPriceAfterRaw = stopWinPriceAfter.Item2;
                     _appCtrl.LogTrace(start, $"停利價計算前={data.StopWinPriceBefore}|計算後={stopWinPriceAfter.Item1}", UniqueName);
                     Notice = $"停利價計算前={data.StopWinPriceBefore}|計算後={stopWinPriceAfter.Item1}";
                 }
@@ -705,7 +705,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (data.BSEnum == OrderBS.Enum.Buy)
                     {
-                        if (data.MarketPrice <= data.StopLossAfter)
+                        if (data.MarketPrice <= data.StopLossAfterRaw)
                         {
                             StrategyData stopLossOrder = data.CreateStopLossOrder();
 
@@ -716,7 +716,7 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             AfterStopLoss(data, start);
                         }
-                        else if (!data.StopWinTriggered && data.MarketPrice >= data.StopWinPriceAfter)
+                        else if (!data.StopWinTriggered && data.MarketPrice >= data.StopWinPriceAfterRaw)
                         {
                             data.StopWinTriggered = true;
                         }
@@ -733,7 +733,7 @@ namespace GNAy.Capital.Trade.Controllers
                     }
                     else if (data.BSEnum == OrderBS.Enum.Sell)
                     {
-                        if (data.MarketPrice >= data.StopLossAfter)
+                        if (data.MarketPrice >= data.StopLossAfterRaw)
                         {
                             StrategyData stopLossOrder = data.CreateStopLossOrder();
 
@@ -744,7 +744,7 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             AfterStopLoss(data, start);
                         }
-                        else if (!data.StopWinTriggered && data.MarketPrice <= data.StopWinPriceAfter)
+                        else if (!data.StopWinTriggered && data.MarketPrice <= data.StopWinPriceAfterRaw)
                         {
                             data.StopWinTriggered = true;
                         }
