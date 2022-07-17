@@ -33,6 +33,8 @@ namespace GNAy.Capital.Trade.Controllers
         public StrategyData this[int index] => _dataCollection[index];
         public IReadOnlyList<StrategyData> DataCollection => _dataCollection;
 
+        private Dictionary<string, decimal> _quotePriceSnapshot;
+
         public string RecoverFile { get; private set; }
         public string Notice { get; private set; }
 
@@ -47,6 +49,8 @@ namespace GNAy.Capital.Trade.Controllers
             _dataMap = new SortedDictionary<string, StrategyData>();
             _appCtrl.MainForm.DataGridStrategyRule.SetColumns(StrategyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _dataCollection = _appCtrl.MainForm.DataGridStrategyRule.SetViewAndGetObservation<StrategyData>();
+
+            _quotePriceSnapshot = new Dictionary<string, decimal>();
 
             RecoverFile = string.Empty;
             Notice = string.Empty;
@@ -534,7 +538,7 @@ namespace GNAy.Capital.Trade.Controllers
             AfterStopWin(data, number, start);
         }
 
-        private bool UpdateStatus(StrategyData data, QuoteData quote, DateTime start)
+        private bool UpdateStatus(StrategyData data, decimal dealPrice, DateTime start)
         {
             const string methodName = nameof(UpdateStatus);
 
@@ -546,14 +550,14 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (quote.Simulate != QuoteData.RealTrade)
-                {
-                    return saveData;
-                }
-                else if (quote.DealPrice == 0)
-                {
-                    return saveData;
-                }
+                //else if (quote.Simulate != QuoteData.RealTrade)
+                //{
+                //    return saveData;
+                //}
+                //else if (dealPrice == 0)
+                //{
+                //    return saveData;
+                //}
                 else if (data.StatusEnum == StrategyStatus.Enum.Cancelled)
                 {
                     return saveData;
@@ -573,7 +577,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (data.StatusEnum == StrategyStatus.Enum.Monitoring)
                 {
-                    data.MarketPrice = quote.DealPrice;
+                    data.MarketPrice = dealPrice;
 
                     if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice >= data.OrderPriceAfter) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice <= data.OrderPriceAfter))
                     {
@@ -601,7 +605,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (data.StatusEnum == StrategyStatus.Enum.Waiting)
                 {
-                    data.MarketPrice = quote.DealPrice;
+                    data.MarketPrice = dealPrice;
 
                     return saveData;
                 }
@@ -611,7 +615,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if ($",{data.OpenStrategyAfterStopLoss},".Contains(pk) || $",{data.OpenStrategyAfterStopWin},".Contains(pk))
                     {
-                        data.MarketPrice = quote.DealPrice;
+                        data.MarketPrice = dealPrice;
 
                         if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice <= (data.OrderPriceAfter - 10)) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice >= (data.OrderPriceAfter + 10)))
                         {
@@ -635,7 +639,7 @@ namespace GNAy.Capital.Trade.Controllers
                     return saveData;
                 }
 
-                data.MarketPrice = quote.DealPrice;
+                data.MarketPrice = dealPrice;
                 data.UnclosedProfit = (data.MarketPrice - data.DealPrice) * data.UnclosedQty * data.ProfitDirection;
                 data.Updater = methodName;
                 data.UpdateTime = DateTime.Now;
@@ -845,13 +849,31 @@ namespace GNAy.Capital.Trade.Controllers
 
             bool saveData = false;
 
+            _quotePriceSnapshot.Clear();
+
             for (int i = Count - 1; i >= 0; --i)
             {
                 try
                 {
                     StrategyData data = this[i];
+                    decimal dealPrice = 0;
 
-                    if (UpdateStatus(data, data.Quote, start))
+                    if (data.Quote.Simulate != QuoteData.RealTrade)
+                    {
+                        continue;
+                    }
+                    else if (!_quotePriceSnapshot.TryGetValue(data.Quote.Symbol, out dealPrice))
+                    {
+                        dealPrice = data.Quote.DealPrice;
+
+                        _quotePriceSnapshot[data.Quote.Symbol] = dealPrice;
+                    }
+
+                    if (dealPrice == 0)
+                    {
+                        continue;
+                    }
+                    else if (UpdateStatus(data, dealPrice, start))
                     {
                         saveData = true;
                     }

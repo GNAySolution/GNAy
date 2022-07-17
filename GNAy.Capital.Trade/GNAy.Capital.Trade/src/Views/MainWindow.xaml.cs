@@ -1020,7 +1020,7 @@ namespace GNAy.Capital.Trade
 
                 if (_appCtrl.OrderDetail != null && _appCtrl.OrderDetail.Count > orderDetailCount)
                 {
-                    ButtonScreenshotWindow_Click($"{_appCtrl.OrderDetail.DataCollection[_appCtrl.OrderDetail.Count - 1].UpdateTime:yyMMdd_HHmmss}", null);
+                    ButtonScreenshot_Click($"{_appCtrl.OrderDetail.DataCollection[_appCtrl.OrderDetail.Count - 1].UpdateTime:yyMMdd_HHmmss}", null);
 
                     orderDetailCount = _appCtrl.OrderDetail.Count;
                 }
@@ -1754,7 +1754,7 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        public void ButtonScreenshotWindow_Click(object sender, RoutedEventArgs e)
+        public void ButtonScreenshot_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 

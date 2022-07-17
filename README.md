@@ -46,7 +46,7 @@
 
 ###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/StrategyData/T1_0504_False_AM.csv
 * 策略範例，方便demo用，快速測試停損停利等各項功能，是容易賠錢的設定，請勿在正式環境使用
-* 測試前請將"分公司" & "下單帳號"欄位改成自己的帳號
+* 測試前請將"分公司"與"下單帳號"欄位改成自己的
 * T1_0504_False_AM.csv，日盤，隔日是平日
 * T1_0504_False_PM.csv，夜盤，隔日是平日
 * T1_0504_True_AM.csv，日盤，隔日是假日
