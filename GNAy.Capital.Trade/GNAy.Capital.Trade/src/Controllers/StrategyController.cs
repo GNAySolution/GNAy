@@ -578,28 +578,38 @@ namespace GNAy.Capital.Trade.Controllers
                 else if (data.StatusEnum == StrategyStatus.Enum.Monitoring)
                 {
                     data.MarketPrice = dealPrice;
-
-                    if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice >= data.OrderPriceAfter) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice <= data.OrderPriceAfter))
-                    {
-                        if (data.OrderData == null)
-                        {
-                            StrategyData order = data.CreateOrder();
-
-                            data.StatusEnum = StrategyStatus.Enum.OrderSent;
-                            order.OrderPriceBefore = OrderPrice.P;
-
-                            _appCtrl.CAPOrder.Send(order);
-                        }
-                        else
-                        {
-                            _appCtrl.LogError(start, $"監控中的策略已經存在委託單|{data.ToLog()}|{data.OrderData.ToLog()}", UniqueName);
-
-                            data.StatusEnum = StrategyStatus.Enum.OrderSent;
-                        }
-                    }
-
                     data.Updater = methodName;
                     data.UpdateTime = DateTime.Now;
+
+                    if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+' && data.MarketPrice >= data.OrderPriceAfter) || (data.OrderPriceBefore[1] == '-' && data.MarketPrice <= data.OrderPriceAfter)))
+                    { }
+                    else if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice >= data.OrderPriceAfter) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice <= data.OrderPriceAfter))
+                    {
+                        if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+') || (data.OrderPriceBefore[1] == '-')))
+                        {
+                            return saveData;
+                        }
+                    }
+                    else
+                    {
+                        return saveData;
+                    }
+
+                    if (data.OrderData == null)
+                    {
+                        StrategyData order = data.CreateOrder();
+
+                        data.StatusEnum = StrategyStatus.Enum.OrderSent;
+                        order.OrderPriceBefore = OrderPrice.P;
+
+                        _appCtrl.CAPOrder.Send(order);
+                    }
+                    else
+                    {
+                        _appCtrl.LogError(start, $"監控中的策略已經存在委託單|{data.ToLog()}|{data.OrderData.ToLog()}", UniqueName);
+
+                        data.StatusEnum = StrategyStatus.Enum.OrderSent;
+                    }
 
                     return saveData;
                 }
@@ -1052,24 +1062,13 @@ namespace GNAy.Capital.Trade.Controllers
                 throw new ArgumentException($"啟動次數限制(StartTimesMax)={data.StartTimesMax}|{data.ToLog()}");
             }
 
-            if (!decimal.TryParse(data.OrderPriceBefore, out _) && data.OrderPriceBefore.Trim().Length > 1)
+            if (!decimal.TryParse(data.OrderPriceBefore, out _) && data.OrderPriceBefore.Length >= 3)
             {
-                if (_appCtrl.CAPQuote.Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY || data.Quote == null || data.Quote.Simulate != QuoteData.RealTrade || data.Quote.DealPrice == 0)
-                {
-                    data.StatusEnum = StrategyStatus.Enum.Monitoring;
+                data.StatusEnum = StrategyStatus.Enum.Monitoring;
 
-                    CancelAfterOrderSent(data, start);
+                CancelAfterOrderSent(data, start);
 
-                    return;
-                }
-                else if ((data.BSEnum == OrderBS.Enum.Buy && data.Quote.DealPrice < data.OrderPriceAfter) || (data.BSEnum == OrderBS.Enum.Sell && data.Quote.DealPrice > data.OrderPriceAfter))
-                {
-                    data.StatusEnum = StrategyStatus.Enum.Monitoring;
-
-                    CancelAfterOrderSent(data, start);
-
-                    return;
-                }
+                return;
             }
 
             StrategyData order = data.CreateOrder();
@@ -1100,7 +1099,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (!decimal.TryParse(data.OrderPriceBefore, out _) && data.OrderPriceBefore.Trim().Length > 1)
+                if (!decimal.TryParse(data.OrderPriceBefore, out _) && data.OrderPriceBefore.Length >= 3)
                 {
                     decimal offset = decimal.Parse(data.OrderPriceBefore.Substring(1));
 
