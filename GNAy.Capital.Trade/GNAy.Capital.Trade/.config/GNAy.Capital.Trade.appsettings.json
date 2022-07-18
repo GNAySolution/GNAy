@@ -1,5 +1,5 @@
 {
-  "Version": "1.22.717.1",
+  "Version": "1.22.718.1",
   "Description": "測試用設定",
   "ProcessPriority": "Normal",
   "Big5EncodingCodePage": 950,
@@ -41,6 +41,7 @@
     "OrderPriceBefore",
     "OrderPriceAfter",
     "OrderQty",
+    "BestClosePrice",
     "StopLossBefore",
     "StopLossAfter",
     "StopWinPriceBefore",

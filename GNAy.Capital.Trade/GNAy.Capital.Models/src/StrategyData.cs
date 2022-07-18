@@ -344,7 +344,7 @@ namespace GNAy.Capital.Models
             {
                 if (OnPropertyChanged(ref _closedProfit, value))
                 {
-                    ClosedProfitTotal = string.IsNullOrWhiteSpace(ClosedProfitTotal) ? $"{value:0.00}" : string.Join(",", ClosedProfitTotal, $"{value:0.00}");
+                    ClosedProfitTotal = string.IsNullOrWhiteSpace(ClosedProfitTotal) ? $"{value:0.00}" : value >= 0 ? $"{ClosedProfitTotal}+{value:0.00}" : $"{ClosedProfitTotal}{value:0.00}";
                 }
             }
         }

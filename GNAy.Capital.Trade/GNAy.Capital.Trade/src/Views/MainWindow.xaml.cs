@@ -379,6 +379,8 @@ namespace GNAy.Capital.Trade
 
                 _appCtrl.LogTrace(start, $"AutoRun={_appCtrl.Config.AutoRun}", UniqueName);
 
+                CheckBoxShowDataGrid.IsEnabled = _appCtrl.Settings.ShowDataGrid;
+
                 CheckBoxSendRealOrder.IsChecked = _appCtrl.Settings.SendRealOrder;
 
                 if (_appCtrl.Settings.LiveMode)
