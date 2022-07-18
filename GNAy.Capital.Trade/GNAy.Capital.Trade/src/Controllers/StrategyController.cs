@@ -566,7 +566,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (data.StartTimesMax <= 0)
+                else if (data.StartTimesMax < 0)
                 {
                     data.StatusEnum = StrategyStatus.Enum.Cancelled;
                     data.Comment = "啟動次數限制";
@@ -621,14 +621,40 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (data.StopLossData != null || data.UnclosedQty <= 0)
                 {
+                    if (data.StartTimesMax <= 0)
+                    {
+                        data.StatusEnum = StrategyStatus.Enum.Cancelled;
+                        data.Comment = "啟動次數限制";
+                        data.Updater = methodName;
+                        data.UpdateTime = DateTime.Now;
+
+                        return saveData;
+                    }
+
                     string pk = $",{data.PrimaryKey},";
 
                     if ($",{data.OpenStrategyAfterStopLoss},".Contains(pk) || $",{data.OpenStrategyAfterStopWin},".Contains(pk))
                     {
                         data.MarketPrice = dealPrice;
 
+                        if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+' && data.MarketPrice <= (data.OrderPriceAfter - 10)) || (data.OrderPriceBefore[1] == '-' && data.MarketPrice >= (data.OrderPriceAfter + 10))))
+                        { }
                         if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice <= (data.OrderPriceAfter - 10)) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice >= (data.OrderPriceAfter + 10)))
                         {
+                            if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+') || (data.OrderPriceBefore[1] == '-')))
+                            {
+                                return saveData;
+                            }
+                        }
+                        else
+                        {
+                            return saveData;
+                        }
+
+                        if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice <= (data.OrderPriceAfter - 10)) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice >= (data.OrderPriceAfter + 10)))
+                        {
+                            --data.StartTimesMax;
+
                             data.StatusEnum = StrategyStatus.Enum.Monitoring;
                             data.OrderData = null;
                             data.BestClosePrice = data.OrderPriceAfter;
