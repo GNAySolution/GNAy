@@ -10,8 +10,9 @@
 * https://www.capital.com.tw/Service2/download/api.asp
 * Demo放在以下頻道
 * https://youtube.com/playlist?list=PLOGS4yeidG_YCRn2hZjwbP4ffqnL33VuH
-* 技術細節整理放在Blog
-* https://gnaysolution.blogspot.com/
+* 技術細節整理放在Blog(搬家中)
+* 新家https://gnaysolution.pixnet.net/blog
+* 舊的https://gnaysolution.blogspot.com/
 * (投資一定有風險，不同時間進場，將有不同的投資績效，電子下單也可能面對使用者操作不當、程式錯誤、作業系統錯誤、硬體錯誤、病毒攻擊、時間延遲、網路壅塞、斷線、停電等風險)
 
 ###### vcredist_x64.exe & CAP-*.pfx
