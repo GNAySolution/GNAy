@@ -1996,6 +1996,7 @@ namespace GNAy.Capital.Trade
                 TextBoxStrategyWinClose.Text = $"{data.WinCloseQty},{data.WinCloseSeconds}secs";
                 TextBoxStrategyLossClose.Text = $"{data.LossCloseQty},{data.LossCloseSeconds}secs";
                 TextBoxAccountsWinLossClose.Text = data.AccountsWinLossClose;
+                TextBoxStrategyStartTimesMax.Text = $"{data.StartTimesMax}";
 
                 ComboBoxOrderAccs.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxOrderAccs.Items.Count; ++i)
@@ -2150,6 +2151,7 @@ namespace GNAy.Capital.Trade
                     CloseTriggerAfterStopWin = TextBoxCloseTriggerAfterStopWin.Text,
                     CloseStrategyAfterStopWin = TextBoxCloseStrategyAfterStopWin.Text,
                     AccountsWinLossClose = TextBoxAccountsWinLossClose.Text,
+                    StartTimesMax = int.Parse(TextBoxStrategyStartTimesMax.Text),
                     SendRealOrder = CheckBoxStrategySendReal.IsChecked.Value,
                     Updater = methodName,
                     UpdateTime = DateTime.Now,

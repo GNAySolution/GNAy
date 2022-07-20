@@ -267,6 +267,7 @@
                 <TextBox x:Name="TextBoxStrategyWinClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數，?secs代表收盤前幾秒執行" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxStrategyLossClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數，?secs代表收盤前幾秒執行" HorizontalAlignment="Left" Margin="841,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxAccountsWinLossClose" Text="以帳號判斷獲利損失" ToolTip="以帳號整體判斷獲利或損失，收盤時對策略做減倉" HorizontalAlignment="Left" Margin="966,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyStartTimesMax" Text="啟動次數限制" ToolTip="策略啟動次數限制" HorizontalAlignment="Left" Margin="966,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
@@ -360,7 +361,7 @@
                 <ComboBox x:Name="ComboBoxOrderSeqNo" HorizontalAlignment="Left" Margin="510,59,0,0" VerticalAlignment="Top" Width="120" IsEditable="True"/>
                 <Button x:Name="ButtonCancelOrderBySeqNo" Content="刪單by序號" HorizontalAlignment="Left" Margin="635,61,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderBySeqNo_Click"/>
                 <TextBox x:Name="TextBoxStrategyFromOpenInterest" Text="策略唯一鍵" ToolTip="利用庫存未平倉，選擇要監控的策略" HorizontalAlignment="Left" Margin="510,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Button x:Name="ButtonStrategyFromOpenInterest" Content="未平選擇策略" ToolTip="利用庫存未平倉，選擇要監控的策略" HorizontalAlignment="Left" Margin="635,82,0,0" VerticalAlignment="Top" Click="ButtonStrategyFromOpenInterest_Click"/>
+                <Button x:Name="ButtonStrategyFromOpenInterest" Content="未平倉選策略" ToolTip="利用庫存未平倉，選擇要監控的策略" HorizontalAlignment="Left" Margin="635,82,0,0" VerticalAlignment="Top" Click="ButtonStrategyFromOpenInterest_Click"/>
                 <TabControl x:Name="TabControlCB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="委託成交回報">
                         <Grid Background="#FFE5E5E5">
