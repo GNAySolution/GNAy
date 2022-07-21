@@ -639,7 +639,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+' && data.MarketPrice <= (data.OrderPriceAfter - 5)) || (data.OrderPriceBefore[1] == '-' && data.MarketPrice >= (data.OrderPriceAfter + 5))))
                         { }
-                        if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice <= (data.OrderPriceAfter - 5)) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice >= (data.OrderPriceAfter + 5)))
+                        else if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice <= (data.OrderPriceAfter - 5)) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice >= (data.OrderPriceAfter + 5)))
                         {
                             if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+') || (data.OrderPriceBefore[1] == '-')))
                             {
