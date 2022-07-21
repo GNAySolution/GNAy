@@ -63,7 +63,25 @@ namespace GNAy.Capital.Trade.Controllers
 
         private void StartStrategy(OpenInterestData data, StrategyData target, DateTime start)
         {
-            //TODO
+            try
+            {
+                if (_strategyKeys.Contains(data.PrimaryKey))
+                {
+                    return;
+                }
+                else if (data.PositionEnum == OrderPosition.Enum.Close || !_appCtrl.Settings.StrategyFromOpenInterest || _appCtrl.Strategy == null || _appCtrl.Strategy.Count <= 0)
+                {
+                    return;
+                }
+
+                _appCtrl.LogTrace(start, $"{target.ToLog()}", UniqueName);
+
+                //TODO
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
         }
 
         private void StartStrategy(OpenInterestData data, DateTime start)
