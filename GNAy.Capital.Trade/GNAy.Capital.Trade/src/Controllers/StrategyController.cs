@@ -637,9 +637,9 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         data.MarketPrice = dealPrice;
 
-                        if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+' && data.MarketPrice <= (data.OrderPriceAfter - 10)) || (data.OrderPriceBefore[1] == '-' && data.MarketPrice >= (data.OrderPriceAfter + 10))))
+                        if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+' && data.MarketPrice <= (data.OrderPriceAfter - 5)) || (data.OrderPriceBefore[1] == '-' && data.MarketPrice >= (data.OrderPriceAfter + 5))))
                         { }
-                        if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice <= (data.OrderPriceAfter - 10)) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice >= (data.OrderPriceAfter + 10)))
+                        if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice <= (data.OrderPriceAfter - 5)) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice >= (data.OrderPriceAfter + 5)))
                         {
                             if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+') || (data.OrderPriceBefore[1] == '-')))
                             {
@@ -651,25 +651,22 @@ namespace GNAy.Capital.Trade.Controllers
                             return saveData;
                         }
 
-                        if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice <= (data.OrderPriceAfter - 10)) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice >= (data.OrderPriceAfter + 10)))
-                        {
-                            --data.StartTimesMax;
+                        --data.StartTimesMax;
 
-                            data.StatusEnum = StrategyStatus.Enum.Monitoring;
-                            data.OrderData = null;
-                            data.BestClosePrice = data.OrderPriceAfter;
-                            data.StopLossData = null;
-                            data.StopWinTriggered = false;
-                            data.StopWin1Data = null;
-                            data.StopWin2Data = null;
-                            data.ClosedProfit = 0;
-                            data.UnclosedQty = 0;
-                            data.MarketClosingData = null;
-                            data.Comment = "自己重啟自己";
+                        data.StatusEnum = StrategyStatus.Enum.Monitoring;
+                        data.OrderData = null;
+                        data.BestClosePrice = data.OrderPriceAfter;
+                        data.StopLossData = null;
+                        data.StopWinTriggered = false;
+                        data.StopWin1Data = null;
+                        data.StopWin2Data = null;
+                        data.ClosedProfit = 0;
+                        data.UnclosedQty = 0;
+                        data.MarketClosingData = null;
+                        data.Comment = "自己重啟自己";
 
-                            data.Updater = methodName;
-                            data.UpdateTime = DateTime.Now;
-                        }
+                        data.Updater = methodName;
+                        data.UpdateTime = DateTime.Now;
                     }
 
                     return saveData;
