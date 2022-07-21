@@ -300,6 +300,18 @@
                                         <EventSetter Event="MouseDoubleClick" Handler="DataGridStrategyRuleCell_MouseDoubleClick"/>
                                     </Style>
                                 </DataGrid.Resources>
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SendRealOrder}" Value="True">
+                                                <Setter Property="Background" Value="White"></Setter>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SendRealOrder}" Value="False">
+                                                <Setter Property="Background" Value="WhiteSmoke"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
                             </DataGrid>
                         </Grid>
                     </TabItem>
@@ -371,6 +383,18 @@
                                         <EventSetter Event="MouseDoubleClick" Handler="DataGridOrderDetailCell_MouseDoubleClick"/>
                                     </Style>
                                 </DataGrid.Resources>
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SendRealOrder}" Value="True">
+                                                <Setter Property="Background" Value="White"></Setter>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SendRealOrder}" Value="False">
+                                                <Setter Property="Background" Value="WhiteSmoke"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
                             </DataGrid>
                         </Grid>
                     </TabItem>
