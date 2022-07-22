@@ -229,7 +229,13 @@ namespace GNAy.Capital.Models
         [Column("停利價觸發", CSVIndex = -1, WPFDisplayIndex = 19, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public string StopWinPriceAfter => StopWinPriceAfterRaw == 0 ? string.Empty : StopWinTriggered ? $"{StopWinPriceAfterRaw:0.00}" : $"*{StopWinPriceAfterRaw:0.00}";
 
-        public bool StopWinTriggered;
+        private bool _stopWinTriggered;
+        [Column("停利觸發", CSVIndex = -1)]
+        public bool StopWinTriggered
+        {
+            get { return _stopWinTriggered; }
+            set { OnPropertiesChanged(ref _stopWinTriggered, value, nameof(StopWinTriggered), nameof(StopWinPriceAfter)); }
+        }
 
         private string _stopWin1Before;
         [Column("停利1設定", WPFDisplayIndex = 20, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
@@ -344,7 +350,7 @@ namespace GNAy.Capital.Models
             {
                 if (OnPropertyChanged(ref _closedProfit, value))
                 {
-                    ClosedProfitTotal = string.IsNullOrWhiteSpace(ClosedProfitTotal) ? $"{value:0.00}" : value >= 0 ? $"{ClosedProfitTotal}+{value:0.00}" : $"{ClosedProfitTotal}{value:0.00}";
+                    ClosedProfitTotal = string.IsNullOrWhiteSpace(ClosedProfitTotal) ? $"{value:0.00}" : value == 0 ? ClosedProfitTotal : value > 0 ? $"{ClosedProfitTotal}+{value:0.00}" : $"{ClosedProfitTotal}{value:0.00}";
                 }
             }
         }

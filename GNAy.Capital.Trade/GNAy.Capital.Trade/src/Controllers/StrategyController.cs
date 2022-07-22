@@ -600,6 +600,8 @@ namespace GNAy.Capital.Trade.Controllers
                         StrategyData order = data.CreateOrder();
 
                         data.StatusEnum = StrategyStatus.Enum.OrderSent;
+                        data.BestClosePrice = 0;
+
                         order.OrderPriceBefore = OrderPrice.P;
 
                         _appCtrl.CAPOrder.Send(order);
@@ -655,7 +657,6 @@ namespace GNAy.Capital.Trade.Controllers
 
                         data.StatusEnum = StrategyStatus.Enum.Monitoring;
                         data.OrderData = null;
-                        data.BestClosePrice = data.OrderPriceAfter;
                         data.StopLossData = null;
                         data.StopWinTriggered = false;
                         data.StopWin1Data = null;

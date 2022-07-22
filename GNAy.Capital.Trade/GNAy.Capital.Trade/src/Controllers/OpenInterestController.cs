@@ -283,11 +283,11 @@ namespace GNAy.Capital.Trade.Controllers
                     //    _appCtrl.LogTrace(start, $"成交均價校正{target.DealPrice} != {data.AveragePrice}|{target.ToLog()}", UniqueName);
                     //    target.DealPrice = data.AveragePrice;
                     //}
-                    else if (target.DealPrice != data.AveragePrice)
-                    {
-                        _appCtrl.LogTrace(start, $"成交均價校正{target.DealPrice} != {data.AveragePrice}|{target.ToLog()}", UniqueName);
-                        target.DealPrice = data.AveragePrice;
-                    }
+                    //else if (target.DealPrice != data.AveragePrice)
+                    //{
+                    //    _appCtrl.LogTrace(start, $"成交均價校正{target.DealPrice} != {data.AveragePrice}|{target.ToLog()}", UniqueName);
+                    //    target.DealPrice = data.AveragePrice;
+                    //}
                 }
                 catch (Exception ex)
                 {
