@@ -33,7 +33,7 @@ namespace GNAy.Capital.Trade.Controllers
         public StrategyData this[int index] => _dataCollection[index];
         public IReadOnlyList<StrategyData> DataCollection => _dataCollection;
 
-        private Dictionary<string, decimal> _quotePriceSnapshot;
+        private readonly Dictionary<string, decimal> _quotePriceSnapshot;
 
         public string RecoverFile { get; private set; }
         public string Notice { get; private set; }
@@ -526,6 +526,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             StrategyData moveStopWinOrder = data.CreateStopWinOrder(number);
 
+            data.StatusEnum = StrategyStatus.Enum.StopWinOrderReport;
             data.StatusEnum = StrategyStatus.Enum.StopWinSent;
 
             if (data.StopWin2Qty == 0)
@@ -601,6 +602,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         data.StatusEnum = StrategyStatus.Enum.OrderSent;
                         data.BestClosePrice = 0;
+                        data.StopWinTriggered = false;
 
                         order.OrderPriceBefore = OrderPrice.P;
 
@@ -658,7 +660,6 @@ namespace GNAy.Capital.Trade.Controllers
                         data.StatusEnum = StrategyStatus.Enum.Monitoring;
                         data.OrderData = null;
                         data.StopLossData = null;
-                        data.StopWinTriggered = false;
                         data.StopWin1Data = null;
                         data.StopWin2Data = null;
                         data.ClosedProfit = 0;
