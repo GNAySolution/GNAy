@@ -333,6 +333,8 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _dealReport, value); }
         }
 
+        public readonly List<decimal> ClosedProfitTotalRaw;
+
         private string _closedProfitTotal;
         [Column("累計已實現損益估計", "累損益", CSVStringFormat = "0.00", WPFDisplayIndex = 28, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public string ClosedProfitTotal
@@ -350,7 +352,17 @@ namespace GNAy.Capital.Models
             {
                 if (OnPropertyChanged(ref _closedProfit, value))
                 {
-                    ClosedProfitTotal = string.IsNullOrWhiteSpace(ClosedProfitTotal) ? $"{value:0.00}" : value == 0 ? ClosedProfitTotal : value > 0 ? $"{ClosedProfitTotal}+{value:0.00}" : $"{ClosedProfitTotal}{value:0.00}";
+                    if (value != 0)
+                    {
+                        ClosedProfitTotalRaw.Add(value);
+
+                        ClosedProfitTotal = $"{ClosedProfitTotalRaw.Sum():0.00}=";
+
+                        foreach (decimal profit in ClosedProfitTotalRaw)
+                        {
+                            ClosedProfitTotal = profit > 0 ? $"{ClosedProfitTotal}+{profit:0.00}" : $"{ClosedProfitTotal}{profit:0.00}";
+                        }
+                    }
                 }
             }
         }
@@ -548,6 +560,7 @@ namespace GNAy.Capital.Models
             DealPrice = 0;
             DealQty = 0;
             DealReport = string.Empty;
+            ClosedProfitTotalRaw = new List<decimal>();
             ClosedProfitTotal = string.Empty;
             ClosedProfit = 0;
             UnclosedQty = 0;
