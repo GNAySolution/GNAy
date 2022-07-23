@@ -36,6 +36,10 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly Dictionary<string, decimal> _quotePriceSnapshot;
 
         public string RecoverFile { get; private set; }
+
+        public decimal ProfitTotal { get; private set; }
+        public decimal ProfitTotalMax { get; private set; }
+
         public string Notice { get; private set; }
 
         public StrategyController(AppController appCtrl)
@@ -53,6 +57,10 @@ namespace GNAy.Capital.Trade.Controllers
             _quotePriceSnapshot = new Dictionary<string, decimal>();
 
             RecoverFile = string.Empty;
+
+            ProfitTotal = 0;
+            ProfitTotalMax = 0;
+
             Notice = string.Empty;
         }
 
@@ -923,6 +931,13 @@ namespace GNAy.Capital.Trade.Controllers
             if (saveData)
             {
                 SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileSaveFormat);
+            }
+
+            ProfitTotal = _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0);
+
+            if (ProfitTotal > 0 && ProfitTotalMax < ProfitTotal)
+            {
+                ProfitTotalMax = ProfitTotal;
             }
         }
 

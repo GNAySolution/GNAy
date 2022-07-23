@@ -959,6 +959,7 @@ namespace GNAy.Capital.Trade
                 if (_appCtrl.Strategy != null)
                 {
                     StatusBarItemBB3.Text = _appCtrl.Strategy.Notice;
+                    StatusBarItemBB4.Text = $"損益|{_appCtrl.Strategy.ProfitTotal}|{_appCtrl.Strategy.ProfitTotalMax}";
                 }
 
                 if (_appCtrl.OrderDetail != null)
@@ -986,6 +987,11 @@ namespace GNAy.Capital.Trade
                 else if (TabControlCB.SelectedIndex == 2 && DataGridFuturesRights.ItemsSource != null)
                 {
                     StatusBarItemCB1.Text = $"({DataGridFuturesRights.Columns.Count},{DataGridFuturesRights.Items.Count})";
+                }
+
+                if (_appCtrl.FuturesRights != null)
+                {
+                    StatusBarItemCB4.Text = $"損益|{_appCtrl.FuturesRights.ProfitTotal}|{_appCtrl.FuturesRights.ProfitTotalMax}";
                 }
             }
             catch (Exception ex)
@@ -1151,17 +1157,17 @@ namespace GNAy.Capital.Trade
                 _appCtrl.Settings.ShowDataGrid = CheckBoxShowDataGrid.IsChecked.Value;
                 _appCtrl.LogTrace(start, $"ShowDataGrid={_appCtrl.Settings.ShowDataGrid}", UniqueName);
 
-                if (!_dataGridViewMap.ContainsKey(DataGridAppLog) && DataGridAppLog.ItemsSource is ICollectionView)
+                if (!_dataGridViewMap.ContainsKey(DataGridAppLog) && DataGridAppLog.ItemsSource is ICollectionView cvAppLog)
                 {
-                    _dataGridViewMap[DataGridAppLog] = (ICollectionView)DataGridAppLog.ItemsSource;
+                    _dataGridViewMap[DataGridAppLog] = cvAppLog;
                 }
-                if (!_dataGridViewMap.ContainsKey(DataGridQuoteSubscribed) && DataGridQuoteSubscribed.ItemsSource is ICollectionView)
+                if (!_dataGridViewMap.ContainsKey(DataGridQuoteSubscribed) && DataGridQuoteSubscribed.ItemsSource is ICollectionView cvQuoteSubscribed)
                 {
-                    _dataGridViewMap[DataGridQuoteSubscribed] = (ICollectionView)DataGridQuoteSubscribed.ItemsSource;
+                    _dataGridViewMap[DataGridQuoteSubscribed] = cvQuoteSubscribed;
                 }
-                if (!_dataGridViewMap.ContainsKey(DataGridFuturesRights) && DataGridFuturesRights.ItemsSource is ICollectionView)
+                if (!_dataGridViewMap.ContainsKey(DataGridFuturesRights) && DataGridFuturesRights.ItemsSource is ICollectionView cvFuturesRights)
                 {
-                    _dataGridViewMap[DataGridFuturesRights] = (ICollectionView)DataGridFuturesRights.ItemsSource;
+                    _dataGridViewMap[DataGridFuturesRights] = cvFuturesRights;
                 }
 
                 if (_appCtrl.Settings.ShowDataGrid)

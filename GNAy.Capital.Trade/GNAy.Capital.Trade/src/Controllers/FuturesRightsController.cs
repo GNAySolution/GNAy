@@ -31,6 +31,9 @@ namespace GNAy.Capital.Trade.Controllers
         /// </summary>
         public (DateTime, int, string, int) QuerySent { get; private set; }
 
+        public decimal ProfitTotal { get; private set; }
+        public decimal ProfitTotalMax { get; private set; }
+
         public FuturesRightsController(AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
@@ -44,6 +47,9 @@ namespace GNAy.Capital.Trade.Controllers
             _dataCollection = _appCtrl.MainForm.DataGridFuturesRights.SetViewAndGetObservation<FuturesRightsData>();
 
             QuerySent = (DateTime.Now, -1, string.Empty, -1);
+
+            ProfitTotal = 0;
+            ProfitTotalMax = 0;
         }
 
         private FuturesRightsController() : this(null)
@@ -96,6 +102,13 @@ namespace GNAy.Capital.Trade.Controllers
                 if (data == null)
                 {
                     continue;
+                }
+
+                ProfitTotal = _dataMap.Values.Sum(x => x.F11 + x.F12);
+
+                if (ProfitTotal > 0 && ProfitTotalMax < ProfitTotal)
+                {
+                    ProfitTotalMax = ProfitTotal;
                 }
 
                 _appCtrl.MainForm.InvokeSync(delegate
