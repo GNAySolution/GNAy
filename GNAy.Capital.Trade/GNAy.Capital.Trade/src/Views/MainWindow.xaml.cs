@@ -164,7 +164,7 @@ namespace GNAy.Capital.Trade
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
             string caption = $"確定關閉？";
             string messageBoxText = $"確定關閉？";

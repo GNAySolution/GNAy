@@ -18,12 +18,12 @@ namespace GNAy.Tools.NET47.Models
         [field: NonSerialized()]
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+        protected virtual void OnPropertyChanged(in PropertyChangedEventArgs e)
         {
             PropertyChanged?.Invoke(this, e);
         }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        protected virtual void OnPropertyChanged([CallerMemberName] in string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -36,7 +36,7 @@ namespace GNAy.Tools.NET47.Models
         /// <param name="value"></param>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        protected virtual bool OnPropertyChanged<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+        protected virtual bool OnPropertyChanged<T>(ref T field, in T value, [CallerMemberName] in string propertyName = "")
         {
             if (EqualityComparer<T>.Default.Equals(field, value))
             {
@@ -49,7 +49,7 @@ namespace GNAy.Tools.NET47.Models
             return true;
         }
 
-        protected virtual bool OnPropertiesChanged<T>(ref T field, T value, string propertyName, params string[] otherNames)
+        protected virtual bool OnPropertiesChanged<T>(ref T field, in T value, in string propertyName, params string[] otherNames)
         {
             if (EqualityComparer<T>.Default.Equals(field, value))
             {

@@ -46,7 +46,7 @@ namespace GNAy.Capital.Trade.Controllers
         public TaskStatus TimerBGStatus => _timerBG == null ? TaskStatus.Canceled : _timerBG.Status;
         public DateTime SignalTimeBG { get; private set; }
 
-        public AppController(MainWindow mainForm, Process ps)
+        public AppController(in MainWindow mainForm, in Process ps)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(AppController).Replace("Controller", "Ctrl");
@@ -127,7 +127,7 @@ namespace GNAy.Capital.Trade.Controllers
         protected AppController() : this(null, null)
         { }
 
-        private void AppendLog(LogLevel level, string msg, int lineNumber, string memberName)
+        private void AppendLog(LogLevel level, in string msg, in int lineNumber, in string memberName)
         {
             AppLogInDataGrid log = new AppLogInDataGrid()
             {
@@ -165,18 +165,18 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
-        public void LogTrace(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogTrace(string msg, in string uniqueName, in TimeSpan? elapsed = null, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             if (elapsed.HasValue)
             {
                 msg = string.Format("ts={0}{1}{2}", elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
-            memberName = $"{uniqueName}.{memberName}";
-            _logger.Trace(string.Join("|", msg, lineNumber, memberName));
-            AppendLog(LogLevel.Trace, msg, lineNumber, memberName);
+
+            _logger.Trace(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
+            AppendLog(LogLevel.Trace, msg, lineNumber, $"{uniqueName}.{memberName}");
         }
 
-        public void LogTrace(DateTime startTime, string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogTrace(in DateTime startTime, in string msg, in string uniqueName, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             LogTrace(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
         }
@@ -186,102 +186,106 @@ namespace GNAy.Capital.Trade.Controllers
             return DateTime.Now;
         }
 
-        public DateTime StartTrace(string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public DateTime StartTrace(in string msg, in string uniqueName, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             DateTime now = DateTime.Now;
+
             if (!string.IsNullOrWhiteSpace(msg))
             {
                 LogTrace(msg, uniqueName, null, lineNumber, memberName);
             }
+
             return now;
         }
 
-        public void EndTrace(DateTime startTime, string uniqueName, string msg = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void EndTrace(in DateTime startTime, in string uniqueName, in string msg = "", [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             LogTrace(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
         }
 
-        public void LogDebug(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogDebug(string msg, in string uniqueName, in TimeSpan? elapsed = null, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             if (elapsed.HasValue)
             {
                 msg = string.Format("ts={0}{1}{2}", elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
-            memberName = $"{uniqueName}.{memberName}";
-            _logger.Debug(string.Join("|", msg, lineNumber, memberName));
-            AppendLog(LogLevel.Debug, msg, lineNumber, memberName);
+
+            _logger.Debug(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
+            AppendLog(LogLevel.Debug, msg, lineNumber, $"{uniqueName}.{memberName}");
         }
 
-        public void LogDebug(DateTime startTime, string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogDebug(in DateTime startTime, in string msg, in string uniqueName, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             LogDebug(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
         }
 
-        public void LogInfo(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogInfo(string msg, in string uniqueName, in TimeSpan? elapsed = null, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             if (elapsed.HasValue)
             {
                 msg = string.Format("ts={0}{1}{2}", elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
-            memberName = $"{uniqueName}.{memberName}";
-            _logger.Info(string.Join("|", msg, lineNumber, memberName));
-            AppendLog(LogLevel.Info, msg, lineNumber, memberName);
+
+            _logger.Info(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
+            AppendLog(LogLevel.Info, msg, lineNumber, $"{uniqueName}.{memberName}");
         }
 
-        public void LogInfo(DateTime startTime, string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogInfo(in DateTime startTime, in string msg, in string uniqueName, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             LogInfo(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
         }
 
-        public void LogWarn(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogWarn(string msg, in string uniqueName, in TimeSpan? elapsed = null, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             if (elapsed.HasValue)
             {
                 msg = string.Format("ts={0}{1}{2}", elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
-            memberName = $"{uniqueName}.{memberName}";
-            _logger.Warn(string.Join("|", msg, lineNumber, memberName));
-            AppendLog(LogLevel.Warn, msg, lineNumber, memberName);
+
+            _logger.Warn(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
+            AppendLog(LogLevel.Warn, msg, lineNumber, $"{uniqueName}.{memberName}");
         }
 
-        public void LogWarn(DateTime startTime, string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogWarn(in DateTime startTime, in string msg, in string uniqueName, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             LogWarn(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
         }
 
-        public void LogError(string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogError(string msg, in string uniqueName, in TimeSpan? elapsed = null, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             if (elapsed.HasValue)
             {
                 msg = string.Format("ts={0}{1}{2}", elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
-            memberName = $"{uniqueName}.{memberName}";
-            _logger.Error(string.Join("|", msg, lineNumber, memberName));
-            AppendLog(LogLevel.Error, msg, lineNumber, memberName);
+
+            _logger.Error(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
+            AppendLog(LogLevel.Error, msg, lineNumber, $"{uniqueName}.{memberName}");
         }
 
-        public void LogError(DateTime startTime, string msg, string uniqueName, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogError(in DateTime startTime, in string msg, in string uniqueName, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             LogError(msg, uniqueName, (DateTime.Now - startTime), lineNumber, memberName);
         }
 
-        public void LogException(Exception ex, string stackTrace, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogException(in Exception ex, in string stackTrace, in TimeSpan? elapsed = null, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             string msg = string.Join("|", ex.Message, ex.GetType().Name, $"{Environment.NewLine}{stackTrace}");
+
             if (elapsed.HasValue)
             {
                 msg = string.Format("ts={0}|{1}", elapsed.Value.ToString("ss'.'ffffff"), msg);
             }
+
             _logger.Error(msg);
             AppendLog(LogLevel.Error, msg, lineNumber, memberName);
         }
 
-        public void LogException(DateTime startTime, Exception ex, string stackTrace, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void LogException(in DateTime startTime, in Exception ex, in string stackTrace, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             LogException(ex, stackTrace, (DateTime.Now - startTime), lineNumber, memberName);
         }
 
-        public void Log(int statusCode, string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void Log(in int statusCode, in string msg, in string uniqueName, in TimeSpan? elapsed = null, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             if (statusCode <= StatusCode.BaseTraceValue)
             {
@@ -313,7 +317,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void Log(LogLevel level, string msg, string uniqueName, TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void Log(in LogLevel level, in string msg, in string uniqueName, in TimeSpan? elapsed = null, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             if (level == null || level == LogLevel.Trace)
             {

@@ -26,7 +26,7 @@ namespace GNAy.Tools.WPF
         /// <param name="obj"></param>
         /// <param name="act"></param>
         /// <param name="priority"></param>
-        public static void InvokeSync(this DispatcherObject obj, Action<object> act, DispatcherPriority priority = DispatcherPriority.Normal)
+        public static void InvokeSync(this DispatcherObject obj, Action<object> act, in DispatcherPriority priority = DispatcherPriority.Normal)
         {
             if (!obj.CheckAccess())
             {
@@ -37,7 +37,7 @@ namespace GNAy.Tools.WPF
             act(obj);
         }
 
-        public static void InvokeSync<T>(this DispatcherObject obj, Action<object, T> act, T arg, DispatcherPriority priority = DispatcherPriority.Normal)
+        public static void InvokeSync<T>(this DispatcherObject obj, Action<object, T> act, T arg, in DispatcherPriority priority = DispatcherPriority.Normal)
         {
             if (!obj.CheckAccess())
             {
@@ -48,7 +48,7 @@ namespace GNAy.Tools.WPF
             act(obj, arg);
         }
 
-        public static void InvokeSync<T1, T2>(this DispatcherObject obj, Action<object, T1, T2> act, T1 arg1, T2 arg2, DispatcherPriority priority = DispatcherPriority.Normal)
+        public static void InvokeSync<T1, T2>(this DispatcherObject obj, Action<object, T1, T2> act, T1 arg1, T2 arg2, in DispatcherPriority priority = DispatcherPriority.Normal)
         {
             if (!obj.CheckAccess())
             {
@@ -59,7 +59,7 @@ namespace GNAy.Tools.WPF
             act(obj, arg1, arg2);
         }
 
-        public static void InvokeSync<T1, T2, T3>(this DispatcherObject obj, Action<object, T1, T2, T3> act, T1 arg1, T2 arg2, T3 arg3, DispatcherPriority priority = DispatcherPriority.Normal)
+        public static void InvokeSync<T1, T2, T3>(this DispatcherObject obj, Action<object, T1, T2, T3> act, T1 arg1, T2 arg2, T3 arg3, in DispatcherPriority priority = DispatcherPriority.Normal)
         {
             if (!obj.CheckAccess())
             {
@@ -76,7 +76,7 @@ namespace GNAy.Tools.WPF
         /// <param name="obj"></param>
         /// <param name="act"></param>
         /// <param name="priority"></param>
-        public static void InvokeAsync(this DispatcherObject obj, Action<object> act, DispatcherPriority priority = DispatcherPriority.Background)
+        public static void InvokeAsync(this DispatcherObject obj, Action<object> act, in DispatcherPriority priority = DispatcherPriority.Background)
         {
             if (!obj.CheckAccess())
             {
@@ -87,7 +87,7 @@ namespace GNAy.Tools.WPF
             act(obj);
         }
 
-        public static void InvokeAsync<T>(this DispatcherObject obj, Action<object, T> act, T arg, DispatcherPriority priority = DispatcherPriority.Background)
+        public static void InvokeAsync<T>(this DispatcherObject obj, Action<object, T> act, T arg, in DispatcherPriority priority = DispatcherPriority.Background)
         {
             if (!obj.CheckAccess())
             {
@@ -98,7 +98,7 @@ namespace GNAy.Tools.WPF
             act(obj, arg);
         }
 
-        public static void InvokeAsync<T1, T2>(this DispatcherObject obj, Action<object, T1, T2> act, T1 arg1, T2 arg2, DispatcherPriority priority = DispatcherPriority.Background)
+        public static void InvokeAsync<T1, T2>(this DispatcherObject obj, Action<object, T1, T2> act, T1 arg1, T2 arg2, in DispatcherPriority priority = DispatcherPriority.Background)
         {
             if (!obj.CheckAccess())
             {
@@ -109,7 +109,7 @@ namespace GNAy.Tools.WPF
             act(obj, arg1, arg2);
         }
 
-        public static void InvokeAsync<T1, T2, T3>(this DispatcherObject obj, Action<object, T1, T2, T3> act, T1 arg1, T2 arg2, T3 arg3, DispatcherPriority priority = DispatcherPriority.Background)
+        public static void InvokeAsync<T1, T2, T3>(this DispatcherObject obj, Action<object, T1, T2, T3> act, T1 arg1, T2 arg2, T3 arg3, in DispatcherPriority priority = DispatcherPriority.Background)
         {
             if (!obj.CheckAccess())
             {
@@ -126,7 +126,7 @@ namespace GNAy.Tools.WPF
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <param name="fileName"></param>
-        public static void ScreenshotToFile<T>(this Visual obj, string fileName) where T : BitmapEncoder, new ()
+        public static void ScreenshotToFile<T>(this Visual obj, in string fileName) where T : BitmapEncoder, new ()
         {
             DrawingVisual visual = new DrawingVisual();
             Rect bounds = VisualTreeHelper.GetDescendantBounds(obj);
@@ -168,7 +168,7 @@ namespace GNAy.Tools.WPF
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="propertyNameMap"></param>
-        public static void SetHeadersByBindings(this DataGrid obj, IDictionary<string, string> propertyNameMap)
+        public static void SetHeadersByBindings(this DataGrid obj, in IDictionary<string, string> propertyNameMap)
         {
             foreach (DataGridColumn column in obj.Columns)
             {
@@ -182,7 +182,7 @@ namespace GNAy.Tools.WPF
             }
         }
 
-        private static void SetColumn<T>(this DataGridBoundColumn obj, Binding bind, T attr) where T : ColumnAttribute
+        private static void SetColumn<T>(this DataGridBoundColumn obj, in Binding bind, in T attr) where T : ColumnAttribute
         {
             obj.Header = attr.WPFName;
             obj.DisplayIndex = attr.WPFDisplayIndex;
@@ -229,7 +229,7 @@ namespace GNAy.Tools.WPF
             }
         }
 
-        public static void SetColumn<T>(this DataGridBoundColumn obj, T attr) where T : ColumnAttribute
+        public static void SetColumn<T>(this DataGridBoundColumn obj, in T attr) where T : ColumnAttribute
         {
             if (obj.Binding is Binding bind)
             {
@@ -237,7 +237,7 @@ namespace GNAy.Tools.WPF
             }
         }
 
-        public static void SetColumns<T>(this DataGrid obj, IDictionary<string, T> propertyNameMap) where T : ColumnAttribute
+        public static void SetColumns<T>(this DataGrid obj, in IDictionary<string, T> propertyNameMap) where T : ColumnAttribute
         {
             HashSet<string> existedBindings = new HashSet<string>();
 
@@ -293,7 +293,7 @@ namespace GNAy.Tools.WPF
             return oc;
         }
 
-        public static ObservableCollection<T> SetViewAndGetObservation<T>(this ItemsControl obj, IEnumerable<T> collection)
+        public static ObservableCollection<T> SetViewAndGetObservation<T>(this ItemsControl obj, in IEnumerable<T> collection)
         {
             ObservableCollection<T> oc = new ObservableCollection<T>(collection);
             obj.ItemsSource = oc.GetView();
@@ -318,7 +318,7 @@ namespace GNAy.Tools.WPF
         /// <param name="obj"></param>
         /// <param name="toEnd"></param>
         /// <returns></returns>
-        public static bool ScrollToBorder(this DependencyObject obj, bool toEnd = true)
+        public static bool ScrollToBorder(this DependencyObject obj, in bool toEnd = true)
         {
             ScrollViewer viewer = GetScrollViewer(obj);
 

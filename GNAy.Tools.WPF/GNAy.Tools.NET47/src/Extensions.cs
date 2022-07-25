@@ -39,12 +39,12 @@ namespace GNAy.Tools.NET47
             }
         }
 
-        public static string JoinSortedSet(this string obj, char joinSeparator, params char[] setSeparator)
+        public static string JoinSortedSet(this string obj, in char joinSeparator, params char[] setSeparator)
         {
             return setSeparator.Length <= 0 ? string.Join(joinSeparator.ToString(), obj.ForeachSortedSet(joinSeparator)) : string.Join(joinSeparator.ToString(), obj.ForeachSortedSet(setSeparator));
         }
 
-        public static Enum ConvertTo(this string obj, Type enumType)
+        public static Enum ConvertTo(this string obj, in Type enumType)
         {
             string trim = obj.Trim(' ', '.').ToLower();
 
@@ -83,7 +83,7 @@ namespace GNAy.Tools.NET47
         /// <param name="obj"></param>
         /// <param name="flags"></param>
         /// <returns></returns>
-        public static Dictionary<string, (T, PropertyInfo)> GetColumnAttrMapByProperty<T>(this Type obj, BindingFlags flags) where T : ColumnAttribute
+        public static Dictionary<string, (T, PropertyInfo)> GetColumnAttrMapByProperty<T>(this Type obj, in BindingFlags flags) where T : ColumnAttribute
         {
             Dictionary<string, (T, PropertyInfo)> result = new Dictionary<string, (T, PropertyInfo)>();
             PropertyInfo[] piArr = obj.GetProperties(flags);
@@ -112,7 +112,7 @@ namespace GNAy.Tools.NET47
             return result;
         }
 
-        public static SortedDictionary<int, (T, PropertyInfo)> GetColumnAttrMapByIndex<T>(this Type obj, BindingFlags flags) where T : ColumnAttribute
+        public static SortedDictionary<int, (T, PropertyInfo)> GetColumnAttrMapByIndex<T>(this Type obj, in BindingFlags flags) where T : ColumnAttribute
         {
             SortedDictionary<int, (T, PropertyInfo)> result = new SortedDictionary<int, (T, PropertyInfo)>();
             PropertyInfo[] piArr = obj.GetProperties(flags);
@@ -150,7 +150,7 @@ namespace GNAy.Tools.NET47
             return result;
         }
 
-        public static Dictionary<string, (T, PropertyInfo)> GetColumnAttrMapByName<T>(this Type obj, BindingFlags flags) where T : ColumnAttribute
+        public static Dictionary<string, (T, PropertyInfo)> GetColumnAttrMapByName<T>(this Type obj, in BindingFlags flags) where T : ColumnAttribute
         {
             Dictionary<string, (T, PropertyInfo)> result = new Dictionary<string, (T, PropertyInfo)>();
             PropertyInfo[] piArr = obj.GetProperties(flags);
@@ -186,7 +186,7 @@ namespace GNAy.Tools.NET47
             return result;
         }
 
-        public static string ValueToString(this PropertyInfo obj, object instance, string format)
+        public static string ValueToString(this PropertyInfo obj, in object instance, in string format)
         {
             object value = obj.GetValue(instance);
 
@@ -273,7 +273,7 @@ namespace GNAy.Tools.NET47
             throw new NotSupportedException($"PropertyType ({propertyType.FullName}) is not supported.");
         }
 
-        public static void SetValueFromString(this PropertyInfo obj, object instance, string value, string format)
+        public static void SetValueFromString(this PropertyInfo obj, in object instance, in string value, in string format)
         {
             Type propertyType = obj.PropertyType;
 
@@ -393,7 +393,7 @@ namespace GNAy.Tools.NET47
             return obj > 1911 ? obj - 1911 : obj;
         }
 
-        public static string ToROCYear(this string obj, DateTime date)
+        public static string ToROCYear(this string obj, in DateTime date)
         {
             string yyyy = date.ToString("yyyy");
             string yyy = date.Year.ToROCYear().ToString();
@@ -430,7 +430,7 @@ namespace GNAy.Tools.NET47
         /// <param name="yyyy"></param>
         /// <param name="keywords1"></param>
         /// <param name="keywords2"></param>
-        public static void LoadHolidays(this IDictionary<DateTime, string> obj, IList<string> lines, int yyyy, IList<string> keywords1, IEnumerable<string> keywords2)
+        public static void LoadHolidays(this IDictionary<DateTime, string> obj, in IList<string> lines, in int yyyy, in IList<string> keywords1, in IEnumerable<string> keywords2)
         {
             string[] separators1 = new string[] { keywords1[0], keywords1[1] };
 
@@ -459,13 +459,13 @@ namespace GNAy.Tools.NET47
             }
         }
 
-        public static void LoadHolidays(this IDictionary<DateTime, string> obj, string path, Encoding encoding, int yyyy, IList<string> keywords1, IEnumerable<string> keywords2)
+        public static void LoadHolidays(this IDictionary<DateTime, string> obj, in string path, in Encoding encoding, in int yyyy, in IList<string> keywords1, in IEnumerable<string> keywords2)
         {
             obj.LoadHolidays(File.ReadAllLines(path, encoding), yyyy, keywords1, keywords2);
         }
 
 
-        public static T LoadHolidays<T>(this string obj, Encoding encoding, int yyyy, IList<string> keywords1, IEnumerable<string> keywords2) where T : IDictionary<DateTime, string>, new()
+        public static T LoadHolidays<T>(this string obj, in Encoding encoding, in int yyyy, in IList<string> keywords1, in IEnumerable<string> keywords2) where T : IDictionary<DateTime, string>, new()
         {
             T dic = new T();
             dic.LoadHolidays(obj, encoding, yyyy, keywords1, keywords2);

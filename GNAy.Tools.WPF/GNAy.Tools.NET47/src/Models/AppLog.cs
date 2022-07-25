@@ -33,7 +33,7 @@ namespace GNAy.Tools.NET47.Models
         [Column("訊息")]
         public virtual string Message { get; set; }
 
-        public AppLog([CallerMemberName] string memberName = "")
+        public AppLog([CallerMemberName] in string memberName = "")
         {
             Creator = memberName;
             CreatedTime = DateTime.Now;
