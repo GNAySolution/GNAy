@@ -104,7 +104,7 @@ namespace GNAy.Capital.Trade.Controllers
                     continue;
                 }
 
-                ProfitTotal = _dataMap.Values.Sum(x => x.F11 + x.F12);
+                ProfitTotal = _dataMap.Values.Sum(x => x.F11 + x.F1);
 
                 if (ProfitTotal > 0 && ProfitTotalMax < ProfitTotal)
                 {
@@ -226,7 +226,7 @@ namespace GNAy.Capital.Trade.Controllers
                     return null;
                 }
 
-                sum += data.F12;
+                sum += data.F1;
             }
 
             return sum;

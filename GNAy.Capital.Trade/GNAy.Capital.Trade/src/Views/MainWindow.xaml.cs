@@ -1990,7 +1990,7 @@ namespace GNAy.Capital.Trade
 
                 TextBoxStrategyPrimaryKey.Text = data.PrimaryKey;
                 TextBoxStrategyStopLoss.Text = data.StopLossBefore;
-                TextBoxStrategyStopWin.Text = data.StopWinPriceBefore;
+                TextBoxStrategyStopWin.Text = data.StopWinPrice1Before;
                 TextBoxStrategyMoveStopWin1.Text = data.StopWin1Before;
                 TextBoxStrategyMoveStopWin2.Text = data.StopWin2Before;
                 TextBoxOpenTriggerAfterStopLoss.Text = data.OpenTriggerAfterStopLoss;
@@ -2147,7 +2147,7 @@ namespace GNAy.Capital.Trade
                     OrderPriceBefore = TextBoxOrderPrice.Text,
                     OrderQty = int.Parse(TextBoxOrderQty.Text),
                     StopLossBefore = TextBoxStrategyStopLoss.Text,
-                    StopWinPriceBefore = TextBoxStrategyStopWin.Text,
+                    StopWinPrice1Before = TextBoxStrategyStopWin.Text,
                     StopWin1Before = TextBoxStrategyMoveStopWin1.Text,
                     StopWin2Before = TextBoxStrategyMoveStopWin2.Text,
                     OpenTriggerAfterStopLoss = TextBoxOpenTriggerAfterStopLoss.Text,

@@ -60,11 +60,6 @@ namespace GNAy.Tools.WPF
 
         }
 
-        private void Window_Initialized(object sender, EventArgs e)
-        {
-
-        }
-
         private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
 
@@ -155,7 +150,7 @@ namespace GNAy.Tools.WPF
 
         }
 
-        private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
+        private void Window_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
 
         }

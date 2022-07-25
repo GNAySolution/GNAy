@@ -230,9 +230,9 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(data.StopWinPriceBefore))
+            if (!string.IsNullOrWhiteSpace(data.StopWinPrice1Before))
             {
-                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(data.StopWinPriceBefore, data.Quote);
+                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(data.StopWinPrice1Before, data.Quote);
 
                 if (data.BSEnum == OrderBS.Enum.Buy)
                 {
@@ -248,9 +248,9 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (readyToSend)
                 {
-                    data.StopWinPriceAfterRaw = stopWinPriceAfter.Item2;
-                    _appCtrl.LogTrace(start, $"停利價計算前={data.StopWinPriceBefore}|計算後={stopWinPriceAfter.Item1}", UniqueName);
-                    Notice = $"停利價計算前={data.StopWinPriceBefore}|計算後={stopWinPriceAfter.Item1}";
+                    data.StopWinPrice1AfterRaw = stopWinPriceAfter.Item2;
+                    _appCtrl.LogTrace(start, $"停利價計算前={data.StopWinPrice1Before}|計算後={stopWinPriceAfter.Item1}", UniqueName);
+                    Notice = $"停利價計算前={data.StopWinPrice1Before}|計算後={stopWinPriceAfter.Item1}";
                 }
             }
 
@@ -610,7 +610,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         data.StatusEnum = StrategyStatus.Enum.OrderSent;
                         data.BestClosePrice = 0;
-                        data.StopWinTriggered = false;
+                        data.StopWin1Touched = false;
 
                         order.OrderPriceBefore = OrderPrice.P;
 
@@ -763,12 +763,12 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             AfterStopLoss(data, start);
                         }
-                        else if (!data.StopWinTriggered && data.MarketPrice >= data.StopWinPriceAfterRaw)
+                        else if (!data.StopWin1Touched && data.MarketPrice >= data.StopWinPrice1AfterRaw)
                         {
-                            data.StopWinTriggered = true;
+                            data.StopWin1Touched = true;
                         }
                         
-                        if (data.StopWinTriggered && data.StopWin1Qty <= 0)
+                        if (data.StopWin1Touched && data.StopWin1Qty <= 0)
                         {
                             if ((data.StopWin1Offset <= 0 && data.MarketPrice <= data.BestClosePrice + data.StopWin1Offset) ||
                                 (data.StopWin1Offset > 0 && data.MarketPrice <= data.OrderPriceAfter + data.StopWin1Offset))
@@ -791,12 +791,12 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             AfterStopLoss(data, start);
                         }
-                        else if (!data.StopWinTriggered && data.MarketPrice <= data.StopWinPriceAfterRaw)
+                        else if (!data.StopWin1Touched && data.MarketPrice <= data.StopWinPrice1AfterRaw)
                         {
-                            data.StopWinTriggered = true;
+                            data.StopWin1Touched = true;
                         }
                         
-                        if (data.StopWinTriggered && data.StopWin1Qty <= 0)
+                        if (data.StopWin1Touched && data.StopWin1Qty <= 0)
                         {
                             if ((data.StopWin1Offset >= 0 && data.MarketPrice >= data.BestClosePrice + data.StopWin1Offset) ||
                             (data.StopWin1Offset < 0 && data.MarketPrice >= data.OrderPriceAfter + data.StopWin1Offset))

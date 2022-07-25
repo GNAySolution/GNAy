@@ -61,6 +61,10 @@
                         <Grid Background="#FFE5E5E5">
                         </Grid>
                     </TabItem>
+                    <TabItem Header="直播模式">
+                        <Grid Background="#FFE5E5E5">
+                        </Grid>
+                    </TabItem>
                 </TabControl>
                 <!--https://stackoverflow.com/questions/2311458/wpf-statusbar-is-not-positioned-at-the-bottom-of-the-window-->
                 <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
