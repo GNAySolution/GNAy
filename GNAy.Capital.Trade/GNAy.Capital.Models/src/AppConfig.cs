@@ -123,7 +123,7 @@ namespace GNAy.Capital.Models
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public bool IsHoliday(DateTime time)
+        public bool IsHoliday(in DateTime time)
         {
             if (time.DayOfWeek == DayOfWeek.Sunday)
             {
@@ -156,7 +156,7 @@ namespace GNAy.Capital.Models
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public bool IsAMMarket(DateTime time)
+        public bool IsAMMarket(in DateTime time)
         {
             return !IsHoliday(time) && time.Hour >= Settings.MarketStart[(int)Market.EDayNight.AM].Hour && time.Hour <= Settings.MarketClose[(int)Market.EDayNight.AM].Hour;
 
@@ -170,7 +170,7 @@ namespace GNAy.Capital.Models
             //return result;
         }
 
-        public DateTime GetDateToChangeFutures(DateTime targetMonth)
+        public DateTime GetDateToChangeFutures(in DateTime targetMonth)
         {
             if (Settings.FuturesLastTradeWeek > 0 && !string.IsNullOrWhiteSpace(Settings.FuturesLastTradeDay) && Settings.DayToChangeFutures <= 0)
             {

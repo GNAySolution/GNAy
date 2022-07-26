@@ -148,7 +148,7 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _unclosedProfit, value); }
         }
 
-        public OpenInterestData([CallerMemberName] string memberName = "")
+        public OpenInterestData([CallerMemberName] in string memberName = "")
         {
             Creator = memberName;
             CreatedTime = DateTime.Now;

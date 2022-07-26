@@ -17,7 +17,7 @@ namespace GNAy.Capital.Models
         public string DisplayName => string.Join(",", Attribute.CSVName, Property.PropertyType.Name, Attribute.TriggerFormat);
         public string ToolTip => ToString();
 
-        public TradeColumnTrigger(TradeColumnAttribute attr, PropertyInfo property)
+        public TradeColumnTrigger(in TradeColumnAttribute attr, in PropertyInfo property)
         {
             Attribute = attr;
             Property = property;

@@ -325,7 +325,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        public QuoteData([CallerMemberName] string memberName = "")
+        public QuoteData([CallerMemberName] in string memberName = "")
         {
             Creator = memberName;
             CreatedTime = DateTime.Now;
@@ -366,7 +366,7 @@ namespace GNAy.Capital.Models
             return $"\"{result}\"";
         }
 
-        public void ToCSVFile(string path, bool append = true)
+        public void ToCSVFile(in string path, in bool append = true)
         {
             bool exists = File.Exists(path);
 
@@ -381,7 +381,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        public void SetValues(IList<string> columnNames, IList<string> cells)
+        public void SetValues(in IList<string> columnNames, in IList<string> cells)
         {
             for (int i = 0; i < columnNames.Count; ++i)
             {
@@ -392,7 +392,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        public static QuoteData Create(IList<string> columnNames, string lineCSV)
+        public static QuoteData Create(in IList<string> columnNames, in string lineCSV)
         {
             QuoteData data = new QuoteData();
             data.SetValues(columnNames, lineCSV.SplitToCSV());

@@ -422,7 +422,7 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _account, value); }
         }
 
-        public FuturesRightsData(string raw, [CallerMemberName] string memberName = "")
+        public FuturesRightsData(in string raw, [CallerMemberName] in string memberName = "")
         {
             Creator = memberName;
             CreatedTime = DateTime.Now;

@@ -40,7 +40,7 @@ namespace GNAy.Capital.Models
         [Column("呼叫端方法或屬性名稱", WPFDisplayIndex = 4, WPFForeground = "MediumBlue")]
         public string CallerMemberName { get; set; }
 
-        public AppLogInDataGrid([CallerMemberName] string memberName = "") : base(memberName)
+        public AppLogInDataGrid([CallerMemberName] in string memberName = "") : base(memberName)
         {
             Creator = memberName;
             CreatedTime = DateTime.Now;

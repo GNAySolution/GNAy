@@ -39,7 +39,7 @@ namespace GNAy.Capital.Models
             Enum.L.GetDescription(),
         }.AsReadOnly();
 
-        private static (string, decimal) Parse(string orderPrice, decimal marketPrice, decimal reference)
+        private static (string, decimal) Parse(in string orderPrice, in decimal marketPrice, in decimal reference)
         {
             decimal newPri = 0;
 
@@ -58,7 +58,7 @@ namespace GNAy.Capital.Models
             return (newPri.ToString("0.00"), newPri);
         }
 
-        public static (string, decimal) Parse(string orderPrice, decimal marketPrice, decimal reference, decimal highPrice, decimal lowPrice)
+        public static (string, decimal) Parse(in string orderPrice, in decimal marketPrice, in decimal reference, in decimal highPrice, in decimal lowPrice)
         {
             if (orderPrice.StartsWith(M) || orderPrice.StartsWith(P))
             {
@@ -76,7 +76,7 @@ namespace GNAy.Capital.Models
             return (orderPrice, decimal.Parse(orderPrice));
         }
 
-        public static (string, decimal) Parse(string orderPrice, QuoteData quote)
+        public static (string, decimal) Parse(in string orderPrice, in QuoteData quote)
         {
             return Parse(orderPrice, quote.DealPrice, quote.Reference, quote.HighPriceLimit, quote.LowPriceLimit);
         }

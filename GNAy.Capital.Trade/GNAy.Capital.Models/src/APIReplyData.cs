@@ -44,7 +44,7 @@ namespace GNAy.Capital.Models
         [Column("呼叫端方法或屬性名稱", WPFDisplayIndex = 3, WPFForeground = "MediumBlue")]
         public string CallerMemberName { get; set; }
 
-        public APIReplyData([CallerMemberName] string memberName = "")
+        public APIReplyData([CallerMemberName] in string memberName = "")
         {
             Creator = memberName;
             CreatedTime = DateTime.Now;

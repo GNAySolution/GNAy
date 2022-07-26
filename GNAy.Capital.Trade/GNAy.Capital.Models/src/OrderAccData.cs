@@ -49,7 +49,7 @@ namespace GNAy.Capital.Models
         public string DisplayName => $"{Account},{MarketName},{Identity}";
         public string ToolTip => ToString();
 
-        public OrderAccData([CallerMemberName] string memberName = "")
+        public OrderAccData([CallerMemberName] in string memberName = "")
         {
             Creator = memberName;
             CreatedTime = DateTime.Now;

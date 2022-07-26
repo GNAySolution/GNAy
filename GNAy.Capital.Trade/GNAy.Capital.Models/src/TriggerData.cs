@@ -242,7 +242,7 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _comment, value); }
         }
 
-        public TriggerData(TradeColumnTrigger column, [CallerMemberName] string memberName = "")
+        public TriggerData(in TradeColumnTrigger column, [CallerMemberName] in string memberName = "")
         {
             SyncRoot = new object();
             Creator = memberName;
@@ -275,7 +275,7 @@ namespace GNAy.Capital.Models
         private TriggerData() : this(null, null)
         { }
 
-        public void Trim([CallerMemberName] string memberName = "")
+        public void Trim([CallerMemberName] in string memberName = "")
         {
             PrimaryKey = PrimaryKey.Replace(" ", string.Empty);
             Symbol1 = Symbol1.Replace(" ", string.Empty);
@@ -294,7 +294,7 @@ namespace GNAy.Capital.Models
             UpdateTime = DateTime.Now;
         }
 
-        public decimal GetColumnValue(QuoteData quote)
+        public decimal GetColumnValue(in QuoteData quote)
         {
             object valueObj = Column.Property.GetValue(quote);
 
@@ -315,7 +315,7 @@ namespace GNAy.Capital.Models
             return (Quote2 == null) ? TargetValue : (GetColumnValue(Quote2) + Symbol2Offset);
         }
 
-        public bool? IsMatchedRule(decimal columnValue, decimal targetValue)
+        public bool? IsMatchedRule(in decimal columnValue, in decimal targetValue)
         {
             if (columnValue == 0 || targetValue == 0)
             {
@@ -348,7 +348,7 @@ namespace GNAy.Capital.Models
             return $"\"{result}\"";
         }
 
-        public void ToCSVFile(string path, bool append = true)
+        public void ToCSVFile(in string path, in bool append = true)
         {
             bool exists = File.Exists(path);
 
@@ -363,7 +363,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        public void SetValues(IList<string> columnNames, IList<string> cells)
+        public void SetValues(in IList<string> columnNames, in IList<string> cells)
         {
             for (int i = 0; i < columnNames.Count; ++i)
             {
@@ -374,7 +374,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        public static TriggerData Create(IList<string> columnNames, string lineCSV, int propertyIndex)
+        public static TriggerData Create(in IList<string> columnNames, in string lineCSV, in int propertyIndex)
         {
             string[] cells = lineCSV.SplitToCSV();
             string propertyName = cells[propertyIndex];

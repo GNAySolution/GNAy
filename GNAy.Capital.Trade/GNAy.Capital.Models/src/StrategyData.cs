@@ -519,7 +519,7 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _comment, value); }
         }
 
-        public StrategyData([CallerMemberName] string memberName = "")
+        public StrategyData([CallerMemberName] in string memberName = "")
         {
             SyncRoot = new object();
             Parent = null;
@@ -587,7 +587,7 @@ namespace GNAy.Capital.Models
             Comment = string.Empty;
         }
 
-        public void Trim([CallerMemberName] string memberName = "")
+        public void Trim([CallerMemberName] in string memberName = "")
         {
             PrimaryKey = PrimaryKey.Replace(" ", string.Empty);
             Branch = Branch.Replace(" ", string.Empty);
@@ -613,7 +613,7 @@ namespace GNAy.Capital.Models
             UpdateTime = DateTime.Now;
         }
 
-        public void Reset([CallerMemberName] string memberName = "")
+        public void Reset([CallerMemberName] in string memberName = "")
         {
             if (UnclosedQty > 0)
             {
@@ -642,7 +642,7 @@ namespace GNAy.Capital.Models
             UpdateTime = DateTime.Now;
         }
 
-        public StrategyData CreateOrder([CallerMemberName] string memberName = "")
+        public StrategyData CreateOrder([CallerMemberName] in string memberName = "")
         {
             if (Parent != null)
             {
@@ -703,7 +703,7 @@ namespace GNAy.Capital.Models
             return order;
         }
 
-        public StrategyData CreateStopLossOrder([CallerMemberName] string memberName = "")
+        public StrategyData CreateStopLossOrder([CallerMemberName] in string memberName = "")
         {
             if (Parent != null)
             {
@@ -764,7 +764,7 @@ namespace GNAy.Capital.Models
             return order;
         }
 
-        public StrategyData CreateStopWinOrder(int number, [CallerMemberName] string memberName = "")
+        public StrategyData CreateStopWinOrder(in int number, [CallerMemberName] in string memberName = "")
         {
             if (Parent != null)
             {
@@ -836,7 +836,7 @@ namespace GNAy.Capital.Models
             return order;
         }
 
-        public StrategyData CreateMarketClosingOrder(int qty, [CallerMemberName] string memberName = "")
+        public StrategyData CreateMarketClosingOrder(in int qty, [CallerMemberName] in string memberName = "")
         {
             if (Parent != null)
             {
@@ -924,7 +924,7 @@ namespace GNAy.Capital.Models
             return $"\"{result}\"";
         }
 
-        public void ToCSVFile(string path, bool append = true)
+        public void ToCSVFile(in string path, in bool append = true)
         {
             bool exists = File.Exists(path);
 
@@ -939,7 +939,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        public void SetValues(IList<string> columnNames, IList<string> cells)
+        public void SetValues(in IList<string> columnNames, in IList<string> cells)
         {
             for (int i = 0; i < columnNames.Count; ++i)
             {
@@ -950,7 +950,7 @@ namespace GNAy.Capital.Models
             }
         }
 
-        public static StrategyData Create(IList<string> columnNames, string lineCSV)
+        public static StrategyData Create(in IList<string> columnNames, in string lineCSV)
         {
             StrategyData data = new StrategyData();
             data.SetValues(columnNames, lineCSV.SplitToCSV());
