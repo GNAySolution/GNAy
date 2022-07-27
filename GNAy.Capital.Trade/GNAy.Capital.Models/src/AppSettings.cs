@@ -173,6 +173,15 @@ namespace GNAy.Capital.Models
         public bool StrategyFromOpenInterest { get; set; }
 
         /// <summary>
+        /// 整體停利觸發
+        /// </summary>
+        public decimal StrategyStopWinProfit { get; set; }
+        /// <summary>
+        /// 整體停利位移
+        /// </summary>
+        public decimal StrategyStopWinOffset { get; set; }
+
+        /// <summary>
         /// 送出的委託單，不論是否有收到委回成回
         /// </summary>
         public string SentOrderFolderPath { get; set; }
@@ -185,7 +194,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.725.1";
+            Version = "1.22.726.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -217,7 +226,7 @@ namespace GNAy.Capital.Models
             LiveModeTriggerRule = new List<string>();
             //LiveModeTriggerRule = new List<string>() { nameof(TriggerData.ColumnName), nameof(TriggerData.ColumnProperty), nameof(TriggerData.ColumnValue), nameof(TriggerData.TargetValue), nameof(TriggerData.Symbol2Setting) }; //
             LiveModeStrategyRule = new List<string>();
-            //LiveModeStrategyRule = new List<string>() { nameof(StrategyData.FullAccount), nameof(StrategyData.BSEnum), nameof(StrategyData.MarketPrice), nameof(StrategyData.OrderPriceBefore), nameof(StrategyData.OrderPriceAfter), nameof(StrategyData.OrderQty), nameof(StrategyData.BestClosePrice), nameof(StrategyData.StopLossBefore), nameof(StrategyData.StopLossAfter), nameof(StrategyData.StopWinPrice1Before), nameof(StrategyData.StopWinPrice1After), nameof(StrategyData.StopWin1Before), nameof(StrategyData.StopWin1After), nameof(StrategyData.StopWin2Before), nameof(StrategyData.StopWin2After), nameof(StrategyData.DealPrice), nameof(StrategyData.UnclosedQty), nameof(StrategyData.AccountsWinLossClose) }; //
+            //LiveModeStrategyRule = new List<string>() { nameof(StrategyData.FullAccount), nameof(StrategyData.BSEnum), nameof(StrategyData.MarketPrice), nameof(StrategyData.OrderPriceBefore), nameof(StrategyData.OrderPriceAfter), nameof(StrategyData.OrderQty), nameof(StrategyData.BestClosePrice), nameof(StrategyData.StopLossBefore), nameof(StrategyData.StopLossAfter), nameof(StrategyData.StopWinPriceABefore), nameof(StrategyData.StopWinPriceAAfter), nameof(StrategyData.StopWin1Before), nameof(StrategyData.StopWin1After), nameof(StrategyData.StopWin2Before), nameof(StrategyData.StopWin2After), nameof(StrategyData.DealPrice), nameof(StrategyData.UnclosedQty), nameof(StrategyData.AccountsWinLossClose) }; //
             LiveModeOrderDetail = new List<string>();
             //LiveModeOrderDetail = new List<string>() { nameof(StrategyData.FullAccount), nameof(StrategyData.BSEnum), nameof(StrategyData.MarketPrice), nameof(StrategyData.OrderPriceBefore), nameof(StrategyData.OrderPriceAfter), nameof(StrategyData.OrderQty), nameof(StrategyData.OrderReport), nameof(StrategyData.DealPrice), nameof(StrategyData.DealQty), nameof(StrategyData.DealReport), nameof(StrategyData.UnclosedQty) }; //
             LiveModeOpenInterest = new List<string>();
@@ -272,6 +281,9 @@ namespace GNAy.Capital.Models
             StrategyFileSaveFormat = "MMdd_HHmm";
             StrategyNotForOpenInterest = "ZS";
             StrategyFromOpenInterest = false;
+
+            StrategyStopWinProfit = 100;
+            StrategyStopWinOffset = -50;
 
             SentOrderFolderPath = "SentOrder";
             SentOrderFileFormat = "yyMMdd_HHmmss_ffffff";

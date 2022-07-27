@@ -207,29 +207,9 @@ namespace GNAy.Capital.Trade.Controllers
             return (LogLevel.Trace, string.Empty);
         }
 
-        private void OpenStrategy(TriggerData data, string strategyPK, DateTime start)
-        {
-            try
-            {
-                _appCtrl.Strategy.StartNow(strategyPK);
-            }
-            catch (Exception ex)
-            {
-                _appCtrl.LogException(start, ex, ex.StackTrace);
-                _appCtrl.LogError(start, $"執行策略({strategyPK})失敗|{data.ToLog()}", UniqueName);
-            }
-            finally
-            {
-                _appCtrl.EndTrace(start, UniqueName);
-            }
-        }
-
         private HashSet<string> OpenStrategy(TriggerData data, DateTime start)
         {
-            foreach (string primary in data.StrategyOpenOR.SplitWithoutWhiteSpace(','))
-            {
-                OpenStrategy(data, primary, start);
-            }
+            _appCtrl.Strategy.StartNow(data.StrategyOpenOR, data, start);
 
             HashSet<string> strategyAND = new HashSet<string>();
 
@@ -261,8 +241,11 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 strategyAND.Add(strategy);
+            }
 
-                OpenStrategy(data, strategy, start);
+            if (strategyAND.Count > 0)
+            {
+                _appCtrl.Strategy.StartNow(string.Join(",", strategyAND), data, start);
             }
 
             return strategyAND;

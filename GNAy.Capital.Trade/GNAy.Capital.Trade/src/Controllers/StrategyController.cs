@@ -33,7 +33,7 @@ namespace GNAy.Capital.Trade.Controllers
         public StrategyData this[int index] => _dataCollection[index];
         public IReadOnlyList<StrategyData> DataCollection => _dataCollection;
 
-        private readonly Dictionary<string, decimal> _quotePriceSnapshot;
+        private readonly Dictionary<string, decimal> _marketPriceSnapshot;
 
         public string RecoverFile { get; private set; }
 
@@ -54,7 +54,7 @@ namespace GNAy.Capital.Trade.Controllers
             _appCtrl.MainForm.DataGridStrategyRule.SetColumns(StrategyData.PropertyMap.Values.ToDictionary(x => x.Item2.Name, x => x.Item1));
             _dataCollection = _appCtrl.MainForm.DataGridStrategyRule.SetViewAndGetObservation<StrategyData>();
 
-            _quotePriceSnapshot = new Dictionary<string, decimal>();
+            _marketPriceSnapshot = new Dictionary<string, decimal>();
 
             RecoverFile = string.Empty;
 
@@ -129,7 +129,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void ParentCheck(StrategyData data, bool readyToSend, DateTime start)
+        private void ParentCheck(StrategyData data, bool readyToSend, DateTime start, decimal marketPrice = 0)
         {
             data.Trim();
 
@@ -197,7 +197,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             MarketCheck(data, data.Quote);
 
-            (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote);
+            (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote, marketPrice);
 
             if (readyToSend)
             {
@@ -208,7 +208,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!string.IsNullOrWhiteSpace(data.StopLossBefore))
             {
-                (string, decimal) stopLossPriceAfter = OrderPrice.Parse(data.StopLossBefore, data.Quote);
+                (string, decimal) stopLossPriceAfter = OrderPrice.Parse(data.StopLossBefore, data.Quote, marketPrice);
 
                 if (data.BSEnum == OrderBS.Enum.Buy)
                 {
@@ -230,9 +230,9 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(data.StopWinPrice1Before))
+            if (!string.IsNullOrWhiteSpace(data.StopWinPriceABefore))
             {
-                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(data.StopWinPrice1Before, data.Quote);
+                (string, decimal) stopWinPriceAfter = OrderPrice.Parse(data.StopWinPriceABefore, data.Quote, marketPrice);
 
                 if (data.BSEnum == OrderBS.Enum.Buy)
                 {
@@ -248,9 +248,9 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (readyToSend)
                 {
-                    data.StopWinPrice1AfterRaw = stopWinPriceAfter.Item2;
-                    _appCtrl.LogTrace(start, $"停利價計算前={data.StopWinPrice1Before}|計算後={stopWinPriceAfter.Item1}", UniqueName);
-                    Notice = $"停利價計算前={data.StopWinPrice1Before}|計算後={stopWinPriceAfter.Item1}";
+                    data.StopWinPriceAAfterRaw = stopWinPriceAfter.Item2;
+                    _appCtrl.LogTrace(start, $"停利價計算前={data.StopWinPriceABefore}|計算後={stopWinPriceAfter.Item1}", UniqueName);
+                    Notice = $"停利價計算前={data.StopWinPriceABefore}|計算後={stopWinPriceAfter.Item1}";
                 }
             }
 
@@ -547,7 +547,7 @@ namespace GNAy.Capital.Trade.Controllers
             AfterStopWin(data, number, start);
         }
 
-        private bool UpdateStatus(StrategyData data, decimal dealPrice, DateTime start)
+        private bool UpdateStatus(StrategyData data, decimal marketPrice, DateTime start)
         {
             const string methodName = nameof(UpdateStatus);
 
@@ -563,7 +563,7 @@ namespace GNAy.Capital.Trade.Controllers
                 //{
                 //    return saveData;
                 //}
-                //else if (dealPrice == 0)
+                //else if (marketPrice == 0)
                 //{
                 //    return saveData;
                 //}
@@ -586,7 +586,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (data.StatusEnum == StrategyStatus.Enum.Monitoring)
                 {
-                    data.MarketPrice = dealPrice;
+                    data.MarketPrice = marketPrice;
                     data.Updater = methodName;
                     data.UpdateTime = DateTime.Now;
 
@@ -610,7 +610,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         data.StatusEnum = StrategyStatus.Enum.OrderSent;
                         data.BestClosePrice = 0;
-                        data.StopWin1Touched = false;
+                        data.StopWinATouched = false;
 
                         order.OrderPriceBefore = OrderPrice.P;
 
@@ -627,7 +627,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (data.StatusEnum == StrategyStatus.Enum.Waiting)
                 {
-                    data.MarketPrice = dealPrice;
+                    data.MarketPrice = marketPrice;
 
                     return saveData;
                 }
@@ -647,7 +647,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if ($",{data.OpenStrategyAfterStopLoss},".Contains(pk) || $",{data.OpenStrategyAfterStopWin},".Contains(pk))
                     {
-                        data.MarketPrice = dealPrice;
+                        data.MarketPrice = marketPrice;
 
                         if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+' && data.MarketPrice <= (data.OrderPriceAfter - 5)) || (data.OrderPriceBefore[1] == '-' && data.MarketPrice >= (data.OrderPriceAfter + 5))))
                         { }
@@ -682,7 +682,7 @@ namespace GNAy.Capital.Trade.Controllers
                     return saveData;
                 }
 
-                data.MarketPrice = dealPrice;
+                data.MarketPrice = marketPrice;
                 data.UnclosedProfit = (data.MarketPrice - data.DealPrice) * data.UnclosedQty * data.ProfitDirection;
                 data.Updater = methodName;
                 data.UpdateTime = DateTime.Now;
@@ -763,12 +763,12 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             AfterStopLoss(data, start);
                         }
-                        else if (!data.StopWin1Touched && data.MarketPrice >= data.StopWinPrice1AfterRaw)
+                        else if (!data.StopWinATouched && data.MarketPrice >= data.StopWinPriceAAfterRaw)
                         {
-                            data.StopWin1Touched = true;
+                            data.StopWinATouched = true;
                         }
                         
-                        if (data.StopWin1Touched && data.StopWin1Qty <= 0)
+                        if (data.StopWinATouched && data.StopWin1Qty <= 0)
                         {
                             if ((data.StopWin1Offset <= 0 && data.MarketPrice <= data.BestClosePrice + data.StopWin1Offset) ||
                                 (data.StopWin1Offset > 0 && data.MarketPrice <= data.OrderPriceAfter + data.StopWin1Offset))
@@ -791,12 +791,12 @@ namespace GNAy.Capital.Trade.Controllers
                             saveData = true;
                             AfterStopLoss(data, start);
                         }
-                        else if (!data.StopWin1Touched && data.MarketPrice <= data.StopWinPrice1AfterRaw)
+                        else if (!data.StopWinATouched && data.MarketPrice <= data.StopWinPriceAAfterRaw)
                         {
-                            data.StopWin1Touched = true;
+                            data.StopWinATouched = true;
                         }
                         
-                        if (data.StopWin1Touched && data.StopWin1Qty <= 0)
+                        if (data.StopWinATouched && data.StopWin1Qty <= 0)
                         {
                             if ((data.StopWin1Offset >= 0 && data.MarketPrice >= data.BestClosePrice + data.StopWin1Offset) ||
                             (data.StopWin1Offset < 0 && data.MarketPrice >= data.OrderPriceAfter + data.StopWin1Offset))
@@ -892,31 +892,31 @@ namespace GNAy.Capital.Trade.Controllers
 
             bool saveData = false;
 
-            _quotePriceSnapshot.Clear();
+            _marketPriceSnapshot.Clear();
 
             for (int i = Count - 1; i >= 0; --i)
             {
                 try
                 {
                     StrategyData data = this[i];
-                    decimal dealPrice = 0;
+                    decimal marketPrice = 0;
 
                     if (data.Quote.Simulate != QuoteData.RealTrade)
                     {
                         continue;
                     }
-                    else if (!_quotePriceSnapshot.TryGetValue(data.Quote.Symbol, out dealPrice))
+                    else if (!_marketPriceSnapshot.TryGetValue(data.Quote.Symbol, out marketPrice))
                     {
-                        dealPrice = data.Quote.DealPrice;
+                        marketPrice = data.Quote.DealPrice;
 
-                        _quotePriceSnapshot[data.Quote.Symbol] = dealPrice;
+                        _marketPriceSnapshot[data.Quote.Symbol] = marketPrice;
                     }
 
-                    if (dealPrice == 0)
+                    if (marketPrice == 0)
                     {
                         continue;
                     }
-                    else if (UpdateStatus(data, dealPrice, start))
+                    else if (UpdateStatus(data, marketPrice, start))
                     {
                         saveData = true;
                     }
@@ -1086,12 +1086,12 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void StartNow(StrategyData data)
+        private void StartNow(StrategyData data, decimal marketPrice = 0)
         {
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
 
             SerialReset(data, false);
-            ParentCheck(data, true, start);
+            ParentCheck(data, true, start, marketPrice);
 
             if (data.StartTimesMax > 0)
             {
@@ -1123,6 +1123,37 @@ namespace GNAy.Capital.Trade.Controllers
         public void StartNow(string primaryKey)
         {
             StartNow(this[primaryKey.Replace(" ", string.Empty)]);
+        }
+
+        public void StartNow(string keys, TriggerData trigger, DateTime start)
+        {
+            _marketPriceSnapshot.Clear();
+
+            foreach (string primaryKey in keys.SplitWithoutWhiteSpace(','))
+            {
+                try
+                {
+                    StrategyData data = this[primaryKey];
+
+                    if (!_marketPriceSnapshot.TryGetValue(data.Quote.Symbol, out decimal marketPrice))
+                    {
+                        marketPrice = data.Quote.DealPrice;
+
+                        _marketPriceSnapshot[data.Quote.Symbol] = marketPrice;
+                    }
+
+                    _appCtrl.Strategy.StartNow(data, marketPrice);
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                    _appCtrl.LogError(start, $"執行策略({primaryKey})失敗|{trigger.ToLog()}", UniqueName);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
+                }
+            }
         }
 
         public void StartNow(StrategyData data, OpenInterestData openInterest)
