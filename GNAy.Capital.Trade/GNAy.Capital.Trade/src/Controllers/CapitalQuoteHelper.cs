@@ -18,7 +18,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="quote">通常是斷線重連時更新Index用</param>
         /// <param name="memberName"></param>
         /// <returns></returns>
-        public QuoteData CreateOrUpdate(SKSTOCKLONG raw, QuoteData quote = null, [CallerMemberName] string memberName = "")
+        public QuoteData CreateOrUpdate(in SKSTOCKLONG raw, QuoteData quote = null, [CallerMemberName] in string memberName = "")
         {
             if (quote == null)
             {
@@ -52,7 +52,7 @@ namespace GNAy.Capital.Trade.Controllers
             return quote;
         }
 
-        private QuoteData Create(SKSTOCKLONG raw, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate, [CallerMemberName] string memberName = "")
+        private QuoteData Create(in SKSTOCKLONG raw, in int nPtr, in int nDate, in int lTimehms, in int lTimemillismicros, in int nBid, in int nAsk, in int nClose, in int nQty, in int nSimulate, [CallerMemberName] in string memberName = "")
         {
             QuoteData quote = CreateOrUpdate(raw);
 
@@ -71,7 +71,7 @@ namespace GNAy.Capital.Trade.Controllers
             return quote;
         }
 
-        private bool Update(SKSTOCKLONG raw, [CallerMemberName] string memberName = "")
+        private bool Update(in SKSTOCKLONG raw, [CallerMemberName] in string memberName = "")
         {
             //https://stackoverflow.com/questions/628761/convert-a-character-digit-to-the-corresponding-integer-in-c
             if (!_dataIndexMap.TryGetValue((raw.bstrMarketNo[0] - '0') * 1000000 + raw.nStockIdx, out QuoteData quote))
@@ -199,7 +199,7 @@ namespace GNAy.Capital.Trade.Controllers
             return true;
         }
 
-        private void OnNotifyHistoryTicks(QuoteData quote, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
+        private void OnNotifyHistoryTicks(in QuoteData quote, in int nPtr, in int nDate, in int lTimehms, in int lTimemillismicros, in int nBid, in int nAsk, in int nClose, in int nQty, in int nSimulate)
         {
             const string methodName = nameof(OnNotifyHistoryTicks);
 
@@ -255,7 +255,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void OnNotifyTicks(QuoteData quote, int nPtr, int nDate, int lTimehms, int lTimemillismicros, int nBid, int nAsk, int nClose, int nQty, int nSimulate)
+        private void OnNotifyTicks(in QuoteData quote, in int nPtr, in int nDate, in int lTimehms, in int lTimemillismicros, in int nBid, in int nAsk, in int nClose, in int nQty, in int nSimulate)
         {
             const string methodName = nameof(OnNotifyTicks);
 

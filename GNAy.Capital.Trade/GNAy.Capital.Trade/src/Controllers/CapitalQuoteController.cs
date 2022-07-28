@@ -62,7 +62,7 @@ namespace GNAy.Capital.Trade.Controllers
         public QuoteData this[string symbol] => _dataSymbolMap.TryGetValue(symbol, out QuoteData data) ? data : _dataCollection.FirstOrDefault(x => x.Symbol == symbol);
         public IReadOnlyList<QuoteData> DataCollection => _dataCollection;
 
-        public CapitalQuoteController(AppController appCtrl)
+        public CapitalQuoteController(in AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(CapitalQuoteController).Replace("Controller", "Ctrl");
@@ -94,7 +94,7 @@ namespace GNAy.Capital.Trade.Controllers
         private CapitalQuoteController() : this(null)
         { }
 
-        private void EnterMonitor(DateTime start)
+        private void EnterMonitor(in DateTime start)
         {
             Status = m_SKQuoteLib.SKQuoteLib_EnterMonitorLONG(); //與報價伺服器建立連線。（含盤中零股市場商品）
 
@@ -300,7 +300,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void ReadLastClosePrice(FileInfo quoteFile)
+        private void ReadLastClosePrice(in FileInfo quoteFile)
         {
             if (quoteFile == null)
             {
@@ -398,7 +398,7 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
-        public (int, SKSTOCKLONG) GetProductInfo(string symbol, DateTime start)
+        public (int, SKSTOCKLONG) GetProductInfo(in string symbol, in DateTime start)
         {
             SKSTOCKLONG pSKStockLONG = new SKSTOCKLONG();
             int nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNoLONG(symbol, ref pSKStockLONG); //根據商品代號，取回商品報價的相關資訊
@@ -666,7 +666,7 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
-        public void RequestKLine(string product = "")
+        public void RequestKLine(in string product = "")
         {
             DateTime start = _appCtrl.StartTrace($"product={product}", UniqueName);
 
@@ -699,7 +699,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void SaveData(DirectoryInfo folder, bool append = true, string prefix = "", string suffix = "", QuoteData quote = null)
+        public void SaveData(in DirectoryInfo folder, in bool append = true, in string prefix = "", in string suffix = "", in QuoteData quote = null)
         {
             if (Count <= 0 || string.IsNullOrWhiteSpace(FileNameBase))
             {

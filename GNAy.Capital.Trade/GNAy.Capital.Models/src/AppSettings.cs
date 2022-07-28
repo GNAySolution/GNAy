@@ -175,11 +175,11 @@ namespace GNAy.Capital.Models
         /// <summary>
         /// 整體停利觸發
         /// </summary>
-        public decimal StrategyStopWinProfit { get; set; }
+        public int StrategyStopWinProfit { get; set; }
         /// <summary>
         /// 整體停利位移
         /// </summary>
-        public decimal StrategyStopWinOffset { get; set; }
+        public int StrategyStopWinOffset { get; set; }
 
         /// <summary>
         /// 送出的委託單，不論是否有收到委回成回

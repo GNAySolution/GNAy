@@ -38,7 +38,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public string Notice { get; private set; }
 
-        public CapitalOrderController(AppController appCtrl)
+        public CapitalOrderController(in AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(CapitalOrderController).Replace("Controller", "Ctrl");
@@ -152,7 +152,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void Unlock(int marketType = -1)
+        public void Unlock(in int marketType = -1)
         {
             DateTime start = _appCtrl.StartTrace($"marketType={marketType}", UniqueName);
 
@@ -189,7 +189,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void SetMaxQty(int marketType = -1, int maxQty = -1)
+        public void SetMaxQty(in int marketType = -1, int maxQty = -1)
         {
             if (maxQty < 0)
             {
@@ -231,7 +231,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void SetMaxCount(int marketType = -1, int maxCount = -1)
+        public void SetMaxCount(in int marketType = -1, int maxCount = -1)
         {
             if (maxCount < 0)
             {
@@ -273,7 +273,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public int GetOpenInterest(string orderAcc, int format = 1)
+        public int GetOpenInterest(in string orderAcc, in int format = 1)
         {
             DateTime start = _appCtrl.StartTrace();
 
@@ -296,7 +296,7 @@ namespace GNAy.Capital.Trade.Controllers
             return -1;
         }
 
-        public int GetFuturesRights(string orderAcc, short coinType = 1)
+        public int GetFuturesRights(in string orderAcc, in short coinType = 1)
         {
             DateTime start = _appCtrl.StartTrace();
 
@@ -319,7 +319,7 @@ namespace GNAy.Capital.Trade.Controllers
             return -1;
         }
 
-        private FUTUREORDER CreateCaptialFutures(StrategyData order)
+        private FUTUREORDER CreateCaptialFutures(in StrategyData order)
         {
             FUTUREORDER pFutureOrder = new FUTUREORDER()
             {
@@ -336,7 +336,7 @@ namespace GNAy.Capital.Trade.Controllers
             return pFutureOrder;
         }
 
-        private (LogLevel, string) SendFutures(StrategyData order, DateTime start)
+        private (LogLevel, string) SendFutures(in StrategyData order, in DateTime start)
         {
             int m_nCode = 0;
             string orderResult = string.Empty;
@@ -393,7 +393,7 @@ namespace GNAy.Capital.Trade.Controllers
             return output;
         }
 
-        private (LogLevel, string) SendOption(StrategyData order, DateTime start)
+        private (LogLevel, string) SendOption(in StrategyData order, in DateTime start)
         {
             FUTUREORDER capOrder = CreateCaptialFutures(order);
             string orderMsg = string.Empty;
@@ -404,7 +404,7 @@ namespace GNAy.Capital.Trade.Controllers
             return m_nCode == 0 ? (LogLevel.Trace, orderMsg) : _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderMsg);
         }
 
-        private void SendAsync(StrategyData order, DateTime start, [CallerMemberName] string memberName = "")
+        private void SendAsync(in StrategyData order, in DateTime start, [CallerMemberName] in string memberName = "")
         {
             try
             {
@@ -547,7 +547,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void CancelBySeqNo(OrderAccData acc, string seqNo)
+        public void CancelBySeqNo(in OrderAccData acc, in string seqNo)
         {
             DateTime start = _appCtrl.StartTrace($"{acc?.FullAccount}|seqNo={seqNo}", UniqueName);
 

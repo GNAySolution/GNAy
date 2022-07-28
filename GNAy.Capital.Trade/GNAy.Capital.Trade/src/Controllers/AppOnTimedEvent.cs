@@ -14,7 +14,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         private DateTime _lastTimeToSaveQuote;
 
-        public void OnTimedEvent(DateTime signalTime)
+        public void OnTimedEvent(in DateTime signalTime)
         {
             try
             {

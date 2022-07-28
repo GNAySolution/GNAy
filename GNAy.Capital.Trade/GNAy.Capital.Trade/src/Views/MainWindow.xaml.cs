@@ -117,8 +117,6 @@ namespace GNAy.Capital.Trade
             _dataGridViewMap = new Dictionary<DataGrid, ICollectionView>();
 
             StatusBarItemAA1.Text = StartTime.ToString("MM/dd HH:mm");
-            TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
-            StatusBarItemAB2.Text = $"Subscribed={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}";
 
             orderDetailCount = 0;
 
@@ -379,6 +377,9 @@ namespace GNAy.Capital.Trade
 
                 _appCtrl.LogTrace(start, $"AutoRun={_appCtrl.Config.AutoRun}", UniqueName);
 
+                TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
+                StatusBarItemAB2.Text = $"Subscribed={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}";
+
                 CheckBoxShowDataGrid.IsEnabled = _appCtrl.Settings.ShowDataGrid;
 
                 CheckBoxSendRealOrder.IsChecked = _appCtrl.Settings.SendRealOrder;
@@ -390,6 +391,9 @@ namespace GNAy.Capital.Trade
                 }
 
                 CheckBoxStrategyFromOpenInterest.IsChecked = _appCtrl.Settings.StrategyFromOpenInterest;
+
+                TextBoxStrategyStopWinProfit.Text = _appCtrl.Settings.StrategyStopWinProfit.ToString();
+                TextBoxStrategyStopWinOffset.Text = _appCtrl.Settings.StrategyStopWinOffset.ToString();
 
                 if (!_appCtrl.Config.Archive.Exists)
                 {
@@ -2426,6 +2430,42 @@ namespace GNAy.Capital.Trade
                 {
                     _appCtrl.OpenInterest.StartStrategies(data, TextBoxStrategyFromOpenInterest.Text);
                 }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void ButtonSaveStrategyStopWin_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                //
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+        }
+
+        private void ButtonStrategyStopNow_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime start = _appCtrl.StartTrace();
+
+            try
+            {
+                //
             }
             catch (Exception ex)
             {

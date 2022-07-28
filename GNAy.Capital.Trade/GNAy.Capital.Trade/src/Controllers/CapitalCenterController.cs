@@ -30,7 +30,7 @@ namespace GNAy.Capital.Trade.Controllers
         private readonly Dictionary<int, APIReplyData> _apiReplyMap;
         private readonly ObservableCollection<APIReplyData> _apiReplyCollection;
 
-        public CapitalCenterController(AppController appCtrl)
+        public CapitalCenterController(in AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(CapitalCenterController).Replace("Controller", "Ctrl");
@@ -49,7 +49,7 @@ namespace GNAy.Capital.Trade.Controllers
         private CapitalCenterController() : this(null)
         { }
 
-        public string GetAPIMessage(int nCode)
+        public string GetAPIMessage(in int nCode)
         {
             if (nCode <= 0)
             {
@@ -62,7 +62,7 @@ namespace GNAy.Capital.Trade.Controllers
             return $"nCode={nCode}|{codeMessage}|{lastLog}";
         }
 
-        public (LogLevel, string) LogAPIMessage(int nCode, string msg = "", TimeSpan? elapsed = null, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public (LogLevel, string) LogAPIMessage(in int nCode, string msg = "", in TimeSpan? elapsed = null, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             msg = string.Format("{0}{1}{2}", msg, string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", GetAPIMessage(nCode));
 
@@ -100,12 +100,12 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public (LogLevel, string) LogAPIMessage(DateTime start, int nCode, string msg = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public (LogLevel, string) LogAPIMessage(in DateTime start, in int nCode, in string msg = "", [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             return LogAPIMessage(nCode, msg, DateTime.Now - start, lineNumber, memberName);
         }
 
-        public void AppendReply(string userID, string msg, [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string memberName = "")
+        public void AppendReply(in string userID, in string msg, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
         {
             APIReplyData replay = new APIReplyData()
             {
@@ -134,12 +134,9 @@ namespace GNAy.Capital.Trade.Controllers
             });
         }
 
-        public int LoginUser(string userID, string dwp)
+        public int LoginUser(in string userID, in string dwp)
         {
             DateTime start = _appCtrl.StartTrace($"userID={userID}|dwp=********", UniqueName);
-
-            userID = userID.Trim().ToUpper();
-            dwp = dwp.Trim();
 
             try
             {
@@ -235,11 +232,9 @@ namespace GNAy.Capital.Trade.Controllers
             return string.Empty;
         }
 
-        public int LoginQuote(string dwp, bool startQuoteMonitor = true)
+        public int LoginQuote(in string dwp, in bool startQuoteMonitor = true)
         {
             DateTime start = _appCtrl.StartTrace($"UserID={UserID}|dwp=********|startQuoteMonitor={startQuoteMonitor}", UniqueName);
-
-            dwp = dwp.Trim();
 
             int status = m_pSKCenter.SKCenterLib_LoginSetQuote(UserID, dwp, startQuoteMonitor ? "Y" : "N"); //Y:啟用報價 N:停用報價
 
