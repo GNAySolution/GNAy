@@ -36,7 +36,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public string RecoverFile { get; private set; }
 
-        public TriggerController(AppController appCtrl)
+        public TriggerController(in AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(TriggerController).Replace("Controller", "Ctrl");
@@ -96,7 +96,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public (LogLevel, string) Restart(string primary, [CallerMemberName] string memberName = "")
+        public (LogLevel, string) Restart(in string primary, [CallerMemberName] in string memberName = "")
         {
             TriggerData data = this[primary];
 
@@ -207,7 +207,7 @@ namespace GNAy.Capital.Trade.Controllers
             return (LogLevel.Trace, string.Empty);
         }
 
-        private HashSet<string> OpenStrategy(TriggerData data, DateTime start)
+        private HashSet<string> OpenStrategy(in TriggerData data, in DateTime start)
         {
             _appCtrl.Strategy.StartNow(data.StrategyOpenOR, data, start);
 
@@ -251,7 +251,7 @@ namespace GNAy.Capital.Trade.Controllers
             return strategyAND;
         }
 
-        private void CancelAfterExecuted(TriggerData executed, DateTime start, [CallerMemberName] string memberName = "")
+        private void CancelAfterExecuted(in TriggerData executed, in DateTime start, [CallerMemberName] in string memberName = "")
         {
             foreach (string cancel in executed.Cancel.SplitWithoutWhiteSpace(','))
             {
@@ -279,7 +279,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void StartAfterExecuted(TriggerData executed)
+        private void StartAfterExecuted(in TriggerData executed)
         {
             foreach (string primary in executed.Start.SplitWithoutWhiteSpace(','))
             {
@@ -287,7 +287,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private bool Cancel(TriggerData data, string comment, DateTime start, [CallerMemberName] string memberName = "")
+        private bool Cancel(in TriggerData data, in string comment, in DateTime start, [CallerMemberName] in string memberName = "")
         {
             try
             {
@@ -323,7 +323,7 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        public bool Cancel(string primaryKey, string comment = "手動取消")
+        public bool Cancel(in string primaryKey, in string comment = "手動取消")
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
 
@@ -356,7 +356,7 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        public void CancelAfterOrderSent(StrategyData strategy, DateTime start)
+        public void CancelAfterOrderSent(in StrategyData strategy, in DateTime start)
         {
             string pk = $",{strategy.PrimaryKey},";
 
@@ -383,7 +383,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private bool UpdateStatus(TriggerData data, QuoteData quote, DateTime start)
+        private bool UpdateStatus(in TriggerData data, in QuoteData quote, in DateTime start)
         {
             const string methodName = nameof(UpdateStatus);
 
@@ -596,7 +596,7 @@ namespace GNAy.Capital.Trade.Controllers
             return time;
         }
 
-        private (bool, DateTime?, DateTime?) TimeParse(QuoteData quote, DateTime start, params string[] times)
+        private (bool, DateTime?, DateTime?) TimeParse(in QuoteData quote, in DateTime start, params string[] times)
         {
             try
             {
@@ -688,7 +688,7 @@ namespace GNAy.Capital.Trade.Controllers
             return (false, null, null);
         }
 
-        public void AddRule(TriggerData data, string timeDuration)
+        public void AddRule(in TriggerData data, in string timeDuration)
         {
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
 
@@ -818,7 +818,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void RecoverSetting(FileInfo file = null, [CallerMemberName] string memberName = "")
+        public void RecoverSetting(FileInfo file = null, [CallerMemberName] in string memberName = "")
         {
             if (_dataMap.Count > 0)
             {

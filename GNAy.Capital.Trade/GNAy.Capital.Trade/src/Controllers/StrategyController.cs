@@ -42,7 +42,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public string Notice { get; private set; }
 
-        public StrategyController(AppController appCtrl)
+        public StrategyController(in AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(StrategyController).Replace("Controller", "Ctrl");
@@ -67,7 +67,7 @@ namespace GNAy.Capital.Trade.Controllers
         private StrategyController() : this(null)
         { }
 
-        public void SaveData(IEnumerable<StrategyData> dataCollection, DirectoryInfo dir, string fileFormat)
+        public void SaveData(in IEnumerable<StrategyData> dataCollection, in DirectoryInfo dir, in string fileFormat)
         {
             DateTime start = _appCtrl.StartTrace($"{dir?.FullName}|{fileFormat}", UniqueName);
 
@@ -103,7 +103,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void MarketCheck(StrategyData data, QuoteData quote)
+        public void MarketCheck(in StrategyData data, in QuoteData quote)
         {
             if (quote.MarketGroupEnum == Market.EGroup.TSE || quote.MarketGroupEnum == Market.EGroup.OTC || quote.MarketGroupEnum == Market.EGroup.Emerging)
             {
@@ -129,7 +129,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void ParentCheck(StrategyData data, bool readyToSend, DateTime start, decimal marketPrice = 0)
+        private void ParentCheck(in StrategyData data, in bool readyToSend, in DateTime start, in decimal marketPrice = 0)
         {
             data.Trim();
 
@@ -332,7 +332,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private bool Close(StrategyData data, int qty, string comment, DateTime start, [CallerMemberName] string memberName = "")
+        private bool Close(in StrategyData data, in int qty, in string comment, in DateTime start, [CallerMemberName] in string memberName = "")
         {
             try
             {
@@ -382,7 +382,7 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        public bool Close(string primaryKey, int qty, string comment = "手動停止")
+        public bool Close(in string primaryKey, in int qty, in string comment = "手動停止")
         {
             DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}|qty={qty}", UniqueName);
 
@@ -416,7 +416,7 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        private void OpenTrigger(StrategyData data, string primary, DateTime start)
+        private void OpenTrigger(in StrategyData data, in string primary, in DateTime start)
         {
             try
             {
@@ -442,7 +442,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void OpenStrategy(StrategyData source, string targetKey, DateTime start)
+        private void OpenStrategy(in StrategyData source, in string targetKey, in DateTime start)
         {
             try
             {
@@ -464,7 +464,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void AfterStopLoss(StrategyData data, DateTime start)
+        private void AfterStopLoss(in StrategyData data, in DateTime start)
         {
             foreach (string primary in data.OpenTriggerAfterStopLoss.SplitWithoutWhiteSpace(','))
             {
@@ -477,7 +477,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void AfterStopWin(StrategyData data, int number, DateTime start)
+        private void AfterStopWin(in StrategyData data, in int number, in DateTime start)
         {
             if (number == StrategyData.StopWin1)
             {
@@ -512,7 +512,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void SendStopWin(StrategyData data, int number, DateTime start)
+        private void SendStopWin(in StrategyData data, in int number, in DateTime start)
         {
             if (number == StrategyData.StopWin1)
             {
@@ -547,7 +547,7 @@ namespace GNAy.Capital.Trade.Controllers
             AfterStopWin(data, number, start);
         }
 
-        private bool UpdateStatus(StrategyData data, decimal marketPrice, DateTime start)
+        private bool UpdateStatus(in StrategyData data, in decimal marketPrice, in DateTime start)
         {
             const string methodName = nameof(UpdateStatus);
 
@@ -994,7 +994,7 @@ namespace GNAy.Capital.Trade.Controllers
             _waitToAdd.Enqueue(data);
         }
 
-        public void AddRule(StrategyData data)
+        public void AddRule(in StrategyData data)
         {
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
 
@@ -1014,7 +1014,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void SerialReset(StrategyData data, bool toZero)
+        private void SerialReset(in StrategyData data, in bool toZero)
         {
             if (data == null)
             {
@@ -1046,12 +1046,12 @@ namespace GNAy.Capital.Trade.Controllers
             data.Reset();
         }
 
-        public void ResetToZero(string primaryKey)
+        public void ResetToZero(in string primaryKey)
         {
             SerialReset(this[primaryKey], true);
         }
 
-        private void CancelAfterOrderSent(StrategyData data, DateTime start)
+        private void CancelAfterOrderSent(in StrategyData data, in DateTime start)
         {
             _appCtrl.OpenInterest.FilterFullAccount(data.FullAccount, start);
 
@@ -1086,7 +1086,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void StartNow(StrategyData data, decimal marketPrice = 0)
+        private void StartNow(in StrategyData data, in decimal marketPrice = 0)
         {
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
 
@@ -1120,12 +1120,12 @@ namespace GNAy.Capital.Trade.Controllers
             CancelAfterOrderSent(data, start);
         }
 
-        public void StartNow(string primaryKey)
+        public void StartNow(in string primaryKey)
         {
             StartNow(this[primaryKey.Replace(" ", string.Empty)]);
         }
 
-        public void StartNow(string keys, TriggerData trigger, DateTime start)
+        public void StartNow(in string keys, in TriggerData trigger, in DateTime start)
         {
             _marketPriceSnapshot.Clear();
 
@@ -1156,7 +1156,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void StartNow(StrategyData data, OpenInterestData openInterest)
+        public void StartNow(in StrategyData data, in OpenInterestData openInterest)
         {
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}|{openInterest?.ToLog()}", UniqueName);
 
@@ -1217,7 +1217,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void RecoverSetting(FileInfo file = null, [CallerMemberName] string memberName = "")
+        public void RecoverSetting(FileInfo file = null, [CallerMemberName] in string memberName = "")
         {
             if (_dataMap.Count > 0)
             {

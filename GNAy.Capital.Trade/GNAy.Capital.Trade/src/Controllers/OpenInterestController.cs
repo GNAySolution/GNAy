@@ -34,7 +34,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// </summary>
         public (DateTime, int, string, int) QuerySent { get; private set; }
 
-        public OpenInterestController(AppController appCtrl)
+        public OpenInterestController(in AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(OpenInterestController).Replace("Controller", "Ctrl");
@@ -54,14 +54,14 @@ namespace GNAy.Capital.Trade.Controllers
         private OpenInterestController() : this(null)
         { }
 
-        public void FilterFullAccount(string acc, DateTime start)
+        public void FilterFullAccount(in string acc, in DateTime start)
         {
             _appCtrl.LogTrace(start, $"acc={acc}", UniqueName);
 
             _strategyKeys.Add(acc);
         }
 
-        private void StartStrategy(OpenInterestData data, StrategyData target, DateTime start)
+        private void StartStrategy(in OpenInterestData data, in StrategyData target, in DateTime start)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void StartStrategy(OpenInterestData data, DateTime start)
+        private void StartStrategy(in OpenInterestData data, in DateTime start)
         {
             try
             {
@@ -229,7 +229,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void CheckStrategy(OpenInterestData data, DateTime start)
+        private void CheckStrategy(in OpenInterestData data, in DateTime start)
         {
             if (!_appCtrl.Settings.SendRealOrder)
             {
@@ -296,7 +296,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private (bool, OpenInterestData) AddOrUpdate(string account, string symbol, OrderBS.Enum bs, OrderDayTrade.Enum dayTrade, string price, string quantity1, string quantity2, DateTime start, [CallerMemberName] string memberName = "")
+        private (bool, OpenInterestData) AddOrUpdate(in string account, in string symbol, in OrderBS.Enum bs, in OrderDayTrade.Enum dayTrade, in string price, in string quantity1, in string quantity2, DateTime start, [CallerMemberName] in string memberName = "")
         {
             try
             {
@@ -387,7 +387,7 @@ namespace GNAy.Capital.Trade.Controllers
             return (false, null);
         }
 
-        public void UpdateStatus(DateTime start)
+        public void UpdateStatus(in DateTime start)
         {
             const string methodName = nameof(UpdateStatus);
 
@@ -495,7 +495,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public (DateTime, int, string, int) SendNextQuery(DateTime start)
+        public (DateTime, int, string, int) SendNextQuery(in DateTime start)
         {
             try
             {
@@ -548,7 +548,7 @@ namespace GNAy.Capital.Trade.Controllers
             return QuerySent;
         }
 
-        public OpenInterestData StartStrategies(OpenInterestData data, string keys)
+        public OpenInterestData StartStrategies(in OpenInterestData data, in string keys)
         {
             if (data.PositionEnum == OrderPosition.Enum.Close || !_appCtrl.Settings.StrategyFromOpenInterest || string.IsNullOrWhiteSpace(keys))
             {

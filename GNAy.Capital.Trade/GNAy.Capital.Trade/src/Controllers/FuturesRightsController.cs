@@ -34,7 +34,7 @@ namespace GNAy.Capital.Trade.Controllers
         public decimal ProfitTotal { get; private set; }
         public decimal ProfitTotalMax { get; private set; }
 
-        public FuturesRightsController(AppController appCtrl)
+        public FuturesRightsController(in AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(FuturesRightsController).Replace("Controller", "Ctrl");
@@ -127,7 +127,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void AddAsync(string raw)
+        public void AddAsync(in string raw)
         {
             DateTime start = _appCtrl.StartTrace();
 
@@ -146,7 +146,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public (DateTime, int, string, int) SendNextQuery(DateTime start)
+        public (DateTime, int, string, int) SendNextQuery(in DateTime start)
         {
             try
             {
@@ -199,7 +199,7 @@ namespace GNAy.Capital.Trade.Controllers
             return QuerySent;
         }
 
-        public decimal? SumProfit(string accounts, DateTime start)
+        public decimal? SumProfit(in string accounts, in DateTime start)
         {
             if (string.IsNullOrWhiteSpace(accounts))
             {

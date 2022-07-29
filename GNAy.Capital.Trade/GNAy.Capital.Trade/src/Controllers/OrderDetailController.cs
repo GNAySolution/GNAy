@@ -29,7 +29,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public string Notice { get; private set; }
 
-        public OrderDetailController(AppController appCtrl)
+        public OrderDetailController(in AppController appCtrl)
         {
             CreatedTime = DateTime.Now;
             UniqueName = nameof(OrderDetailController).Replace("Controller", "Ctrl");
@@ -47,7 +47,7 @@ namespace GNAy.Capital.Trade.Controllers
         private OrderDetailController() : this(null)
         { }
 
-        public void Check(StrategyData data, DateTime start, [CallerMemberName] string memberName = "")
+        public void Check(in StrategyData data, in DateTime start, [CallerMemberName] in string memberName = "")
         {
             data.Trim();
 

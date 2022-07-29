@@ -1159,7 +1159,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 _appCtrl.Settings.ShowDataGrid = CheckBoxShowDataGrid.IsChecked.Value;
-                _appCtrl.LogTrace(start, $"ShowDataGrid={_appCtrl.Settings.ShowDataGrid}", UniqueName);
+                _appCtrl.LogTrace(start, $"{nameof(AppSettings.ShowDataGrid)}={_appCtrl.Settings.ShowDataGrid}", UniqueName);
 
                 if (!_dataGridViewMap.ContainsKey(DataGridAppLog) && DataGridAppLog.ItemsSource is ICollectionView cvAppLog)
                 {
@@ -1213,7 +1213,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 _appCtrl.Settings.SendRealOrder = CheckBoxSendRealOrder.IsChecked.Value;
-                _appCtrl.LogTrace(start, $"SendRealOrder={_appCtrl.Settings.SendRealOrder}", UniqueName);
+                _appCtrl.LogTrace(start, $"{nameof(AppSettings.SendRealOrder)}={_appCtrl.Settings.SendRealOrder}", UniqueName);
             }
             catch (Exception ex)
             {
@@ -1232,7 +1232,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 _appCtrl.Settings.LiveMode = CheckBoxLiveMode.IsChecked.Value;
-                _appCtrl.LogTrace(start, $"LiveMode={_appCtrl.Settings.LiveMode}", UniqueName);
+                _appCtrl.LogTrace(start, $"{nameof(AppSettings.LiveMode)}={_appCtrl.Settings.LiveMode}", UniqueName);
 
                 Visibility vsb = _appCtrl.Settings.LiveMode ? Visibility.Collapsed : Visibility.Visible;
 
@@ -1340,7 +1340,7 @@ namespace GNAy.Capital.Trade
             try
             {
                 _appCtrl.Settings.StrategyFromOpenInterest = CheckBoxStrategyFromOpenInterest.IsChecked.Value;
-                _appCtrl.LogTrace(start, $"StrategyFromOpenInterest={_appCtrl.Settings.StrategyFromOpenInterest}", UniqueName);
+                _appCtrl.LogTrace(start, $"{nameof(AppSettings.StrategyFromOpenInterest)} ={_appCtrl.Settings.StrategyFromOpenInterest}", UniqueName);
             }
             catch (Exception ex)
             {
@@ -2447,7 +2447,11 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //
+                _appCtrl.Settings.StrategyStopWinProfit = int.Parse(TextBoxStrategyStopWinProfit.Text);
+                _appCtrl.LogTrace(start, $"{nameof(AppSettings.StrategyStopWinProfit)}={_appCtrl.Settings.StrategyStopWinProfit}", UniqueName);
+
+                _appCtrl.Settings.StrategyStopWinOffset = int.Parse(TextBoxStrategyStopWinOffset.Text);
+                _appCtrl.LogTrace(start, $"{nameof(AppSettings.StrategyStopWinOffset)}={_appCtrl.Settings.StrategyStopWinOffset}", UniqueName);
             }
             catch (Exception ex)
             {
