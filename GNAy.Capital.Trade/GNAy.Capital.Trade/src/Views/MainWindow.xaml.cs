@@ -66,7 +66,9 @@ namespace GNAy.Capital.Trade
                     }
                 }
                 catch //排程高權限執行時，低權限手動執行去取高權限的MainModule會跳錯
-                { }
+                {
+                    Environment.Exit(0); //高權限執行時，低權限都不可執行
+                }
             }
 
             InitializeComponent();
