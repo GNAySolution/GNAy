@@ -2467,7 +2467,7 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonStrategyStopNow_Click(object sender, RoutedEventArgs e)
+        private void ButtonCloseAllStrategies_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 

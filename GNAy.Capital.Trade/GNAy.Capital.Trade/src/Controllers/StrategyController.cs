@@ -942,9 +942,21 @@ namespace GNAy.Capital.Trade.Controllers
                 ProfitTotalBest = ProfitTotal;
             }
 
-            if (!ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0)
+            if (!ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0 && ProfitTotalBest >= _appCtrl.Settings.StrategyStopWinProfit)
             {
-                //TODO
+                ProfitTotalStopWinTouched = true;
+            }
+
+            if (ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0)
+            {
+                if (_appCtrl.Settings.StrategyStopWinOffset <= 0 && ProfitTotal <= ProfitTotalBest + _appCtrl.Settings.StrategyStopWinOffset)
+                {
+                    //TODO: CloseAllStrategies
+                }
+                else if (_appCtrl.Settings.StrategyStopWinOffset > 0 && ProfitTotal <= _appCtrl.Settings.StrategyStopWinOffset)
+                {
+                    //TODO: CloseAllStrategies
+                }
             }
         }
 
