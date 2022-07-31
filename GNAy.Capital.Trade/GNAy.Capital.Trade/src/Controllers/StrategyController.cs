@@ -38,7 +38,8 @@ namespace GNAy.Capital.Trade.Controllers
         public string RecoverFile { get; private set; }
 
         public decimal ProfitTotal { get; private set; }
-        public decimal ProfitTotalMax { get; private set; }
+        public decimal ProfitTotalBest { get; private set; }
+        public bool ProfitTotalStopWinTouched { get; private set; }
 
         public string Notice { get; private set; }
 
@@ -59,7 +60,8 @@ namespace GNAy.Capital.Trade.Controllers
             RecoverFile = string.Empty;
 
             ProfitTotal = 0;
-            ProfitTotalMax = 0;
+            ProfitTotalBest = 0;
+            ProfitTotalStopWinTouched = false;
 
             Notice = string.Empty;
         }
@@ -935,9 +937,14 @@ namespace GNAy.Capital.Trade.Controllers
 
             ProfitTotal = _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0);
 
-            if (ProfitTotal > 0 && ProfitTotalMax < ProfitTotal)
+            if (ProfitTotal > 0 && ProfitTotalBest < ProfitTotal)
             {
-                ProfitTotalMax = ProfitTotal;
+                ProfitTotalBest = ProfitTotal;
+            }
+
+            if (!ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0)
+            {
+                //TODO
             }
         }
 

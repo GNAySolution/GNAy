@@ -60,14 +60,16 @@ namespace GNAy.Capital.Trade
             {
                 try
                 {
-                    if (other.MainModule.FileName == ps.MainModule.FileName && other.Id != ps.Id) //同路徑的執行檔只能存在一個實體
+                    //同路徑的進程(process)只能存在一個實體
+                    if (other.MainModule.FileName == ps.MainModule.FileName && other.Id != ProcessID)
                     {
                         Environment.Exit(0);
                     }
                 }
-                catch //排程高權限執行時，低權限手動執行去取高權限的MainModule會跳錯
+                catch //有高權限進程存在時，低權限取高權限的MainModule會跳錯
                 {
-                    Environment.Exit(0); //高權限執行時，低權限都不可執行
+                    //有高權限進程存在時，低權限不可執行，視需求調整
+                    //Environment.Exit(0);
                 }
             }
 
@@ -84,7 +86,7 @@ namespace GNAy.Capital.Trade
             {
                 Title = $"{Title}(BETA)";
             }
-            Title = $"{Title} ({version.ProductName})({version.LegalCopyright}) ({assemblyFile.Directory.Name}\\{assemblyFile.Name})({ps.Id})({_appCtrl.Settings.Description})";
+            Title = $"{Title} ({version.ProductName})({version.LegalCopyright}) ({assemblyFile.Directory.Name}\\{assemblyFile.Name})({ProcessID})({_appCtrl.Settings.Description})";
             if (Debugger.IsAttached)
             {
                 Title = $"{Title}(附加偵錯)";
@@ -965,7 +967,7 @@ namespace GNAy.Capital.Trade
                 if (_appCtrl.Strategy != null)
                 {
                     StatusBarItemBB3.Text = _appCtrl.Strategy.Notice;
-                    StatusBarItemBB4.Text = $"損益|{_appCtrl.Strategy.ProfitTotal}|{_appCtrl.Strategy.ProfitTotalMax}";
+                    StatusBarItemBB4.Text = $"損益|{_appCtrl.Strategy.ProfitTotal}|{_appCtrl.Strategy.ProfitTotalBest}|{_appCtrl.Strategy.ProfitTotalStopWinTouched}";
                 }
 
                 if (_appCtrl.OrderDetail != null)
@@ -997,7 +999,7 @@ namespace GNAy.Capital.Trade
 
                 if (_appCtrl.FuturesRights != null)
                 {
-                    StatusBarItemCB4.Text = $"損益|{_appCtrl.FuturesRights.ProfitTotal}|{_appCtrl.FuturesRights.ProfitTotalMax}";
+                    StatusBarItemCB4.Text = $"損益|{_appCtrl.FuturesRights.ProfitTotal}|{_appCtrl.FuturesRights.ProfitTotalBest}";
                 }
             }
             catch (Exception ex)

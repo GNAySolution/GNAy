@@ -32,7 +32,7 @@ namespace GNAy.Capital.Trade.Controllers
         public (DateTime, int, string, int) QuerySent { get; private set; }
 
         public decimal ProfitTotal { get; private set; }
-        public decimal ProfitTotalMax { get; private set; }
+        public decimal ProfitTotalBest { get; private set; }
 
         public FuturesRightsController(in AppController appCtrl)
         {
@@ -49,7 +49,7 @@ namespace GNAy.Capital.Trade.Controllers
             QuerySent = (DateTime.Now, -1, string.Empty, -1);
 
             ProfitTotal = 0;
-            ProfitTotalMax = 0;
+            ProfitTotalBest = 0;
         }
 
         private FuturesRightsController() : this(null)
@@ -108,9 +108,9 @@ namespace GNAy.Capital.Trade.Controllers
 
                 ProfitTotal = _dataMap.Values.Sum(x => x.F11 + x.F1);
 
-                if (ProfitTotal > 0 && ProfitTotalMax < ProfitTotal)
+                if (ProfitTotal > 0 && ProfitTotalBest < ProfitTotal)
                 {
-                    ProfitTotalMax = ProfitTotal;
+                    ProfitTotalBest = ProfitTotal;
                 }
 
                 _appCtrl.MainForm.InvokeSync(delegate
