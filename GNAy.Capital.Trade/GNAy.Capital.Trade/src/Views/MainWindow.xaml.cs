@@ -2473,7 +2473,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //
+                _appCtrl.Strategy.CloseAll(string.IsNullOrWhiteSpace(TextBoxOrderQty.Text) ? 0 : int.Parse(TextBoxOrderQty.Text));
             }
             catch (Exception ex)
             {

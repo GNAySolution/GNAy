@@ -418,6 +418,26 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
+        public void CloseAll(in int qty, in string comment = "手動停止")
+        {
+            DateTime start = _appCtrl.StartTrace($"{nameof(qty)}={qty}", UniqueName);
+
+            for (int i = Count - 1; i >= 0; --i)
+            {
+                try
+                {
+                    StrategyData data = this[i];
+
+                    //TODO: ProfitTotal = _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0);
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                    Notice = ex.Message;
+                }
+            }
+        }
+
         private void OpenTrigger(in StrategyData data, in string primary, in DateTime start)
         {
             try
@@ -951,11 +971,11 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (_appCtrl.Settings.StrategyStopWinOffset <= 0 && ProfitTotal <= ProfitTotalBest + _appCtrl.Settings.StrategyStopWinOffset)
                 {
-                    //TODO: CloseAllStrategies
+                    CloseAll(0, "整體停利觸發");
                 }
                 else if (_appCtrl.Settings.StrategyStopWinOffset > 0 && ProfitTotal <= _appCtrl.Settings.StrategyStopWinOffset)
                 {
-                    //TODO: CloseAllStrategies
+                    CloseAll(0, "整體停利觸發");
                 }
             }
         }
