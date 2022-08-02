@@ -169,7 +169,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (elapsed.HasValue)
             {
-                msg = string.Format("ts={0}{1}{2}", elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
+                msg = string.Format("{0}={1}{2}{3}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
 
             _logger.Trace(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
@@ -207,7 +207,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (elapsed.HasValue)
             {
-                msg = string.Format("ts={0}{1}{2}", elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
+                msg = string.Format("{0}={1}{2}{3}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
 
             _logger.Debug(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
@@ -223,7 +223,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (elapsed.HasValue)
             {
-                msg = string.Format("ts={0}{1}{2}", elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
+                msg = string.Format("{0}={1}{2}{3}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
 
             _logger.Info(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
@@ -239,7 +239,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (elapsed.HasValue)
             {
-                msg = string.Format("ts={0}{1}{2}", elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
+                msg = string.Format("{0}={1}{2}{3}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
 
             _logger.Warn(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
@@ -255,7 +255,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (elapsed.HasValue)
             {
-                msg = string.Format("ts={0}{1}{2}", elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
+                msg = string.Format("{0}={1}{2}{3}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
 
             _logger.Error(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
@@ -273,7 +273,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (elapsed.HasValue)
             {
-                msg = string.Format("ts={0}|{1}", elapsed.Value.ToString("ss'.'ffffff"), msg);
+                msg = string.Format("{0}={1}|{2}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), msg);
             }
 
             _logger.Error(msg);
@@ -439,7 +439,7 @@ namespace GNAy.Capital.Trade.Controllers
                         exitCode = lineNumber + StatusCode.WinError + StatusCode.BaseWarnValue;
                     }
 
-                    Log(level, string.IsNullOrWhiteSpace(msg) ? $"exitCode={exitCode}" : $"exitCode={exitCode}|{msg}", UniqueName, null, lineNumber, memberName);
+                    Log(level, string.IsNullOrWhiteSpace(msg) ? $"{nameof(exitCode)}={exitCode}" : $"{nameof(exitCode)}={exitCode}|{msg}", UniqueName, null, lineNumber, memberName);
 
                     if (CAPQuote != null)
                     {
@@ -472,7 +472,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                LogTrace(start, $"ProcessPriority={Settings.ProcessPriority}|{Settings.ProcessPriority.ConvertTo<ProcessPriorityClass>()}", UniqueName);
+                LogTrace(start, $"{nameof(AppSettings.ProcessPriority)}={Settings.ProcessPriority}|{Settings.ProcessPriority.ConvertTo<ProcessPriorityClass>()}", UniqueName);
                 LogTrace(start, $"{ProcessPriorityClass.AboveNormal}|{ProcessPriorityClass.AboveNormal.ToString().ConvertTo<ProcessPriorityClass>()}|{((int)ProcessPriorityClass.AboveNormal).ToString().ConvertTo<ProcessPriorityClass>()}", UniqueName);
                 LogTrace(start, $"{ProcessPriorityClass.BelowNormal}|{ProcessPriorityClass.BelowNormal.ToString().ConvertTo<ProcessPriorityClass>()}|{((int)ProcessPriorityClass.BelowNormal).ToString().ConvertTo<ProcessPriorityClass>()}", UniqueName);
                 LogTrace(start, $"{"Sunday".ConvertTo<DayOfWeek>()}", UniqueName);
@@ -490,13 +490,13 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                LogTrace(start, $"{CreatedTime.AddDays(-3):MM/dd HH:mm}|{CreatedTime.AddDays(-3).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(-3))}", UniqueName);
-                LogTrace(start, $"{CreatedTime.AddDays(-2):MM/dd HH:mm}|{CreatedTime.AddDays(-2).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(-2))}", UniqueName);
-                LogTrace(start, $"{CreatedTime.AddDays(-1):MM/dd HH:mm}|{CreatedTime.AddDays(-1).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(-1))}", UniqueName);
-                LogTrace(start, $"{CreatedTime.AddDays(0):MM/dd HH:mm}|{CreatedTime.AddDays(+0).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(0))}|Today", UniqueName);
-                LogTrace(start, $"{CreatedTime.AddDays(1):MM/dd HH:mm}|{CreatedTime.AddDays(+1).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(1))}", UniqueName);
-                LogTrace(start, $"{CreatedTime.AddDays(2):MM/dd HH:mm}|{CreatedTime.AddDays(+2).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(2))}", UniqueName);
-                LogTrace(start, $"{CreatedTime.AddDays(3):MM/dd HH:mm}|{CreatedTime.AddDays(+3).DayOfWeek}|IsHoliday={Config.IsHoliday(CreatedTime.AddDays(3))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(-3):MM/dd HH:mm}|{CreatedTime.AddDays(-3).DayOfWeek}|{nameof(AppConfig.IsHoliday)}={Config.IsHoliday(CreatedTime.AddDays(-3))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(-2):MM/dd HH:mm}|{CreatedTime.AddDays(-2).DayOfWeek}|{nameof(AppConfig.IsHoliday)}={Config.IsHoliday(CreatedTime.AddDays(-2))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(-1):MM/dd HH:mm}|{CreatedTime.AddDays(-1).DayOfWeek}|{nameof(AppConfig.IsHoliday)}={Config.IsHoliday(CreatedTime.AddDays(-1))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(0):MM/dd HH:mm}|{CreatedTime.AddDays(+0).DayOfWeek}|{nameof(AppConfig.IsHoliday)}={Config.IsHoliday(CreatedTime.AddDays(0))}|Today", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(1):MM/dd HH:mm}|{CreatedTime.AddDays(+1).DayOfWeek}|{nameof(AppConfig.IsHoliday)}={Config.IsHoliday(CreatedTime.AddDays(1))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(2):MM/dd HH:mm}|{CreatedTime.AddDays(+2).DayOfWeek}|{nameof(AppConfig.IsHoliday)}={Config.IsHoliday(CreatedTime.AddDays(2))}", UniqueName);
+                LogTrace(start, $"{CreatedTime.AddDays(3):MM/dd HH:mm}|{CreatedTime.AddDays(+3).DayOfWeek}|{nameof(AppConfig.IsHoliday)}={Config.IsHoliday(CreatedTime.AddDays(3))}", UniqueName);
             }
             catch (Exception ex)
             {

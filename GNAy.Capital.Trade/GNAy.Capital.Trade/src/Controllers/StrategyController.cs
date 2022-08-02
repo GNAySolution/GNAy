@@ -111,14 +111,14 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (data.MarketType != Market.EType.Stock)
                 {
-                    throw new ArgumentException($"MarketGroupEnum={quote.MarketGroupEnum}|MarketType={data.MarketType}|{data.ToLog()}");
+                    throw new ArgumentException($"{nameof(QuoteData.MarketGroupEnum)}={quote.MarketGroupEnum}|{nameof(StrategyData.MarketType)}={data.MarketType}|{data.ToLog()}");
                 }
             }
             else if (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option)
             {
                 if (data.MarketType != Market.EType.Futures && data.MarketType != Market.EType.Option)
                 {
-                    throw new ArgumentException($"MarketGroupEnum={quote.MarketGroupEnum}|MarketType={data.MarketType}|{data.ToLog()}");
+                    throw new ArgumentException($"{nameof(QuoteData.MarketGroupEnum)}={quote.MarketGroupEnum}|{nameof(StrategyData.MarketType)}={data.MarketType}|{data.ToLog()}");
                 }
                 else if (quote.MarketGroupEnum == Market.EGroup.Futures)
                 {
@@ -177,7 +177,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     if (!isHoliday)
                     {
-                        throw new ArgumentException($"data.Symbol={data.Symbol}|{data.ToLog()}");
+                        throw new ArgumentException($"{nameof(StrategyData.Symbol)}={data.Symbol}|{data.ToLog()}");
                     }
                 }
                 else if (!string.IsNullOrWhiteSpace(data.StopLossBefore) || !string.IsNullOrWhiteSpace(data.StopWin1Before) || !string.IsNullOrWhiteSpace(data.StopWin1Before))
@@ -329,7 +329,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (acc == null)
                 {
-                    throw new ArgumentException($"帳號判斷獲利或損失，查無帳號|account={account}|{data.ToLog()}");
+                    throw new ArgumentException($"帳號判斷獲利或損失，查無帳號|{nameof(account)}={account}|{data.ToLog()}");
                 }
             }
         }
@@ -338,7 +338,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                _appCtrl.LogTrace(start, $"qty={qty}|{data.ToLog()}", UniqueName);
+                _appCtrl.LogTrace(start, $"{nameof(qty)}={qty}|{comment}|{data.ToLog()}", UniqueName);
 
                 if (data.StatusEnum == StrategyStatus.Enum.Cancelled)
                 {
@@ -346,7 +346,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     return true;
                 }
-                else if (data.StatusEnum == StrategyStatus.Enum.Waiting || data.StopLossData != null || data.MarketClosingData != null || data.UnclosedQty <= 0)
+                else if (data.StatusEnum == StrategyStatus.Enum.Waiting || data.StopLossData != null || data.MarketClosingData != null || data.UnclosedQty == 0)
                 {
                     data.StatusEnum = StrategyStatus.Enum.Cancelled;
                     data.Comment = comment;
@@ -386,14 +386,11 @@ namespace GNAy.Capital.Trade.Controllers
 
         public bool Close(in string primaryKey, in int qty, in string comment = "手動停止")
         {
-            DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}|qty={qty}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(primaryKey)}={primaryKey}|{nameof(qty)}={qty}|{comment}", UniqueName);
 
             try
             {
-                if (!_dataMap.TryGetValue(primaryKey.Replace(" ", string.Empty), out StrategyData data))
-                {
-                    throw new ArgumentNullException($"查無此唯一鍵|{primaryKey}");
-                }
+                StrategyData data = this[primaryKey];
 
                 lock (data.SyncRoot)
                 {
@@ -420,7 +417,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void CloseAll(in int qty, in string comment = "手動停止")
         {
-            DateTime start = _appCtrl.StartTrace($"{nameof(qty)}={qty}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(qty)}={qty}|{comment}", UniqueName);
 
             for (int i = Count - 1; i >= 0; --i)
             {
@@ -428,7 +425,15 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     StrategyData data = this[i];
 
-                    //TODO: ProfitTotal = _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0);
+                    if (!data.SendRealOrder || data.UnclosedQty == 0)
+                    {
+                        continue;
+                    }
+
+                    lock (data.SyncRoot)
+                    {
+                        Close(data, qty, comment, start);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -436,6 +441,8 @@ namespace GNAy.Capital.Trade.Controllers
                     Notice = ex.Message;
                 }
             }
+
+            Task.Factory.StartNew(() => SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileSaveFormat));
         }
 
         private void OpenTrigger(in StrategyData data, in string primary, in DateTime start)
@@ -653,7 +660,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     return saveData;
                 }
-                else if (data.StopLossData != null || data.UnclosedQty <= 0)
+                else if (data.StopLossData != null || data.UnclosedQty == 0)
                 {
                     if (data.StartTimesMax <= 0)
                     {
@@ -1138,7 +1145,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
             else
             {
-                throw new ArgumentException($"啟動次數限制(StartTimesMax)={data.StartTimesMax}|{data.ToLog()}");
+                throw new ArgumentException($"啟動次數限制({nameof(StrategyData.StartTimesMax)})={data.StartTimesMax}|{data.ToLog()}");
             }
 
             if (!decimal.TryParse(data.OrderPriceBefore, out _) && data.OrderPriceBefore.Length >= 3)
