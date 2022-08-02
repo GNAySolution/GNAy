@@ -377,9 +377,9 @@ namespace GNAy.Capital.Trade
             try
             {
                 _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.FullName}", UniqueName);
-                _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.Name}|Version={_appCtrl.Config.Version}|Exists={_appCtrl.Config.Archive.Exists}", UniqueName);
+                _appCtrl.LogTrace(start, $"{_appCtrl.Config.Archive.Name}|{nameof(AppConfig.Version)}={_appCtrl.Config.Version}|{nameof(FileInfo.Exists)}={_appCtrl.Config.Archive.Exists}", UniqueName);
 
-                _appCtrl.LogTrace(start, $"AutoRun={_appCtrl.Config.AutoRun}", UniqueName);
+                _appCtrl.LogTrace(start, $"{nameof(AppConfig.AutoRun)}={_appCtrl.Config.AutoRun}", UniqueName);
 
                 TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
                 StatusBarItemAB2.Text = $"Subscribed={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}";
@@ -1019,7 +1019,7 @@ namespace GNAy.Capital.Trade
                 bool isHoliday = _appCtrl.Config.IsHoliday(start);
                 int reConnect = 0;
 
-                StatusBarItemCA2.Text = $"{start:HH:mm:ss}|isHoliday={isHoliday}";
+                StatusBarItemCA2.Text = $"{start:HH:mm:ss}|{nameof(isHoliday)}={isHoliday}";
                 //ButtonSaveQuotesTest_Click(null, null);
 
                 foreach (DateTime timeToClose in _appCtrl.Settings.MarketClose)
@@ -1077,7 +1077,7 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                _appCtrl.Log(reConnect, $"Retry to connect quote service.|reConnect={reConnect}", UniqueName, DateTime.Now - start);
+                _appCtrl.Log(reConnect, $"Retry to connect quote service.|{nameof(reConnect)}={reConnect}", UniqueName, DateTime.Now - start);
                 Task.Factory.StartNew(() =>
                 {
                     _appCtrl.CAPQuote?.Disconnect();

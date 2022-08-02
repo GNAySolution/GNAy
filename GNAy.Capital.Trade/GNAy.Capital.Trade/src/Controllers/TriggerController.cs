@@ -325,7 +325,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public bool Cancel(in string primaryKey, in string comment = "手動取消")
         {
-            DateTime start = _appCtrl.StartTrace($"primaryKey={primaryKey}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(primaryKey)}={primaryKey}", UniqueName);
 
             try
             {

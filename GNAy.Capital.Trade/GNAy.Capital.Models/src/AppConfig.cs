@@ -193,7 +193,7 @@ namespace GNAy.Capital.Models
                     }
                 }
 
-                throw new ArgumentException($"FuturesLastTradeWeek={Settings.FuturesLastTradeWeek}|FuturesLastTradeDay={Settings.FuturesLastTradeDay}|DayToChangeFutures={Settings.DayToChangeFutures}");
+                throw new ArgumentException($"{nameof(AppSettings.FuturesLastTradeWeek)}={Settings.FuturesLastTradeWeek}|{nameof(AppSettings.FuturesLastTradeDay)}={Settings.FuturesLastTradeDay}|{nameof(AppSettings.DayToChangeFutures)}={Settings.DayToChangeFutures}");
             }
 
             return DateTime.MaxValue;

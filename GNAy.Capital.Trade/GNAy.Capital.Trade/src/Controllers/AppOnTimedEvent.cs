@@ -29,7 +29,7 @@ namespace GNAy.Capital.Trade.Controllers
                         if (CAPOrder.Count > 0 && OpenInterest.QuerySent.Item4 != 0)
                         {
                             _openInterestInterval += 2;
-                            LogWarn(signalTime, $"_openInterestInterval={_openInterestInterval}", UniqueName);
+                            LogWarn(signalTime, $"{nameof(_openInterestInterval)}={_openInterestInterval}", UniqueName);
                         }
                     }
                 }
@@ -52,7 +52,7 @@ namespace GNAy.Capital.Trade.Controllers
                         if (CAPOrder.Count > 0 && FuturesRights.QuerySent.Item4 != 0)
                         {
                             _futuresRightsInterval += 2;
-                            LogWarn(signalTime, $"_futuresRightsInterval={_futuresRightsInterval}", UniqueName);
+                            LogWarn(signalTime, $"{nameof(_futuresRightsInterval)}={_futuresRightsInterval}", UniqueName);
                         }
                     }
                 }

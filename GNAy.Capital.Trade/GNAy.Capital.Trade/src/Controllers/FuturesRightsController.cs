@@ -214,7 +214,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (acc == null)
                 {
-                    _appCtrl.LogError(start, $"查無帳號|account={account}", UniqueName);
+                    _appCtrl.LogError(start, $"查無帳號|{nameof(account)}={account}", UniqueName);
 
                     return null;
                 }
@@ -223,7 +223,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (data == null)
                 {
-                    _appCtrl.LogError(start, $"查無帳號|FullAccount={acc.FullAccount}", UniqueName);
+                    _appCtrl.LogError(start, $"查無帳號|{nameof(OrderAccData.FullAccount)}={acc.FullAccount}", UniqueName);
 
                     return null;
                 }

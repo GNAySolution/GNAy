@@ -56,7 +56,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void FilterFullAccount(in string acc, in DateTime start)
         {
-            _appCtrl.LogTrace(start, $"acc={acc}", UniqueName);
+            _appCtrl.LogTrace(start, $"{nameof(acc)}={acc}", UniqueName);
 
             _strategyKeys.Add(acc);
         }
@@ -555,7 +555,7 @@ namespace GNAy.Capital.Trade.Controllers
                 return null;
             }
 
-            DateTime start = _appCtrl.StartTrace($"keys={keys}|{data.ToLog()}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(keys)}={keys}|{data.ToLog()}", UniqueName);
 
             try
             {
@@ -572,7 +572,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (qtyTotal > data.Quantity)
                 {
-                    throw new ArgumentException($"qtyTotal({qtyTotal}) > data.Quantity({data.Quantity})|keys={keys}|{data.ToLog()}");
+                    throw new ArgumentException($"qtyTotal({qtyTotal}) > data.Quantity({data.Quantity})|{nameof(keys)}={keys}|{data.ToLog()}");
                 }
 
                 foreach (string key in data.Strategy.SplitWithoutWhiteSpace(','))

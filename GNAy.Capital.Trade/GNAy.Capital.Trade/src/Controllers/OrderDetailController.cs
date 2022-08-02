@@ -85,7 +85,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (product.Item1 != 0)
                 {
-                    throw new ArgumentException($"data.Symbol={data.Symbol}|{data.ToLog()}");
+                    throw new ArgumentException($"{nameof(StrategyData.Symbol)}={data.Symbol}|{data.ToLog()}");
                 }
 
                 _appCtrl.Strategy.MarketCheck(data, _appCtrl.CAPQuote.CreateOrUpdate(product.Item2));
