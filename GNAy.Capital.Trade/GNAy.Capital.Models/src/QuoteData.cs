@@ -150,16 +150,16 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _bestSellyQty, value); }
         }
 
-        private decimal _openPrice;
+        private decimal _startPrice;
         [TradeColumn("開盤價", CSVStringFormat = "0.00", WPFDisplayIndex = 11, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
-        public decimal OpenPrice
+        public decimal StartPrice
         {
-            get { return _openPrice; }
-            set { OnPropertiesChanged(ref _openPrice, value, nameof(OpenPrice), nameof(OpenUpDown), nameof(OpenLastCloseUpDown)); }
+            get { return _startPrice; }
+            set { OnPropertiesChanged(ref _startPrice, value, nameof(StartPrice), nameof(StartUpDown), nameof(OpenLastCloseUpDown)); }
         }
 
         [TradeColumn("開盤漲跌", "開盤漲", CSVStringFormat = "0.00", WPFDisplayIndex = 12, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue", IsTrigger = true)]
-        public decimal OpenUpDown => (OpenPrice != 0 && Reference != 0) ? OpenPrice - Reference : 0;
+        public decimal StartUpDown => (StartPrice != 0 && Reference != 0) ? StartPrice - Reference : 0;
 
         private decimal _highPrice;
         [TradeColumn("最高價", CSVStringFormat = "0.00", WPFDisplayIndex = 13, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, IsTrigger = true)]
@@ -191,19 +191,19 @@ namespace GNAy.Capital.Models
         public decimal Reference
         {
             get { return _reference; }
-            set { OnPropertiesChanged(ref _reference, value, nameof(Reference), nameof(UpDown), nameof(UpDownPct), nameof(RowBackground), nameof(OpenUpDown)); }
+            set { OnPropertiesChanged(ref _reference, value, nameof(Reference), nameof(UpDown), nameof(UpDownPct), nameof(RowBackground), nameof(StartUpDown)); }
         }
 
-        private decimal _lastClosePrice;
+        private decimal _lastEndPrice;
         [TradeColumn("前盤收盤價格", "前盤收價", CSVStringFormat = "0.00", WPFDisplayIndex = 19, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
-        public decimal LastClosePrice
+        public decimal LastEndPrice
         {
-            get { return _lastClosePrice; }
-            set { OnPropertiesChanged(ref _lastClosePrice, value, nameof(LastClosePrice), nameof(OpenLastCloseUpDown)); }
+            get { return _lastEndPrice; }
+            set { OnPropertiesChanged(ref _lastEndPrice, value, nameof(LastEndPrice), nameof(OpenLastCloseUpDown)); }
         }
 
         [TradeColumn("開盤與前盤收盤價差", "開前價差", CSVStringFormat = "0.00", WPFDisplayIndex = 20, WPFStringFormat = "{0:0.00}", WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue", IsTrigger = true)]
-        public decimal OpenLastCloseUpDown => (OpenPrice != 0 && LastClosePrice != 0) ? OpenPrice - LastClosePrice : 0;
+        public decimal OpenLastCloseUpDown => (StartPrice != 0 && LastEndPrice != 0) ? StartPrice - LastEndPrice : 0;
 
         private int _simulate;
         [TradeColumn("試撮", "試", WPFDisplayIndex = 21, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
@@ -341,11 +341,11 @@ namespace GNAy.Capital.Models
             BestBuyQty = 0;
             BestSellPrice = 0;
             BestSellQty = 0;
-            OpenPrice = 0;
+            StartPrice = 0;
             HighPrice = 0;
             LowPrice = 0;
             Reference = 0;
-            LastClosePrice = 0;
+            LastEndPrice = 0;
             Simulate = 1;
             TotalQty = 0;
             TradeDateRaw = 0;

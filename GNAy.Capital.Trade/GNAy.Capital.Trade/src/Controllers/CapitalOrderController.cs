@@ -154,7 +154,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void Unlock(in int marketType = -1)
         {
-            DateTime start = _appCtrl.StartTrace($"marketType={marketType}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(marketType)}={marketType}", UniqueName);
 
             try
             {
@@ -196,7 +196,7 @@ namespace GNAy.Capital.Trade.Controllers
                 maxQty = _appCtrl.Settings.OrderMaxQty;
             }
 
-            DateTime start = _appCtrl.StartTrace($"marketType={marketType}|maxQty={maxQty}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(marketType)}={marketType}|{nameof(maxQty)}={maxQty}", UniqueName);
 
             try
             {
@@ -238,7 +238,7 @@ namespace GNAy.Capital.Trade.Controllers
                 maxCount = _appCtrl.Settings.OrderMaxCount;
             }
 
-            DateTime start = _appCtrl.StartTrace($"marketType={marketType}|maxCount={maxCount}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(marketType)}={marketType}|{nameof(maxCount)}={maxCount}", UniqueName);
 
             try
             {
@@ -283,14 +283,14 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (m_nCode != 0)
                 {
-                    _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, $"orderAcc={orderAcc}|format={format}");
+                    _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, $"{nameof(orderAcc)}={orderAcc}|{nameof(format)}={format}");
                 }
 
                 return m_nCode;
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(start, ex, $"orderAcc={orderAcc}|format={format}|{ex.StackTrace}");
+                _appCtrl.LogException(start, ex, $"{nameof(orderAcc)}={orderAcc}|{nameof(format)}={format}|{ex.StackTrace}");
             }
 
             return -1;
@@ -306,14 +306,14 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (m_nCode != 0)
                 {
-                    _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, $"orderAcc={orderAcc}|coinType={coinType}");
+                    _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, $"{nameof(orderAcc)}={orderAcc}|{nameof(coinType)}={coinType}");
                 }
 
                 return m_nCode;
             }
             catch (Exception ex)
             {
-                _appCtrl.LogException(start, ex, $"orderAcc={orderAcc}|coinType={coinType}|{ex.StackTrace}");
+                _appCtrl.LogException(start, ex, $"{nameof(orderAcc)}={orderAcc}|{nameof(coinType)}={coinType}|{ex.StackTrace}");
             }
 
             return -1;
@@ -383,7 +383,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     if (i == order.OrderQty * 8 - 1)
                     {
-                        _appCtrl.LogError(start, $"委託部份失敗|succeededCnt={succeededCnt}|failed={order.OrderQty - succeededCnt}|{order.ToLog()}", UniqueName);
+                        _appCtrl.LogError(start, $"委託部份失敗|{nameof(succeededCnt)}={succeededCnt}|failed={order.OrderQty - succeededCnt}|{order.ToLog()}", UniqueName);
 
                         return output;
                     }
@@ -408,7 +408,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                (LogLevel, string) orderResult = (LogLevel.Trace, $"SendRealOrder={_appCtrl.Settings.SendRealOrder && order.SendRealOrder}"); //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
+                (LogLevel, string) orderResult = (LogLevel.Trace, $"{nameof(AppSettings.SendRealOrder)}={_appCtrl.Settings.SendRealOrder && order.SendRealOrder}"); //如果回傳值為 0表示委託成功，訊息內容則為13碼的委託序號
 
                 if (_appCtrl.Settings.SendRealOrder && order.SendRealOrder)
                 {
@@ -549,7 +549,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void CancelBySeqNo(in OrderAccData acc, in string seqNo)
         {
-            DateTime start = _appCtrl.StartTrace($"{acc?.FullAccount}|seqNo={seqNo}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{acc?.FullAccount}|{nameof(seqNo)}={seqNo}", UniqueName);
 
             try
             {

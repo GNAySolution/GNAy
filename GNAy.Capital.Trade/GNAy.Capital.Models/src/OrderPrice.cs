@@ -19,10 +19,10 @@ namespace GNAy.Capital.Models
             [Description("範圍市價")]
             P, //1
 
-            [Description("漲停價")]
+            [Description("最高價")]
             H, //2
 
-            [Description("跌停價")]
+            [Description("最低價")]
             L, //3
         }
 
@@ -78,7 +78,7 @@ namespace GNAy.Capital.Models
 
         public static (string, decimal) Parse(in string orderPrice, in QuoteData quote, in decimal marketPrice = 0)
         {
-            return Parse(orderPrice, marketPrice == 0 ? quote.DealPrice : marketPrice, quote.Reference, quote.HighPriceLimit, quote.LowPriceLimit);
+            return Parse(orderPrice, marketPrice == 0 ? quote.DealPrice : marketPrice, quote.Reference, quote.HighPrice, quote.LowPrice);
         }
     }
 }

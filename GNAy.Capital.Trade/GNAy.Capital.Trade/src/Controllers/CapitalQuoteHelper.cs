@@ -33,7 +33,7 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestBuyQty = raw.nBc;
             quote.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
             quote.BestSellQty = raw.nAc;
-            //quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal),
+            //quote.StartPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal),
             //quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal),
             //quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal),
             quote.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
@@ -76,23 +76,23 @@ namespace GNAy.Capital.Trade.Controllers
             //https://stackoverflow.com/questions/628761/convert-a-character-digit-to-the-corresponding-integer-in-c
             if (!_dataIndexMap.TryGetValue((raw.bstrMarketNo[0] - '0') * 1000000 + raw.nStockIdx, out QuoteData quote))
             {
-                _appCtrl.LogError($"!_dataIndexMap.TryGetValue((raw.bstrMarketNo[0] - '0') * 1000000 + raw.nStockIdx, out QuoteData quote)|bstrMarketNo={raw.bstrMarketNo}|nStockIdx={raw.nStockIdx}", UniqueName);
+                _appCtrl.LogError($"!_dataIndexMap.TryGetValue((raw.bstrMarketNo[0] - '0') * 1000000 + raw.nStockIdx, out QuoteData quote)|{nameof(SKSTOCKLONG.bstrMarketNo)}={raw.bstrMarketNo}|{nameof(SKSTOCKLONG.nStockIdx)}={raw.nStockIdx}", UniqueName);
                 ++DataIndexErrorCount;
                 return false;
             }
             else if (quote.Symbol != raw.bstrStockNo)
             {
-                _appCtrl.LogError($"quote.Symbol != raw.bstrStockNo|Symbol={quote.Symbol}|bstrMarketNo={raw.bstrMarketNo}|bstrStockNo={raw.bstrStockNo}", UniqueName);
+                _appCtrl.LogError($"quote.Symbol != raw.bstrStockNo|{nameof(QuoteData.Symbol)}={quote.Symbol}|{nameof(SKSTOCKLONG.bstrMarketNo)}={raw.bstrMarketNo}|{nameof(SKSTOCKLONG.bstrStockNo)}={raw.bstrStockNo}", UniqueName);
                 return false;
             }
             //else if (quote.Name != raw.bstrStockName)
             //{
-            //    _appCtrl.LogError($"quote.Name != raw.bstrStockName|Name={quote.Name}|bstrStockName={raw.bstrStockName}", UniqueName);
+            //    _appCtrl.LogError($"quote.Name != raw.bstrStockName|{nameof(QuoteData.Name)}={quote.Name}|{nameof(SKSTOCKLONG.bstrStockName)}={raw.bstrStockName}", UniqueName);
             //    return false;
             //}
             //else if ($"{quote.MarketGroup}" != raw.bstrMarketNo)
             //{
-            //    _appCtrl.LogError($"quote.MarketGroup != raw.bstrMarketNo|MarketGroup={quote.MarketGroup}|bstrMarketNo={raw.bstrMarketNo}", UniqueName);
+            //    _appCtrl.LogError($"quote.MarketGroup != raw.bstrMarketNo|{nameof(QuoteData.MarketGroup)}={quote.MarketGroup}|{nameof(SKSTOCKLONG.bstrMarketNo)}={raw.bstrMarketNo}", UniqueName);
             //    return false;
             //}
 
@@ -115,15 +115,15 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestSellQty = raw.nAc;
             if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (LoadedOnTime || quote.Recovered))
             {
-                if (quote.OpenPrice == 0 && raw.nSimulate == QuoteData.RealTrade && raw.nTQty > quote.TotalQty) //開盤第一筆成交
+                if (quote.StartPrice == 0 && raw.nSimulate == QuoteData.RealTrade && raw.nTQty > quote.TotalQty) //開盤第一筆成交
                 {
-                    quote.OpenPrice = quote.DealPrice;
+                    quote.StartPrice = quote.DealPrice;
                     firstTick = true;
                 }
             }
             else
             {
-                quote.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
+                quote.StartPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
                 quote.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
                 quote.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
             }
@@ -143,7 +143,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (LoadedOnTime || quote.Recovered))
             {
-                if (quote.OpenPrice != 0)
+                if (quote.StartPrice != 0)
                 {
                     if (quote.HighPrice < quote.DealPrice)
                     {
@@ -174,7 +174,7 @@ namespace GNAy.Capital.Trade.Controllers
                     qRaw.BestBuyQty = raw.nBc;
                     qRaw.BestSellPrice = raw.nAsk / (decimal)Math.Pow(10, raw.sDecimal);
                     qRaw.BestSellQty = raw.nAc;
-                    qRaw.OpenPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
+                    qRaw.StartPrice = raw.nOpen / (decimal)Math.Pow(10, raw.sDecimal);
                     qRaw.HighPrice = raw.nHigh / (decimal)Math.Pow(10, raw.sDecimal);
                     qRaw.LowPrice = raw.nLow / (decimal)Math.Pow(10, raw.sDecimal);
                     qRaw.Reference = raw.nRef / (decimal)Math.Pow(10, raw.sDecimal);
@@ -214,9 +214,9 @@ namespace GNAy.Capital.Trade.Controllers
             quote.BestSellPrice = nAsk / (decimal)Math.Pow(10, quote.DecimalPos);
             quote.DealPrice = nClose / (decimal)Math.Pow(10, quote.DecimalPos);
             quote.DealQty = nQty;
-            if (quote.OpenPrice == 0 && nSimulate == QuoteData.RealTrade && quote.DealQty > 0) //開盤第一筆成交
+            if (quote.StartPrice == 0 && nSimulate == QuoteData.RealTrade && quote.DealQty > 0) //開盤第一筆成交
             {
-                quote.OpenPrice = quote.DealPrice;
+                quote.StartPrice = quote.DealPrice;
             }
             quote.Simulate = nSimulate;
 
@@ -225,7 +225,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (quote.Simulate == QuoteData.RealTrade)
             {
-                if (quote.OpenPrice != 0)
+                if (quote.StartPrice != 0)
                 {
                     if (quote.HighPrice < quote.DealPrice)
                     {
@@ -274,9 +274,9 @@ namespace GNAy.Capital.Trade.Controllers
             quote.DealQty = nQty;
             if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && LoadedOnTime)
             {
-                if (quote.OpenPrice == 0 && nSimulate == QuoteData.RealTrade && nQty > 0) //開盤第一筆成交
+                if (quote.StartPrice == 0 && nSimulate == QuoteData.RealTrade && nQty > 0) //開盤第一筆成交
                 {
-                    quote.OpenPrice = quote.DealPrice;
+                    quote.StartPrice = quote.DealPrice;
                     firstTick = true;
                 }
             }
@@ -287,7 +287,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (IsAMMarket && (quote.MarketGroupEnum == Market.EGroup.Futures || quote.MarketGroupEnum == Market.EGroup.Option) && (LoadedOnTime || quote.Recovered))
             {
-                if (quote.OpenPrice != 0)
+                if (quote.StartPrice != 0)
                 {
                     if (quote.HighPrice < quote.DealPrice)
                     {

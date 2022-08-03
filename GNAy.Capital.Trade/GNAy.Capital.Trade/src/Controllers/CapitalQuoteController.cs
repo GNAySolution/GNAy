@@ -317,15 +317,15 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     QuoteData quoteSub = this[quoteLast.Symbol];
 
-                    if (quoteSub != null && quoteSub.LastClosePrice == 0)
+                    if (quoteSub != null && quoteSub.LastEndPrice == 0)
                     {
                         if (quoteLast.MarketGroupEnum == Market.EGroup.Futures || quoteLast.MarketGroupEnum == Market.EGroup.Option)
                         {
-                            quoteSub.LastClosePrice = quoteLast.DealPrice;
+                            quoteSub.LastEndPrice = quoteLast.DealPrice;
                         }
                         else if (quoteSub.TradeDate > quoteLast.TradeDate)
                         {
-                            quoteSub.LastClosePrice = quoteLast.DealPrice;
+                            quoteSub.LastEndPrice = quoteLast.DealPrice;
                         }
                     }
                 }
@@ -534,11 +534,11 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         quoteSub.DealPrice = quoteLast.DealPrice;
                         quoteSub.DealQty = quoteLast.DealQty;
-                        quoteSub.OpenPrice = quoteLast.OpenPrice;
+                        quoteSub.StartPrice = quoteLast.StartPrice;
                         quoteSub.HighPrice = quoteLast.HighPrice;
                         quoteSub.LowPrice = quoteLast.LowPrice;
                         quoteSub.Recovered = true;
-                        _appCtrl.LogTrace(start, $"檔案回補開盤|{quoteSub.MarketGroupEnum}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.OpenPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}", UniqueName);
+                        _appCtrl.LogTrace(start, $"檔案回補開盤|{quoteSub.MarketGroupEnum}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.StartPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}", UniqueName);
                     }
                 }
             }
