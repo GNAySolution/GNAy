@@ -105,7 +105,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (parent == null)
             {
-                (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote);
+                (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote, data.DealPrice);
 
                 data.OrderPriceAfter = orderPriceAfter.Item2;
                 _appCtrl.LogTrace(start, $"委託價計算前={data.OrderPriceBefore}|計算後={orderPriceAfter.Item1}", UniqueName);

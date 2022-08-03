@@ -505,13 +505,13 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                LogTrace(start, $"Limit|{OrderPrice.Parse("10050", 10100, 10000, 0, 0)}", UniqueName);
-                LogTrace(start, $"M|{OrderPrice.Parse("M", 10100, 10000, 0, 0)}", UniqueName);
-                LogTrace(start, $"P|{OrderPrice.Parse("P", 10100, 10000, 0, 0)}", UniqueName);
-                LogTrace(start, $"M+50|{OrderPrice.Parse("M+50", 10100, 10000, 0, 0)}", UniqueName);
-                LogTrace(start, $"M-50|{OrderPrice.Parse("M-50", 10100, 10000, 0, 0)}", UniqueName);
-                LogTrace(start, $"P+0.5%|{OrderPrice.Parse("P+0.5%", 10100, 10000, 0, 0)}", UniqueName);
-                LogTrace(start, $"P-0.5%|{OrderPrice.Parse("P-0.5%", 10100, 10000, 0, 0)}", UniqueName);
+                LogTrace(start, $"Limit|{OrderPrice.Parse("10050", 10100, 10000, 0, 0, 0, 0)}", UniqueName);
+                LogTrace(start, $"M|{OrderPrice.Parse("M", 10100, 10000, 0, 0, 0, 0)}", UniqueName);
+                LogTrace(start, $"P|{OrderPrice.Parse("P", 10100, 10000, 0, 0, 0, 0)}", UniqueName);
+                LogTrace(start, $"M+50|{OrderPrice.Parse("M+50", 10100, 10000, 0, 0, 0, 0)}", UniqueName);
+                LogTrace(start, $"M-50|{OrderPrice.Parse("M-50", 10100, 10000, 0, 0, 0, 0)}", UniqueName);
+                LogTrace(start, $"P+0.5%|{OrderPrice.Parse("P+0.5%", 10100, 10000, 0, 0, 0, 0)}", UniqueName);
+                LogTrace(start, $"P-0.5%|{OrderPrice.Parse("P-0.5%", 10100, 10000, 0, 0, 0, 0)}", UniqueName);
             }
             catch (Exception ex)
             {

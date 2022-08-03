@@ -19,24 +19,39 @@ namespace GNAy.Capital.Models
             [Description("範圍市價")]
             P, //1
 
+            [Description("參考價")]
+            R, //2
+
+            [Description("開盤價")]
+            S, //3
+
             [Description("最高價")]
-            H, //2
+            H, //4
 
             [Description("最低價")]
-            L, //3
+            L, //5
+
+            [Description("前盤收盤價")]
+            E, //6
         }
 
         public static readonly string M = Enum.M.ToString();
         public static readonly string P = Enum.P.ToString();
+        public static readonly string R = Enum.R.ToString();
+        public static readonly string S = Enum.S.ToString();
         public static readonly string H = Enum.H.ToString();
         public static readonly string L = Enum.L.ToString();
+        public static readonly string E = Enum.E.ToString();
 
         public static ReadOnlyCollection<string> Description = new List<string>()
         {
             Enum.M.GetDescription(),
             Enum.P.GetDescription(),
+            Enum.R.GetDescription(),
+            Enum.S.GetDescription(),
             Enum.H.GetDescription(),
             Enum.L.GetDescription(),
+            Enum.E.GetDescription(),
         }.AsReadOnly();
 
         private static (string, decimal) Parse(in string orderPrice, in decimal marketPrice, in decimal reference)
@@ -58,27 +73,31 @@ namespace GNAy.Capital.Models
             return (newPri.ToString("0.00"), newPri);
         }
 
-        public static (string, decimal) Parse(in string orderPrice, in decimal marketPrice, in decimal reference, in decimal highPrice, in decimal lowPrice)
+        public static (string, decimal) Parse(in string orderPrice, in decimal marketPrice, in decimal reference, in decimal startPrice, in decimal highPrice, in decimal lowPrice, in decimal lastEndPrice)
         {
-            if (orderPrice.StartsWith(M) || orderPrice.StartsWith(P))
+            switch (orderPrice[0])
             {
-                return (orderPrice.Length > 1) ? Parse(orderPrice, marketPrice, reference) : (orderPrice, marketPrice);
+                case 'M':
+                case 'P':
+                    return (orderPrice.Length > 1) ? Parse(orderPrice, marketPrice, reference) : (orderPrice, marketPrice);
+                case 'R':
+                    return (orderPrice.Length > 1) ? Parse(orderPrice, reference, reference) : (reference.ToString("0.00"), reference);
+                case 'S':
+                    return (orderPrice.Length > 1) ? Parse(orderPrice, startPrice, reference) : (startPrice.ToString("0.00"), startPrice);
+                case 'H':
+                    return (orderPrice.Length > 1) ? Parse(orderPrice, highPrice, reference) : (highPrice.ToString("0.00"), highPrice);
+                case 'L':
+                    return (orderPrice.Length > 1) ? Parse(orderPrice, lowPrice, reference) : (lowPrice.ToString("0.00"), lowPrice);
+                case 'E':
+                    return (orderPrice.Length > 1) ? Parse(orderPrice, lastEndPrice, reference) : (lastEndPrice.ToString("0.00"), lastEndPrice);
+                default:
+                    return (orderPrice, decimal.Parse(orderPrice));
             }
-            else if (orderPrice.StartsWith(H))
-            {
-                return (orderPrice.Length > 1) ? Parse(orderPrice, highPrice, reference) : (highPrice.ToString("0.00"), highPrice);
-            }
-            else if (orderPrice.StartsWith(L))
-            {
-                return (orderPrice.Length > 1) ? Parse(orderPrice, lowPrice, reference) : (lowPrice.ToString("0.00"), lowPrice);
-            }
-
-            return (orderPrice, decimal.Parse(orderPrice));
         }
 
-        public static (string, decimal) Parse(in string orderPrice, in QuoteData quote, in decimal marketPrice = 0)
+        public static (string, decimal) Parse(in string orderPrice, in QuoteData quote, in decimal marketPrice)
         {
-            return Parse(orderPrice, marketPrice == 0 ? quote.DealPrice : marketPrice, quote.Reference, quote.HighPrice, quote.LowPrice);
+            return Parse(orderPrice, marketPrice, quote.Reference, quote.StartPrice, quote.HighPrice, quote.LowPrice, quote.LastEndPrice);
         }
     }
 }

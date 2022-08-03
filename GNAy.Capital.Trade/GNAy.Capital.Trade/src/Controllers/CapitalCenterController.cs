@@ -53,13 +53,13 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (nCode <= 0)
             {
-                return $"nCode={nCode}";
+                return $"{nameof(nCode)}={nCode}";
             }
 
             string lastLog = m_pSKCenter.SKCenterLib_GetLastLogInfo(); //取得最後一筆LOG內容
             string codeMessage = m_pSKCenter.SKCenterLib_GetReturnCodeMessage(nCode % StatusCode.BaseTraceValue); //取得定義代碼訊息文字
 
-            return $"nCode={nCode}|{codeMessage}|{lastLog}";
+            return $"{nameof(nCode)}={nCode}|{codeMessage}|{lastLog}";
         }
 
         public (LogLevel, string) LogAPIMessage(in int nCode, string msg = "", in TimeSpan? elapsed = null, [CallerLineNumber] in int lineNumber = 0, [CallerMemberName] in string memberName = "")
@@ -136,7 +136,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int LoginUser(in string userID, in string dwp)
         {
-            DateTime start = _appCtrl.StartTrace($"userID={userID}|dwp=********", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(userID)}={userID}|{nameof(dwp)}=********", UniqueName);
 
             try
             {
@@ -164,12 +164,12 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (LoginUserResult == 0)
                 {
-                    _appCtrl.LogTrace(start, $"LoginUserResult={LoginUserResult}|雙因子登入成功", UniqueName);
+                    _appCtrl.LogTrace(start, $"{nameof(LoginUserResult)}={LoginUserResult}|雙因子登入成功", UniqueName);
                     UserID = userID;
                 }
                 else if (LoginUserResult >= 600 && LoginUserResult <= 699)
                 {
-                    _appCtrl.LogTrace(start, $"LoginUserResult={LoginUserResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效", UniqueName);
+                    _appCtrl.LogTrace(start, $"{nameof(LoginUserResult)}={LoginUserResult}|雙因子登入成功|未使用雙因子登入成功, 請在強制雙因子實施前確認憑證是否有效", UniqueName);
                     UserID = userID;
                 }
                 else
@@ -234,13 +234,13 @@ namespace GNAy.Capital.Trade.Controllers
 
         public int LoginQuote(in string dwp, in bool startQuoteMonitor = true)
         {
-            DateTime start = _appCtrl.StartTrace($"UserID={UserID}|dwp=********|startQuoteMonitor={startQuoteMonitor}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(UserID)}={UserID}|{nameof(dwp)}=********|{nameof(startQuoteMonitor)}={startQuoteMonitor}", UniqueName);
 
             int status = m_pSKCenter.SKCenterLib_LoginSetQuote(UserID, dwp, startQuoteMonitor ? "Y" : "N"); //Y:啟用報價 N:停用報價
 
             if (status == 0 || (status >= 600 && status <= 699))
             {
-                _appCtrl.LogTrace(start, $"status={status}|登入成功", UniqueName);
+                _appCtrl.LogTrace(start, $"{nameof(status)}={status}|登入成功", UniqueName);
             }
             else
             {

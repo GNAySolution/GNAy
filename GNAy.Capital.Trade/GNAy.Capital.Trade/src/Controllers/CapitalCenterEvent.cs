@@ -17,7 +17,6 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nConfirmCode"></param>
         private void SKReply_OnAnnouncement(string strUserID, string bstrMessage, out short nConfirmCode)
         {
-            //_appCtrl.LogTrace($"strUserID={strUserID}|bstrMessage={bstrMessage}", UniqueName);
             AppendReply(strUserID, bstrMessage);
             nConfirmCode = -1;
         }
@@ -28,7 +27,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nTime"></param>
         private void SKCenter_OnTimer(int nTime)
         {
-            UserIDTimer = (DateTime.Now, $"nTime={nTime}");
+            UserIDTimer = (DateTime.Now, $"{nameof(nTime)}={nTime}");
         }
 
         /// <summary>
@@ -38,7 +37,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nErrorCode"></param>
         private void OnConnect(string strUserID, int nErrorCode)
         {
-            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"strUserID={strUserID}");
+            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"{nameof(strUserID)}={strUserID}");
             AppendReply(strUserID, apiMsg.Item2);
         }
 
@@ -49,7 +48,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nErrorCode"></param>
         private void OnDisconnect(string strUserID, int nErrorCode)
         {
-            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"strUserID={strUserID}");
+            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"{nameof(strUserID)}={strUserID}");
             AppendReply(strUserID, apiMsg.Item2);
         }
 
@@ -60,7 +59,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nCode"></param>
         private void OnSolaceReplyConnection(string strUserID, int nCode)
         {
-            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"strUserID={strUserID}");
+            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"{nameof(strUserID)}={strUserID}");
             AppendReply(strUserID, apiMsg.Item2);
         }
 
@@ -71,7 +70,7 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="nErrorCode"></param>
         private void OnSolaceReplyDisconnect(string strUserID, int nErrorCode)
         {
-            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"strUserID={strUserID}");
+            (LogLevel, string) apiMsg = LogAPIMessage(_appCtrl.CAPQuote.Status, $"{nameof(strUserID)}={strUserID}");
             AppendReply(strUserID, apiMsg.Item2);
         }
 
@@ -81,7 +80,6 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="strUserID"></param>
         private void OnComplete(string strUserID)
         {
-            //_appCtrl.LogTrace($"strUserID={strUserID}", UniqueName);
             AppendReply(strUserID, string.Empty);
         }
 
@@ -92,7 +90,6 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="strData"></param>
         private void OnNewData(string strUserID, string strData)
         {
-            //_appCtrl.LogTrace($"strUserID={strUserID}|strData={strData}", UniqueName);
             AppendReply(strUserID, strData);
         }
 
@@ -108,7 +105,6 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="bstrMarket"></param>
         private void OnClear(string bstrMarket)
         {
-            //_appCtrl.LogTrace($"bstrMarket={bstrMarket}", UniqueName);
             AppendReply(string.Empty, bstrMarket);
         }
 
@@ -118,7 +114,6 @@ namespace GNAy.Capital.Trade.Controllers
         /// <param name="strUserID"></param>
         private void OnClearMessage(string strUserID)
         {
-            //_appCtrl.LogTrace($"strUserID={strUserID}", UniqueName);
             AppendReply(strUserID, string.Empty);
         }
     }

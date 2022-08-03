@@ -370,7 +370,7 @@
                 <Button x:Name="ButtonSendTWOrder" Content="國內委託送出" HorizontalAlignment="Left" Margin="54,61,0,0" VerticalAlignment="Top" Click="ButtonSendTWOrder_Click"/>
                 <Button x:Name="ButtonStartStrategyNow" Content="立刻啟動策略" HorizontalAlignment="Left" Margin="54,82,0,0" VerticalAlignment="Top" Click="ButtonStartStrategyNow_Click"/>
                 <Label Content="委託價格" HorizontalAlignment="Left" Margin="135,57,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="TextBoxOrderPrice" Text="MPHL" ToolTip="M市價，P範圍市價，H最高價，L最低價" HorizontalAlignment="Left" Margin="135,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxOrderPrice" Text="MPRSHLE" ToolTip="M市價，P範圍市價，R參考價，S開盤價，H最高價，L最低價，E前盤收盤價" HorizontalAlignment="Left" Margin="135,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="委託量" HorizontalAlignment="Left" Margin="260,57,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TextBoxOrderQty" Text="委託量" ToolTip="委託量" HorizontalAlignment="Left" Margin="260,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Label Content="委託序號" HorizontalAlignment="Left" Margin="452,57,0,0" VerticalAlignment="Top"/>

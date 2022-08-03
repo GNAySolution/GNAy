@@ -189,7 +189,7 @@ namespace GNAy.Capital.Trade.Controllers
                         _appCtrl.LogWarn(start, $"沒有在開盤前執行登入動作", UniqueName);
                     }
 
-                    _appCtrl.LogTrace(start, $"MarketStartTime={MarketStartTime:MM/dd HH:mm}|MarketCloseTime={MarketCloseTime:MM/dd HH:mm}", UniqueName);
+                    _appCtrl.LogTrace(start, $"{nameof(MarketStartTime)}={MarketStartTime:MM/dd HH:mm}|{nameof(MarketCloseTime)}={MarketCloseTime:MM/dd HH:mm}", UniqueName);
                 }
                 catch (Exception ex)
                 {
@@ -242,13 +242,13 @@ namespace GNAy.Capital.Trade.Controllers
                 switch (isConnected)
                 {
                     case 0:
-                        result = $"isConnected={isConnected}|斷線";
+                        result = $"{nameof(isConnected)}={isConnected}|斷線";
                         break;
                     case 1:
-                        result = $"isConnected={isConnected}|連線中";
+                        result = $"{nameof(isConnected)}={isConnected}|連線中";
                         break;
                     case 2:
-                        result = $"isConnected={isConnected}|下載中";
+                        result = $"{nameof(isConnected)}={isConnected}|下載中";
                         break;
                     default:
                         return _appCtrl.CAPCenter.LogAPIMessage(start, isConnected);
@@ -419,11 +419,11 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 if (Status != StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY)
                 {
-                    throw new ArgumentException($"Status != {StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY}|StatusStr={StatusStr}");
+                    throw new ArgumentException($"Status != {StatusCode.SK_SUBJECT_CONNECTION_STOCKS_READY}|{nameof(StatusStr)}={StatusStr}");
                 }
                 else if (_dataIndexMap.Count > 0)
                 {
-                    throw new ArgumentException($"_dataIndexMap.Count > 0|Count={_dataIndexMap.Count}|Quotes are subscribed.");
+                    throw new ArgumentException($"_dataIndexMap.Count > 0|{nameof(Dictionary<int, QuoteData>.Count)}={_dataIndexMap.Count}|Quotes are subscribed.");
                 }
 
                 FileNameBase = string.Empty;
@@ -478,7 +478,7 @@ namespace GNAy.Capital.Trade.Controllers
                     if (start.Hour > _appCtrl.Settings.MarketClose[(int)Market.EDayNight.AM].Hour && tradeDate <= int.Parse(start.ToString("yyyyMMdd")) && !IsAMMarket)
                     {
                         FileNameBase = $"{tradeDate}_{(int)Market.EDayNight.AM}";
-                        _appCtrl.LogWarn(start, $"未訂閱或尚未收到夜盤商品基本資料|FileNameBase={FileNameBase}", UniqueName);
+                        _appCtrl.LogWarn(start, $"未訂閱或尚未收到夜盤商品基本資料|{nameof(FileNameBase)}={FileNameBase}", UniqueName);
                     }
                     else if (IsAMMarket)
                     {
@@ -538,7 +538,7 @@ namespace GNAy.Capital.Trade.Controllers
                         quoteSub.HighPrice = quoteLast.HighPrice;
                         quoteSub.LowPrice = quoteLast.LowPrice;
                         quoteSub.Recovered = true;
-                        _appCtrl.LogTrace(start, $"檔案回補開盤|{quoteSub.MarketGroupEnum}|{quoteSub.Symbol}|{quoteSub.Name}|DealPrice={quoteSub.DealPrice}|DealQty={quoteSub.DealQty}|OpenPrice={quoteSub.StartPrice}|HighPrice={quoteSub.HighPrice}|LowPrice={quoteSub.LowPrice}|Simulate={quoteSub.Simulate}", UniqueName);
+                        _appCtrl.LogTrace(start, $"檔案回補開盤|{quoteSub.MarketGroupEnum}|{quoteSub.Symbol}|{quoteSub.Name}|{nameof(QuoteData.DealPrice)}={quoteSub.DealPrice}|{nameof(QuoteData.DealQty)}={quoteSub.DealQty}|{nameof(QuoteData.StartPrice)}={quoteSub.StartPrice}|{nameof(QuoteData.HighPrice)}={quoteSub.HighPrice}|{nameof(QuoteData.LowPrice)}={quoteSub.LowPrice}|{nameof(QuoteData.Simulate)}={quoteSub.Simulate}", UniqueName);
                     }
                 }
             }
@@ -591,7 +591,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         if (qPage < 0)
                         {
-                            _appCtrl.LogError(start, $"Sub quote failed.|Symbol={quote.Symbol}|qPage={qPage}", UniqueName);
+                            _appCtrl.LogError(start, $"Sub quote failed.|{nameof(QuoteData.Symbol)}={quote.Symbol}|{nameof(qPage)}={qPage}", UniqueName);
                         }
 
                         quote.Page = qPage;
@@ -614,7 +614,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         if (qPage < 0)
                         {
-                            _appCtrl.LogError(start, $"Sub quote failed.|requests={requests}|qPage={qPage}", UniqueName);
+                            _appCtrl.LogError(start, $"Sub quote failed.|{nameof(requests)}={requests}|{nameof(qPage)}={qPage}", UniqueName);
                         }
                     }
                 }
@@ -633,7 +633,7 @@ namespace GNAy.Capital.Trade.Controllers
         {
             Task.Factory.StartNew(() =>
             {
-                DateTime start = _appCtrl.StartTrace($"products={products}", UniqueName);
+                DateTime start = _appCtrl.StartTrace($"{nameof(products)}={products}", UniqueName);
 
                 try
                 {
@@ -651,7 +651,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                         if (qPage < 0)
                         {
-                            _appCtrl.LogError(start, $"Recover quote failed.|Symbol={product}|qPage={qPage}", UniqueName);
+                            _appCtrl.LogError(start, $"Recover quote failed.|{nameof(product)}={product}|{nameof(qPage)}={qPage}", UniqueName);
                         }
                     }
                 }
@@ -668,7 +668,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public void RequestKLine(in string product = "")
         {
-            DateTime start = _appCtrl.StartTrace($"product={product}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(product)}={product}", UniqueName);
 
             try
             {
@@ -706,7 +706,7 @@ namespace GNAy.Capital.Trade.Controllers
                 return;
             }
 
-            DateTime start = _appCtrl.StartTrace($"folder={folder?.Name}|append={append}|prefix={prefix}|suffix={suffix}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(folder)}={folder?.Name}|{nameof(append)}={append}|{nameof(prefix)}={prefix}|{nameof(suffix)}={suffix}", UniqueName);
 
             try
             {
