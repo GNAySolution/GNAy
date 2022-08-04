@@ -169,7 +169,8 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (elapsed.HasValue)
             {
-                msg = string.Format("{0}={1}{2}{3}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
+                const string format = nameof(elapsed) + "={0}{1}{2}";
+                msg = string.Format(format, elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
 
             _logger.Trace(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
@@ -207,7 +208,8 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (elapsed.HasValue)
             {
-                msg = string.Format("{0}={1}{2}{3}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
+                const string format = nameof(elapsed) + "={0}{1}{2}";
+                msg = string.Format(format, elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
 
             _logger.Debug(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
@@ -223,7 +225,8 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (elapsed.HasValue)
             {
-                msg = string.Format("{0}={1}{2}{3}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
+                const string format = nameof(elapsed) + "={0}{1}{2}";
+                msg = string.Format(format, elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
 
             _logger.Info(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
@@ -239,7 +242,8 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (elapsed.HasValue)
             {
-                msg = string.Format("{0}={1}{2}{3}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
+                const string format = nameof(elapsed) + "={0}{1}{2}";
+                msg = string.Format(format, elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
 
             _logger.Warn(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
@@ -255,7 +259,8 @@ namespace GNAy.Capital.Trade.Controllers
         {
             if (elapsed.HasValue)
             {
-                msg = string.Format("{0}={1}{2}{3}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
+                const string format = nameof(elapsed) + "={0}{1}{2}";
+                msg = string.Format(format, elapsed.Value.ToString("ss'.'ffffff"), string.IsNullOrWhiteSpace(msg) ? string.Empty : "|", msg);
             }
 
             _logger.Error(string.Join("|", msg, lineNumber, $"{uniqueName}.{memberName}"));
@@ -273,7 +278,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (elapsed.HasValue)
             {
-                msg = string.Format("{0}={1}|{2}", nameof(elapsed), elapsed.Value.ToString("ss'.'ffffff"), msg);
+                const string format = nameof(elapsed) + "={0}|{1}";
+                msg = string.Format(format, elapsed.Value.ToString("ss'.'ffffff"), msg);
             }
 
             _logger.Error(msg);
