@@ -131,7 +131,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void ParentCheck(in StrategyData data, in bool readyToSend, in DateTime start, in decimal marketPrice = 0)
+        private void ParentCheck(in StrategyData data, in bool readyToSend, in DateTime start, decimal marketPrice = 0)
         {
             data.Trim();
 
@@ -198,6 +198,11 @@ namespace GNAy.Capital.Trade.Controllers
             }
 
             MarketCheck(data, data.Quote);
+
+            if (marketPrice == 0)
+            {
+                marketPrice = data.Quote.DealPrice;
+            }
 
             (string, decimal) orderPriceAfter = OrderPrice.Parse(data.OrderPriceBefore, data.Quote, marketPrice);
 
@@ -962,7 +967,7 @@ namespace GNAy.Capital.Trade.Controllers
                 SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileSaveFormat);
             }
 
-            ProfitTotal = _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0);
+            ProfitTotal = _appCtrl.Settings.SendRealOrder ? _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0) : _dataMap.Values.Sum(x => x.ClosedProfitTotalRaw + x.UnclosedProfit);
 
             if (ProfitTotal > 0 && ProfitTotalBest < ProfitTotal)
             {
