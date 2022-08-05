@@ -1,7 +1,6 @@
 ﻿using GNAy.Tools.NET47;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -23,11 +22,11 @@ namespace GNAy.Capital.Models
             Auto, //2
         }
 
-        public static ReadOnlyCollection<string> Description = new List<string>()
+        public static readonly string[] Description =
         {
             Enum.Open.GetDescription(),
             Enum.Close.GetDescription(),
             Enum.Auto.GetDescription(),
-        }.AsReadOnly();
+        };
     }
 }

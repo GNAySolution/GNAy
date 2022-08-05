@@ -69,7 +69,7 @@ namespace GNAy.Tools.NET47
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static string GetDescription(this Enum obj)
+        public static string GetDescription(this object obj)
         {
             FieldInfo field = obj.GetType().GetField(obj.ToString());
             DescriptionAttribute arr = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute), false);

@@ -158,7 +158,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (marketType >= 0 && marketType < Market.CodeDescription.Count)
+                if (marketType >= 0 && marketType < Market.CodeDescription.Length)
                 {
                     int m_nCode = m_pSKOrder.UnlockOrder(marketType); //下單解鎖。下單函式上鎖後需經由此函式解鎖才可繼續下單
 
@@ -169,12 +169,12 @@ namespace GNAy.Capital.Trade.Controllers
 
                     return;
                 }
-                else if (marketType >= Market.CodeDescription.Count)
+                else if (marketType >= Market.CodeDescription.Length)
                 {
-                    throw new ArgumentException($"marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
+                    throw new ArgumentException($"marketType({marketType}) >= Market.CodeDescription.Length({Market.CodeDescription.Length})");
                 }
 
-                for (int i = 0; i < Market.CodeDescription.Count; ++i)
+                for (int i = 0; i < Market.CodeDescription.Length; ++i)
                 {
                     Unlock(i);
                 }
@@ -200,7 +200,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (marketType >= 0 && marketType < Market.CodeDescription.Count)
+                if (marketType >= 0 && marketType < Market.CodeDescription.Length)
                 {
                     int m_nCode = m_pSKOrder.SetMaxQty(marketType, maxQty); //設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
 
@@ -211,12 +211,12 @@ namespace GNAy.Capital.Trade.Controllers
 
                     return;
                 }
-                else if (marketType >= Market.CodeDescription.Count)
+                else if (marketType >= Market.CodeDescription.Length)
                 {
-                    throw new ArgumentException($"marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
+                    throw new ArgumentException($"marketType({marketType}) >= Market.CodeDescription.Length({Market.CodeDescription.Length})");
                 }
 
-                for (int i = 0; i < Market.CodeDescription.Count; ++i)
+                for (int i = 0; i < Market.CodeDescription.Length; ++i)
                 {
                     SetMaxQty(i, maxQty);
                 }
@@ -242,7 +242,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                if (marketType >= 0 && marketType < Market.CodeDescription.Count)
+                if (marketType >= 0 && marketType < Market.CodeDescription.Length)
                 {
                     int m_nCode = m_pSKOrder.SetMaxCount(marketType, maxCount); //設定每秒委託「筆數」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
 
@@ -253,12 +253,12 @@ namespace GNAy.Capital.Trade.Controllers
 
                     return;
                 }
-                else if (marketType >= Market.CodeDescription.Count)
+                else if (marketType >= Market.CodeDescription.Length)
                 {
-                    throw new ArgumentException($"marketType({marketType}) >= Market.CodeDescription.Count({Market.CodeDescription.Count})");
+                    throw new ArgumentException($"marketType({marketType}) >= Market.CodeDescription.Length({Market.CodeDescription.Length})");
                 }
 
-                for (int i = 0; i < Market.CodeDescription.Count; ++i)
+                for (int i = 0; i < Market.CodeDescription.Length; ++i)
                 {
                     SetMaxCount(i, maxCount);
                 }

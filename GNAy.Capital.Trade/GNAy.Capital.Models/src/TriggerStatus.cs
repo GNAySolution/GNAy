@@ -1,7 +1,6 @@
 ﻿using GNAy.Tools.NET47;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -29,15 +28,12 @@ namespace GNAy.Capital.Models
             Executed, //3,
         }
 
-        /// <summary>
-        /// https://stackoverflow.com/questions/4680035/read-only-list-in-c-sharp
-        /// </summary>
-        public static ReadOnlyCollection<string> Description = new List<string>()
+        public static readonly string[] Description =
         {
             Enum.Waiting.GetDescription(),
             Enum.Cancelled.GetDescription(),
             Enum.Monitoring.GetDescription(),
             Enum.Executed.GetDescription(),
-        }.AsReadOnly();
+        };
     }
 }

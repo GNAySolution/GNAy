@@ -1,7 +1,6 @@
 ﻿using GNAy.Tools.NET47;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -43,7 +42,7 @@ namespace GNAy.Capital.Models
         public static readonly string L = Enum.L.ToString();
         public static readonly string E = Enum.E.ToString();
 
-        public static ReadOnlyCollection<string> Description = new List<string>()
+        public static readonly string[] Description =
         {
             Enum.M.GetDescription(),
             Enum.P.GetDescription(),
@@ -52,7 +51,7 @@ namespace GNAy.Capital.Models
             Enum.H.GetDescription(),
             Enum.L.GetDescription(),
             Enum.E.GetDescription(),
-        }.AsReadOnly();
+        };
 
         private static (string, decimal) Parse(in string orderPrice, in decimal marketPrice, in decimal reference)
         {

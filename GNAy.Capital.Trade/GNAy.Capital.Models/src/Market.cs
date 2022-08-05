@@ -1,7 +1,6 @@
 ﻿using GNAy.Tools.NET47;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -32,7 +31,7 @@ namespace GNAy.Capital.Models
             OverseaOption, //5
         }
 
-        public static ReadOnlyCollection<string> CodeDescription = new List<string>()
+        public static readonly string[] CodeDescription =
         {
             EType.Stock.GetDescription().Split(',')[0],
             EType.Futures.GetDescription().Split(',')[0],
@@ -40,11 +39,11 @@ namespace GNAy.Capital.Models
             EType.OverseaStock.GetDescription().Split(',')[0],
             EType.OverseaFutures.GetDescription().Split(',')[0],
             EType.OverseaOption.GetDescription().Split(',')[0],
-        }.AsReadOnly();
+        };
 
-        public static Dictionary<string, EType> CodeMap = CodeDescription.ToDictionary(x => x, x => (EType)CodeDescription.IndexOf(x));
+        public static readonly Dictionary<string, EType> CodeMap = CodeDescription.ToDictionary(x => x, x => (EType)Array.IndexOf(CodeDescription, x));
 
-        public static ReadOnlyCollection<string> NameDescription = new List<string>()
+        public static readonly string[] NameDescription =
         {
             EType.Stock.GetDescription().Split(',')[1],
             EType.Futures.GetDescription().Split(',')[1],
@@ -52,9 +51,9 @@ namespace GNAy.Capital.Models
             EType.OverseaStock.GetDescription().Split(',')[1],
             EType.OverseaFutures.GetDescription().Split(',')[1],
             EType.OverseaOption.GetDescription().Split(',')[1],
-        }.AsReadOnly();
+        };
 
-        public static Dictionary<string, EType> NameMap = NameDescription.ToDictionary(x => x, x => (EType)NameDescription.IndexOf(x));
+        public static readonly Dictionary<string, EType> NameMap = NameDescription.ToDictionary(x => x, x => (EType)Array.IndexOf(NameDescription, x));
 
         public enum EGroup
         {
@@ -74,14 +73,14 @@ namespace GNAy.Capital.Models
             Emerging, //4
         }
 
-        public static ReadOnlyCollection<string> GroupDescription = new List<string>()
+        public static readonly string[] GroupDescription =
         {
             EGroup.TSE.GetDescription(),
             EGroup.OTC.GetDescription(),
             EGroup.Futures.GetDescription(),
             EGroup.Option.GetDescription(),
             EGroup.Emerging.GetDescription(),
-        }.AsReadOnly();
+        };
 
         public enum EDayNight
         {
@@ -92,10 +91,10 @@ namespace GNAy.Capital.Models
             AM, //1
         }
 
-        public static ReadOnlyCollection<string> DayNightDescription = new List<string>()
+        public static readonly string[] DayNightDescription =
         {
             EDayNight.PM.GetDescription(),
             EDayNight.AM.GetDescription(),
-        }.AsReadOnly();
+        };
     }
 }

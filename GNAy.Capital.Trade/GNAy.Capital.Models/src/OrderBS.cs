@@ -1,7 +1,6 @@
 ﻿using GNAy.Tools.NET47;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -23,10 +22,10 @@ namespace GNAy.Capital.Models
             Sell, //1
         }
 
-        public static ReadOnlyCollection<string> Description = new List<string>()
+        public static readonly string[] Description =
         {
             Enum.Buy.GetDescription(),
             Enum.Sell.GetDescription(),
-        }.AsReadOnly();
+        };
     }
 }

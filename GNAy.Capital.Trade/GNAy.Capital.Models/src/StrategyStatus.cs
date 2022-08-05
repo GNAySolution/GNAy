@@ -1,7 +1,6 @@
 ﻿using GNAy.Tools.NET47;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -74,7 +73,7 @@ namespace GNAy.Capital.Models
             MarketClosingError, //18,
         }
 
-        public static ReadOnlyCollection<string> Description = new List<string>()
+        public static readonly string[] Description =
         {
             Enum.Waiting.GetDescription(),
             Enum.Cancelled.GetDescription(),
@@ -99,6 +98,6 @@ namespace GNAy.Capital.Models
             Enum.MarketClosingOrderReport.GetDescription(),
             Enum.MarketClosingDealReport.GetDescription(),
             Enum.MarketClosingError.GetDescription(),
-        }.AsReadOnly();
+        };
     }
 }
