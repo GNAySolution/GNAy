@@ -349,24 +349,7 @@ namespace GNAy.Capital.Models
         public decimal ClosedProfit
         {
             get { return _closedProfit; }
-            set
-            {
-                if (OnPropertyChanged(ref _closedProfit, value))
-                {
-                    if (value != 0)
-                    {
-                        ClosedProfitList.Add(value);
-                        ClosedProfitTotalRaw += value;
-
-                        ClosedProfitTotal = $"{ClosedProfitTotalRaw:0.00}=";
-
-                        foreach (decimal profit in ClosedProfitList)
-                        {
-                            ClosedProfitTotal = profit > 0 ? $"{ClosedProfitTotal}+{profit:0.00}" : $"{ClosedProfitTotal}{profit:0.00}";
-                        }
-                    }
-                }
-            }
+            set { OnPropertyChanged(ref _closedProfit, value); }
         }
 
         private int _unclosedQty;
@@ -911,6 +894,19 @@ namespace GNAy.Capital.Models
             }
 
             return order;
+        }
+
+        public void SumClosedProfit(decimal addValue)
+        {
+            ClosedProfitList.Add(addValue);
+            ClosedProfitTotalRaw += addValue;
+
+            ClosedProfitTotal = $"{ClosedProfitTotalRaw:0.00}=";
+
+            foreach (decimal profit in ClosedProfitList)
+            {
+                ClosedProfitTotal = profit > 0 ? $"{ClosedProfitTotal}+{profit:0.00}" : $"{ClosedProfitTotal}{profit:0.00}";
+            }
         }
 
         public string ToLog()

@@ -430,7 +430,11 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     StrategyData data = this[i];
 
-                    if (!data.SendRealOrder || data.UnclosedQty == 0)
+                    if (data.UnclosedQty == 0)
+                    {
+                        continue;
+                    }
+                    else if (_appCtrl.Settings.SendRealOrder && !data.SendRealOrder)
                     {
                         continue;
                     }
