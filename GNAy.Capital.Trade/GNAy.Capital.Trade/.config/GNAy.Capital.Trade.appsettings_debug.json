@@ -137,7 +137,7 @@
   "StrategyFileSaveFormat": "MMdd_HHmm",
   "StrategyNotForOpenInterest": "ZS",
   "StrategyFromOpenInterest": true,
-  "StrategyStopWinProfit": 10,
+  "StrategyStopWinProfit": 1000,
   "StrategyStopWinOffset": -1,
   "SentOrderFolderPath": "SentOrder",
   "SentOrderFileFormat": "yyMMdd_HHmmss_ffffff",

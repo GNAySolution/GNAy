@@ -125,9 +125,15 @@ namespace GNAy.Capital.Models
         public OrderBS.Enum BSEnum
         {
             get { return _bsEnum; }
-            set { OnPropertyChanged(ref _bsEnum, value); }
+            set
+            {
+                if (OnPropertyChanged(ref _bsEnum, value))
+                {
+                    ProfitDirection = value == OrderBS.Enum.Buy ? 1 : -1;
+                }
+            }
         }
-        public int ProfitDirection => BSEnum == OrderBS.Enum.Buy ? 1 : -1;
+        public int ProfitDirection;
 
         private OrderTradeType.Enum _tradeTypeEnum;
         [Column("掛單", WPFDisplayIndex = 8)]
@@ -518,6 +524,7 @@ namespace GNAy.Capital.Models
             Quote = null;
             Symbol = string.Empty;
             BSEnum = OrderBS.Enum.Buy;
+            ProfitDirection = BSEnum == OrderBS.Enum.Buy ? 1 : -1;
             TradeTypeEnum = OrderTradeType.Enum.ROD;
             DayTradeEnum = OrderDayTrade.Enum.No;
             PositionEnum = OrderPosition.Enum.Open;
@@ -911,7 +918,7 @@ namespace GNAy.Capital.Models
 
         public string ToLog()
         {
-            return $"{StatusDes},{PrimaryKey},{MarketType},{Account},{Symbol},{BSEnum},{PositionEnum},{OrderPriceBefore},{OrderPriceAfter:0.00},{OrderQty},{StartTimesMax},{SendRealOrder},{Comment}";
+            return $"{StatusDes},{PrimaryKey},{MarketType},{Account},{Symbol},{BSEnum},{ProfitDirection},{PositionEnum},{OrderPriceBefore},{OrderPriceAfter:0.00},{OrderQty},{StartTimesMax},{SendRealOrder},{Comment}";
         }
 
         public string ToCSVString()
