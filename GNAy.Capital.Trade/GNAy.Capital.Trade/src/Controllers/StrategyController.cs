@@ -1106,40 +1106,40 @@ namespace GNAy.Capital.Trade.Controllers
             SerialReset(this[primaryKey], true);
         }
 
-        private void CancelAfterOrderSent(in StrategyData data, in DateTime start)
-        {
-            _appCtrl.OpenInterest.FilterFullAccount(data.FullAccount, start);
+        //private void CancelAfterOrderSent(in StrategyData data, in DateTime start)
+        //{
+        //    _appCtrl.OpenInterest.FilterFullAccount(data.FullAccount, start);
 
-            for (int i = Count - 1; i >= 0; --i)
-            {
-                try
-                {
-                    StrategyData target = this[i];
-                    string pk = $",{target.PrimaryKey},";
+        //    for (int i = Count - 1; i >= 0; --i)
+        //    {
+        //        try
+        //        {
+        //            StrategyData target = this[i];
+        //            string pk = $",{target.PrimaryKey},";
 
-                    if (target.FullAccount == data.FullAccount && target.Symbol == data.Symbol && target.BSEnum == data.BSEnum && target.OrderQty == data.OrderQty)
-                    {
-                        _appCtrl.Trigger.CancelAfterOrderSent(target, start);
+        //            if (target.FullAccount == data.FullAccount && target.Symbol == data.Symbol && target.BSEnum == data.BSEnum && target.OrderQty == data.OrderQty)
+        //            {
+        //                _appCtrl.Trigger.CancelAfterOrderSent(target, start);
 
-                        foreach (StrategyData father in _dataMap.Values)
-                        {
-                            if (father == target)
-                            {
-                                continue;
-                            }
-                            else if ($",{father.OpenStrategyAfterStopLoss},".Contains(pk) || $",{father.OpenStrategyAfterStopWin},".Contains(pk))
-                            {
-                                _appCtrl.Trigger.CancelAfterOrderSent(father, start);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _appCtrl.LogException(start, ex, ex.StackTrace);
-                }
-            }
-        }
+        //                foreach (StrategyData father in _dataMap.Values)
+        //                {
+        //                    if (father == target)
+        //                    {
+        //                        continue;
+        //                    }
+        //                    else if ($",{father.OpenStrategyAfterStopLoss},".Contains(pk) || $",{father.OpenStrategyAfterStopWin},".Contains(pk))
+        //                    {
+        //                        _appCtrl.Trigger.CancelAfterOrderSent(father, start);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            _appCtrl.LogException(start, ex, ex.StackTrace);
+        //        }
+        //    }
+        //}
 
         private void StartNow(in StrategyData data, in decimal marketPrice = 0)
         {
@@ -1161,7 +1161,7 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 data.StatusEnum = StrategyStatus.Enum.Monitoring;
 
-                CancelAfterOrderSent(data, start);
+                //CancelAfterOrderSent(data, start);
 
                 return;
             }
@@ -1172,7 +1172,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             _appCtrl.CAPOrder.Send(order);
 
-            CancelAfterOrderSent(data, start);
+            //CancelAfterOrderSent(data, start);
         }
 
         public void StartNow(in string primaryKey)
@@ -1242,7 +1242,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 _appCtrl.CAPOrder.Send(order);
 
-                CancelAfterOrderSent(data, start);
+                //CancelAfterOrderSent(data, start);
 
                 data.DealPrice = openInterest.AveragePrice;
 

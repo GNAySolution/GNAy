@@ -356,32 +356,32 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        public void CancelAfterOrderSent(in StrategyData strategy, in DateTime start)
-        {
-            string pk = $",{strategy.PrimaryKey},";
+        //public void CancelAfterOrderSent(in StrategyData strategy, in DateTime start)
+        //{
+        //    string pk = $",{strategy.PrimaryKey},";
 
-            for (int i = Count - 1; i >= 0; --i)
-            {
-                try
-                {
-                    TriggerData data = this[i];
+        //    for (int i = Count - 1; i >= 0; --i)
+        //    {
+        //        try
+        //        {
+        //            TriggerData data = this[i];
 
-                    if ($",{data.StrategyOpenOR},".Contains(pk) || $",{data.StrategyOpenAND},".Contains(pk))
-                    {
-                        CancelAfterExecuted(data, start);
+        //            if ($",{data.StrategyOpenOR},".Contains(pk) || $",{data.StrategyOpenAND},".Contains(pk))
+        //            {
+        //                CancelAfterExecuted(data, start);
 
-                        if (data.StatusEnum != TriggerStatus.Enum.Cancelled && data.StatusEnum != TriggerStatus.Enum.Executed)
-                        {
-                            Cancel(data, strategy.ToLog(), start);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _appCtrl.LogException(start, ex, ex.StackTrace);
-                }
-            }
-        }
+        //                if (data.StatusEnum != TriggerStatus.Enum.Cancelled && data.StatusEnum != TriggerStatus.Enum.Executed)
+        //                {
+        //                    Cancel(data, strategy.ToLog(), start);
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            _appCtrl.LogException(start, ex, ex.StackTrace);
+        //        }
+        //    }
+        //}
 
         private bool UpdateStatus(in TriggerData data, in QuoteData quote, in DateTime start)
         {
