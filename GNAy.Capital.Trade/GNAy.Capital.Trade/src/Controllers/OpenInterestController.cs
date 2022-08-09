@@ -548,11 +548,11 @@ namespace GNAy.Capital.Trade.Controllers
             return QuerySent;
         }
 
-        public OpenInterestData StartStrategies(in OpenInterestData data, in string keys)
+        public void StartStrategies(in OpenInterestData data, in string keys)
         {
             if (data.PositionEnum == OrderPosition.Enum.Close || !_appCtrl.Settings.StrategyFromOpenInterest || string.IsNullOrWhiteSpace(keys))
             {
-                return null;
+                return;
             }
 
             DateTime start = _appCtrl.StartTrace($"{nameof(keys)}={keys}|{data.ToLog()}", UniqueName);
@@ -572,7 +572,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 if (qtyTotal > data.Quantity)
                 {
-                    throw new ArgumentException($"qtyTotal({qtyTotal}) > data.Quantity({data.Quantity})|{nameof(keys)}={keys}|{data.ToLog()}");
+                    throw new ArgumentException($"{nameof(qtyTotal)}({qtyTotal}) > {nameof(data.Quantity)}({data.Quantity})|{nameof(keys)}={keys}|{data.ToLog()}");
                 }
 
                 foreach (string key in data.Strategy.SplitWithoutWhiteSpace(','))
@@ -592,8 +592,6 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 _appCtrl.LogException(start, ex, ex.StackTrace);
             }
-
-            return null;
         }
     }
 }
