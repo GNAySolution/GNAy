@@ -985,6 +985,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0)
             {
+                _appCtrl.Settings.StrategyStopWinProfit *= -1;
+
                 if (_appCtrl.Settings.StrategyStopWinOffset <= 0 && ProfitTotal <= ProfitTotalBest + _appCtrl.Settings.StrategyStopWinOffset)
                 {
                     CloseAll(0, "整體停利觸發");
