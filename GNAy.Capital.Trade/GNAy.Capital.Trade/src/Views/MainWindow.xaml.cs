@@ -967,7 +967,7 @@ namespace GNAy.Capital.Trade
                 if (_appCtrl.Strategy != null)
                 {
                     StatusBarItemBB3.Text = _appCtrl.Strategy.Notice;
-                    StatusBarItemBB4.Text = $"損益|{_appCtrl.Strategy.ProfitTotal}|{_appCtrl.Strategy.ProfitTotalBest}|{_appCtrl.Strategy.ProfitTotalStopWinTouched}";
+                    StatusBarItemBB4.Text = $"損益|{_appCtrl.Strategy.ProfitTotal}|{_appCtrl.Strategy.ProfitTotalBest}|{_appCtrl.Strategy.ProfitTotalStopWinTouched}|{_appCtrl.Strategy.ProfitTotalStopWinClosed}";
                 }
 
                 if (_appCtrl.OrderDetail != null)

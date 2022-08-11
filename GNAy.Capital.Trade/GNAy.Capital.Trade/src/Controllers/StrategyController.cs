@@ -40,6 +40,7 @@ namespace GNAy.Capital.Trade.Controllers
         public decimal ProfitTotal { get; private set; }
         public decimal ProfitTotalBest { get; private set; }
         public bool ProfitTotalStopWinTouched { get; private set; }
+        public bool ProfitTotalStopWinClosed { get; private set; }
 
         public string Notice { get; private set; }
 
@@ -62,6 +63,7 @@ namespace GNAy.Capital.Trade.Controllers
             ProfitTotal = 0;
             ProfitTotalBest = 0;
             ProfitTotalStopWinTouched = false;
+            ProfitTotalStopWinClosed = false;
 
             Notice = string.Empty;
         }
@@ -430,11 +432,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     StrategyData data = this[i];
 
-                    if (data.UnclosedQty == 0)
-                    {
-                        continue;
-                    }
-                    else if (_appCtrl.Settings.SendRealOrder && !data.SendRealOrder)
+                    if (_appCtrl.Settings.SendRealOrder && !data.SendRealOrder)
                     {
                         continue;
                     }
@@ -928,6 +926,38 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
+            if (!ProfitTotalStopWinClosed)
+            {
+                ProfitTotal = _appCtrl.Settings.SendRealOrder ? _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0) : _dataMap.Values.Sum(x => x.ClosedProfitTotalRaw + x.UnclosedProfit);
+
+                if (ProfitTotal > 0 && ProfitTotalBest < ProfitTotal)
+                {
+                    _appCtrl.LogTrace(start, $"{nameof(ProfitTotal)}={ProfitTotal}|{nameof(ProfitTotalBest)}={ProfitTotalBest}", UniqueName);
+                    ProfitTotalBest = ProfitTotal;
+                }
+
+                if (!ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0 && ProfitTotalBest >= _appCtrl.Settings.StrategyStopWinProfit)
+                {
+                    ProfitTotalStopWinTouched = true;
+                }
+
+                if (ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0)
+                {
+                    if (_appCtrl.Settings.StrategyStopWinOffset <= 0 && ProfitTotal <= ProfitTotalBest + _appCtrl.Settings.StrategyStopWinOffset)
+                    {
+                        ProfitTotalStopWinClosed = true;
+
+                        CloseAll(0, "整體停利觸發");
+                    }
+                    else if (_appCtrl.Settings.StrategyStopWinOffset > 0 && ProfitTotal <= _appCtrl.Settings.StrategyStopWinOffset)
+                    {
+                        ProfitTotalStopWinClosed = true;
+
+                        CloseAll(0, "整體停利觸發");
+                    }
+                }
+            }
+
             bool saveData = false;
 
             _marketPriceSnapshot.Clear();
@@ -969,32 +999,6 @@ namespace GNAy.Capital.Trade.Controllers
             if (saveData)
             {
                 SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileSaveFormat);
-            }
-
-            ProfitTotal = _appCtrl.Settings.SendRealOrder ? _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0) : _dataMap.Values.Sum(x => x.ClosedProfitTotalRaw + x.UnclosedProfit);
-
-            if (ProfitTotal > 0 && ProfitTotalBest < ProfitTotal)
-            {
-                ProfitTotalBest = ProfitTotal;
-            }
-
-            if (!ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0 && ProfitTotalBest >= _appCtrl.Settings.StrategyStopWinProfit)
-            {
-                ProfitTotalStopWinTouched = true;
-            }
-
-            if (ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0)
-            {
-                _appCtrl.Settings.StrategyStopWinProfit *= -1;
-
-                if (_appCtrl.Settings.StrategyStopWinOffset <= 0 && ProfitTotal <= ProfitTotalBest + _appCtrl.Settings.StrategyStopWinOffset)
-                {
-                    CloseAll(0, "整體停利觸發");
-                }
-                else if (_appCtrl.Settings.StrategyStopWinOffset > 0 && ProfitTotal <= _appCtrl.Settings.StrategyStopWinOffset)
-                {
-                    CloseAll(0, "整體停利觸發");
-                }
             }
         }
 
