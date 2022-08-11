@@ -69,7 +69,7 @@ namespace GNAy.Tools.NET47
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static string GetDescription(this object obj)
+        public static string GetDescription(this Enum obj)
         {
             FieldInfo field = obj.GetType().GetField(obj.ToString());
             DescriptionAttribute arr = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute), false);
@@ -388,23 +388,13 @@ namespace GNAy.Tools.NET47
             }
         }
 
-        public static int ToROCYear(this int obj)
-        {
-            return obj > 1911 ? obj - 1911 : obj;
-        }
-
         public static string ToROCYear(this string obj, in DateTime date)
         {
             string yyyy = date.ToString("yyyy");
-            string yyy = date.Year.ToROCYear().ToString();
+            string yyy = new TaiwanCalendar().GetYear(date).ToString();
             string yy = date.ToString("yy");
 
             return obj.Replace("{yyyy}", yyyy).Replace("{yyy}", yyy).Replace("{yy}", yy);
-        }
-
-        public static DateTime ToROCYear(this DateTime obj)
-        {
-            return new DateTime(obj.Year.ToROCYear(), obj.Month, obj.Day, obj.Hour, obj.Minute, obj.Second, obj.Millisecond);
         }
 
         public static string[] SplitToCSV(this string obj)

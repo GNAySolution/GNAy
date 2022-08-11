@@ -131,7 +131,7 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        private void ParentCheck(in StrategyData data, in bool readyToSend, in DateTime start, decimal marketPrice = 0)
+        private void ParentCheck(in StrategyData data, decimal marketPrice, in bool readyToSend, in DateTime start)
         {
             data.Trim();
 
@@ -1055,7 +1055,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                ParentCheck(data, false, start);
+                ParentCheck(data, 0, false, start);
                 AddOrUpdateRule(data);
             }
             catch (Exception ex)
@@ -1139,7 +1139,7 @@ namespace GNAy.Capital.Trade.Controllers
             DateTime start = _appCtrl.StartTrace($"{data?.ToLog()}", UniqueName);
 
             SerialReset(data, false);
-            ParentCheck(data, true, start, marketPrice);
+            ParentCheck(data, marketPrice, true, start);
 
             if (data.StartTimesMax > 0)
             {
@@ -1226,7 +1226,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 SerialReset(data, true);
-                ParentCheck(data, true, start);
+                ParentCheck(data, 0, true, start);
 
                 StrategyData order = data.CreateOrder();
 
