@@ -926,38 +926,6 @@ namespace GNAy.Capital.Trade.Controllers
                 }
             }
 
-            if (!ProfitTotalStopWinClosed)
-            {
-                ProfitTotal = _appCtrl.Settings.SendRealOrder ? _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0) : _dataMap.Values.Sum(x => x.ClosedProfitTotalRaw + x.UnclosedProfit);
-
-                if (ProfitTotal > 0 && ProfitTotalBest < ProfitTotal)
-                {
-                    _appCtrl.LogTrace(start, $"{nameof(ProfitTotal)}={ProfitTotal}|{nameof(ProfitTotalBest)}={ProfitTotalBest}", UniqueName);
-                    ProfitTotalBest = ProfitTotal;
-                }
-
-                if (!ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0 && ProfitTotalBest >= _appCtrl.Settings.StrategyStopWinProfit)
-                {
-                    ProfitTotalStopWinTouched = true;
-                }
-
-                if (ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0)
-                {
-                    if (_appCtrl.Settings.StrategyStopWinOffset <= 0 && ProfitTotal <= ProfitTotalBest + _appCtrl.Settings.StrategyStopWinOffset)
-                    {
-                        ProfitTotalStopWinClosed = true;
-
-                        CloseAll(0, "整體停利觸發");
-                    }
-                    else if (_appCtrl.Settings.StrategyStopWinOffset > 0 && ProfitTotal <= _appCtrl.Settings.StrategyStopWinOffset)
-                    {
-                        ProfitTotalStopWinClosed = true;
-
-                        CloseAll(0, "整體停利觸發");
-                    }
-                }
-            }
-
             bool saveData = false;
 
             _marketPriceSnapshot.Clear();
@@ -999,6 +967,38 @@ namespace GNAy.Capital.Trade.Controllers
             if (saveData)
             {
                 SaveData(_dataMap.Values, _appCtrl.Config.StrategyFolder, _appCtrl.Settings.StrategyFileSaveFormat);
+            }
+
+            if (!ProfitTotalStopWinClosed)
+            {
+                ProfitTotal = _appCtrl.Settings.SendRealOrder ? _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0) : _dataMap.Values.Sum(x => x.ClosedProfitTotalRaw + x.UnclosedProfit);
+
+                if (ProfitTotal > 0 && ProfitTotalBest < ProfitTotal)
+                {
+                    _appCtrl.LogTrace(start, $"{nameof(ProfitTotal)}={ProfitTotal}|{nameof(ProfitTotalBest)}={ProfitTotalBest}", UniqueName);
+                    ProfitTotalBest = ProfitTotal;
+                }
+
+                if (!ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0 && ProfitTotalBest >= _appCtrl.Settings.StrategyStopWinProfit)
+                {
+                    ProfitTotalStopWinTouched = true;
+                }
+
+                if (ProfitTotalStopWinTouched && _appCtrl.Settings.StrategyStopWinProfit > 0)
+                {
+                    if (_appCtrl.Settings.StrategyStopWinOffset <= 0 && ProfitTotal <= ProfitTotalBest + _appCtrl.Settings.StrategyStopWinOffset)
+                    {
+                        ProfitTotalStopWinClosed = true;
+
+                        CloseAll(0, "整體停利觸發");
+                    }
+                    else if (_appCtrl.Settings.StrategyStopWinOffset > 0 && ProfitTotal <= _appCtrl.Settings.StrategyStopWinOffset)
+                    {
+                        ProfitTotalStopWinClosed = true;
+
+                        CloseAll(0, "整體停利觸發");
+                    }
+                }
             }
         }
 

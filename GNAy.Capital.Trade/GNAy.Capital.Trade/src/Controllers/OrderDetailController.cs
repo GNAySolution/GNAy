@@ -142,7 +142,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     parent.ClosedProfit += data.ClosedProfit;
                     parent.UnclosedQty = data.UnclosedQty;
-
+                    parent.UnclosedProfit = (parent.MarketPrice - parent.DealPrice) * parent.UnclosedQty * parent.ProfitDirection;
                     parent.SumClosedProfit(data.ClosedProfit);
                 }
 
