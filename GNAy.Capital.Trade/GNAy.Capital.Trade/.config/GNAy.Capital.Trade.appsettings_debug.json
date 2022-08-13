@@ -1,5 +1,5 @@
 {
-  "Version": "1.22.813.1",
+  "Version": "1.22.813.3",
   "Description": "測試用設定",
   "ProcessPriority": "Normal",
   "Big5EncodingCodePage": 950,
@@ -21,6 +21,7 @@
   ],
   "AutoRunInTradeDay": true,
   "AutoRunInHoliday": false,
+  "CapitalLogPathSuffix": "",
   "LiveMode": false,
   "LiveModeAPIReply": [
     "UserID",

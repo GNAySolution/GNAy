@@ -5,6 +5,7 @@ using SKCOMLib;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -157,6 +158,22 @@ namespace GNAy.Capital.Trade.Controllers
                 m_pSKReply.OnReplyClearMessage += OnClearMessage;
 
                 m_pSKCenter = new SKCenterLib();
+
+                if (!string.IsNullOrWhiteSpace(_appCtrl.Settings.CapitalLogPathSuffix))
+                {
+                    FileInfo assemblyFile = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                    DirectoryInfo capitalLog = new DirectoryInfo(Path.Combine($"{assemblyFile.Directory.FullName}{_appCtrl.Settings.CapitalLogPathSuffix}", $"{CreatedTime:yyMMdd}"));
+
+                    capitalLog.Create();
+
+                    int logPathResult = m_pSKCenter.SKCenterLib_SetLogPath(capitalLog.FullName);
+
+                    if (logPathResult != 0)
+                    {
+                        LogAPIMessage(start, logPathResult);
+                    }
+                }
+
                 m_pSKCenter.SKCenterLib_SetAuthority(0); //SGX 專線屬性：關閉／開啟：0／1
                 m_pSKCenter.OnTimer += SKCenter_OnTimer;
 

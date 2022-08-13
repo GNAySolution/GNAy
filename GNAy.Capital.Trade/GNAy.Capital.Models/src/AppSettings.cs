@@ -53,6 +53,8 @@ namespace GNAy.Capital.Models
         /// </summary>
         public bool AutoRunInHoliday { get; set; }
 
+        public string CapitalLogPathSuffix { get; set; }
+
         /// <summary>
         /// 直播模式，隱藏隱私資料，只呈現損益，方便使用者實況(或錄影)播放自己的交易過程
         /// </summary>
@@ -194,7 +196,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.813.1";
+            Version = "1.22.813.3";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -217,6 +219,8 @@ namespace GNAy.Capital.Models
 
             AutoRunInTradeDay = true;
             AutoRunInHoliday = false;
+
+            CapitalLogPathSuffix = string.Empty;
 
             LiveMode = false;
             LiveModeAPIReply = new List<string>();
