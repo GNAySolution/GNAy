@@ -45,13 +45,13 @@
 * T1_0404_AM.csv，日盤
 * T1_0404_PM.csv，夜盤
 
-###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/StrategyData/T1_0504_False_AM.csv
+###### https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/.config/StrategyData/T1_0504_False_AM_SWP50_SWO0.csv
 * 策略範例，方便demo用，快速測試停損停利等各項功能，是容易賠錢的設定，請勿在正式環境使用
 * 測試前請將"分公司"與"下單帳號"欄位改成自己的
-* T1_0504_False_AM.csv，日盤，隔日是平日
-* T1_0504_False_PM.csv，夜盤，隔日是平日
-* T1_0504_True_AM.csv，日盤，隔日是假日
-* T1_0504_True_PM.csv，夜盤，隔日是假日
+* T1_0504_False_AM_SWP50_SWO0.csv，日盤，隔日是平日，整體停利觸發(SWP)50，整體停利位移(SWO)0
+* T1_0504_False_PM_SWP50_SWO0.csv，夜盤，隔日是平日，整體停利觸發(SWP)50，整體停利位移(SWO)0
+* T1_0504_True_AM_SWP50_SWO0.csv，日盤，隔日是假日，整體停利觸發(SWP)50，整體停利位移(SWO)0
+* T1_0504_True_PM_SWP50_SWO0.csv，夜盤，隔日是假日，整體停利觸發(SWP)50，整體停利位移(SWO)0
 
 ## GNAy.Capital.Models.csproj
 * https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Models/GNAy.Capital.Models.csproj

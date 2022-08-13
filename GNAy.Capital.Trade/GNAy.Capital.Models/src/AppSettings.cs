@@ -194,7 +194,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.726.1";
+            Version = "1.22.813.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -272,18 +272,18 @@ namespace GNAy.Capital.Models
             OrderMaxCount = 50;
 
             TriggerFolderPath = "TriggerData";
-            TriggerFileLoadFormat = $"T*{Keyword_DayNight}.csv";
+            TriggerFileLoadFormat = $"T*{Keyword_DayNight}*.csv";
             TriggerFileSaveFormat = "MMdd_HHmm";
             TriggerReadAndCancel = "ZT";
 
             StrategyFolderPath = "StrategyData";
-            StrategyFileLoadFormat = $"T*{Keyword_Holiday}_{Keyword_DayNight}.csv";
+            StrategyFileLoadFormat = $"T*{Keyword_Holiday}_{Keyword_DayNight}*.csv";
             StrategyFileSaveFormat = "MMdd_HHmm";
             StrategyNotForOpenInterest = "ZS";
             StrategyFromOpenInterest = false;
 
             StrategyStopWinProfit = 100;
-            StrategyStopWinOffset = -50;
+            StrategyStopWinOffset = -1;
 
             SentOrderFolderPath = "SentOrder";
             SentOrderFileFormat = "yyMMdd_HHmmss_ffffff";

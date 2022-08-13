@@ -1378,5 +1378,57 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.EndTrace(start, UniqueName);
             }
         }
+
+        public int GetStopWinProfit(string source)
+        {
+            DateTime start = _appCtrl.StartTrace($"{nameof(source)}={source}", UniqueName);
+
+            try
+            {
+                foreach (string cell in source.Split('_', '.'))
+                {
+                    if (!string.IsNullOrWhiteSpace(cell) && cell.StartsWith("SWP"))
+                    {
+                        return int.Parse(cell.Substring("SWP".Length));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+
+            return _appCtrl.Settings.StrategyStopWinProfit;
+        }
+
+        public int GetStopWinOffset(string source)
+        {
+            DateTime start = _appCtrl.StartTrace($"{nameof(source)}={source}", UniqueName);
+
+            try
+            {
+                foreach (string cell in source.Split('_', '.'))
+                {
+                    if (!string.IsNullOrWhiteSpace(cell) && cell.StartsWith("SWO"))
+                    {
+                        return int.Parse(cell.Substring("SWO".Length));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+            finally
+            {
+                _appCtrl.EndTrace(start, UniqueName);
+            }
+
+            return _appCtrl.Settings.StrategyStopWinOffset;
+        }
     }
 }

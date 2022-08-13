@@ -1139,6 +1139,10 @@ namespace GNAy.Capital.Trade
                     Thread.Sleep(2 * 1000);
                     this.InvokeAsync(delegate
                     {
+                        TextBoxStrategyStopWinProfit.Text = _appCtrl.Strategy.GetStopWinProfit(_appCtrl.Strategy.RecoverFile).ToString();
+                        TextBoxStrategyStopWinOffset.Text = _appCtrl.Strategy.GetStopWinOffset(_appCtrl.Strategy.RecoverFile).ToString();
+                        ButtonSaveStrategyStopWin_Click(null, null);
+
                         CheckBoxShowDataGrid.IsChecked = _appCtrl.Settings.ShowDataGrid;
                         CheckBoxShowDataGrid_CheckedOrNot(null, null);
 
