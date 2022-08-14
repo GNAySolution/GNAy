@@ -2014,7 +2014,7 @@ namespace GNAy.Capital.Trade
                 TextBoxStrategyWinClose.Text = $"{data.WinCloseQty},{data.WinCloseSeconds}secs";
                 TextBoxStrategyLossClose.Text = $"{data.LossCloseQty},{data.LossCloseSeconds}secs";
                 TextBoxAccountsWinLossClose.Text = data.AccountsWinLossClose;
-                TextBoxStrategyStartTimesMax.Text = $"{data.StartTimesMax}";
+                TextBoxStrategyRealOrdersOrNot.Text = data.RealOrdersOrNot;
 
                 ComboBoxOrderAccs.SelectedIndex = -1;
                 for (int i = 0; i < ComboBoxOrderAccs.Items.Count; ++i)
@@ -2038,7 +2038,6 @@ namespace GNAy.Capital.Trade
                 ComboBoxOrderPositionKind.SelectedIndex = (int)data.PositionEnum;
                 TextBoxOrderPrice.Text = data.OrderPriceBefore;
                 TextBoxOrderQty.Text = $"{data.OrderQty}";
-                CheckBoxStrategySendReal.IsChecked = data.SendRealOrder;
             }
             catch (Exception ex)
             {
@@ -2169,8 +2168,7 @@ namespace GNAy.Capital.Trade
                     CloseTriggerAfterStopWin = TextBoxCloseTriggerAfterStopWin.Text,
                     CloseStrategyAfterStopWin = TextBoxCloseStrategyAfterStopWin.Text,
                     AccountsWinLossClose = TextBoxAccountsWinLossClose.Text,
-                    StartTimesMax = int.Parse(TextBoxStrategyStartTimesMax.Text),
-                    SendRealOrder = CheckBoxStrategySendReal.IsChecked.Value,
+                    RealOrdersOrNot = TextBoxStrategyRealOrdersOrNot.Text,
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
@@ -2275,7 +2273,8 @@ namespace GNAy.Capital.Trade
                     PositionEnum = (OrderPosition.Enum)ComboBoxOrderPositionKind.SelectedIndex,
                     OrderPriceBefore = TextBoxOrderPrice.Text,
                     OrderQty = int.Parse(TextBoxOrderQty.Text),
-                    SendRealOrder = CheckBoxStrategySendReal.IsChecked.Value,
+                    RealOrdersOrNot = TextBoxStrategyRealOrdersOrNot.Text,
+                    StartTimesIndex = 0,
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
                 };
@@ -2337,9 +2336,9 @@ namespace GNAy.Capital.Trade
                         {
                             StrategyData data = _appCtrl.Strategy[key];
 
-                            if (data.StartTimesMax <= 0)
+                            if (data.StartTimesIndex >= data.RealOrdersOrNot.Length - 1)
                             {
-                                data.StartTimesMax = 1;
+                                data.StartTimesIndex = data.RealOrdersOrNot.Length - 2;
                             }
 
                             _appCtrl.Strategy.StartNow(key);
@@ -2361,9 +2360,9 @@ namespace GNAy.Capital.Trade
 
                         StrategyData data = _appCtrl.Strategy[primaryKey];
 
-                        if (data.StartTimesMax <= 0)
+                        if (data.StartTimesIndex >= data.RealOrdersOrNot.Length - 1)
                         {
-                            data.StartTimesMax = 1;
+                            data.StartTimesIndex = data.RealOrdersOrNot.Length - 2;
                         }
 
                         _appCtrl.Strategy.StartNow(primaryKey);
@@ -2477,7 +2476,8 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                _appCtrl.Strategy.CloseAll(string.IsNullOrWhiteSpace(TextBoxOrderQty.Text) ? 0 : int.Parse(TextBoxOrderQty.Text));
+                //TODO
+                _appCtrl.Strategy.CloseAll(string.IsNullOrWhiteSpace(TextBoxOrderQty.Text) ? 0 : int.Parse(TextBoxOrderQty.Text), true);
             }
             catch (Exception ex)
             {

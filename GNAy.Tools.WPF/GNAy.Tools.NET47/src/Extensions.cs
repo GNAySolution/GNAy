@@ -392,7 +392,12 @@ namespace GNAy.Tools.NET47
 
         public static string ToStringWithROCYear(this DateTime obj, in string format = "yyy/MM/dd")
         {
-            return obj.ToString(format, Localization.TWCulture);
+            return string.IsNullOrWhiteSpace(format) ? obj.ToString(Localization.TWCulture) : obj.ToString(format, Localization.TWCulture);
+        }
+
+        public static DateTime ParseROCYear(this string obj)
+        {
+            return DateTime.Parse(obj, Localization.TWCulture);
         }
 
         public static string ToROCYear(this string obj, in DateTime date)

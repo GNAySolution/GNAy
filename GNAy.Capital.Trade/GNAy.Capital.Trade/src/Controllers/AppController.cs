@@ -589,7 +589,8 @@ namespace GNAy.Capital.Trade.Controllers
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.LossCloseQty)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.LossCloseTime)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                     MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.AccountsWinLossClose)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
-                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StartTimesMax)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.RealOrdersOrNot)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
+                    MainForm.DataGridOrderDetail.Columns[StrategyData.PropertyMap[nameof(StrategyData.StartTimesIndex)].Item1.WPFDisplayIndex].Visibility = System.Windows.Visibility.Collapsed;
                 }
 
                 return true;

@@ -482,18 +482,46 @@ namespace GNAy.Capital.Models
             set { OnPropertyChanged(ref _accountsWinLossClose, value); }
         }
 
+        private bool _totalStopWin;
+        [Column("納入整體停利計算", "整停", WPFDisplayIndex = 43)]
+        public bool TotalStopWin
+        {
+            get { return _totalStopWin; }
+            set { OnPropertyChanged(ref _totalStopWin, value); }
+        }
+
         public StrategyData MarketClosingData;
 
-        private int _startTimesMax;
-        [Column("啟動次數限制", "限", WPFDisplayIndex = 43, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
-        public int StartTimesMax
+        private string _realOrdersOrNot;
+        [Column("啟動次數與下單限制", "啟限", WPFDisplayIndex = 44)]
+        public string RealOrdersOrNot
         {
-            get { return _startTimesMax; }
-            set { OnPropertyChanged(ref _startTimesMax, value); }
+            get { return _realOrdersOrNot; }
+            set
+            {
+                if (OnPropertyChanged(ref _realOrdersOrNot, value))
+                {
+                    StartTimesIndex = -1;
+                }
+            }
+        }
+
+        private int _startTimesIndex;
+        [Column("啟動索引", "啟索", CSVIndex = -1, WPFDisplayIndex = 45, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        public int StartTimesIndex
+        {
+            get { return _startTimesIndex; }
+            set
+            {
+                if (OnPropertyChanged(ref _startTimesIndex, value))
+                {
+                    SendRealOrder = (value >= 0 && value < RealOrdersOrNot.Length) && (RealOrdersOrNot[value] == 'T' || RealOrdersOrNot[value] == 't');
+                }
+            }
         }
 
         private bool _sendRealOrder;
-        [Column("真實下單", "實單", WPFDisplayIndex = 44, WPFForeground = "MediumBlue")]
+        [Column("真實下單", "實單", CSVIndex = -1, WPFDisplayIndex = 46)]
         public bool SendRealOrder
         {
             get { return _sendRealOrder; }
@@ -501,7 +529,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _comment;
-        [Column("註解", WPFDisplayIndex = 45)]
+        [Column("註解", WPFDisplayIndex = 47)]
         public string Comment
         {
             get { return _comment; }
@@ -571,8 +599,10 @@ namespace GNAy.Capital.Models
             LossCloseSeconds = 0;
             LossCloseTime = DateTime.MinValue;
             AccountsWinLossClose = string.Empty;
+            TotalStopWin = false;
             MarketClosingData = null;
-            StartTimesMax = 9;
+            RealOrdersOrNot = string.Empty;
+            StartTimesIndex = -1;
             SendRealOrder = false;
             Comment = string.Empty;
         }
@@ -912,13 +942,13 @@ namespace GNAy.Capital.Models
 
             foreach (decimal profit in ClosedProfitList)
             {
-                ClosedProfitTotal = profit > 0 ? $"{ClosedProfitTotal}+{profit:0.00}" : $"{ClosedProfitTotal}{profit:0.00}";
+                ClosedProfitTotal = profit >= 0 ? $"{ClosedProfitTotal}+{profit:0.00}" : $"{ClosedProfitTotal}{profit:0.00}";
             }
         }
 
         public string ToLog()
         {
-            return $"{StatusDes},{PrimaryKey},{MarketType},{Account},{Symbol},{BSEnum},{ProfitDirection},{PositionEnum},{OrderPriceBefore},{OrderPriceAfter:0.00},{OrderQty},{StartTimesMax},{SendRealOrder},{Comment}";
+            return $"{StatusDes},{PrimaryKey},{MarketType},{Account},{Symbol},{BSEnum},{ProfitDirection},{PositionEnum},{OrderPriceBefore},{OrderPriceAfter:0.00},{OrderQty},{RealOrdersOrNot},{StartTimesIndex},{SendRealOrder},{Comment}";
         }
 
         public string ToCSVString()

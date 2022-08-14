@@ -271,7 +271,7 @@
                 <TextBox x:Name="TextBoxStrategyWinClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數，?secs代表收盤前幾秒執行" HorizontalAlignment="Left" Margin="841,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxStrategyLossClose" Text="負值減倉正值留倉" ToolTip="小於0代表減倉口數，大於0代表留倉口數，?secs代表收盤前幾秒執行" HorizontalAlignment="Left" Margin="841,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TextBox x:Name="TextBoxAccountsWinLossClose" Text="以帳號判斷獲利損失" ToolTip="以帳號整體判斷獲利或損失，收盤時對策略做減倉" HorizontalAlignment="Left" Margin="966,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <TextBox x:Name="TextBoxStrategyStartTimesMax" Text="啟動次數限制" ToolTip="策略啟動次數限制" HorizontalAlignment="Left" Margin="966,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <TextBox x:Name="TextBoxStrategyRealOrdersOrNot" Text="啟動次數與下單限制" ToolTip="啟動次數與下單限制" HorizontalAlignment="Left" Margin="966,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <TabControl x:Name="TabControlBB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="觸價警示">
                         <Grid Background="#FFE5E5E5">
@@ -365,8 +365,8 @@
                 <ComboBox x:Name="ComboBoxOrderDayTrade" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="510,35,0,0" VerticalAlignment="Top" Width="120"/>
                 <Label Content="新倉平倉自動" HorizontalAlignment="Left" Margin="635,10,0,0" VerticalAlignment="Top"/>
                 <ComboBox x:Name="ComboBoxOrderPositionKind" ToolTip="{Binding Path=SelectedValue, RelativeSource={RelativeSource Self}}" HorizontalAlignment="Left" Margin="635,35,0,0" VerticalAlignment="Top" Width="120"/>
-                <Label Content="真實下單或模擬" HorizontalAlignment="Left" Margin="760,10,0,0" VerticalAlignment="Top"/>
-                <CheckBox x:Name="CheckBoxStrategySendReal" Content="真實下單" HorizontalAlignment="Left" Margin="760,35,0,0" VerticalAlignment="Top"/>
+                <!--<Label Content="真實下單或模擬" HorizontalAlignment="Left" Margin="760,10,0,0" VerticalAlignment="Top"/>
+                <CheckBox x:Name="CheckBoxStrategySendReal" Content="真實下單" HorizontalAlignment="Left" Margin="760,35,0,0" VerticalAlignment="Top"/>-->
                 <Button x:Name="ButtonSendTWOrder" Content="國內委託送出" HorizontalAlignment="Left" Margin="54,61,0,0" VerticalAlignment="Top" Click="ButtonSendTWOrder_Click"/>
                 <Button x:Name="ButtonStartStrategyNow" Content="立刻啟動策略" HorizontalAlignment="Left" Margin="54,82,0,0" VerticalAlignment="Top" Click="ButtonStartStrategyNow_Click"/>
                 <Label Content="委託價格" HorizontalAlignment="Left" Margin="135,57,0,0" VerticalAlignment="Top"/>

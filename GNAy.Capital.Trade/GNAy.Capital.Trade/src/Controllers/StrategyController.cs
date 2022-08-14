@@ -422,9 +422,9 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        public void CloseAll(in int qty, in string comment = "手動停止")
+        public void CloseAll(in int qty, bool onlyTotalStopWin, in string comment = "手動停止")
         {
-            DateTime start = _appCtrl.StartTrace($"{nameof(qty)}={qty}|{comment}", UniqueName);
+            DateTime start = _appCtrl.StartTrace($"{nameof(qty)}={qty}|{nameof(onlyTotalStopWin)}={onlyTotalStopWin}|{comment}", UniqueName);
 
             for (int i = Count - 1; i >= 0; --i)
             {
@@ -432,7 +432,11 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     StrategyData data = this[i];
 
-                    if (_appCtrl.Settings.SendRealOrder && !data.SendRealOrder)
+                    if (onlyTotalStopWin && !data.TotalStopWin)
+                    {
+                        continue;
+                    }
+                    else if (!onlyTotalStopWin && _appCtrl.Settings.SendRealOrder && !data.SendRealOrder)
                     {
                         continue;
                     }
@@ -611,7 +615,7 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     return saveData;
                 }
-                else if (data.StartTimesMax < 0)
+                else if (data.StartTimesIndex >= data.RealOrdersOrNot.Length)
                 {
                     data.StatusEnum = StrategyStatus.Enum.Cancelled;
                     data.Comment = "啟動次數限制";
@@ -669,7 +673,7 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (data.StopLossData != null || data.UnclosedQty == 0)
                 {
-                    if (data.StartTimesMax <= 0)
+                    if (data.StartTimesIndex >= data.RealOrdersOrNot.Length)
                     {
                         data.StatusEnum = StrategyStatus.Enum.Cancelled;
                         data.Comment = "啟動次數限制";
@@ -699,7 +703,7 @@ namespace GNAy.Capital.Trade.Controllers
                             return saveData;
                         }
 
-                        --data.StartTimesMax;
+                        ++data.StartTimesIndex;
 
                         data.StatusEnum = StrategyStatus.Enum.Monitoring;
                         data.OrderData = null;
@@ -971,7 +975,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!ProfitTotalStopWinClosed)
             {
-                ProfitTotal = _appCtrl.Settings.SendRealOrder ? _dataMap.Values.Sum(x => x.SendRealOrder ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0) : _dataMap.Values.Sum(x => x.ClosedProfitTotalRaw + x.UnclosedProfit);
+                ProfitTotal = _dataMap.Values.Sum(x => x.TotalStopWin ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0);
 
                 if (ProfitTotal > 0 && ProfitTotalBest < ProfitTotal)
                 {
@@ -990,13 +994,13 @@ namespace GNAy.Capital.Trade.Controllers
                     {
                         ProfitTotalStopWinClosed = true;
 
-                        CloseAll(0, "整體停利觸發");
+                        CloseAll(0, true, "整體停利觸發");
                     }
                     else if (_appCtrl.Settings.StrategyStopWinOffset > 0 && ProfitTotal <= _appCtrl.Settings.StrategyStopWinOffset)
                     {
                         ProfitTotalStopWinClosed = true;
 
-                        CloseAll(0, "整體停利觸發");
+                        CloseAll(0, true, "整體停利觸發");
                     }
                 }
             }
@@ -1147,13 +1151,13 @@ namespace GNAy.Capital.Trade.Controllers
             SerialReset(data, false);
             ParentCheck(data, marketPrice, true, start);
 
-            if (data.StartTimesMax > 0)
+            if (data.StartTimesIndex < data.RealOrdersOrNot.Length - 1)
             {
-                --data.StartTimesMax;
+                ++data.StartTimesIndex;
             }
             else
             {
-                throw new ArgumentException($"啟動次數限制({nameof(StrategyData.StartTimesMax)})={data.StartTimesMax}|{data.ToLog()}");
+                throw new ArgumentException($"啟動次數限制({nameof(StrategyData.StartTimesIndex)})={data.StartTimesIndex}|{data.ToLog()}");
             }
 
             if (!decimal.TryParse(data.OrderPriceBefore, out _) && data.OrderPriceBefore.Length >= 3)
