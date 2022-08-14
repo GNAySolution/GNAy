@@ -15,8 +15,6 @@ namespace GNAy.Capital.Models
         public readonly AppSettings Settings;
         public readonly Version Version;
 
-        public readonly Encoding Big5Encoding;
-
         public readonly DirectoryInfo ScreenshotFolder;
 
         public readonly SortedDictionary<DateTime, string> Holidays;
@@ -46,7 +44,7 @@ namespace GNAy.Capital.Models
             Settings = settings;
             Version = new Version(settings.Version);
 
-            Big5Encoding = Encoding.GetEncoding(settings.Big5EncodingCodePage);
+            Localization.Big5Encoding = Encoding.GetEncoding(settings.Big5EncodingCodePage);
 
             ScreenshotFolder = new DirectoryInfo(settings.ScreenshotFolderPath);
             ScreenshotFolder.Create();
@@ -55,9 +53,9 @@ namespace GNAy.Capital.Models
             Holidays = new SortedDictionary<DateTime, string>();
             DateTime today = DateTime.Today;
             string holidayPathThisYear = settings.HolidayFilePath.ToROCYear(today);
-            Holidays.LoadHolidays(holidayPathThisYear, Big5Encoding, today.Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
+            Holidays.LoadHolidays(holidayPathThisYear, Localization.Big5Encoding, today.Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
             string holidayPathLastYear = settings.HolidayFilePath.ToROCYear(today.AddYears(-1));
-            Holidays.LoadHolidays(holidayPathLastYear, Big5Encoding, today.AddYears(-1).Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
+            Holidays.LoadHolidays(holidayPathLastYear, Localization.Big5Encoding, today.AddYears(-1).Year, settings.HolidayFileKeywords1, settings.HolidayFileKeywords2);
 
             AutoRun = IsHoliday(CreatedTime) ? settings.AutoRunInHoliday : settings.AutoRunInTradeDay;
 

@@ -73,6 +73,7 @@ namespace GNAy.Tools.NET47
         {
             FieldInfo field = obj.GetType().GetField(obj.ToString());
             DescriptionAttribute arr = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute), false);
+
             return arr.Description;
         }
 
@@ -384,14 +385,20 @@ namespace GNAy.Tools.NET47
                 BinaryFormatter formatter = new BinaryFormatter();
                 formatter.Serialize(ms, obj);
                 ms.Seek(0, SeekOrigin.Begin);
+
                 return (T)formatter.Deserialize(ms);
             }
+        }
+
+        public static string ToStringWithROCYear(this DateTime obj, in string format = "yyy/MM/dd")
+        {
+            return obj.ToString(format, Localization.TWCulture);
         }
 
         public static string ToROCYear(this string obj, in DateTime date)
         {
             string yyyy = date.ToString("yyyy");
-            string yyy = new TaiwanCalendar().GetYear(date).ToString();
+            string yyy = Localization.TWCalendar.GetYear(date).ToString();
             string yy = date.ToString("yy");
 
             return obj.Replace("{yyyy}", yyyy).Replace("{yyy}", yyy).Replace("{yy}", yy);
@@ -459,6 +466,7 @@ namespace GNAy.Tools.NET47
         {
             T dic = new T();
             dic.LoadHolidays(obj, encoding, yyyy, keywords1, keywords2);
+
             return dic;
         }
     }
