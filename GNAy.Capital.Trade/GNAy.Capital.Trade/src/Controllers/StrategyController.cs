@@ -422,7 +422,7 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
-        public void CloseAll(in int qty, bool onlyTotalStopWin, in string comment = "手動停止")
+        public void CloseAll(in int qty, in bool onlyTotalStopWin, in string comment = "手動停止")
         {
             DateTime start = _appCtrl.StartTrace($"{nameof(qty)}={qty}|{nameof(onlyTotalStopWin)}={onlyTotalStopWin}|{comment}", UniqueName);
 
@@ -1383,7 +1383,16 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public int GetStopWinProfit(string source)
+        public void ResetTotalStopWin(in bool totalStopWinTouched = false, in bool totalStopWinClosed = false)
+        {
+            _appCtrl.LogTrace($"{nameof(ProfitTotalStopWinTouched)}={ProfitTotalStopWinTouched}|{nameof(totalStopWinTouched)}={totalStopWinTouched}", UniqueName);
+            ProfitTotalStopWinTouched = totalStopWinTouched;
+
+            _appCtrl.LogTrace($"{nameof(ProfitTotalStopWinClosed)}={ProfitTotalStopWinClosed}|{nameof(totalStopWinClosed)}={totalStopWinClosed}", UniqueName);
+            ProfitTotalStopWinClosed = totalStopWinClosed;
+        }
+
+        public int GetStopWinProfit(in string source)
         {
             DateTime start = _appCtrl.StartTrace($"{nameof(source)}={source}", UniqueName);
 
@@ -1409,7 +1418,7 @@ namespace GNAy.Capital.Trade.Controllers
             return _appCtrl.Settings.StrategyStopWinProfit;
         }
 
-        public int GetStopWinOffset(string source)
+        public int GetStopWinOffset(in string source)
         {
             DateTime start = _appCtrl.StartTrace($"{nameof(source)}={source}", UniqueName);
 

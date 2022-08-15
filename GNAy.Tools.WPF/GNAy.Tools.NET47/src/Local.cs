@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GNAy.Tools.NET47
 {
-    public class Localization
+    public class Local
     {
         public static Encoding Big5Encoding;
 
@@ -15,7 +15,7 @@ namespace GNAy.Tools.NET47
 
         public static readonly CultureInfo TWCulture;
 
-        static Localization()
+        static Local()
         {
             Big5Encoding = null;
 

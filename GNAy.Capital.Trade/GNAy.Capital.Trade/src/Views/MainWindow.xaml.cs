@@ -2456,11 +2456,21 @@ namespace GNAy.Capital.Trade
             DateTime start = _appCtrl.StartTrace();
 
             try
-            { //TODO
-                _appCtrl.Settings.StrategyStopWinProfit = int.Parse(TextBoxStrategyStopWinProfit.Text);
+            {
+                int stopWinProfit = int.Parse(TextBoxStrategyStopWinProfit.Text);
+                int stopWinOffset = int.Parse(TextBoxStrategyStopWinOffset.Text);
+
+                if (_appCtrl.Settings.StrategyStopWinProfit == stopWinProfit && _appCtrl.Settings.StrategyStopWinOffset == stopWinOffset)
+                {
+                    _appCtrl.Strategy.ResetTotalStopWin();
+
+                    return;
+                }
+
+                _appCtrl.Settings.StrategyStopWinProfit = stopWinProfit;
                 _appCtrl.LogTrace(start, $"{nameof(AppSettings.StrategyStopWinProfit)}={_appCtrl.Settings.StrategyStopWinProfit}", UniqueName);
 
-                _appCtrl.Settings.StrategyStopWinOffset = int.Parse(TextBoxStrategyStopWinOffset.Text);
+                _appCtrl.Settings.StrategyStopWinOffset = stopWinOffset;
                 _appCtrl.LogTrace(start, $"{nameof(AppSettings.StrategyStopWinOffset)}={_appCtrl.Settings.StrategyStopWinOffset}", UniqueName);
             }
             catch (Exception ex)
