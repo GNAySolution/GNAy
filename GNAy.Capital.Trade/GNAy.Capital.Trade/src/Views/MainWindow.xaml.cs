@@ -2038,6 +2038,7 @@ namespace GNAy.Capital.Trade
                 ComboBoxOrderPositionKind.SelectedIndex = (int)data.PositionEnum;
                 TextBoxOrderPrice.Text = data.OrderPriceBefore;
                 TextBoxOrderQty.Text = $"{data.OrderQty}";
+                CheckBoxStrategyTotalStopWin.IsChecked = data.TotalStopWin;
             }
             catch (Exception ex)
             {
@@ -2168,6 +2169,7 @@ namespace GNAy.Capital.Trade
                     CloseTriggerAfterStopWin = TextBoxCloseTriggerAfterStopWin.Text,
                     CloseStrategyAfterStopWin = TextBoxCloseStrategyAfterStopWin.Text,
                     AccountsWinLossClose = TextBoxAccountsWinLossClose.Text,
+                    TotalStopWin = CheckBoxStrategyTotalStopWin.IsChecked.Value,
                     RealOrdersOrNot = TextBoxStrategyRealOrdersOrNot.Text,
                     Updater = methodName,
                     UpdateTime = DateTime.Now,
@@ -2273,6 +2275,7 @@ namespace GNAy.Capital.Trade
                     PositionEnum = (OrderPosition.Enum)ComboBoxOrderPositionKind.SelectedIndex,
                     OrderPriceBefore = TextBoxOrderPrice.Text,
                     OrderQty = int.Parse(TextBoxOrderQty.Text),
+                    TotalStopWin = CheckBoxStrategyTotalStopWin.IsChecked.Value,
                     RealOrdersOrNot = TextBoxStrategyRealOrdersOrNot.Text,
                     StartTimesIndex = 0,
                     Updater = methodName,
@@ -2453,7 +2456,7 @@ namespace GNAy.Capital.Trade
             DateTime start = _appCtrl.StartTrace();
 
             try
-            {
+            { //TODO
                 _appCtrl.Settings.StrategyStopWinProfit = int.Parse(TextBoxStrategyStopWinProfit.Text);
                 _appCtrl.LogTrace(start, $"{nameof(AppSettings.StrategyStopWinProfit)}={_appCtrl.Settings.StrategyStopWinProfit}", UniqueName);
 
@@ -2476,8 +2479,7 @@ namespace GNAy.Capital.Trade
 
             try
             {
-                //TODO
-                _appCtrl.Strategy.CloseAll(string.IsNullOrWhiteSpace(TextBoxOrderQty.Text) ? 0 : int.Parse(TextBoxOrderQty.Text), true);
+                _appCtrl.Strategy.CloseAll(string.IsNullOrWhiteSpace(TextBoxOrderQty.Text) ? 0 : int.Parse(TextBoxOrderQty.Text), CheckBoxStrategyTotalStopWin.IsChecked.Value);
             }
             catch (Exception ex)
             {

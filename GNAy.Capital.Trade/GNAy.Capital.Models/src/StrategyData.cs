@@ -515,7 +515,7 @@ namespace GNAy.Capital.Models
             {
                 if (OnPropertyChanged(ref _startTimesIndex, value))
                 {
-                    SendRealOrder = (value >= 0 && value < RealOrdersOrNot.Length) && (RealOrdersOrNot[value] == 'T' || RealOrdersOrNot[value] == 't');
+                    SendRealOrder = value >= 0 && value < RealOrdersOrNot.Length && (RealOrdersOrNot[value] == 'T' || RealOrdersOrNot[value] == 't');
                 }
             }
         }

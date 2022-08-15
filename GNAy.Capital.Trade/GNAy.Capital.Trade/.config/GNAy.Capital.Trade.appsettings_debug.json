@@ -21,7 +21,7 @@
   ],
   "AutoRunInTradeDay": true,
   "AutoRunInHoliday": false,
-  "CapitalLogPathSuffix": "",
+  "CapitalLogPathSuffix": "_CapitalLog",
   "LiveMode": false,
   "LiveModeAPIReply": [
     "UserID",
