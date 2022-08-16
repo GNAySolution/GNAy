@@ -378,9 +378,8 @@
                 <Button x:Name="ButtonCancelOrderBySeqNo" Content="刪單by序號" HorizontalAlignment="Left" Margin="635,61,0,0" VerticalAlignment="Top" Click="ButtonCancelOrderBySeqNo_Click"/>
                 <TextBox x:Name="TextBoxStrategyFromOpenInterest" Text="策略唯一鍵" ToolTip="利用庫存未平倉，選擇要監控的策略" HorizontalAlignment="Left" Margin="510,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
                 <Button x:Name="ButtonStrategyFromOpenInterest" Content="未平倉選策略" ToolTip="利用庫存未平倉，選擇要監控的策略" HorizontalAlignment="Left" Margin="635,82,0,0" VerticalAlignment="Top" Click="ButtonStrategyFromOpenInterest_Click"/>
-                <TextBox x:Name="TextBoxStrategyStopWinProfit" Text="整體停利觸發" ToolTip="整體停利觸發" HorizontalAlignment="Left" Margin="760,61,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <TextBox x:Name="TextBoxStrategyStopWinOffset" Text="整體停利位移" ToolTip="整體停利位移" HorizontalAlignment="Left" Margin="760,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
-                <Button x:Name="ButtonSaveStrategyStopWin" Content="儲存整停參數" ToolTip="儲存整體停利參數" HorizontalAlignment="Left" Margin="885,61,0,0" VerticalAlignment="Top" Click="ButtonSaveStrategyStopWin_Click"/>
+                <TextBox x:Name="TextBoxStrategyTotalStopWin" Text="整停觸發整停位移" ToolTip="整體停利觸發,整體停利位移" HorizontalAlignment="Left" Margin="760,61,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" GotFocus="TextBox_GotFocus"/>
+                <Button x:Name="ButtonResetStrategyTotalStopWin" Content="重設整體停利" ToolTip="重新設定整體停利" HorizontalAlignment="Left" Margin="885,61,0,0" VerticalAlignment="Top" Click="ButtonResetStrategyTotalStopWin_Click"/>
                 <Button x:Name="ButtonCloseAllStrategies" Content="全策略立平倉" ToolTip="全部策略立刻平倉" HorizontalAlignment="Left" Margin="885,82,0,0" VerticalAlignment="Top" Click="ButtonCloseAllStrategies_Click"/>
                 <TabControl x:Name="TabControlCB" Margin="0,110,0,30" SelectedIndex="0">
                     <TabItem Header="委託成交回報">

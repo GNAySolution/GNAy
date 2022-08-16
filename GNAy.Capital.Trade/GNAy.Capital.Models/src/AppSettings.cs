@@ -196,7 +196,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.813.3";
+            Version = "1.22.816.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -258,9 +258,9 @@ namespace GNAy.Capital.Models
             QuoteMarkets = new List<int>();
             //QuoteMarkets = new List<int>() { (int)Market.EGroup.TSE, (int)Market.EGroup.OTC, (int)Market.EGroup.Futures, (int)Market.EGroup.Emerging }; //
             QuoteRequest = new List<string>();
-            //QuoteRequest = new List<string>() { "TSEA", "0050", "00632R", "UN2206", "TX06", "MTX06", "TXO16500Q2", "TXO16500E2", "TXO16600Q2", "TXO16600E2", "TXO16700Q2", "TXO16700E2", "TXO16800Q2", "TXO16800E2", "TXO16900Q2", "TXO16900E2" }; //
+            //QuoteRequest = new List<string>() { "TSEA", "0050", "00632R", "UN2209", "TX10", "MTX10", "TXO15500U2", "TXO15500I2", "TXO15600U2", "TXO15600I2", "TXO15700U2", "TXO15700I2", "TXO15800U2", "TXO15800I2", "TXO15900U2", "TXO15900I2" }; //
             QuoteLive = new List<string>();
-            //QuoteLive = new List<string>() { "2330", "UD06", "TX05", "MTX05" }; //
+            //QuoteLive = new List<string>() { "2330", "UD09", "TX09", "MTX09" }; //
 
             QuoteFolderPath = "QuoteData";
             QuoteFileOpenPrefix = "Open_";

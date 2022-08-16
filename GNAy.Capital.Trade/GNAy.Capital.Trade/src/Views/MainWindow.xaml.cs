@@ -396,8 +396,7 @@ namespace GNAy.Capital.Trade
 
                 CheckBoxStrategyFromOpenInterest.IsChecked = _appCtrl.Settings.StrategyFromOpenInterest;
 
-                TextBoxStrategyStopWinProfit.Text = _appCtrl.Settings.StrategyStopWinProfit.ToString();
-                TextBoxStrategyStopWinOffset.Text = _appCtrl.Settings.StrategyStopWinOffset.ToString();
+                TextBoxStrategyTotalStopWin.Text = $"{_appCtrl.Settings.StrategyStopWinProfit},{_appCtrl.Settings.StrategyStopWinOffset}";
 
                 if (!_appCtrl.Config.Archive.Exists)
                 {
@@ -1139,9 +1138,8 @@ namespace GNAy.Capital.Trade
                     Thread.Sleep(2 * 1000);
                     this.InvokeAsync(delegate
                     {
-                        TextBoxStrategyStopWinProfit.Text = _appCtrl.Strategy.GetStopWinProfit(_appCtrl.Strategy.RecoverFile).ToString();
-                        TextBoxStrategyStopWinOffset.Text = _appCtrl.Strategy.GetStopWinOffset(_appCtrl.Strategy.RecoverFile).ToString();
-                        ButtonSaveStrategyStopWin_Click(null, null);
+                        TextBoxStrategyTotalStopWin.Text = $"{_appCtrl.Strategy.GetStopWinProfit(_appCtrl.Strategy.RecoverFile)},{_appCtrl.Strategy.GetStopWinOffset(_appCtrl.Strategy.RecoverFile)}";
+                        ButtonResetStrategyTotalStopWin_Click(null, null);
 
                         CheckBoxShowDataGrid.IsChecked = _appCtrl.Settings.ShowDataGrid;
                         CheckBoxShowDataGrid_CheckedOrNot(null, null);
@@ -2451,14 +2449,16 @@ namespace GNAy.Capital.Trade
             }
         }
 
-        private void ButtonSaveStrategyStopWin_Click(object sender, RoutedEventArgs e)
+        private void ButtonResetStrategyTotalStopWin_Click(object sender, RoutedEventArgs e)
         {
             DateTime start = _appCtrl.StartTrace();
 
             try
             {
-                int stopWinProfit = int.Parse(TextBoxStrategyStopWinProfit.Text);
-                int stopWinOffset = int.Parse(TextBoxStrategyStopWinOffset.Text);
+                string[] cells = TextBoxStrategyTotalStopWin.Text.Split(',');
+
+                int stopWinProfit = cells.Length > 0 ? int.Parse(cells[0]) : _appCtrl.Settings.StrategyStopWinProfit;
+                int stopWinOffset = cells.Length > 1 ? int.Parse(cells[1]) : _appCtrl.Settings.StrategyStopWinOffset;
 
                 if (_appCtrl.Settings.StrategyStopWinProfit == stopWinProfit && _appCtrl.Settings.StrategyStopWinOffset == stopWinOffset)
                 {
