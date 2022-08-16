@@ -1138,7 +1138,16 @@ namespace GNAy.Capital.Trade
                     Thread.Sleep(2 * 1000);
                     this.InvokeAsync(delegate
                     {
-                        TextBoxStrategyTotalStopWin.Text = $"{_appCtrl.Strategy.GetStopWinProfit(_appCtrl.Strategy.RecoverFile)},{_appCtrl.Strategy.GetStopWinOffset(_appCtrl.Strategy.RecoverFile)}";
+                        int stopWinProfit = _appCtrl.Strategy.GetStopWinProfit(_appCtrl.Strategy.RecoverFile);
+                        int stopWinOffset = _appCtrl.Strategy.GetStopWinOffset(_appCtrl.Strategy.RecoverFile);
+
+                        if (_appCtrl.Settings.StrategyStopWinProfit > stopWinProfit)
+                        {
+                            stopWinProfit = _appCtrl.Settings.StrategyStopWinProfit;
+                            stopWinOffset = _appCtrl.Settings.StrategyStopWinOffset;
+                        }
+
+                        TextBoxStrategyTotalStopWin.Text = $"{stopWinProfit},{stopWinOffset}";
                         ButtonResetStrategyTotalStopWin_Click(null, null);
 
                         CheckBoxShowDataGrid.IsChecked = _appCtrl.Settings.ShowDataGrid;
