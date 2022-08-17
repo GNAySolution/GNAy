@@ -389,7 +389,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _openStrategyAfterStopLoss;
-        [Column("停損後接續執行策略", "停損後策略", WPFDisplayIndex = 33)]
+        [Column("停損後接續執行策略", "停損後策略", WPFDisplayIndex = 33, WPFForeground = "MediumBlue")]
         public string OpenStrategyAfterStopLoss
         {
             get { return _openStrategyAfterStopLoss; }
@@ -405,7 +405,7 @@ namespace GNAy.Capital.Models
         }
 
         private string _openStrategyAfterStopWin;
-        [Column("停利後接續執行策略", "停利後策略", WPFDisplayIndex = 35)]
+        [Column("停利後接續執行策略", "停利後策略", WPFDisplayIndex = 35, WPFForeground = "MediumBlue")]
         public string OpenStrategyAfterStopWin
         {
             get { return _openStrategyAfterStopWin; }
@@ -429,7 +429,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _winCloseQty;
-        [Column("收盤獲利減倉量", "收獲減倉", WPFDisplayIndex = 38, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        [Column("收盤獲利減倉量", "收獲減倉", WPFDisplayIndex = 38, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public int WinCloseQty
         {
             get { return _winCloseQty; }
@@ -452,7 +452,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _lossCloseQty;
-        [Column("收盤損失減倉量", "收損減倉", WPFDisplayIndex = 40, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        [Column("收盤損失減倉量", "收損減倉", WPFDisplayIndex = 40, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public int LossCloseQty
         {
             get { return _lossCloseQty; }
@@ -483,7 +483,7 @@ namespace GNAy.Capital.Models
         }
 
         private bool _totalStopWin;
-        [Column("納入整體停利計算", "整停", WPFDisplayIndex = 43)]
+        [Column("納入整體停利計算", "整停", WPFDisplayIndex = 43, WPFForeground = "MediumBlue")]
         public bool TotalStopWin
         {
             get { return _totalStopWin; }
@@ -507,7 +507,7 @@ namespace GNAy.Capital.Models
         }
 
         private int _startTimesIndex;
-        [Column("啟動索引", "啟索", CSVIndex = -1, WPFDisplayIndex = 45, WPFHorizontalAlignment = WPFHorizontalAlignment.Right)]
+        [Column("啟動索引", "啟索", CSVIndex = -1, WPFDisplayIndex = 45, WPFHorizontalAlignment = WPFHorizontalAlignment.Right, WPFForeground = "MediumBlue")]
         public int StartTimesIndex
         {
             get { return _startTimesIndex; }
