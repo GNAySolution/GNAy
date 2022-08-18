@@ -975,7 +975,27 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!ProfitTotalStopWinClosed)
             {
-                ProfitTotal = _dataMap.Values.Sum(x => x.TotalStopWin ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0);
+                decimal profitReal = 0;
+
+                ProfitTotal = _dataMap.Values.Sum(x =>
+                {
+                    if (x.TotalStopWin)
+                    {
+                        if (x.SendRealOrder)
+                        {
+                            profitReal += x.ClosedProfitTotalRaw + x.UnclosedProfit;
+                        }
+
+                        return x.ClosedProfitTotalRaw + x.UnclosedProfit;
+                    }
+
+                    return 0;
+                });
+
+                if (profitReal != 0 && ProfitTotal != profitReal)
+                {
+                    ProfitTotal = profitReal;
+                }
 
                 if (ProfitTotal > 0 && ProfitTotalBest < ProfitTotal)
                 {
