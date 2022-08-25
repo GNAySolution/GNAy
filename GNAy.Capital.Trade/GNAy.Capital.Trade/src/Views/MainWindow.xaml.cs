@@ -168,21 +168,9 @@ namespace GNAy.Capital.Trade
         /// <param name="e"></param>
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            string caption = $"確定關閉？";
-            string messageBoxText = $"確定關閉？";
-
-            MessageBoxResult result = MessageBox.Show(messageBoxText, caption, MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
-
             e.Cancel = true;
 
-            if (result != MessageBoxResult.OK)
-            {
-                return;
-            }
-
-            _timer1.Stop();
-            _timer2.Stop();
-            _appCtrl.ExitAsync();
+            MenuItemExit_Click(null, null);
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -1165,6 +1153,24 @@ namespace GNAy.Capital.Trade
                 _appCtrl.LogException(start, ex, ex.StackTrace);
                 _timer2.Start();
             }
+        }
+
+        private void MenuItemExit_Click(object sender, RoutedEventArgs e)
+        {
+            const string caption = "結束程式";
+            const string messageBoxText = "確定？";
+
+            MessageBoxResult result = MessageBox.Show(messageBoxText, caption, MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+
+            if (result != MessageBoxResult.OK)
+            {
+                return;
+            }
+
+            _timer1.Stop();
+            _timer2.Stop();
+
+            _appCtrl.ExitAsync();
         }
 
         private void CheckBoxShowDataGrid_CheckedOrNot(object sender, RoutedEventArgs e)

@@ -10,6 +10,7 @@
         <!--https://dotblogs.com.tw/clark/2013/03/31/99679-->
         <!--http://www.skcircle.com/?id=1113-->
         <Grid.RowDefinitions>
+            <RowDefinition x:Name="RowDef0" Height="20"/>
             <RowDefinition x:Name="RowDef1" Height="300"/>
             <RowDefinition x:Name="RowDef2" Height="350"/>
             <RowDefinition/>
@@ -18,12 +19,19 @@
             <ColumnDefinition x:Name="ColumnDef" Width="750"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <GridSplitter Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="6" Background="Blue"/>
-        <GridSplitter Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
-        <GridSplitter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
+        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File">
+                    <MenuItem x:Name="MenuItemExit" Header="E_xit" InputGestureText="Alt+F4" Click="MenuItemExit_Click"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+        <GridSplitter Grid.Row="1" Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="6" Background="Blue"/>
         <GridSplitter Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
         <GridSplitter Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
-        <Border Grid.Row="0" Grid.Column="0" Margin="2">
+        <GridSplitter Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
+        <GridSplitter Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
+        <Border Grid.Row="1" Grid.Column="0" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridAA">
                 <TabControl x:Name="TabControlAA" Margin="0,0,0,30" SelectedIndex="0">
                     <TabItem Header="初始化">
@@ -86,7 +94,7 @@
                 </StatusBar>
             </Grid>
         </Border>
-        <Border Grid.Row="1" Grid.Column="0" Margin="2">
+        <Border Grid.Row="2" Grid.Column="0" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridBA">
                 <TabControl x:Name="TabControlBA" Margin="0,0,0,30" SelectedIndex="0">
                     <TabItem Header="API回覆">
@@ -114,7 +122,7 @@
                 </StatusBar>
             </Grid>
         </Border>
-        <Border Grid.Row="2" Grid.Column="0" Margin="2">
+        <Border Grid.Row="3" Grid.Column="0" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridCA">
                 <TabControl x:Name="TabControlCA" Margin="0,0,0,30" SelectedIndex="0">
                     <TabItem Header="AppLog">
@@ -160,7 +168,7 @@
                 </StatusBar>
             </Grid>
         </Border>
-        <Border Grid.Row="0" Grid.Column="1" Margin="2">
+        <Border Grid.Row="1" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridAB">
                 <TabControl x:Name="TabControlAB" Margin="0,0,0,30" SelectedIndex="0">
                     <TabItem Header="一般報價">
@@ -222,7 +230,7 @@
                 </StatusBar>
             </Grid>
         </Border>
-        <Border Grid.Row="1" Grid.Column="1" Margin="2">
+        <Border Grid.Row="2" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridBB">
                 <Button x:Name="ButtonCancelTrigger" Content="取消觸價監控" HorizontalAlignment="Left" Margin="10,11,0,0" VerticalAlignment="Top" Click="ButtonCancelTrigger_Click"/>
                 <Button x:Name="ButtonSaveTriggerRule" Content="儲存觸價條件" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Click="ButtonSaveTriggerRule_Click"/>
@@ -343,7 +351,7 @@
                 </StatusBar>
             </Grid>
         </Border>
-        <Border Grid.Row="2" Grid.Column="1" Margin="2">
+        <Border Grid.Row="3" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridCB">
                 <Label Content="個別市場下單帳號" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
                 <!--https://stackoverflow.com/questions/11259479/how-to-get-tooltip-binding-to-work-with-a-combobox-->

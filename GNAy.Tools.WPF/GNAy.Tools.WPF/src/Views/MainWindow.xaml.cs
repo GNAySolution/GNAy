@@ -33,7 +33,9 @@ namespace GNAy.Tools.WPF
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            e.Cancel = true;
 
+            MenuItemExit_Click(null, null);
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -174,6 +176,21 @@ namespace GNAy.Tools.WPF
         private void Window_ToolTipOpening(object sender, ToolTipEventArgs e)
         {
 
+        }
+
+        private void MenuItemExit_Click(object sender, RoutedEventArgs e)
+        {
+            const string caption = "結束程式";
+            const string messageBoxText = "確定？";
+
+            MessageBoxResult result = MessageBox.Show(messageBoxText, caption, MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+
+            if (result != MessageBoxResult.OK)
+            {
+                return;
+            }
+
+            //
         }
     }
 }

@@ -8,6 +8,7 @@
         Title="MainWindow" Height="990" Width="1760" Activated="Window_Activated" Closing="Window_Closing" Deactivated="Window_Deactivated" FocusableChanged="Window_FocusableChanged" GotFocus="Window_GotFocus" GotKeyboardFocus="Window_GotKeyboardFocus" GotMouseCapture="Window_GotMouseCapture" IsVisibleChanged="Window_IsVisibleChanged" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" Loaded="Window_Loaded" LocationChanged="Window_LocationChanged" LostFocus="Window_LostFocus" LostKeyboardFocus="Window_LostKeyboardFocus" LostMouseCapture="Window_LostMouseCapture" MouseDoubleClick="Window_MouseDoubleClick" MouseDown="Window_MouseDown" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseLeftButtonUp="Window_MouseLeftButtonUp" MouseMove="Window_MouseMove" MouseRightButtonDown="Window_MouseRightButtonDown" MouseRightButtonUp="Window_MouseRightButtonUp" MouseUp="Window_MouseUp" PreviewMouseWheel="Window_PreviewMouseWheel" SizeChanged="Window_SizeChanged" StateChanged="Window_StateChanged" ToolTipClosing="Window_ToolTipClosing" ToolTipOpening="Window_ToolTipOpening">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition x:Name="RowDef0" Height="20"/>
             <RowDefinition x:Name="RowDef1" Height="300"/>
             <RowDefinition x:Name="RowDef2" Height="350"/>
             <RowDefinition/>
@@ -16,14 +17,21 @@
             <ColumnDefinition x:Name="ColumnDef" Width="750"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <GridSplitter Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="6" Background="Blue"/>
-        <GridSplitter Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
-        <GridSplitter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
+        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File">
+                    <MenuItem x:Name="MenuItemExit" Header="E_xit" InputGestureText="Alt+F4" Click="MenuItemExit_Click"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+        <GridSplitter Grid.Row="1" Grid.Column="0" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="6" Background="Blue"/>
         <GridSplitter Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
         <GridSplitter Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
-        <Border Grid.Row="0" Grid.Column="0" Margin="2">
+        <GridSplitter Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
+        <GridSplitter Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="6" Background="Blue"/>
+        <Border Grid.Row="1" Grid.Column="0" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridAA">
-                <!-- 其他介面描述可以添加在此 -->
+                <!-- 其他介面描述添加在此 -->
                 <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemAA1" Text="AA1"/>
@@ -35,9 +43,9 @@
                 </StatusBar>
             </Grid>
         </Border>
-        <Border Grid.Row="1" Grid.Column="0" Margin="2">
+        <Border Grid.Row="2" Grid.Column="0" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridBA">
-                <!-- 其他介面描述可以添加在此 -->
+                <!-- 其他介面描述添加在此 -->
                 <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemBA1" Text="BA1"/>
@@ -49,9 +57,9 @@
                 </StatusBar>
             </Grid>
         </Border>
-        <Border Grid.Row="2" Grid.Column="0" Margin="2">
+        <Border Grid.Row="3" Grid.Column="0" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridCA">
-                <!-- 其他介面描述可以添加在此 -->
+                <!-- 其他介面描述添加在此 -->
                 <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemCA1" Text="CA1"/>
@@ -63,9 +71,9 @@
                 </StatusBar>
             </Grid>
         </Border>
-        <Border Grid.Row="0" Grid.Column="1" Margin="2">
+        <Border Grid.Row="1" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridAB">
-                <!-- 其他介面描述可以添加在此 -->
+                <!-- 其他介面描述添加在此 -->
                 <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemAB1" Text="AB1"/>
@@ -77,9 +85,9 @@
                 </StatusBar>
             </Grid>
         </Border>
-        <Border Grid.Row="1" Grid.Column="1" Margin="2">
+        <Border Grid.Row="2" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridBB">
-                <!-- 其他介面描述可以添加在此 -->
+                <!-- 其他介面描述添加在此 -->
                 <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemBB1" Text="BB1"/>
@@ -91,9 +99,9 @@
                 </StatusBar>
             </Grid>
         </Border>
-        <Border Grid.Row="2" Grid.Column="1" Margin="2">
+        <Border Grid.Row="3" Grid.Column="1" Margin="2">
             <Grid Background="#FFE5E5E5" x:Name="GridCB">
-                <!-- 其他介面描述可以添加在此 -->
+                <!-- 其他介面描述添加在此 -->
                 <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Height="28">
                     <StatusBarItem>
                         <TextBlock x:Name="StatusBarItemCB1" Text="CB1"/>
