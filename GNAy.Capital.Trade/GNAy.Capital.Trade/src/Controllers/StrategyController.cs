@@ -739,7 +739,7 @@ namespace GNAy.Capital.Trade.Controllers
                     data.BestClosePrice = data.MarketPrice;
                 }
 
-                if (data.UnclosedQty > 0 && data.StatusEnum != StrategyStatus.Enum.MarketClosingSent && data.StatusEnum != StrategyStatus.Enum.MarketClosingOrderReport && data.StatusEnum != StrategyStatus.Enum.MarketClosingDealReport)
+                if (data.StatusEnum != StrategyStatus.Enum.MarketClosingSent && data.StatusEnum != StrategyStatus.Enum.MarketClosingOrderReport && data.StatusEnum != StrategyStatus.Enum.MarketClosingDealReport)
                 {
                     if (data.WinCloseSeconds > 0 && DateTime.Now >= data.WinCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
                     {
@@ -1360,11 +1360,13 @@ namespace GNAy.Capital.Trade.Controllers
                             continue;
                         }
 
+                        OrderAccData acc = _appCtrl.CAPOrder[data.FullAccount];
+
                         data.ClosedProfit = 0;
                         data.UnclosedQty = 0;
                         data.Reset(memberName);
 
-                        data.MarketType = _appCtrl.CAPOrder[data.FullAccount].MarketType;
+                        data.MarketType = (acc == null) ? Market.EType.Futures : acc.MarketType;
                         data.Quote = _appCtrl.CAPQuote[data.Symbol];
 
                         if (decimal.TryParse(data.PrimaryKey, out decimal _pk) && _pk > nextPK)

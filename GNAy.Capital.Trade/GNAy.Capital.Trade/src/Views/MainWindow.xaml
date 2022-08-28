@@ -65,10 +65,6 @@
                             <Button x:Name="ButtonScreenshot" Content="視窗截圖存檔" HorizontalAlignment="Left" Margin="216,174,0,0" VerticalAlignment="Top" Click="ButtonScreenshot_Click"/>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="直播模式">
-                        <Grid Background="#FFE5E5E5">
-                        </Grid>
-                    </TabItem>
                     <TabItem Header="行事曆">
                         <Grid Background="#FFE5E5E5">
                         </Grid>
