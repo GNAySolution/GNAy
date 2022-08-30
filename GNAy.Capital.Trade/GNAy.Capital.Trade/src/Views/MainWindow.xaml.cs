@@ -1011,7 +1011,7 @@ namespace GNAy.Capital.Trade
 
                 foreach (DateTime timeToClose in _appCtrl.Settings.MarketClose)
                 {
-                    if (start.Hour == timeToClose.Hour && start.Minute >= (timeToClose.Minute + 2) && start.Minute <= (timeToClose.Minute + 4))
+                    if (start.Hour == timeToClose.Hour && start.Minute >= (timeToClose.Minute + 3) && start.Minute <= (timeToClose.Minute + 5))
                     {
                         _timer1.Stop();
                         Thread.Sleep(1 * 1000);

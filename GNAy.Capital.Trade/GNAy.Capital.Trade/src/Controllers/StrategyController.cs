@@ -630,6 +630,19 @@ namespace GNAy.Capital.Trade.Controllers
                     data.Updater = methodName;
                     data.UpdateTime = DateTime.Now;
 
+                    if (data.WinCloseSeconds > 0 && DateTime.Now >= data.WinCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
+                    {
+                        data.StatusEnum = StrategyStatus.Enum.Cancelled;
+
+                        return saveData;
+                    }
+                    else if (data.LossCloseSeconds > 0 && DateTime.Now >= data.LossCloseTime && DateTime.Now < _appCtrl.CAPQuote.MarketCloseTime)
+                    {
+                        data.StatusEnum = StrategyStatus.Enum.Cancelled;
+
+                        return saveData;
+                    }
+
                     if (data.OrderPriceBefore.Length >= 3 && ((data.OrderPriceBefore[1] == '+' && data.MarketPrice >= data.OrderPriceAfter) || (data.OrderPriceBefore[1] == '-' && data.MarketPrice <= data.OrderPriceAfter)))
                     { }
                     else if ((data.BSEnum == OrderBS.Enum.Buy && data.MarketPrice >= data.OrderPriceAfter) || (data.BSEnum == OrderBS.Enum.Sell && data.MarketPrice <= data.OrderPriceAfter))
