@@ -2475,18 +2475,7 @@ namespace GNAy.Capital.Trade
                 int stopWinProfit = cells.Length > 0 ? int.Parse(cells[0]) : _appCtrl.Settings.StrategyStopWinProfit;
                 int stopWinOffset = cells.Length > 1 ? int.Parse(cells[1]) : _appCtrl.Settings.StrategyStopWinOffset;
 
-                if (_appCtrl.Settings.StrategyStopWinProfit == stopWinProfit && _appCtrl.Settings.StrategyStopWinOffset == stopWinOffset)
-                {
-                    _appCtrl.Strategy.ResetTotalStopWin();
-
-                    return;
-                }
-
-                _appCtrl.Settings.StrategyStopWinProfit = stopWinProfit;
-                _appCtrl.LogTrace(start, $"{nameof(AppSettings.StrategyStopWinProfit)}={_appCtrl.Settings.StrategyStopWinProfit}", UniqueName);
-
-                _appCtrl.Settings.StrategyStopWinOffset = stopWinOffset;
-                _appCtrl.LogTrace(start, $"{nameof(AppSettings.StrategyStopWinOffset)}={_appCtrl.Settings.StrategyStopWinOffset}", UniqueName);
+                _appCtrl.Strategy.ResetTotalStopWin(stopWinProfit, stopWinOffset, start);
             }
             catch (Exception ex)
             {

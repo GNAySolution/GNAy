@@ -4,6 +4,7 @@ using GNAy.Tools.WPF;
 using NLog;
 using SKCOMLib;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -1418,13 +1419,33 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void ResetTotalStopWin(in bool totalStopWinTouched = false, in bool totalStopWinClosed = false)
+        public void ResetTotalStopWin(in int stopWinProfit, in int stopWinOffset, in DateTime start, in bool totalStopWinTouched = false, in bool totalStopWinClosed = false)
         {
-            _appCtrl.LogTrace($"{nameof(ProfitTotalStopWinTouched)}={ProfitTotalStopWinTouched}|{nameof(totalStopWinTouched)}={totalStopWinTouched}", UniqueName);
-            ProfitTotalStopWinTouched = totalStopWinTouched;
+            _appCtrl.LogTrace(start, $"{nameof(stopWinProfit)}={stopWinProfit}|{nameof(stopWinOffset)}={stopWinOffset}|{nameof(totalStopWinTouched)}={totalStopWinTouched}|{nameof(totalStopWinClosed)}={totalStopWinClosed}", UniqueName);
 
-            _appCtrl.LogTrace($"{nameof(ProfitTotalStopWinClosed)}={ProfitTotalStopWinClosed}|{nameof(totalStopWinClosed)}={totalStopWinClosed}", UniqueName);
-            ProfitTotalStopWinClosed = totalStopWinClosed;
+            if (_appCtrl.Settings.StrategyStopWinProfit == stopWinProfit && _appCtrl.Settings.StrategyStopWinOffset == stopWinOffset)
+            {
+                if (!totalStopWinTouched)
+                {
+                    ProfitTotalBest = 0;
+                }
+
+                _appCtrl.LogTrace(start, $"{nameof(ProfitTotalStopWinTouched)}={ProfitTotalStopWinTouched}", UniqueName);
+                ProfitTotalStopWinTouched = totalStopWinTouched;
+
+                _appCtrl.LogTrace(start, $"{nameof(ProfitTotalStopWinClosed)}={ProfitTotalStopWinClosed}", UniqueName);
+                ProfitTotalStopWinClosed = totalStopWinClosed;
+
+                return;
+            }
+
+            ProfitTotalBest = 0;
+
+            _appCtrl.LogTrace(start, $"{nameof(AppSettings.StrategyStopWinProfit)}={_appCtrl.Settings.StrategyStopWinProfit}", UniqueName);
+            _appCtrl.Settings.StrategyStopWinProfit = stopWinProfit;
+
+            _appCtrl.LogTrace(start, $"{nameof(AppSettings.StrategyStopWinOffset)}={_appCtrl.Settings.StrategyStopWinOffset}", UniqueName);
+            _appCtrl.Settings.StrategyStopWinOffset = stopWinOffset;
         }
 
         public int GetStopWinProfit(in string source)
