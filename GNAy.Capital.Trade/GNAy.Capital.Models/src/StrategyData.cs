@@ -515,7 +515,7 @@ namespace GNAy.Capital.Models
             {
                 if (OnPropertyChanged(ref _startTimesIndex, value))
                 {
-                    SendRealOrder = value >= 0 && value < RealOrdersOrNot.Length && (RealOrdersOrNot[value] == 'T' || RealOrdersOrNot[value] == 't');
+                    SendRealOrder = value >= 0 && value < RealOrdersOrNot.Length && RealOrdersOrNot[value] == 'T';
                 }
             }
         }
@@ -935,6 +935,14 @@ namespace GNAy.Capital.Models
 
         public void SumClosedProfit(decimal addValue)
         {
+            if (RealOrdersOrNot.Contains("FT") || RealOrdersOrNot.Contains("TF"))
+            {
+                if (!SendRealOrder)
+                {
+                    return;
+                }
+            }
+
             ClosedProfitList.Add(addValue);
             ClosedProfitTotalRaw += addValue;
 

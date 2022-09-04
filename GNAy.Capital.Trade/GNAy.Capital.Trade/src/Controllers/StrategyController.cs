@@ -1383,6 +1383,8 @@ namespace GNAy.Capital.Trade.Controllers
                         data.MarketType = (acc == null) ? Market.EType.Futures : acc.MarketType;
                         data.Quote = _appCtrl.CAPQuote[data.Symbol];
 
+                        data.RealOrdersOrNot = data.RealOrdersOrNot.ToUpper();
+
                         if (decimal.TryParse(data.PrimaryKey, out decimal _pk) && _pk > nextPK)
                         {
                             nextPK = _pk + 1;
