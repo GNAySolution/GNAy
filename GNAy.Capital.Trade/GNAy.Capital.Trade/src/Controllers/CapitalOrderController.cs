@@ -338,16 +338,15 @@ namespace GNAy.Capital.Trade.Controllers
 
         private (LogLevel, string) SendFutures(in StrategyData order, in DateTime start)
         {
-            int m_nCode = 0;
             string orderResult = string.Empty;
 
             if (order.TradeTypeEnum == OrderTradeType.Enum.ROD)
             {
+                FUTUREORDER capOrder = CreateCaptialFutures(order);
+
                 //送出期貨委託，無需倉位，預設為盤中，不可更改
                 //SKReplyLib.OnNewData，當有回報將主動呼叫函式，並通知委託的狀態。(新格式 包含預約單回報)
-                FUTUREORDER capOrder = CreateCaptialFutures(order);
-                string orderMsg = string.Empty;
-                m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
+                int m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out string orderMsg);
                 orderResult = orderMsg;
 
                 Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
@@ -362,8 +361,8 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 FUTUREORDER capOrder = CreateCaptialFutures(order);
                 capOrder.nQty = 1;
-                string orderMsg = string.Empty;
-                m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
+
+                int m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out string orderMsg);
                 orderResult = orderMsg;
 
                 Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
@@ -393,6 +392,75 @@ namespace GNAy.Capital.Trade.Controllers
             return output;
         }
 
+        private void SendFuturesLimitStopWin(in StrategyData order, in DateTime start)
+        {
+            StrategyData parent = order.Parent;
+            StrategyData stopWinOrder = null;
+
+            if (parent == null || order != parent.OrderData)
+            {
+                return;
+            }
+            else if (parent.StopWin1Data == null && parent.StopWin1Offset == 0 && parent.StopWin1Qty < 0)
+            {
+                stopWinOrder = parent.CreateStopWinOrder(StrategyData.StopWin1);
+                parent.StopWin1Data = null;
+            }
+            else if (parent.StopWin2Data == null && parent.StopWin2Offset == 0 && parent.StopWin2Qty < 0)
+            {
+                stopWinOrder = parent.CreateStopWinOrder(StrategyData.StopWin2);
+                parent.StopWin2Data = null;
+            }
+            else
+            {
+                return;
+            }
+
+            stopWinOrder.TradeTypeEnum = OrderTradeType.Enum.ROD;
+            stopWinOrder.OrderPriceBefore = parent.StopWinPriceAAfterRaw.ToString("0.00");
+
+            int succeededCnt = 0;
+
+            for (int i = 0; i < stopWinOrder.OrderQty * 8; ++i)
+            {
+                FUTUREORDER capOrder = CreateCaptialFutures(stopWinOrder);
+                capOrder.nQty = 1;
+
+                int m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out string orderMsg);
+
+                Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
+
+                if (m_nCode == 0 && !string.IsNullOrWhiteSpace(orderMsg))
+                {
+                    ++succeededCnt;
+
+                    _appCtrl.LogTrace(start, $"限價停利委託成功|{nameof(succeededCnt)}={succeededCnt}|{nameof(orderMsg)}={orderMsg}|{stopWinOrder.ToLog()}", UniqueName);
+
+                    parent.OrdersSeqNoQueue.Enqueue(orderMsg);
+
+                    if (succeededCnt >= stopWinOrder.OrderQty)
+                    {
+                        parent.OrdersSeqNos = string.Join(",", parent.OrdersSeqNoQueue);
+
+                        return;
+                    }
+                }
+                else
+                {
+                    _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode);
+
+                    if (i == stopWinOrder.OrderQty * 8 - 1)
+                    {
+                        _appCtrl.LogError(start, $"委託部份失敗|{nameof(succeededCnt)}={succeededCnt}|{nameof(orderMsg)}={orderMsg}|failed={stopWinOrder.OrderQty - succeededCnt}|{stopWinOrder.ToLog()}", UniqueName);
+
+                        parent.OrdersSeqNos = string.Join(",", parent.OrdersSeqNoQueue);
+
+                        return;
+                    }
+                }
+            }
+        }
+
         private (LogLevel, string) SendOption(in StrategyData order, in DateTime start)
         {
             FUTUREORDER capOrder = CreateCaptialFutures(order);
@@ -418,10 +486,13 @@ namespace GNAy.Capital.Trade.Controllers
                         {
                             case Market.EType.Futures:
                                 orderResult = SendFutures(order, start);
+                                SendFuturesLimitStopWin(order, start);
                                 break;
+
                             case Market.EType.Option:
                                 orderResult = SendOption(order, start);
                                 break;
+
                             default:
                                 throw new NotSupportedException(order.ToLog());
                         }
@@ -502,7 +573,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 order.StatusEnum = StrategyStatus.Enum.OrderSent;
 
-                if (_appCtrl.Settings.SendRealOrder && order.SendRealOrder)
+                if (_appCtrl.Settings.SendRealOrder && order.SendRealOrder && order.OrderQty > 0)
                 {
                     Task.Factory.StartNew(() => SendAsync(order, start, memberName));
                 }
@@ -547,16 +618,13 @@ namespace GNAy.Capital.Trade.Controllers
             }
         }
 
-        public void CancelBySeqNo(in OrderAccData acc, in string seqNo)
+        public int CancelBySeqNo(in string fullAccount, in string seqNo, in DateTime start)
         {
-            DateTime start = _appCtrl.StartTrace($"{acc?.FullAccount}|{nameof(seqNo)}={seqNo}", UniqueName);
+            int m_nCode = 0;
 
             try
             {
-                //TODO
-
-                string strMessage = "";
-                int m_nCode = m_pSKOrder.CancelOrderBySeqNo(_appCtrl.CAPCenter.UserID, false, acc.FullAccount, seqNo, out strMessage); //國內委託删單(By委託序號)
+                m_nCode = m_pSKOrder.CancelOrderBySeqNo(_appCtrl.CAPCenter.UserID, false, fullAccount, seqNo, out string strMessage); //國內委託删單(By委託序號)
 
                 if (m_nCode != 0)
                 {
@@ -564,6 +632,22 @@ namespace GNAy.Capital.Trade.Controllers
                 }
 
                 _appCtrl.LogTrace(start, strMessage, UniqueName);
+            }
+            catch (Exception ex)
+            {
+                _appCtrl.LogException(start, ex, ex.StackTrace);
+            }
+
+            return m_nCode;
+        }
+
+        public void CancelBySeqNo(in OrderAccData acc, in string seqNo)
+        {
+            DateTime start = _appCtrl.StartTrace($"{acc?.FullAccount}|{nameof(seqNo)}={seqNo}", UniqueName);
+
+            try
+            {
+                CancelBySeqNo(acc.FullAccount, seqNo, start);
             }
             catch (Exception ex)
             {

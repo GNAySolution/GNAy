@@ -38,6 +38,7 @@ namespace GNAy.Capital.Trade.Controllers
 
         public string RecoverFile { get; private set; }
 
+        public bool ProfitTotalOnlyReal { get; private set; }
         public decimal ProfitTotal { get; private set; }
         public decimal ProfitTotalBest { get; private set; }
         public bool ProfitTotalStopWinTouched { get; private set; }
@@ -61,6 +62,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             RecoverFile = string.Empty;
 
+            ProfitTotalOnlyReal = false;
             ProfitTotal = 0;
             ProfitTotalBest = 0;
             ProfitTotalStopWinTouched = false;
@@ -989,26 +991,13 @@ namespace GNAy.Capital.Trade.Controllers
 
             if (!ProfitTotalStopWinClosed)
             {
-                decimal profitReal = 0;
-
-                ProfitTotal = _dataMap.Values.Sum(x =>
+                if (ProfitTotalOnlyReal)
                 {
-                    if (x.TotalStopWin)
-                    {
-                        if (x.SendRealOrder)
-                        {
-                            profitReal += x.ClosedProfitTotalRaw + x.UnclosedProfit;
-                        }
-
-                        return x.ClosedProfitTotalRaw + x.UnclosedProfit;
-                    }
-
-                    return 0;
-                });
-
-                if (profitReal != 0 && ProfitTotal != profitReal)
+                    ProfitTotal = _dataMap.Values.Sum(x => (x.TotalStopWin && x.SendRealOrder) ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0);
+                }
+                else
                 {
-                    ProfitTotal = profitReal;
+                    ProfitTotal = _dataMap.Values.Sum(x => x.TotalStopWin ? x.ClosedProfitTotalRaw + x.UnclosedProfit : 0);
                 }
 
                 if (ProfitTotal > 0 && ProfitTotalBest < ProfitTotal)
@@ -1384,6 +1373,11 @@ namespace GNAy.Capital.Trade.Controllers
                         data.Quote = _appCtrl.CAPQuote[data.Symbol];
 
                         data.RealOrdersOrNot = data.RealOrdersOrNot.ToUpper();
+
+                        if (data.RealOrdersOrNot.Contains("FT") || data.RealOrdersOrNot.Contains("TF"))
+                        {
+                            ProfitTotalOnlyReal = true;
+                        }
 
                         if (decimal.TryParse(data.PrimaryKey, out decimal _pk) && _pk > nextPK)
                         {

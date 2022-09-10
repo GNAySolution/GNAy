@@ -47,6 +47,114 @@ namespace GNAy.Capital.Trade.Controllers
         private OrderDetailController() : this(null)
         { }
 
+        private void CancelFuturesLimitStopWin(in StrategyData data, in StrategyData parent, in DateTime start)
+        {
+            if (parent == null || data.PositionEnum == OrderPosition.Enum.Open || data == parent.OrderData)
+            {
+                return;
+            }
+            else if (parent.OrdersSeqNoQueue.Count <= 0)
+            {
+                return;
+            }
+            else if (data == parent.StopLossData)
+            { }
+            else if (data == parent.MarketClosingData)
+            { }
+            else if (parent.StopWin1Offset == 0 && parent.StopWin1Qty < 0)
+            {
+                if (data != parent.StopWin1Data)
+                {
+                    return;
+                }
+            }
+            else if (parent.StopWin2Offset == 0 && parent.StopWin2Qty < 0)
+            {
+                if (data != parent.StopWin2Data)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                _appCtrl.LogError(start, $"不明委託|{parent.OrdersSeqNoQueue.Count}={parent.OrdersSeqNoQueue.Count}|{data.ToLog()}", UniqueName);
+
+                return;
+            }
+
+            int dealQty = 0;
+
+            while (parent.OrdersSeqNoQueue.Count > 0)
+            {
+                string seqNo = parent.OrdersSeqNoQueue.Dequeue();
+
+                if (_appCtrl.CAPOrder.CancelBySeqNo(parent.FullAccount, seqNo, start) != 0)
+                {
+                    ++dealQty;
+                }
+            }
+
+            parent.OrdersSeqNos = string.Join(",", parent.OrdersSeqNoQueue);
+
+            decimal closedProfit = (parent.StopWinPriceAAfterRaw - parent.DealPrice) * dealQty * parent.OrderData.ProfitDirection;
+            int orderQty = data.OrderQty - dealQty;
+            int unclosedQty = parent.UnclosedQty - dealQty;
+
+            _appCtrl.LogTrace(start, $"已實現損益估計({closedProfit})=({parent.StopWinPriceAAfterRaw}-{parent.DealPrice})*{dealQty}*{parent.OrderData.ProfitDirection}|{parent.ToLog()}", UniqueName);
+
+            if (data == parent.StopLossData)
+            {
+                //
+            }
+            else if (data == parent.MarketClosingData)
+            {
+                //TODO: 先確保減倉別減過頭
+                ////負值減倉
+                //order.OrderQty = (qty < 0) ? qty * -1 : UnclosedQty - qty;
+
+                //if (order.OrderQty <= 0)
+                //{
+                //    //正值留倉
+                //    order.OrderQty = 0;
+                //}
+                //else if (order.OrderQty > UnclosedQty)
+                //{
+                //    order.OrderQty = UnclosedQty;
+                //    MarketClosingData = order;
+                //}
+            }
+            else if (data == parent.StopWin1Data || data == parent.StopWin2Data)
+            {
+                //
+            }
+
+            data.OrderQty = orderQty;
+
+            parent.ClosedProfit += closedProfit;
+            parent.UnclosedQty = unclosedQty;
+            parent.SumClosedProfit(closedProfit);
+
+            if (orderQty < 0)
+            {
+                _appCtrl.LogError(start, $"剩餘委託量錯誤|{orderQty}={data.OrderQty}-{dealQty}|{data.ToLog()}", UniqueName);
+                data.OrderQty = 0;
+            }
+            else
+            {
+                _appCtrl.LogTrace(start, $"剩餘委託量|{orderQty}={data.OrderQty}-{dealQty}|{data.ToLog()}", UniqueName);
+            }
+
+            if (unclosedQty < 0)
+            {
+                _appCtrl.LogError(start, $"限價停利成交量錯誤|{unclosedQty}={parent.UnclosedQty}-{dealQty}|{parent.ToLog()}", UniqueName);
+                parent.UnclosedQty = 0;
+            }
+            else
+            {
+                _appCtrl.LogTrace(start, $"限價停利成交|{unclosedQty}={parent.UnclosedQty}-{dealQty}|{parent.ToLog()}", UniqueName);
+            }
+        }
+
         public void Check(in StrategyData data, in DateTime start, [CallerMemberName] in string memberName = "")
         {
             data.Trim();
@@ -63,10 +171,10 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 throw new ArgumentException($"{data.StatusEnum} != StrategyStatus.Enum.Waiting|{data.ToLog()}");
             }
-            else if (data.OrderQty <= 0)
-            {
-                throw new ArgumentException($"委託量({data.OrderQty}) <= 0|{data.ToLog()}");
-            }
+            //else if (data.OrderQty <= 0)
+            //{
+            //    throw new ArgumentException($"委託量({data.OrderQty}) <= 0|{data.ToLog()}");
+            //}
             else if (data.OrderData != null || data.StopLossData != null || data.StopWin1Data != null || data.StopWin2Data != null || data.MarketClosingData != null)
             {
                 throw new ArgumentException($"委託單資料結構異常|{data.OrderData != null}|{data.StopLossData != null}|{data.StopWin1Data != null}|{data.StopWin2Data != null}|{data.MarketClosingData != null}|{data.ToLog()}");
@@ -115,6 +223,8 @@ namespace GNAy.Capital.Trade.Controllers
             {
                 data.OrderPriceAfter = data.MarketPrice;
             }
+
+            CancelFuturesLimitStopWin(data, parent, start);
 
             data.DealPrice = data.OrderPriceAfter;
             data.DealQty = data.OrderQty;
