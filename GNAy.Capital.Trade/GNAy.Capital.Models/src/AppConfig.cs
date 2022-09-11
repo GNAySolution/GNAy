@@ -172,26 +172,7 @@ namespace GNAy.Capital.Models
         {
             if (Settings.FuturesLastTradeWeek > 0 && !string.IsNullOrWhiteSpace(Settings.FuturesLastTradeDay) && Settings.DayToChangeFutures <= 0)
             {
-                DayOfWeek dow = Settings.FuturesLastTradeDay.ConvertTo<DayOfWeek>();
-                DateTime date = new DateTime(targetMonth.Year, targetMonth.Month, 1).AddDays(-1);
-                int weekCount = 0;
-
-                for (int i = 0; i < 31; ++i)
-                {
-                    date = date.AddDays(1);
-
-                    if (date.DayOfWeek == dow)
-                    {
-                        ++weekCount;
-
-                        if (weekCount == Settings.FuturesLastTradeWeek)
-                        {
-                            return date.AddDays(Settings.DayToChangeFutures);
-                        }
-                    }
-                }
-
-                throw new ArgumentException($"{nameof(AppSettings.FuturesLastTradeWeek)}={Settings.FuturesLastTradeWeek}|{nameof(AppSettings.FuturesLastTradeDay)}={Settings.FuturesLastTradeDay}|{nameof(AppSettings.DayToChangeFutures)}={Settings.DayToChangeFutures}");
+                return targetMonth.GetActivityDate(Settings.FuturesLastTradeWeek, Settings.FuturesLastTradeDay.ConvertTo<DayOfWeek>()).AddDays(Settings.DayToChangeFutures);
             }
 
             return DateTime.MaxValue;

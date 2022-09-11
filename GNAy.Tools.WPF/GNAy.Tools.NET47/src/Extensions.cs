@@ -466,13 +466,67 @@ namespace GNAy.Tools.NET47
             obj.LoadHolidays(File.ReadAllLines(path, encoding), yyyy, keywords1, keywords2);
         }
 
-
         public static T LoadHolidays<T>(this string obj, in Encoding encoding, in int yyyy, in IList<string> keywords1, in IEnumerable<string> keywords2) where T : IDictionary<DateTime, string>, new()
         {
             T dic = new T();
             dic.LoadHolidays(obj, encoding, yyyy, keywords1, keywords2);
 
             return dic;
+        }
+
+        /// <summary>
+        /// 取活動日
+        /// </summary>
+        /// <param name="obj">指定年月</param>
+        /// <param name="dowCount">星期幾計數，大於0正著數，小於0反著數</param>
+        /// <param name="dow">星期幾</param>
+        /// <returns></returns>
+        public static DateTime GetActivityDate(this DateTime obj, in int dowCount, in DayOfWeek dow)
+        {
+            if (dowCount > 0)
+            {
+                DateTime date = new DateTime(obj.Year, obj.Month, 1).AddDays(-1);
+                int targetWK = dowCount;
+                int cnt = 0;
+
+                for (int i = 0; i < 31; ++i)
+                {
+                    date = date.AddDays(1);
+
+                    if (date.DayOfWeek == dow)
+                    {
+                        ++cnt;
+
+                        if (cnt == targetWK)
+                        {
+                            return date;
+                        }
+                    }
+                }
+            }
+            else if (dowCount < 0)
+            {
+                DateTime date = new DateTime(obj.Year, obj.Month, 1).AddMonths(1);
+                int targetWK = dowCount * -1;
+                int cnt = 0;
+
+                for (int i = 0; i < 31; ++i)
+                {
+                    date = date.AddDays(-1);
+
+                    if (date.DayOfWeek == dow)
+                    {
+                        ++cnt;
+
+                        if (cnt == targetWK)
+                        {
+                            return date;
+                        }
+                    }
+                }
+            }
+
+            return DateTime.MaxValue;
         }
     }
 }
