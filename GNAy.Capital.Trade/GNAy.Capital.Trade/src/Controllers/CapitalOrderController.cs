@@ -418,6 +418,7 @@ namespace GNAy.Capital.Trade.Controllers
 
             stopWinOrder.TradeTypeEnum = OrderTradeType.Enum.ROD;
             stopWinOrder.OrderPriceBefore = parent.StopWinPriceAAfterRaw.ToString("0.00");
+            stopWinOrder.OrderPriceAfter = parent.StopWinPriceAAfterRaw;
 
             int succeededCnt = 0;
 
