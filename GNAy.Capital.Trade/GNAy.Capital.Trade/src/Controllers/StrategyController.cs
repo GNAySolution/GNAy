@@ -4,7 +4,6 @@ using GNAy.Tools.WPF;
 using NLog;
 using SKCOMLib;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
