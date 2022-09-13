@@ -251,6 +251,50 @@ namespace GNAy.Capital.Trade.Controllers
             return strategyAND;
         }
 
+        private HashSet<string> CloseStrategy(in TriggerData data, in DateTime start)
+        {
+            _appCtrl.Strategy.Close(data.StrategyCloseOR, data, start);
+
+            HashSet<string> strategyAND = new HashSet<string>();
+
+            foreach (string strategy in data.StrategyCloseAND.SplitWithoutWhiteSpace(','))
+            {
+                string pk = $",{strategy},";
+                bool closeStrategy = true;
+
+                foreach (TriggerData other in _dataMap.Values)
+                {
+                    if (other == data)
+                    {
+                        continue;
+                    }
+                    else if (!$",{other.StrategyCloseAND},".Contains(pk))
+                    {
+                        continue;
+                    }
+                    else if (other.StatusEnum != TriggerStatus.Enum.Executed)
+                    {
+                        closeStrategy = false;
+                        break;
+                    }
+                }
+
+                if (!closeStrategy)
+                {
+                    continue;
+                }
+
+                strategyAND.Add(strategy);
+            }
+
+            if (strategyAND.Count > 0)
+            {
+                _appCtrl.Strategy.Close(string.Join(",", strategyAND), data, start);
+            }
+
+            return strategyAND;
+        }
+
         private void CancelAfterExecuted(in TriggerData executed, in DateTime start, [CallerMemberName] in string memberName = "")
         {
             foreach (string cancel in executed.Cancel.SplitWithoutWhiteSpace(','))
@@ -451,12 +495,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                     saveData = true;
                     OpenStrategy(data, start);
-                    //TODO: CloseStrategy(data, start);
-
-                    //if (string.IsNullOrWhiteSpace(data.StrategyOpenAND) || strategyAND.Count > 0)
-                    //{
-                    //    CancelAfterExecuted(data, start);
-                    //}
+                    CloseStrategy(data, start);
 
                     StartAfterExecuted(data);
                 }

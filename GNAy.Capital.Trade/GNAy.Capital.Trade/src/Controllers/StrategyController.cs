@@ -424,6 +424,35 @@ namespace GNAy.Capital.Trade.Controllers
             return false;
         }
 
+        public void Close(in string keys, in TriggerData trigger, in DateTime start)
+        {
+            foreach (string primaryKey in keys.SplitWithoutWhiteSpace(','))
+            {
+                try
+                {
+                    StrategyData data = this[primaryKey];
+
+                    if (!ProfitTotalOnlyReal)
+                    {
+                        Close(data, 0, "觸價停止", start);
+                    }
+                    else if (data.SendRealOrder || data.RealOrdersOrNot.Contains("T"))
+                    {
+                        Close(data, 0, "觸價停止", start);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _appCtrl.LogException(start, ex, ex.StackTrace);
+                    _appCtrl.LogError(start, $"停止策略({primaryKey})失敗|{trigger.ToLog()}", UniqueName);
+                }
+                finally
+                {
+                    _appCtrl.EndTrace(start, UniqueName);
+                }
+            }
+        }
+
         public void CloseAll(in int qty, in bool onlyTotalStopWin, in string comment = "手動停止")
         {
             DateTime start = _appCtrl.StartTrace($"{nameof(qty)}={qty}|{nameof(onlyTotalStopWin)}={onlyTotalStopWin}|{comment}", UniqueName);
@@ -462,7 +491,16 @@ namespace GNAy.Capital.Trade.Controllers
         {
             try
             {
-                (LogLevel, string) result = _appCtrl.Trigger.Restart(primary);
+                (LogLevel, string) result = (LogLevel.Error, string.Empty);
+
+                if (!ProfitTotalOnlyReal)
+                {
+                    result = _appCtrl.Trigger.Restart(primary);
+                }
+                else if (data.SendRealOrder)
+                {
+                    result = _appCtrl.Trigger.Restart(primary);
+                }
 
                 if (result.Item1 == LogLevel.Trace)
                 {
@@ -493,7 +531,7 @@ namespace GNAy.Capital.Trade.Controllers
                     return;
                 }
 
-                _appCtrl.Strategy.StartNow(_appCtrl.Strategy[targetKey]);
+                StartNow(this[targetKey]);
             }
             catch (Exception ex)
             {
@@ -1222,7 +1260,7 @@ namespace GNAy.Capital.Trade.Controllers
                         _marketPriceSnapshot[data.Quote.Symbol] = marketPrice;
                     }
 
-                    _appCtrl.Strategy.StartNow(data, marketPrice);
+                    StartNow(data, marketPrice);
                 }
                 catch (Exception ex)
                 {

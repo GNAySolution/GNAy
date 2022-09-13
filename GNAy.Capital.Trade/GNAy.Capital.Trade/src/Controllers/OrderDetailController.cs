@@ -96,6 +96,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             parent.OrdersSeqNos = string.Join(",", parent.OrdersSeqNoQueue);
 
+            if (dealQty == 0)
+            {
+                return;
+            }
+
             decimal closedProfit = (parent.StopWinPriceAAfterRaw - parent.DealPrice) * dealQty * parent.OrderData.ProfitDirection;
             int orderQty = data.OrderQty - dealQty;
             int unclosedQty = parent.UnclosedQty - dealQty;
