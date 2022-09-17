@@ -119,6 +119,8 @@ namespace GNAy.Capital.Trade.Controllers
                 }
                 else if (data.StatusEnum == TriggerStatus.Enum.Cancelled && data.StartTime.HasValue && data.StartTime.Value > DateTime.Now)
                 { }
+                else if (string.IsNullOrWhiteSpace(data.StrategyOpenOR) && string.IsNullOrWhiteSpace(data.StrategyOpenAND) && !string.IsNullOrWhiteSpace(data.StrategyCloseOR) || !string.IsNullOrWhiteSpace(data.StrategyCloseAND))
+                { }
                 else
                 {
                     decimal columnValue = data.GetColumnValue(data.Quote1);

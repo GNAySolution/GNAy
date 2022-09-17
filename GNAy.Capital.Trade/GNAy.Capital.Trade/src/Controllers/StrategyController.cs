@@ -501,6 +501,10 @@ namespace GNAy.Capital.Trade.Controllers
                 {
                     result = _appCtrl.Trigger.Restart(primary);
                 }
+                else
+                {
+                    return;
+                }
 
                 if (result.Item1 == LogLevel.Trace)
                 {

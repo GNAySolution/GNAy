@@ -357,7 +357,8 @@ namespace GNAy.Capital.Trade.Controllers
             int succeededCnt = 0;
             (LogLevel, string) output = (LogLevel.Error, orderResult);
 
-            for (int i = 0; i < order.OrderQty * 8; ++i)
+            //for (int i = 0; i < order.OrderQty * 8; ++i)
+            for (int i = 0; i < order.OrderQty * 1; ++i)
             {
                 FUTUREORDER capOrder = CreateCaptialFutures(order);
                 capOrder.nQty = 1;
@@ -422,7 +423,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             int succeededCnt = 0;
 
-            for (int i = 0; i < stopWinOrder.OrderQty * 8; ++i)
+            //for (int i = 0; i < stopWinOrder.OrderQty * 8; ++i)
+            for (int i = 0; i < stopWinOrder.OrderQty * 1; ++i)
             {
                 FUTUREORDER capOrder = CreateCaptialFutures(stopWinOrder);
                 capOrder.nQty = 1;
@@ -626,13 +628,17 @@ namespace GNAy.Capital.Trade.Controllers
             try
             {
                 m_nCode = m_pSKOrder.CancelOrderBySeqNo(_appCtrl.CAPCenter.UserID, false, fullAccount, seqNo, out string strMessage); //國內委託删單(By委託序號)
+                _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, strMessage);
 
-                if (m_nCode != 0)
+                //取消送出[cancel send], 取消結果請查詢委託回報
+                //測試
+                if (strMessage.Contains("取消送出"))
                 {
-                    _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode);
-                }
+                    Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
 
-                _appCtrl.LogTrace(start, strMessage, UniqueName);
+                    int _Code = m_pSKOrder.CancelOrderBySeqNo(_appCtrl.CAPCenter.UserID, false, fullAccount, seqNo, out string msg);
+                    _appCtrl.CAPCenter.LogAPIMessage(start, _Code, msg);
+                }
             }
             catch (Exception ex)
             {
