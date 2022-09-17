@@ -357,8 +357,8 @@ namespace GNAy.Capital.Trade.Controllers
             int succeededCnt = 0;
             (LogLevel, string) output = (LogLevel.Error, orderResult);
 
-            //for (int i = 0; i < order.OrderQty * 8; ++i)
-            for (int i = 0; i < order.OrderQty * 1; ++i)
+            for (int i = 0; i < order.OrderQty * 4; ++i)
+            //for (int i = 0; i < order.OrderQty * 1; ++i)
             {
                 FUTUREORDER capOrder = CreateCaptialFutures(order);
                 capOrder.nQty = 1;
@@ -423,8 +423,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             int succeededCnt = 0;
 
-            //for (int i = 0; i < stopWinOrder.OrderQty * 8; ++i)
-            for (int i = 0; i < stopWinOrder.OrderQty * 1; ++i)
+            for (int i = 0; i < stopWinOrder.OrderQty * 4; ++i)
+            //for (int i = 0; i < stopWinOrder.OrderQty * 1; ++i)
             {
                 FUTUREORDER capOrder = CreateCaptialFutures(stopWinOrder);
                 capOrder.nQty = 1;
@@ -631,7 +631,7 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, strMessage);
 
                 //取消送出[cancel send], 取消結果請查詢委託回報
-                //測試
+                //TODO: 測試
                 if (strMessage.Contains("取消送出"))
                 {
                     Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
