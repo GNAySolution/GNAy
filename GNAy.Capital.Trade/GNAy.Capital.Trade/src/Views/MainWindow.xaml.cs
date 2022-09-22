@@ -40,7 +40,6 @@ namespace GNAy.Capital.Trade
         private readonly AppController _appCtrl;
 
         private readonly Dictionary<TextBox, ComboBox> _editableCBMap;
-        private readonly Dictionary<DataGrid, ICollectionView> _dataGridViewMap;
 
         private int orderDetailCount;
 
@@ -117,8 +116,6 @@ namespace GNAy.Capital.Trade
                 partTB.GotFocus += TextBox_GotFocus;
                 _editableCBMap[partTB] = ComboBoxOrderSeqNo;
             }
-
-            _dataGridViewMap = new Dictionary<DataGrid, ICollectionView>();
 
             StatusBarItemAA1.Text = StartTime.ToString("MM/dd HH:mm");
 
@@ -372,7 +369,7 @@ namespace GNAy.Capital.Trade
                 TextBoxQuoteFolderTest.Text = _appCtrl.Settings.QuoteFolderPath;
                 StatusBarItemAB2.Text = $"Subscribed={_appCtrl.Config.QuoteSubscribed.Count}|Live={_appCtrl.Settings.QuoteLive.Count}";
 
-                CheckBoxShowDataGrid.IsEnabled = _appCtrl.Settings.ShowDataGrid;
+                CheckBoxShowDataGrid.IsChecked = _appCtrl.Settings.ShowDataGrid;
 
                 CheckBoxSendRealOrder.IsChecked = _appCtrl.Settings.SendRealOrder;
 
@@ -1182,40 +1179,11 @@ namespace GNAy.Capital.Trade
                 _appCtrl.Settings.ShowDataGrid = CheckBoxShowDataGrid.IsChecked.Value;
                 _appCtrl.LogTrace(start, $"{nameof(AppSettings.ShowDataGrid)}={_appCtrl.Settings.ShowDataGrid}", UniqueName);
 
-                if (!_dataGridViewMap.ContainsKey(DataGridAppLog) && DataGridAppLog.ItemsSource is ICollectionView cvAppLog)
-                {
-                    _dataGridViewMap[DataGridAppLog] = cvAppLog;
-                }
-                if (!_dataGridViewMap.ContainsKey(DataGridQuoteSubscribed) && DataGridQuoteSubscribed.ItemsSource is ICollectionView cvQuoteSubscribed)
-                {
-                    _dataGridViewMap[DataGridQuoteSubscribed] = cvQuoteSubscribed;
-                }
-                if (!_dataGridViewMap.ContainsKey(DataGridFuturesRights) && DataGridFuturesRights.ItemsSource is ICollectionView cvFuturesRights)
-                {
-                    _dataGridViewMap[DataGridFuturesRights] = cvFuturesRights;
-                }
+                Visibility vsb = _appCtrl.Settings.ShowDataGrid ? Visibility.Visible : Visibility.Collapsed;
 
-                if (_appCtrl.Settings.ShowDataGrid)
-                {
-                    if (_dataGridViewMap.TryGetValue(DataGridAppLog, out ICollectionView view))
-                    {
-                        DataGridAppLog.ItemsSource = view;
-                    }
-                    if (_dataGridViewMap.TryGetValue(DataGridQuoteSubscribed, out view))
-                    {
-                        DataGridQuoteSubscribed.ItemsSource = view;
-                    }
-                    if (_dataGridViewMap.TryGetValue(DataGridFuturesRights, out view))
-                    {
-                        DataGridFuturesRights.ItemsSource = view;
-                    }
-                }
-                else
-                {
-                    DataGridAppLog.ItemsSource = null;
-                    DataGridQuoteSubscribed.ItemsSource = null;
-                    DataGridFuturesRights.ItemsSource = null;
-                }
+                DataGridAppLog.Visibility = vsb;
+                DataGridQuoteSubscribed.Visibility = vsb;
+                DataGridFuturesRights.Visibility = vsb;
             }
             catch (Exception ex)
             {

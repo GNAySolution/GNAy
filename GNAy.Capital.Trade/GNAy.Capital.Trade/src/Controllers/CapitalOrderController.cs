@@ -638,6 +638,9 @@ namespace GNAy.Capital.Trade.Controllers
 
                     int _Code = m_pSKOrder.CancelOrderBySeqNo(_appCtrl.CAPCenter.UserID, false, fullAccount, seqNo, out string msg);
                     _appCtrl.CAPCenter.LogAPIMessage(start, _Code, msg);
+
+                    //取消送出[cancel send], 取消結果請查詢委託回報 | nCode = 0 | 631 | CapitalCenterCtrl.CancelBySeqNo
+                    //[073]取消失敗，此委託已取消(KEY)(0) | nCode = 4 | 4 | 同步 - 委託:M004[073]取消失敗，此委託已取消(KEY)(0) | 640 | CapitalCenterCtrl.CancelBySeqNo
                 }
             }
             catch (Exception ex)

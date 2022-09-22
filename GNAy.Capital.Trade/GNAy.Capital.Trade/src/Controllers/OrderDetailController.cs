@@ -133,6 +133,9 @@ namespace GNAy.Capital.Trade.Controllers
                 //
             }
 
+            _appCtrl.LogTrace(start, $"剩餘委託量|{orderQty}={data.OrderQty}-{dealQty}|{data.ToLog()}", UniqueName);
+            _appCtrl.LogTrace(start, $"限價停利成交|{unclosedQty}={parent.UnclosedQty}-{dealQty}|{parent.ToLog()}", UniqueName);
+
             data.OrderQty = orderQty;
 
             parent.ClosedProfit += closedProfit;
@@ -144,19 +147,11 @@ namespace GNAy.Capital.Trade.Controllers
                 _appCtrl.LogError(start, $"剩餘委託量錯誤|{orderQty}={data.OrderQty}-{dealQty}|{data.ToLog()}", UniqueName);
                 data.OrderQty = 0;
             }
-            else
-            {
-                _appCtrl.LogTrace(start, $"剩餘委託量|{orderQty}={data.OrderQty}-{dealQty}|{data.ToLog()}", UniqueName);
-            }
 
             if (unclosedQty < 0)
             {
                 _appCtrl.LogError(start, $"限價停利成交量錯誤|{unclosedQty}={parent.UnclosedQty}-{dealQty}|{parent.ToLog()}", UniqueName);
                 parent.UnclosedQty = 0;
-            }
-            else
-            {
-                _appCtrl.LogTrace(start, $"限價停利成交|{unclosedQty}={parent.UnclosedQty}-{dealQty}|{parent.ToLog()}", UniqueName);
             }
         }
 
