@@ -459,6 +459,17 @@ namespace GNAy.Capital.Trade.Controllers
 
                     EndTrace(start, UniqueName);
 
+                    if (Debugger.IsAttached)
+                    { }
+                    else if (!Settings.ShowDataGrid)
+                    { }
+                    else if (Settings.LiveMode)
+                    { }
+                    else
+                    {
+                        Process.Start("https://gnaysolution.pixnet.net/blog");
+                    }
+
                     Thread.Sleep(3 * 1000);
                     Environment.Exit(exitCode);
                 }
