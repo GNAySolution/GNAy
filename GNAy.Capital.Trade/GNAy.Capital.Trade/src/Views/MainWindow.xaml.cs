@@ -779,11 +779,11 @@ namespace GNAy.Capital.Trade
                     return;
                 }
 
-                int offset = cb.SelectedIndex + ((e.Delta > 0) ? -1 : 1);
+                int nextIdx = cb.SelectedIndex + (e.Delta > 0 ? -1 : 1);
 
-                if (offset >= 0 && offset < cb.Items.Count)
+                if (nextIdx >= 0 && nextIdx < cb.Items.Count)
                 {
-                    cb.SelectedIndex = offset;
+                    cb.SelectedIndex = nextIdx;
                 }
             }
             catch (Exception ex)

@@ -349,7 +349,7 @@ namespace GNAy.Capital.Trade.Controllers
                 int m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out string orderMsg);
                 orderResult = orderMsg;
 
-                Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
+                Thread.Sleep(_appCtrl.Settings.OrderOpenCloseInterval);
 
                 return m_nCode == 0 ? (LogLevel.Trace, orderResult) : _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderResult);
             }
@@ -366,7 +366,7 @@ namespace GNAy.Capital.Trade.Controllers
                 int m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out string orderMsg);
                 orderResult = orderMsg;
 
-                Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
+                Thread.Sleep(_appCtrl.Settings.OrderOpenCloseInterval);
 
                 if (m_nCode == 0)
                 {
@@ -431,7 +431,7 @@ namespace GNAy.Capital.Trade.Controllers
 
                 int m_nCode = m_pSKOrder.SendFutureOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out string orderMsg);
 
-                Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
+                Thread.Sleep(_appCtrl.Settings.OrderLimitStopWinInterval);
 
                 if (m_nCode == 0 && !string.IsNullOrWhiteSpace(orderMsg))
                 {
@@ -470,7 +470,7 @@ namespace GNAy.Capital.Trade.Controllers
             string orderMsg = string.Empty;
             int m_nCode = m_pSKOrder.SendOptionOrder(_appCtrl.CAPCenter.UserID, false, capOrder, out orderMsg);
 
-            Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
+            Thread.Sleep(_appCtrl.Settings.OrderOpenCloseInterval);
 
             return m_nCode == 0 ? (LogLevel.Trace, orderMsg) : _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, orderMsg);
         }
@@ -627,6 +627,8 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
+                Thread.Sleep(_appCtrl.Settings.OrderCancelInterval);
+
                 m_nCode = m_pSKOrder.CancelOrderBySeqNo(_appCtrl.CAPCenter.UserID, false, fullAccount, seqNo, out string strMessage); //國內委託删單(By委託序號)
                 _appCtrl.CAPCenter.LogAPIMessage(start, m_nCode, strMessage);
 
@@ -634,7 +636,7 @@ namespace GNAy.Capital.Trade.Controllers
                 //TODO: 測試
                 if (strMessage.Contains("取消送出"))
                 {
-                    Thread.Sleep(_appCtrl.Settings.OrderTimeInterval);
+                    Thread.Sleep(_appCtrl.Settings.OrderOpenCloseInterval);
 
                     int _Code = m_pSKOrder.CancelOrderBySeqNo(_appCtrl.CAPCenter.UserID, false, fullAccount, seqNo, out string msg);
                     _appCtrl.CAPCenter.LogAPIMessage(start, _Code, msg);

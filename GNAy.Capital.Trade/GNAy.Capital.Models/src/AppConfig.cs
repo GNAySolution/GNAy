@@ -89,23 +89,31 @@ namespace GNAy.Capital.Models
 
             if (settings.TimerIntervalUI1 <= 0)
             {
-                throw new ArgumentException($"TimerIntervalUI1({settings.TimerIntervalUI1}) <= 0");
+                throw new ArgumentException($"{nameof(settings.TimerIntervalUI1)}({settings.TimerIntervalUI1}) <= 0");
             }
             if (settings.TimerIntervalUI2 <= 0)
             {
-                throw new ArgumentException($"TimerIntervalUI2({settings.TimerIntervalUI2}) <= 0");
+                throw new ArgumentException($"{nameof(settings.TimerIntervalUI2)}({settings.TimerIntervalUI2}) <= 0");
             }
             if (settings.OpenInterestInterval <= 0)
             {
-                throw new ArgumentException($"OpenInterestInterval({settings.OpenInterestInterval}) <= 0");
+                throw new ArgumentException($"{nameof(settings.OpenInterestInterval)}({settings.OpenInterestInterval}) <= 0");
             }
             if (settings.FuturesRightsInterval <= 0)
             {
-                throw new ArgumentException($"OpenInterestInterval({settings.FuturesRightsInterval}) <= 0");
+                throw new ArgumentException($"{nameof(settings.FuturesRightsInterval)}({settings.FuturesRightsInterval}) <= 0");
             }
-            if (settings.OrderTimeInterval <= 0)
+            if (settings.OrderOpenCloseInterval <= 0)
             {
-                throw new ArgumentException($"OrderTimeInterval({settings.OrderTimeInterval}) <= 0");
+                throw new ArgumentException($"{nameof(settings.OrderOpenCloseInterval)}({settings.OrderOpenCloseInterval}) <= 0");
+            }
+            if (settings.OrderLimitStopWinInterval <= 0)
+            {
+                throw new ArgumentException($"{nameof(settings.OrderLimitStopWinInterval)}({settings.OrderLimitStopWinInterval}) <= 0");
+            }
+            if (settings.OrderCancelInterval <= 0)
+            {
+                throw new ArgumentException($"{nameof(settings.OrderCancelInterval)}({settings.OrderCancelInterval}) <= 0");
             }
 
             Archive = archive;

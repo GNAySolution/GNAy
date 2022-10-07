@@ -135,9 +135,17 @@ namespace GNAy.Capital.Models
         public int FuturesRightsInterval { get; set; }
 
         /// <summary>
-        /// 委託單的間隔毫秒
+        /// 委託單新倉平倉的間隔毫秒
         /// </summary>
-        public int OrderTimeInterval { get; set; }
+        public int OrderOpenCloseInterval { get; set; }
+        /// <summary>
+        /// 委託單限價停利的間隔毫秒
+        /// </summary>
+        public int OrderLimitStopWinInterval { get; set; }
+        /// <summary>
+        /// 委託單取消的間隔毫秒
+        /// </summary>
+        public int OrderCancelInterval { get; set; }
         /// <summary>
         /// 設定每秒委託「量」限制。一秒內下單超過設定值時下該類型下單將被鎖定，需進行解鎖才可繼續下單
         /// </summary>
@@ -195,7 +203,7 @@ namespace GNAy.Capital.Models
 
         public AppSettings()
         {
-            Version = "1.22.816.1";
+            Version = "1.22.1007.1";
             Description = "測試用設定";
 
             //ProcessPriority = 0x80; //ProcessPriorityClass.High
@@ -270,7 +278,9 @@ namespace GNAy.Capital.Models
             OpenInterestInterval = 8;
             FuturesRightsInterval = 28;
 
-            OrderTimeInterval = 100;
+            OrderOpenCloseInterval = 100;
+            OrderLimitStopWinInterval = 50;
+            OrderCancelInterval = 500;
             OrderMaxQty = 50;
             OrderMaxCount = 50;
 

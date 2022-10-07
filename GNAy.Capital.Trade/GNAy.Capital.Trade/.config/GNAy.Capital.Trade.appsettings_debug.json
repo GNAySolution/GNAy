@@ -1,5 +1,5 @@
 {
-  "Version": "1.22.816.1",
+  "Version": "1.22.1007.1",
   "Description": "測試用設定",
   "ProcessPriority": "Normal",
   "Big5EncodingCodePage": 950,
@@ -126,7 +126,9 @@
   "QuoteSaveInterval": 45,
   "OpenInterestInterval": 8,
   "FuturesRightsInterval": 28,
-  "OrderTimeInterval": 100,
+  "OrderOpenCloseInterval": 100,
+  "OrderLimitStopWinInterval": 50,
+  "OrderCancelInterval": 500,
   "OrderMaxQty": 50,
   "OrderMaxCount": 50,
   "TriggerFolderPath": "TriggerData",
