@@ -62,6 +62,11 @@ namespace GNAy.Capital.Trade.Controllers
 
             Config = LoadSettings();
 
+            if (!Config.AutoRun && Config.IsHoliday(CreatedTime))
+            {
+                Environment.Exit(0);
+            }
+
             AppSettings newSetting = new AppSettings();
             Version newVer = new Version(newSetting.Version);
 
