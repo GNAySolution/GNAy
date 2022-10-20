@@ -8,26 +8,36 @@ namespace GNAy.Tools.NET47
 {
     public class PackBCDConverter
     {
-        public char ToPackBCD(in byte source)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="high">高四位，數字0~9</param>
+        /// <param name="low">低四位，數字0~9</param>
+        /// <returns></returns>
+        public static char ToPackBCD(in byte high, in byte low)
         {
-            byte b1 = (byte)(source / 10); //高四位
-            byte b2 = (byte)(source % 10); //低四位
-
-            return (char)((b1 << 4) | b2);
+            return (char)((high << 4) | low);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="source1">高四位</param>
-        /// <param name="source2">低四位</param>
+        /// <param name="high">高四位，數字0~9</param>
+        /// <param name="low">低四位，數字0~9</param>
         /// <returns></returns>
-        public static char ToPackBCD(in char source1, in char source2)
+        public static char ToPackBCD(in char high, in char low)
         {
-            byte b1 = (byte)(source1 - '0'); //高四位
-            byte b2 = (byte)(source2 - '0'); //低四位
+            return ToPackBCD((byte)(high - '0'), (byte)(low - '0'));
+        }
 
-            return (char)((b1 << 4) | b2);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source">數字00~99</param>
+        /// <returns></returns>
+        public static char ToPackBCD(in byte source)
+        {
+            return ToPackBCD((byte)(source / 10), (byte)(source % 10));
         }
 
         public static char[] ToPackBCD(in string source)
