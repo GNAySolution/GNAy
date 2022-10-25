@@ -53,6 +53,28 @@ namespace GNAy.Tools.NET47
             return (value & BitValue[position]) > 0;
         }
 
+        public static bool CheckBits(in byte value, params int[] positions)
+        {
+            if (positions == null || positions.Length <= 0)
+            {
+                throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
+            }
+
+            uint bits = 0;
+
+            foreach (int position in positions)
+            {
+                if (position < 0 || position >= sizeof(byte) * 8)
+                {
+                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                }
+
+                bits |= BitValue[position];
+            }
+
+            return (value & bits) == bits;
+        }
+
         public static byte GetBit(in byte value, in int position)
         {
             if (position < 0 || position >= sizeof(byte) * 8)
@@ -61,6 +83,28 @@ namespace GNAy.Tools.NET47
             }
 
             return (byte)(value & BitValue[position]);
+        }
+
+        public static byte GetBits(in byte value, params int[] positions)
+        {
+            if (positions == null || positions.Length <= 0)
+            {
+                throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
+            }
+
+            uint bits = 0;
+
+            foreach (int position in positions)
+            {
+                if (position < 0 || position >= sizeof(byte) * 8)
+                {
+                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                }
+
+                bits |= BitValue[position];
+            }
+
+            return (byte)(value & bits);
         }
 
         public static byte AddBit(in byte value, in int position)
@@ -73,10 +117,59 @@ namespace GNAy.Tools.NET47
             return (byte)(value | BitValue[position]);
         }
 
+        public static byte AddBits(in byte value, params int[] positions)
+        {
+            if (positions == null || positions.Length <= 0)
+            {
+                throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
+            }
+
+            uint bits = 0;
+
+            foreach (int position in positions)
+            {
+                if (position < 0 || position >= sizeof(byte) * 8)
+                {
+                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                }
+
+                bits |= BitValue[position];
+            }
+
+            return (byte)(value | bits);
+        }
+
         public static byte RemoveBit(in byte value, in int position)
         {
+            if (position < 0 || position >= sizeof(byte) * 8)
+            {
+                throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+            }
+
             //return CheckBit(value, position) ? (byte)(value - BitValue[position]) : value;
             return (byte)(value & ~BitValue[position]);
+        }
+
+        public static byte RemoveBits(in byte value, params int[] positions)
+        {
+            if (positions == null || positions.Length <= 0)
+            {
+                throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
+            }
+
+            uint bits = 0;
+
+            foreach (int position in positions)
+            {
+                if (position < 0 || position >= sizeof(byte) * 8)
+                {
+                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                }
+
+                bits |= BitValue[position];
+            }
+
+            return (byte)(value & ~bits);
         }
 
         public static bool CheckBit(in uint value, in int position)
@@ -89,6 +182,28 @@ namespace GNAy.Tools.NET47
             return (value & BitValue[position]) > 0;
         }
 
+        public static bool CheckBits(in uint value, params int[] positions)
+        {
+            if (positions == null || positions.Length <= 0)
+            {
+                throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
+            }
+
+            uint bits = 0;
+
+            foreach (int position in positions)
+            {
+                if (position < 0 || position >= sizeof(uint) * 8)
+                {
+                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                }
+
+                bits |= BitValue[position];
+            }
+
+            return (value & bits) == bits;
+        }
+
         public static uint GetBit(in uint value, in int position)
         {
             if (position < 0 || position >= sizeof(uint) * 8)
@@ -97,6 +212,28 @@ namespace GNAy.Tools.NET47
             }
 
             return value & BitValue[position];
+        }
+
+        public static uint GetBits(in uint value, params int[] positions)
+        {
+            if (positions == null || positions.Length <= 0)
+            {
+                throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
+            }
+
+            uint bits = 0;
+
+            foreach (int position in positions)
+            {
+                if (position < 0 || position >= sizeof(uint) * 8)
+                {
+                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                }
+
+                bits |= BitValue[position];
+            }
+
+            return value & bits;
         }
 
         public static uint AddBit(in uint value, in int position)
@@ -109,10 +246,59 @@ namespace GNAy.Tools.NET47
             return value | BitValue[position];
         }
 
+        public static uint AddBits(in uint value, params int[] positions)
+        {
+            if (positions == null || positions.Length <= 0)
+            {
+                throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
+            }
+
+            uint bits = 0;
+
+            foreach (int position in positions)
+            {
+                if (position < 0 || position >= sizeof(uint) * 8)
+                {
+                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                }
+
+                bits |= BitValue[position];
+            }
+
+            return value | bits;
+        }
+
         public static uint RemoveBit(in uint value, in int position)
         {
+            if (position < 0 || position >= sizeof(uint) * 8)
+            {
+                throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+            }
+
             //return CheckBit(value, position) ? value - BitValue[position] : value;
             return value & ~BitValue[position];
+        }
+
+        public static uint RemoveBits(in uint value, params int[] positions)
+        {
+            if (positions == null || positions.Length <= 0)
+            {
+                throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
+            }
+
+            uint bits = 0;
+
+            foreach (int position in positions)
+            {
+                if (position < 0 || position >= sizeof(uint) * 8)
+                {
+                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                }
+
+                bits |= BitValue[position];
+            }
+
+            return value & ~bits;
         }
     }
 }
