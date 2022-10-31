@@ -6,6 +6,7 @@
 ![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22061715.jpg)
 * https://github.com/GNAySolution/GNAy/tree/main/GNAy.Capital.Trade/GNAy.Capital.Trade/GNAy.Capital.Trade.csproj
 * 程式交易使用群益API，交易輔助APP，策略交易框架與範例，提供多樣化的素材，方便user自行組合與測試交易策略
+* (專案開發停止，本專案只支援群益API 2.13.39_x64，後續預計轉移使用其他券商API，本專案不再開發與維護)
 * 基於群益API(SKCOM.dll)，需先申請群益證券帳戶和期貨帳戶才能使用，目前專案參考API版本2.13.39_x64
 * https://www.capital.com.tw/Service2/download/api.asp
 * Demo放在以下頻道
