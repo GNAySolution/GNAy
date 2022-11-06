@@ -180,7 +180,7 @@ namespace GNAy.Capital.Models
         {
             if (Settings.FuturesLastTradeWeek > 0 && !string.IsNullOrWhiteSpace(Settings.FuturesLastTradeDay) && Settings.DayToChangeFutures <= 0)
             {
-                return targetMonth.GetActivityDate(Settings.FuturesLastTradeWeek, Settings.FuturesLastTradeDay.ConvertTo<DayOfWeek>()).AddDays(Settings.DayToChangeFutures);
+                return targetMonth.GetActivityDate(Settings.FuturesLastTradeWeek, FlagOperator.ConvertTo<DayOfWeek>(Settings.FuturesLastTradeDay)).AddDays(Settings.DayToChangeFutures);
             }
 
             return DateTime.MaxValue;

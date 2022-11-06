@@ -44,26 +44,6 @@ namespace GNAy.Tools.NET47
             return setSeparator.Length <= 0 ? string.Join(joinSeparator.ToString(), obj.ForeachSortedSet(joinSeparator)) : string.Join(joinSeparator.ToString(), obj.ForeachSortedSet(setSeparator));
         }
 
-        public static Enum ConvertTo(this string obj, in Type enumType)
-        {
-            string trim = obj.Trim(' ', '.').ToLower();
-
-            foreach (Enum value in Enum.GetValues(enumType))
-            {
-                if (value.ToString().ToLower().StartsWith(trim) || trim == ((int)(object)value).ToString())
-                {
-                    return value;
-                }
-            }
-
-            throw new ArgumentException(obj);
-        }
-
-        public static T ConvertTo<T>(this string obj) where T : Enum
-        {
-            return (T)ConvertTo(obj, typeof(T));
-        }
-
         /// <summary>
         /// https://codertw.com/%E5%89%8D%E7%AB%AF%E9%96%8B%E7%99%BC/220001/
         /// </summary>
@@ -72,9 +52,9 @@ namespace GNAy.Tools.NET47
         public static string GetDescription(this Enum obj)
         {
             FieldInfo field = obj.GetType().GetField(obj.ToString());
-            DescriptionAttribute arr = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute), false);
+            DescriptionAttribute attr = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute), false);
 
-            return arr.Description;
+            return attr.Description;
         }
 
         /// <summary>
@@ -364,7 +344,7 @@ namespace GNAy.Tools.NET47
             }
             else if (propertyType.BaseType != null && propertyType.BaseType == typeof(Enum))
             {
-                obj.SetValue(instance, ConvertTo(value, propertyType));
+                obj.SetValue(instance, FlagOperator.ConvertToEnum(value, propertyType));
             }
             else
             {

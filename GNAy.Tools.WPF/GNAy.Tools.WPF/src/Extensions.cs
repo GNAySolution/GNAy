@@ -188,7 +188,7 @@ namespace GNAy.Tools.WPF
             obj.DisplayIndex = attr.WPFDisplayIndex;
             bind.StringFormat = attr.WPFStringFormat;
             obj.IsReadOnly = attr.WPFIsReadOnly;
-            obj.Visibility = attr.WPFVisibility.ToString().ConvertTo<Visibility>();
+            obj.Visibility = FlagOperator.ConvertTo<Visibility>(attr.WPFVisibility.ToString());
             obj.CanUserReorder = attr.WPFCanUserReorder;
             obj.CanUserSort = attr.WPFCanUserSort;
 
@@ -208,7 +208,7 @@ namespace GNAy.Tools.WPF
                 if (attr.WPFHorizontalAlignment != WPFHorizontalAlignment.Left)
                 {
                     elementS = new Style();
-                    elementS.Setters.Add(new Setter(FrameworkElement.HorizontalAlignmentProperty, attr.WPFHorizontalAlignment.ToString().ConvertTo<HorizontalAlignment>()));
+                    elementS.Setters.Add(new Setter(FrameworkElement.HorizontalAlignmentProperty, FlagOperator.ConvertTo<HorizontalAlignment>(attr.WPFHorizontalAlignment.ToString())));
                 }
 
                 if (!string.IsNullOrWhiteSpace(attr.WPFForeground))

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace GNAy.Tools.NET47
 {
-    public class BitOperator
+    public class FlagOperator
     {
-        public static readonly uint[] BitValue = {
+        public static readonly uint[] FlagValue = {
             (uint)Math.Pow(2, 0),
             (uint)Math.Pow(2, 1),
             (uint)Math.Pow(2, 2),
@@ -43,262 +43,282 @@ namespace GNAy.Tools.NET47
             (uint)Math.Pow(2, 31),
         };
 
-        public static bool CheckBit(in byte value, in int position)
+        public static Enum ConvertToEnum(in string source, in Type enumType)
+        {
+            string trim = source.Trim(' ', '.').ToLower();
+
+            foreach (Enum value in Enum.GetValues(enumType))
+            {
+                if (value.ToString().ToLower().StartsWith(trim) || trim == ((int)(object)value).ToString())
+                {
+                    return value;
+                }
+            }
+
+            return (Enum)Enum.Parse(enumType, trim);
+        }
+
+        public static T ConvertTo<T>(in string source) where T : Enum
+        {
+            return (T)ConvertToEnum(source, typeof(T));
+        }
+
+        public static bool HasFlag(in byte value, in int position)
         {
             if (position < 0 || position >= sizeof(byte) * 8)
             {
                 throw new IndexOutOfRangeException($"{nameof(position)}={position}");
             }
 
-            return (value & BitValue[position]) > 0;
+            return (value & FlagValue[position]) > 0;
         }
 
-        public static bool CheckBits(in byte value, params int[] positions)
+        public static bool HaveFlags(in byte value, params int[] positions)
         {
             if (positions == null || positions.Length <= 0)
             {
                 throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
             }
 
-            uint bits = 0;
+            uint flags = 0;
 
-            foreach (int position in positions)
+            foreach (int pos in positions)
             {
-                if (position < 0 || position >= sizeof(byte) * 8)
+                if (pos < 0 || pos >= sizeof(byte) * 8)
                 {
-                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                    throw new IndexOutOfRangeException($"{nameof(pos)}={pos}");
                 }
 
-                bits |= BitValue[position];
+                flags |= FlagValue[pos];
             }
 
-            return (value & bits) == bits;
+            return (value & flags) == flags;
         }
 
-        public static byte GetBit(in byte value, in int position)
+        public static byte GetFlag(in byte value, in int position)
         {
             if (position < 0 || position >= sizeof(byte) * 8)
             {
                 throw new IndexOutOfRangeException($"{nameof(position)}={position}");
             }
 
-            return (byte)(value & BitValue[position]);
+            return (byte)(value & FlagValue[position]);
         }
 
-        public static byte GetBits(in byte value, params int[] positions)
+        public static byte GetFlags(in byte value, params int[] positions)
         {
             if (positions == null || positions.Length <= 0)
             {
                 throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
             }
 
-            uint bits = 0;
+            uint flags = 0;
 
-            foreach (int position in positions)
+            foreach (int pos in positions)
             {
-                if (position < 0 || position >= sizeof(byte) * 8)
+                if (pos < 0 || pos >= sizeof(byte) * 8)
                 {
-                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                    throw new IndexOutOfRangeException($"{nameof(pos)}={pos}");
                 }
 
-                bits |= BitValue[position];
+                flags |= FlagValue[pos];
             }
 
-            return (byte)(value & bits);
+            return (byte)(value & flags);
         }
 
-        public static byte AddBit(in byte value, in int position)
+        public static byte SetFlag(in byte value, in int position)
         {
             if (position < 0 || position >= sizeof(byte) * 8)
             {
                 throw new IndexOutOfRangeException($"{nameof(position)}={position}");
             }
 
-            return (byte)(value | BitValue[position]);
+            return (byte)(value | FlagValue[position]);
         }
 
-        public static byte AddBits(in byte value, params int[] positions)
+        public static byte SetFlags(in byte value, params int[] positions)
         {
             if (positions == null || positions.Length <= 0)
             {
                 throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
             }
 
-            uint bits = 0;
+            uint flags = 0;
 
-            foreach (int position in positions)
+            foreach (int pos in positions)
             {
-                if (position < 0 || position >= sizeof(byte) * 8)
+                if (pos < 0 || pos >= sizeof(byte) * 8)
                 {
-                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                    throw new IndexOutOfRangeException($"{nameof(pos)}={pos}");
                 }
 
-                bits |= BitValue[position];
+                flags |= FlagValue[pos];
             }
 
-            return (byte)(value | bits);
+            return (byte)(value | flags);
         }
 
-        public static byte RemoveBit(in byte value, in int position)
+        public static byte RemoveFlag(in byte value, in int position)
         {
             if (position < 0 || position >= sizeof(byte) * 8)
             {
                 throw new IndexOutOfRangeException($"{nameof(position)}={position}");
             }
 
-            //return CheckBit(value, position) ? (byte)(value - BitValue[position]) : value;
-            return (byte)(value & ~BitValue[position]);
+            //return HasFlag(value, position) ? (byte)(value - FlagValue[position]) : value;
+            return (byte)(value & ~FlagValue[position]);
         }
 
-        public static byte RemoveBits(in byte value, params int[] positions)
+        public static byte RemoveFlags(in byte value, params int[] positions)
         {
             if (positions == null || positions.Length <= 0)
             {
                 throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
             }
 
-            uint bits = 0;
+            uint flags = 0;
 
-            foreach (int position in positions)
+            foreach (int pos in positions)
             {
-                if (position < 0 || position >= sizeof(byte) * 8)
+                if (pos < 0 || pos >= sizeof(byte) * 8)
                 {
-                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                    throw new IndexOutOfRangeException($"{nameof(pos)}={pos}");
                 }
 
-                bits |= BitValue[position];
+                flags |= FlagValue[pos];
             }
 
-            return (byte)(value & ~bits);
+            return (byte)(value & ~flags);
         }
 
-        public static bool CheckBit(in uint value, in int position)
+        public static bool HasFlag(in uint value, in int position)
         {
             if (position < 0 || position >= sizeof(uint) * 8)
             {
                 throw new IndexOutOfRangeException($"{nameof(position)}={position}");
             }
 
-            return (value & BitValue[position]) > 0;
+            return (value & FlagValue[position]) > 0;
         }
 
-        public static bool CheckBits(in uint value, params int[] positions)
+        public static bool HaveFlags(in uint value, params int[] positions)
         {
             if (positions == null || positions.Length <= 0)
             {
                 throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
             }
 
-            uint bits = 0;
+            uint flags = 0;
 
-            foreach (int position in positions)
+            foreach (int pos in positions)
             {
-                if (position < 0 || position >= sizeof(uint) * 8)
+                if (pos < 0 || pos >= sizeof(uint) * 8)
                 {
-                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                    throw new IndexOutOfRangeException($"{nameof(pos)}={pos}");
                 }
 
-                bits |= BitValue[position];
+                flags |= FlagValue[pos];
             }
 
-            return (value & bits) == bits;
+            return (value & flags) == flags;
         }
 
-        public static uint GetBit(in uint value, in int position)
+        public static uint GetFlag(in uint value, in int position)
         {
             if (position < 0 || position >= sizeof(uint) * 8)
             {
                 throw new IndexOutOfRangeException($"{nameof(position)}={position}");
             }
 
-            return value & BitValue[position];
+            return value & FlagValue[position];
         }
 
-        public static uint GetBits(in uint value, params int[] positions)
+        public static uint GetFlags(in uint value, params int[] positions)
         {
             if (positions == null || positions.Length <= 0)
             {
                 throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
             }
 
-            uint bits = 0;
+            uint flags = 0;
 
-            foreach (int position in positions)
+            foreach (int pos in positions)
             {
-                if (position < 0 || position >= sizeof(uint) * 8)
+                if (pos < 0 || pos >= sizeof(uint) * 8)
                 {
-                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                    throw new IndexOutOfRangeException($"{nameof(pos)}={pos}");
                 }
 
-                bits |= BitValue[position];
+                flags |= FlagValue[pos];
             }
 
-            return value & bits;
+            return value & flags;
         }
 
-        public static uint AddBit(in uint value, in int position)
+        public static uint SetFlag(in uint value, in int position)
         {
             if (position < 0 || position >= sizeof(uint) * 8)
             {
                 throw new IndexOutOfRangeException($"{nameof(position)}={position}");
             }
 
-            return value | BitValue[position];
+            return value | FlagValue[position];
         }
 
-        public static uint AddBits(in uint value, params int[] positions)
+        public static uint SetFlags(in uint value, params int[] positions)
         {
             if (positions == null || positions.Length <= 0)
             {
                 throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
             }
 
-            uint bits = 0;
+            uint flags = 0;
 
-            foreach (int position in positions)
+            foreach (int pos in positions)
             {
-                if (position < 0 || position >= sizeof(uint) * 8)
+                if (pos < 0 || pos >= sizeof(uint) * 8)
                 {
-                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                    throw new IndexOutOfRangeException($"{nameof(pos)}={pos}");
                 }
 
-                bits |= BitValue[position];
+                flags |= FlagValue[pos];
             }
 
-            return value | bits;
+            return value | flags;
         }
 
-        public static uint RemoveBit(in uint value, in int position)
+        public static uint RemoveFlag(in uint value, in int position)
         {
             if (position < 0 || position >= sizeof(uint) * 8)
             {
                 throw new IndexOutOfRangeException($"{nameof(position)}={position}");
             }
 
-            //return CheckBit(value, position) ? value - BitValue[position] : value;
-            return value & ~BitValue[position];
+            //return HasFlag(value, position) ? value - FlagValue[position] : value;
+            return value & ~FlagValue[position];
         }
 
-        public static uint RemoveBits(in uint value, params int[] positions)
+        public static uint RemoveFlags(in uint value, params int[] positions)
         {
             if (positions == null || positions.Length <= 0)
             {
                 throw new ArgumentException($"{nameof(positions)} == null || {nameof(positions)}.Length <= 0");
             }
 
-            uint bits = 0;
+            uint flags = 0;
 
-            foreach (int position in positions)
+            foreach (int pos in positions)
             {
-                if (position < 0 || position >= sizeof(uint) * 8)
+                if (pos < 0 || pos >= sizeof(uint) * 8)
                 {
-                    throw new IndexOutOfRangeException($"{nameof(position)}={position}");
+                    throw new IndexOutOfRangeException($"{nameof(pos)}={pos}");
                 }
 
-                bits |= BitValue[position];
+                flags |= FlagValue[pos];
             }
 
-            return value & ~bits;
+            return value & ~flags;
         }
 
         public static byte Reverse(byte value)

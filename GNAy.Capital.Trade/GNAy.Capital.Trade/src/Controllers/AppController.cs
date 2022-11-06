@@ -76,7 +76,7 @@ namespace GNAy.Capital.Trade.Controllers
                 //TODO: Migrate old config to new version.
             }
 
-            ps.PriorityClass = Settings.ProcessPriority.ConvertTo<ProcessPriorityClass>();
+            ps.PriorityClass = FlagOperator.ConvertTo<ProcessPriorityClass>(Settings.ProcessPriority);
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
@@ -494,16 +494,20 @@ namespace GNAy.Capital.Trade.Controllers
 
             try
             {
-                LogTrace(start, $"{nameof(AppSettings.ProcessPriority)}={Settings.ProcessPriority}|{Settings.ProcessPriority.ConvertTo<ProcessPriorityClass>()}", UniqueName);
-                LogTrace(start, $"{ProcessPriorityClass.AboveNormal}|{ProcessPriorityClass.AboveNormal.ToString().ConvertTo<ProcessPriorityClass>()}|{((int)ProcessPriorityClass.AboveNormal).ToString().ConvertTo<ProcessPriorityClass>()}", UniqueName);
-                LogTrace(start, $"{ProcessPriorityClass.BelowNormal}|{ProcessPriorityClass.BelowNormal.ToString().ConvertTo<ProcessPriorityClass>()}|{((int)ProcessPriorityClass.BelowNormal).ToString().ConvertTo<ProcessPriorityClass>()}", UniqueName);
-                LogTrace(start, $"{"Sunday".ConvertTo<DayOfWeek>()}", UniqueName);
-                LogTrace(start, $"{"monday".ConvertTo<DayOfWeek>()}", UniqueName);
-                LogTrace(start, $"{"Tue".ConvertTo<DayOfWeek>()}", UniqueName);
-                LogTrace(start, $"{"Wed.".ConvertTo<DayOfWeek>()}", UniqueName);
-                LogTrace(start, $"{"tHURSDAY".ConvertTo<DayOfWeek>()}", UniqueName);
-                LogTrace(start, $"{"f".ConvertTo<DayOfWeek>()}", UniqueName);
-                LogTrace(start, $"{"6".ConvertTo<DayOfWeek>()}", UniqueName);
+                LogTrace(start, $"{nameof(AppSettings.ProcessPriority)}={Settings.ProcessPriority}|{FlagOperator.ConvertTo<ProcessPriorityClass>(Settings.ProcessPriority)}", UniqueName);
+                LogTrace(start, $"{ProcessPriorityClass.AboveNormal}|{FlagOperator.ConvertTo<ProcessPriorityClass>(ProcessPriorityClass.AboveNormal.ToString())}|{FlagOperator.ConvertTo<ProcessPriorityClass>(((int)ProcessPriorityClass.AboveNormal).ToString())}", UniqueName);
+                LogTrace(start, $"{ProcessPriorityClass.BelowNormal}|{FlagOperator.ConvertTo<ProcessPriorityClass>(ProcessPriorityClass.BelowNormal.ToString())}|{FlagOperator.ConvertTo<ProcessPriorityClass>(((int)ProcessPriorityClass.BelowNormal).ToString())}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<DayOfWeek>("Sunday")}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<DayOfWeek>("monday")}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<DayOfWeek>("Tue")}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<DayOfWeek>("Wed.")}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<DayOfWeek>("tHURSDAY")}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<DayOfWeek>("f")}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<DayOfWeek>("6")}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<FileShare>(((int)FileShare.Read).ToString())}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<FileShare>(((int)FileShare.Write).ToString())}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<FileShare>(((int)(FileShare.Read | FileShare.Write)).ToString())}", UniqueName);
+                LogTrace(start, $"{FlagOperator.ConvertTo<FileShare>(((int)(FileShare.Read | FileShare.Write | FileShare.Delete)).ToString())}", UniqueName);
             }
             catch (Exception ex)
             {
