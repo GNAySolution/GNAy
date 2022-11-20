@@ -395,7 +395,7 @@ namespace GNAy.Capital.Models
         public static QuoteData Create(in IList<string> columnNames, in string lineCSV)
         {
             QuoteData data = new QuoteData();
-            data.SetValues(columnNames, lineCSV.SplitToCSV());
+            data.SetValues(columnNames, lineCSV.SplitFromCSV());
             return data;
         }
 

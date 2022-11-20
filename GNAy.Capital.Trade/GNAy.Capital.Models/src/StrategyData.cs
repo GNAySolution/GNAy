@@ -1008,7 +1008,7 @@ namespace GNAy.Capital.Models
         public static StrategyData Create(in IList<string> columnNames, in string lineCSV)
         {
             StrategyData data = new StrategyData();
-            data.SetValues(columnNames, lineCSV.SplitToCSV());
+            data.SetValues(columnNames, lineCSV.SplitFromCSV());
             return data;
         }
 

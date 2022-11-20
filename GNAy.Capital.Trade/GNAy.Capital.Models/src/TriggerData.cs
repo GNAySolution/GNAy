@@ -376,7 +376,7 @@ namespace GNAy.Capital.Models
 
         public static TriggerData Create(in IList<string> columnNames, in string lineCSV, in int propertyIndex)
         {
-            string[] cells = lineCSV.SplitToCSV();
+            string[] cells = lineCSV.SplitFromCSV();
             string propertyName = cells[propertyIndex];
 
             TriggerData data = new TriggerData(QuoteColumnTriggerMap[propertyName]);

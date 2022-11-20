@@ -389,7 +389,7 @@ namespace GNAy.Tools.NET47
             return obj.Replace("{yyyy}", yyyy).Replace("{yyy}", yyy).Replace("{yy}", yy);
         }
 
-        public static string[] SplitToCSV(this string obj)
+        public static string[] SplitFromCSV(this string obj)
         {
             string[] cells = obj.Split(Separator.CSV, StringSplitOptions.None);
 
@@ -418,7 +418,7 @@ namespace GNAy.Tools.NET47
 
             foreach (string line in lines)
             {
-                string[] cells = line.SplitToCSV();
+                string[] cells = line.SplitFromCSV();
 
                 if (cells.Length < 4)
                 {
