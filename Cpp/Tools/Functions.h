@@ -16,7 +16,7 @@ namespace Tools
         return GetLocalTime(time(NULL));
     }
 
-    inline const size_t GetTime(char *buffer, const size_t& size, struct tm *timeM, char *format)
+    inline const size_t GetTime(char *buffer, const size_t& size, struct tm *timeM, const char *format)
     {
         memset(buffer, 0, size);
         mktime(timeM);
