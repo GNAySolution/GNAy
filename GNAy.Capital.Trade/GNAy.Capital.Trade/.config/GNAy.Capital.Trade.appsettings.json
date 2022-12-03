@@ -139,7 +139,7 @@
   "StrategyFileLoadFormat": "T*{Holiday}_{DayNight}*.csv",
   "StrategyFileSaveFormat": "MMdd_HHmm",
   "StrategyNotForOpenInterest": "ZS",
-  "StrategyFromOpenInterest": true,
+  "StrategyFromOpenInterest": false,
   "StrategyStopWinProfit": 500,
   "StrategyStopWinOffset": -1,
   "SentOrderFolderPath": "SentOrder",
