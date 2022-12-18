@@ -27,6 +27,6 @@ int main(const int argc, const char *argv[]) {
     fflushResult = fflush(stdin);
     printf("scanfResult=%i|fflushResult=%i|len=%li|%s|\r\n", scanfResult, fflushResult, strlen(inputBuf1), inputBuf1);
 
-    usleep(3 * 1000 * 1000);
+    usleep(8 * 1000 * 1000);
     return 0;
 }
