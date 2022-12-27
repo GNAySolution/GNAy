@@ -1,6 +1,7 @@
 #ifndef _TOOLS_FUNCTIONS_H
 #define _TOOLS_FUNCTIONS_H
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
