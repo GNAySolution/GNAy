@@ -15,6 +15,8 @@ int main(const int argc, const char *argv[])
     printf("sizeof(float)=%i\r\n", sizeof(float));
     printf("sizeof(double)=%i\r\n", sizeof(double));
     printf("sizeof(void *)=%i\r\n", sizeof(void *));
+    printf("sizeof(uint64_t)=%i\r\n", sizeof(uint64_t));
+    printf("sizeof(size_t)=%i\r\n", sizeof(size_t));
     printf("sizeof(struct tm)=%i\r\n", sizeof(struct tm));
     printf("sizeof(struct timeval)=%i\r\n", sizeof(struct timeval));
 
