@@ -3,6 +3,8 @@
 
 #include "Tools/Functions.h"
 
+thread_local size_t StrLenTemp = -1;
+
 int main(const int argc, const char *argv[])
 {
     printf("Hello World!\r\n");
