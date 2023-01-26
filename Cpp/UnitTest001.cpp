@@ -1,4 +1,3 @@
-#include <cstring>
 #include <stdlib.h>
 #include <unistd.h>
 
