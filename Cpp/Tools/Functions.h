@@ -1,10 +1,10 @@
 #ifndef _TOOLS_FUNCTIONS_H
 #define _TOOLS_FUNCTIONS_H
 
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
-#include <string.h>
 #include <sys/time.h>
 #include <thread>
 
@@ -24,7 +24,7 @@ namespace Tools
         std::stringstream ss;
 
         ss << threadID;
-        
+
         return std::stoull(ss.str());
     }
 
