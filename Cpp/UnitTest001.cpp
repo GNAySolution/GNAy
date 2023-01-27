@@ -13,12 +13,23 @@ thread_local int ThreadIDStrLen = -1;
 
 int main(const int argc, const char *argv[])
 {
-    printf("Hello World!\r\n");
+    printf("Hello World!\r\n\r\n");
+
+    char buildInfo[128];
+    int buildInfoLen = -1;
+    buildInfoLen = Tools::GetBuildDate(buildInfo);
+    printf("%d|%ld|BuildDate=%s\r\n", buildInfoLen, strlen(buildInfo), buildInfo);
+    buildInfoLen = Tools::GetBuildTime(buildInfo);
+    printf("%d|%ld|BuildTime=%s\r\n", buildInfoLen, strlen(buildInfo), buildInfo);
+    buildInfoLen = Tools::GetFilePath(buildInfo);
+    printf("%d|%ld|FilePath=%s\r\n", buildInfoLen, strlen(buildInfo), buildInfo);
+    buildInfoLen = Tools::GetLineNumber(buildInfo);
+    printf("%d|%ld|LineNumber=%s\r\n\r\n", buildInfoLen, strlen(buildInfo), buildInfo);
 
     ThreadIDStrLen = Tools::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
     
     printf("MyPID=%d|MyPIDStrLen=%d|MyPIDStr=%s\r\n", MyPID, MyPIDStrLen, MyPIDStr);
-    printf("ThreadID=%ld|ThreadIDStrLen=%d|ThreadIDStr=%s\r\n", ThreadID, ThreadIDStrLen, ThreadIDStr);
+    printf("ThreadID=%ld|ThreadIDStrLen=%d|ThreadIDStr=%s\r\n\r\n", ThreadID, ThreadIDStrLen, ThreadIDStr);
 
     printf("sizeof(char)=%ld\r\n", sizeof(char));
     printf("sizeof(short)=%ld\r\n", sizeof(short));
