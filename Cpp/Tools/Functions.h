@@ -18,6 +18,26 @@ namespace Tools
             c = getchar();
         } while (c != '\n' && c != EOF);
     }
+
+    const int GetBuildDate(char *buffer)
+    {
+        return sprintf(buffer, "%s", __DATE__);
+    }
+
+    const int GetBuildTime(char *buffer)
+    {
+        return sprintf(buffer, "%s", __TIME__);
+    }
+
+    const int GetFilePath(char *buffer)
+    {
+        return sprintf(buffer, "%s", __FILE__);
+    }
+
+    const int GetLineNumber(char *buffer)
+    {
+        return sprintf(buffer, "%d", __LINE__);
+    }
     
     const uint64_t GetThreadID(const std::thread::id& threadID)
     {
@@ -38,13 +58,11 @@ namespace Tools
         if (threadID <= 0)
         {
             threadID = GetThreadID();
-        }
-        else
-        {
-            return length;
-        }
 
-        return length = sprintf(buffer, "%ld", threadID);
+            return length = sprintf(buffer, "%ld", threadID);
+        }
+        
+        return length;
     }
 
     const struct tm *GetLocalTime(const time_t& rawTime)
