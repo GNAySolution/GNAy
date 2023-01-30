@@ -386,7 +386,7 @@ int main(const int argc, const char *argv[])
     ThreadIDStrLen = Tools::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
 
     printf("MyPID=%d|MyPIDStrLen=%d|MyPIDStr=%s\r\n", MyPID, MyPIDStrLen, MyPIDStr);
-    printf("ThreadID=%ld|ThreadIDStrLen=%d|ThreadIDStr=%s\r\n\r\n", ThreadID, ThreadIDStrLen, ThreadIDStr);
+    printf("ThreadID=%ld|ThreadIDStrLen=%d|ThreadIDStr=%s\r\n", ThreadID, ThreadIDStrLen, ThreadIDStr);
 
     int64_t elapsed = 0;
 
