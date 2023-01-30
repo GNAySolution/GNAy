@@ -44,9 +44,9 @@ namespace Tools
                     printf("len=%ld|msg=%s|~ArrayWithLength|\r\n", _len, _body);
 
                     _len = 0;
-		            delete [] _body;
+                    delete [] _body;
                 }
-                
+
                 _len = 0;
             }
     };
