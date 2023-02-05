@@ -1,201 +1,230 @@
 #ifndef _TOOLS_FUNCTIONS_H
 #define _TOOLS_FUNCTIONS_H
 
-#include <functional>
 #include <cstring>
+#include <functional>
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
 #include <sys/time.h>
 #include <thread>
 
+#pragma pack(1)
+
 namespace Tools
 {
-    const int GetBuildDate(char *buffer)
+    class Functions
     {
-        return sprintf(buffer, "%s", __DATE__);
-    }
+        public:
+            static const int GetBuildDate(char *buffer)
+            {
+                return sprintf(buffer, "%s", __DATE__);
+            }
 
-    const int GetBuildTime(char *buffer)
-    {
-        return sprintf(buffer, "%s", __TIME__);
-    }
+            static const int GetBuildTime(char *buffer)
+            {
+                return sprintf(buffer, "%s", __TIME__);
+            }
 
-    const int GetFilePath(char *buffer)
-    {
-        return sprintf(buffer, "%s", __FILE__);
-    }
+            static const int GetFilePath(char *buffer)
+            {
+                return sprintf(buffer, "%s", __FILE__);
+            }
 
-    const int GetLineNumber(char *buffer)
-    {
-        return sprintf(buffer, "%d", __LINE__);
-    }
-    
-    void CleanStdin()
-    {
-        int c;
+            static const int GetLineNumber(char *buffer)
+            {
+                return sprintf(buffer, "%d", __LINE__);
+            }
 
-        do {
-            c = getchar();
-        } while (c != '\n' && c != EOF);
-    }
+            static void CleanStdin()
+            {
+                int c;
 
-    const uint64_t GetThreadID(const std::thread::id& threadID)
-    {
-        std::stringstream ss;
+                do {
+                    c = getchar();
+                } while (c != '\n' && c != EOF);
+            }
 
-        ss << threadID;
+            static const uint64_t GetThreadID(const std::thread::id& threadID)
+            {
+                std::stringstream ss;
 
-        return std::stoull(ss.str());
-    }
+                ss << threadID;
 
-    const uint64_t GetThreadID()
-    {
-        return GetThreadID(std::this_thread::get_id());
-    }
+                return std::stoull(ss.str());
+            }
 
-    const int GetThreadIDAndStr(uint64_t& threadID, char *buffer, int& length)
-    {
-        if (threadID <= 0)
-        {
-            threadID = GetThreadID();
+            static const uint64_t GetThreadID()
+            {
+                return GetThreadID(std::this_thread::get_id());
+            }
 
-            return length = sprintf(buffer, "%ld", threadID);
-        }
+            static const int GetThreadIDAndStr(uint64_t& threadID, char *buffer, int& length)
+            {
+                if (threadID <= 0)
+                {
+                    threadID = GetThreadID();
 
-        return length;
-    }
+                    return length = sprintf(buffer, "%ld", threadID);
+                }
 
-    const struct tm *GetLocalTime(const time_t& rawTime)
-    {
-        return localtime(&rawTime);
-    }
+                return length;
+            }
 
-    const size_t GetTime(char *buffer, const size_t& size, struct tm *timeM, const char *format)
-    {
-        mktime(timeM);
+            static void CopyStrWithLength1(char *destination, const char *source, const size_t& size)
+            {
+                memmove(&destination[1], source, size);
 
-        return strftime(buffer, size, format, timeM);
-    }
-    
-    const size_t GetTime(char *buffer, const size_t& size, const struct timeval& timeV, const char *format)
-    {
-        return GetTime(buffer, size, (struct tm *)GetLocalTime(timeV.tv_sec), format);
-    }
+                destination[1 + size] = 0;
+                destination[0] = size;
+            }
 
-    const struct tm *GetTimeNow()
-    {
-        return GetLocalTime(time(NULL));
-    }
+            static void CopyStrWithLength2(char *destination, const char *source, const size_t& size)
+            {
+                memmove(&destination[2], source, size);
 
-    const size_t GetTimeNow(char *buffer, const size_t& size)
-    {
-        memset(buffer, 0, size);
+                destination[2 + size] = 0;
+                memcpy(&destination[0], (char *)&size, 2);
+            }
 
-        const char *_buf = asctime(GetTimeNow());
-        size_t len = strlen(_buf);
+            static const struct tm *GetLocalTime(const time_t& rawTime)
+            {
+                return localtime(&rawTime);
+            }
 
-        if (len + 1 >= size)
-        {
-            printf("len(%ld) + 1 >= size(%ld)|Tools::GetTimeNow|\r\n", len, size);
+            static const size_t GetTime(char *buffer, const size_t& size, struct tm *timeM, const char *format)
+            {
+                mktime(timeM);
 
-            len = size - 1;
-        }
+                return strftime(buffer, size, format, timeM);
+            }
 
-        memcpy(buffer, _buf, len);
+            static const size_t GetTime(char *buffer, const size_t& size, const struct timeval& timeV, const char *format)
+            {
+                return GetTime(buffer, size, (struct tm *)GetLocalTime(timeV.tv_sec), format);
+            }
 
-        return len;
-    }
+            static const struct tm *GetTimeNow()
+            {
+                return GetLocalTime(time(NULL));
+            }
 
-    const size_t GetTimeNow(char *buffer, const size_t& size, const char *format)
-    {
-        return GetTime(buffer, size, (struct tm *)GetLocalTime(time(NULL)), format);
-    }
-    
-    const size_t GetTimeWithMicroseconds(char *buffer, const size_t& size, struct tm *timeM, const long& usec, const char *format)
-    {
-        const size_t length = GetTime(buffer, size, timeM, format);
+            static const size_t GetTimeNow(char *buffer, const size_t& size)
+            {
+                memset(buffer, 0, size);
 
-        return length + snprintf(&buffer[length], 6 + 1, "%06ld", usec);
-    }
-    
-    const size_t GetTimeWithMicroseconds(char *buffer, const size_t& size, const struct timeval& timeV, const char *format)
-    {
-        return GetTimeWithMicroseconds(buffer, size, (struct tm *)GetLocalTime(timeV.tv_sec), timeV.tv_usec, format);
-    }
+                const char *_buf = asctime(GetTimeNow());
+                size_t len = strlen(_buf);
 
-    const struct timeval GetTimeNowWithMicroseconds()
-    {
-        struct timeval now;
-        gettimeofday(&now, NULL);
+                if (len + 1 >= size)
+                {
+                    printf("len(%ld) + 1 >= size(%ld)|Tools::GetTimeNow|\r\n", len, size);
 
-        return now;
-    }
+                    len = size - 1;
+                }
 
-    const size_t GetTimeNowWithMicroseconds(char *buffer, const size_t& size, const char *format)
-    {
-        return GetTimeWithMicroseconds(buffer, size, GetTimeNowWithMicroseconds(), format);
-    }
+                memcpy(buffer, _buf, len);
 
-    const struct tm *GetTimeNowWithMicroseconds(long& usec)
-    {
-        const struct timeval now = GetTimeNowWithMicroseconds();
+                return len;
+            }
 
-        usec = now.tv_usec;
+            static const size_t GetTimeNow(char *buffer, const size_t& size, const char *format)
+            {
+                return GetTime(buffer, size, (struct tm *)GetLocalTime(time(NULL)), format);
+            }
 
-        return GetLocalTime(now.tv_sec);
-    }
+            static const size_t GetTimeWithMicroseconds(char *buffer, const size_t& size, struct tm *timeM, const long& usec, const char *format)
+            {
+                const size_t length = GetTime(buffer, size, timeM, format);
 
-    const size_t GetDate(char *buffer, const size_t& size, struct tm timeM, const char *format)
-    {
-        timeM.tm_hour = 0;
-        timeM.tm_min = 0;
-        timeM.tm_sec = 0;
+                // char _buf[7];
+                // const int _ulen = snprintf(_buf, sizeof(_buf), "%06lld", usec); //6
 
-        return GetTime(buffer, size, &timeM, format);
-    }
-    
-    const size_t GetDate(char *buffer, const size_t& size, const struct timeval& timeV, const char *format)
-    {
-        return GetDate(buffer, size, *(struct tm *)GetLocalTime(timeV.tv_sec), format);
-    }
+                // memcpy(&buffer[length], _buf, sizeof(_buf));
 
-    const size_t GetDateToday(char *buffer, const size_t& size, const char *format = "%Y/%m/%d")
-    {
-        return GetDate(buffer, size, *(struct tm *)GetTimeNow(), format);
-    }
+                return length + snprintf(&buffer[length], 6 + 1, "%06ld", usec);
+            }
 
-    const size_t GetDateYesterday(char *buffer, const size_t& size, const char *format = "%Y/%m/%d")
-    {
-        struct tm localTime = *(struct tm *)GetTimeNow();
-        --localTime.tm_mday;
+            static const size_t GetTimeWithMicroseconds(char *buffer, const size_t& size, const struct timeval& timeV, const char *format)
+            {
+                return GetTimeWithMicroseconds(buffer, size, (struct tm *)GetLocalTime(timeV.tv_sec), timeV.tv_usec, format);
+            }
 
-        return GetDate(buffer, size, localTime, format);
-    }
+            static const struct timeval GetTimeNowWithMicroseconds()
+            {
+                struct timeval now;
+                gettimeofday(&now, NULL);
 
-    const size_t GetDateTomorrow(char *buffer, const size_t& size, const char *format = "%Y/%m/%d")
-    {
-        struct tm localTime = *(struct tm *)GetTimeNow();
-        ++localTime.tm_mday;
+                return now;
+            }
 
-        return GetDate(buffer, size, localTime, format);
-    }
+            static const size_t GetTimeNowWithMicroseconds(char *buffer, const size_t& size, const char *format)
+            {
+                return GetTimeWithMicroseconds(buffer, size, GetTimeNowWithMicroseconds(), format);
+            }
 
-    const int64_t GetTimeElapsedInMicroseconds(const struct timeval& startTime)
-    {
-        const struct timeval endTime = GetTimeNowWithMicroseconds();
+            static const struct tm *GetTimeNowWithMicroseconds(long& usec)
+            {
+                const struct timeval now = GetTimeNowWithMicroseconds();
 
-        return (endTime.tv_sec * 1000000 + endTime.tv_usec) - (startTime.tv_sec * 1000000 + startTime.tv_usec);
-    }
+                usec = now.tv_usec;
 
-    const int64_t GetTimeElapsedInMicroseconds(const std::function<void()> function)
-    {
-        const struct timeval startTime = GetTimeNowWithMicroseconds();
+                return GetLocalTime(now.tv_sec);
+            }
 
-        function();
+            static const size_t GetDate(char *buffer, const size_t& size, struct tm timeM, const char *format)
+            {
+                timeM.tm_hour = 0;
+                timeM.tm_min = 0;
+                timeM.tm_sec = 0;
 
-        return GetTimeElapsedInMicroseconds(startTime);
-    }
+                return GetTime(buffer, size, &timeM, format);
+            }
+
+            static const size_t GetDate(char *buffer, const size_t& size, const struct timeval& timeV, const char *format)
+            {
+                return GetDate(buffer, size, *(struct tm *)GetLocalTime(timeV.tv_sec), format);
+            }
+
+            static const size_t GetDateToday(char *buffer, const size_t& size, const char *format = "%Y/%m/%d")
+            {
+                return GetDate(buffer, size, *(struct tm *)GetTimeNow(), format);
+            }
+
+            static const size_t GetDateYesterday(char *buffer, const size_t& size, const char *format = "%Y/%m/%d")
+            {
+                struct tm localTime = *(struct tm *)GetTimeNow();
+                --localTime.tm_mday;
+
+                return GetDate(buffer, size, localTime, format);
+            }
+
+            static const size_t GetDateTomorrow(char *buffer, const size_t& size, const char *format = "%Y/%m/%d")
+            {
+                struct tm localTime = *(struct tm *)GetTimeNow();
+                ++localTime.tm_mday;
+
+                return GetDate(buffer, size, localTime, format);
+            }
+
+            static const int64_t GetTimeElapsedInMicroseconds(const struct timeval& startTime)
+            {
+                const struct timeval endTime = GetTimeNowWithMicroseconds();
+
+                return (endTime.tv_sec * 1000000 + endTime.tv_usec) - (startTime.tv_sec * 1000000 + startTime.tv_usec);
+            }
+
+            static const int64_t GetTimeElapsedInMicroseconds(const std::function<void()> function)
+            {
+                const struct timeval startTime = GetTimeNowWithMicroseconds();
+
+                function();
+
+                return GetTimeElapsedInMicroseconds(startTime);
+            }
+    };
 }
+
+#pragma pack()
 
 #endif
