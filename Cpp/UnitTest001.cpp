@@ -3,13 +3,16 @@
 #include <vector>
 
 #include "Tools/ArrayWithLength.h"
+#include "Tools/ASCIINumberMath.h"
 #include "Tools/Functions.h"
+
+#pragma pack(1)
 
 const size_t SizeOfTimeval = sizeof(struct timeval);
 
 thread_local size_t StrLenTemp = -1;
 
-const int LogBufCntMax = 64;
+const int LogBufCntMax = 128;
 const int LogBufSize = 1024;
 
 char LogBuf[LogBufCntMax][LogBufSize];
@@ -44,7 +47,7 @@ void PrintMessagesB(const std::vector<const char *>& msgs)
         const struct timeval *rawTime = (const struct timeval *)&msg[0];
 
         char timeBuf[timeBufSize];
-        Tools::GetTimeWithMicroseconds(timeBuf, timeBufSize, *rawTime, "%H:%M:%S.");
+        Tools::Functions::GetTimeWithMicroseconds(timeBuf, timeBufSize, *rawTime, "%H:%M:%S.");
 
         printf("idx=%d|time=%s|len=%ld|msg=%s|\r\n", ++idx, timeBuf, strlen(&msg[SizeOfTimeval]), &msg[SizeOfTimeval]);
     }
@@ -55,7 +58,7 @@ void TestArgumentsA(const int& argc, const char *argv[])
     for (int i = 0; i < argc; ++i)
     {
         char idxStr[11];
-        size_t pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[i][0], LogBufSize, "%H:%M:%S.");
+        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[i][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[i][pos], "|", 1);
         ++pos;
@@ -72,7 +75,7 @@ void TestArgumentsA(const int& argc, const char *argv[])
     }
 
     {
-        size_t pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[argc][0], LogBufSize, "%H:%M:%S.");
+        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[argc][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[argc][pos], "|", 1);
         ++pos;
@@ -91,7 +94,7 @@ void TestArgumentsB(const int& argc, const char *argv[])
         char idxStr[11];
         size_t pos = 0;
 
-        const struct timeval timeV = Tools::GetTimeNowWithMicroseconds();
+        const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
         memcpy(&LogBuf[i][pos], &timeV, SizeOfTimeval);
         pos += SizeOfTimeval;
 
@@ -112,7 +115,7 @@ void TestArgumentsB(const int& argc, const char *argv[])
     {
         size_t pos = 0;
 
-        const struct timeval timeV = Tools::GetTimeNowWithMicroseconds();
+        const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
         memcpy(&LogBuf[argc][pos], &timeV, SizeOfTimeval);
         pos += SizeOfTimeval;
 
@@ -129,7 +132,7 @@ void TestArgumentsB(const int& argc, const char *argv[])
 void TestSizeOfA(const int& index, const char *typeMsg, const size_t& size)
 {
     char sizeStr[21];
-    size_t pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[index][0], LogBufSize, "%H:%M:%S.");
+    size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[index][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[index][pos], "|", 1);
     ++pos;
@@ -152,7 +155,7 @@ void TestSizeOfB(const int& index, const char *typeMsg, const size_t& size)
     char sizeStr[21];
     size_t pos = 0;
 
-    const struct timeval timeV = Tools::GetTimeNowWithMicroseconds();
+    const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
     memcpy(&LogBuf[index][pos], &timeV, SizeOfTimeval);
     pos += SizeOfTimeval;
 
@@ -176,7 +179,7 @@ void TestTimevalA()
 {
     size_t pos = 0;
 
-    const struct timeval timeV = Tools::GetTimeNowWithMicroseconds();
+    const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
     memcpy(&LogBuf[0][pos], &timeV, SizeOfTimeval);
     pos += SizeOfTimeval;
 
@@ -198,7 +201,7 @@ void TestTimevalB()
 {
     size_t pos = 0;
 
-    struct timeval timeV = Tools::GetTimeNowWithMicroseconds();
+    struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
     memcpy(&LogBuf[0][pos], &timeV, SizeOfTimeval);
     pos += SizeOfTimeval;
 
@@ -212,7 +215,7 @@ void TestTimevalB()
     pos += ThreadIDStrLen;
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
-    pos += Tools::GetTimeWithMicroseconds(&LogBuf[0][pos], LogBufSize, timeV, "%Y/%m/%d %H:%M:%S.");
+    pos += Tools::Functions::GetTimeWithMicroseconds(&LogBuf[0][pos], LogBufSize, timeV, "%Y/%m/%d %H:%M:%S.");
     StrLenTemp = sprintf(secStr, "|%ld|%d", timeV.tv_sec, timeV.tv_usec);
     memcpy(&LogBuf[0][pos], secStr, StrLenTemp);
     pos += StrLenTemp;
@@ -225,7 +228,7 @@ void TestTimevalC()
 {
     size_t pos = 0;
 
-    struct timeval timeV = Tools::GetTimeNowWithMicroseconds();
+    struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
     memcpy(&LogBuf[0][pos], &timeV, SizeOfTimeval);
     pos += SizeOfTimeval;
 
@@ -239,7 +242,7 @@ void TestTimevalC()
     pos += ThreadIDStrLen;
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
-    pos += Tools::GetTimeWithMicroseconds(&LogBuf[0][pos], LogBufSize, timeV, "%Y/%m/%d %H:%M:%S.");
+    pos += Tools::Functions::GetTimeWithMicroseconds(&LogBuf[0][pos], LogBufSize, timeV, "%Y/%m/%d %H:%M:%S.");
     StrLenTemp = sprintf(secStr, "|%ld|%d", timeV.tv_sec, timeV.tv_usec);
     memcpy(&LogBuf[0][pos], secStr, StrLenTemp);
     pos += StrLenTemp;
@@ -252,7 +255,7 @@ void TestTime2CharArrayA()
 {
     int idx = 0;
 
-    size_t pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
+    size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
@@ -260,12 +263,12 @@ void TestTime2CharArrayA()
     pos += ThreadIDStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    pos += Tools::GetTimeNow(&LogBuf[idx][pos], LogBufSize);
+    pos += Tools::Functions::GetTimeNow(&LogBuf[idx][pos], LogBufSize);
     LogBuf[idx][pos] = 0;
     LogList.push_back(LogBuf[idx]);
     ++idx;
 
-    pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
+    pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
@@ -273,12 +276,12 @@ void TestTime2CharArrayA()
     pos += ThreadIDStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    pos += Tools::GetTimeNow(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
+    pos += Tools::Functions::GetTimeNow(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
     LogBuf[idx][pos] = 0;
     LogList.push_back(LogBuf[idx]);
     ++idx;
 
-    pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
+    pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
@@ -286,12 +289,12 @@ void TestTime2CharArrayA()
     pos += ThreadIDStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    pos += Tools::GetTimeNowWithMicroseconds(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S.");
+    pos += Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S.");
     LogBuf[idx][pos] = 0;
     LogList.push_back(LogBuf[idx]);
     ++idx;
 
-    pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
+    pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
@@ -300,14 +303,14 @@ void TestTime2CharArrayA()
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
     long usec = -1;
-    struct tm timePast = *(struct tm *)Tools::GetTimeNowWithMicroseconds(usec);
+    struct tm timePast = *(struct tm *)Tools::Functions::GetTimeNowWithMicroseconds(usec);
     timePast.tm_sec -= 120;
-    pos += Tools::GetTimeWithMicroseconds(&LogBuf[idx][pos], LogBufSize, &timePast, usec, "%Y/%m/%d %H:%M:%S.");
+    pos += Tools::Functions::GetTimeWithMicroseconds(&LogBuf[idx][pos], LogBufSize, &timePast, usec, "%Y/%m/%d %H:%M:%S.");
     LogBuf[idx][pos] = 0;
     LogList.push_back(LogBuf[idx]);
     ++idx;
 
-    pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
+    pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
@@ -316,9 +319,9 @@ void TestTime2CharArrayA()
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
     usec = -1;
-    struct tm timeFuture = *(struct tm *)Tools::GetTimeNowWithMicroseconds(usec);
+    struct tm timeFuture = *(struct tm *)Tools::Functions::GetTimeNowWithMicroseconds(usec);
     timeFuture.tm_sec += 120;
-    pos += Tools::GetTimeWithMicroseconds(&LogBuf[idx][pos], LogBufSize, &timeFuture, usec, "%Y/%m/%d %H:%M:%S.");
+    pos += Tools::Functions::GetTimeWithMicroseconds(&LogBuf[idx][pos], LogBufSize, &timeFuture, usec, "%Y/%m/%d %H:%M:%S.");
     LogBuf[idx][pos] = 0;
     LogList.push_back(LogBuf[idx]);
     // ++idx;
@@ -328,7 +331,7 @@ void TestDate2CharArrayA()
 {
     int idx = 0;
 
-    size_t pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
+    size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
@@ -336,12 +339,12 @@ void TestDate2CharArrayA()
     pos += ThreadIDStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    pos += Tools::GetDateToday(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
+    pos += Tools::Functions::GetDateToday(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
     LogBuf[idx][pos] = 0;
     LogList.push_back(LogBuf[idx]);
     ++idx;
 
-    pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
+    pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
@@ -349,12 +352,12 @@ void TestDate2CharArrayA()
     pos += ThreadIDStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    pos += Tools::GetDateYesterday(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
+    pos += Tools::Functions::GetDateYesterday(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
     LogBuf[idx][pos] = 0;
     LogList.push_back(LogBuf[idx]);
     ++idx;
 
-    pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
+    pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
@@ -362,28 +365,47 @@ void TestDate2CharArrayA()
     pos += ThreadIDStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    pos += Tools::GetDateTomorrow(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
+    pos += Tools::Functions::GetDateTomorrow(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
     LogBuf[idx][pos] = 0;
     LogList.push_back(LogBuf[idx]);
     // ++idx;
+}
+
+void TestASCIINumberCalculateA(const char *argv)
+{
+    const size_t argvLen = strlen(argv);
+
+    char buf[64];
+    size_t bufPos = 0;
+    char bufPosStr[11];
+
+    bufPos = Tools::ASCIINumberMath::Calculate(argv, argvLen, buf, sizeof(buf));
+
+    size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+
+    memcpy(&LogBuf[0][pos], "|", 1);
+    ++pos;
+    memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
+    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[0][pos], "|", 1);
+    ++pos;
+    memcpy(&LogBuf[0][pos], argv, argvLen);
+    pos += argvLen;
+    StrLenTemp = sprintf(bufPosStr, "|%ld|%ld|", bufPos, strlen(buf) - bufPos);
+    memcpy(&LogBuf[0][pos], bufPosStr, StrLenTemp);
+    pos += StrLenTemp;
+    memcpy(&LogBuf[0][pos], buf, StrLenTemp = strlen(buf));
+    pos += StrLenTemp;
+    LogBuf[0][pos] = 0;
+
+    LogList.push_back(LogBuf[0]);
 }
 
 int main(const int argc, const char *argv[])
 {
     printf("Hello World!\r\n\r\n");
 
-    char buildInfo[128];
-    int buildInfoLen = -1;
-    buildInfoLen = Tools::GetBuildDate(buildInfo);
-    printf("%d|%ld|BuildDate=%s\r\n", buildInfoLen, strlen(buildInfo), buildInfo);
-    buildInfoLen = Tools::GetBuildTime(buildInfo);
-    printf("%d|%ld|BuildTime=%s\r\n", buildInfoLen, strlen(buildInfo), buildInfo);
-    buildInfoLen = Tools::GetFilePath(buildInfo);
-    printf("%d|%ld|FilePath=%s\r\n", buildInfoLen, strlen(buildInfo), buildInfo);
-    buildInfoLen = Tools::GetLineNumber(buildInfo);
-    printf("%d|%ld|LineNumber=%s\r\n\r\n", buildInfoLen, strlen(buildInfo), buildInfo);
-
-    ThreadIDStrLen = Tools::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
+    ThreadIDStrLen = Tools::Functions::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
 
     printf("MyPID=%d|MyPIDStrLen=%d|MyPIDStr=%s\r\n", MyPID, MyPIDStrLen, MyPIDStr);
     printf("ThreadID=%ld|ThreadIDStrLen=%d|ThreadIDStr=%s\r\n", ThreadID, ThreadIDStrLen, ThreadIDStr);
@@ -391,11 +413,11 @@ int main(const int argc, const char *argv[])
     int64_t elapsed = 0;
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&]
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
         const char *helloWorld = " Hello World! ";
 
-        size_t pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
@@ -406,17 +428,99 @@ int main(const int argc, const char *argv[])
         memcpy(&LogBuf[0][pos], helloWorld, StrLenTemp = strlen(helloWorld));
         pos += StrLenTemp;
         LogBuf[0][pos] = 0;
-        
+
         LogList.push_back(LogBuf[0]);
     } );
     printf("\r\nTestHelloWorld1 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
     printf("TestHelloWorld1 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&]
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
-        size_t pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+        char buildInfo[128];
+
+        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+
+        memcpy(&LogBuf[0][pos], "|", 1);
+        ++pos;
+        memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
+        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[0][pos], "|", 1);
+        ++pos;
+        memcpy(&LogBuf[0][pos], "|BuildDate=", StrLenTemp = strlen("|BuildDate="));
+        pos += StrLenTemp;
+        StrLenTemp = sprintf(buildInfo, "%s", __DATE__);
+        memcpy(&LogBuf[0][pos], buildInfo, StrLenTemp);
+        pos += StrLenTemp;
+        memcpy(&LogBuf[0][pos], "|BuildTime=", StrLenTemp = strlen("|BuildTime="));
+        pos += StrLenTemp;
+        StrLenTemp = sprintf(buildInfo, "%s", __TIME__);
+        memcpy(&LogBuf[0][pos], buildInfo, StrLenTemp);
+        pos += StrLenTemp;
+        memcpy(&LogBuf[0][pos], "|FilePath=", StrLenTemp = strlen("|FilePath="));
+        pos += StrLenTemp;
+        StrLenTemp = sprintf(buildInfo, "%s", __FILE__);
+        memcpy(&LogBuf[0][pos], buildInfo, StrLenTemp);
+        pos += StrLenTemp;
+        memcpy(&LogBuf[0][pos], "|LineNumber=", StrLenTemp = strlen("|LineNumber="));
+        pos += StrLenTemp;
+        StrLenTemp = sprintf(buildInfo, "%d", __LINE__);
+        memcpy(&LogBuf[0][pos], buildInfo, StrLenTemp);
+        pos += StrLenTemp;
+        LogBuf[0][pos] = 0;
+
+        LogList.push_back(LogBuf[0]);
+    } );
+    printf("\r\nTestBuildInfo1 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestBuildInfo1 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
+    {
+        char buildInfo[128];
+
+        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+
+        memcpy(&LogBuf[0][pos], "|", 1);
+        ++pos;
+        memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
+        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[0][pos], "|", 1);
+        ++pos;
+        memcpy(&LogBuf[0][pos], "|BuildDate=", StrLenTemp = strlen("|BuildDate="));
+        pos += StrLenTemp;
+        StrLenTemp = Tools::Functions::GetBuildDate(buildInfo);
+        memcpy(&LogBuf[0][pos], buildInfo, StrLenTemp);
+        pos += StrLenTemp;
+        memcpy(&LogBuf[0][pos], "|BuildTime=", StrLenTemp = strlen("|BuildTime="));
+        pos += StrLenTemp;
+        StrLenTemp = Tools::Functions::GetBuildTime(buildInfo);
+        memcpy(&LogBuf[0][pos], buildInfo, StrLenTemp);
+        pos += StrLenTemp;
+        memcpy(&LogBuf[0][pos], "|FilePath=", StrLenTemp = strlen("|FilePath="));
+        pos += StrLenTemp;
+        StrLenTemp = Tools::Functions::GetFilePath(buildInfo);
+        memcpy(&LogBuf[0][pos], buildInfo, StrLenTemp);
+        pos += StrLenTemp;
+        memcpy(&LogBuf[0][pos], "|LineNumber=", StrLenTemp = strlen("|LineNumber="));
+        pos += StrLenTemp;
+        StrLenTemp = Tools::Functions::GetLineNumber(buildInfo);
+        memcpy(&LogBuf[0][pos], buildInfo, StrLenTemp);
+        pos += StrLenTemp;
+        LogBuf[0][pos] = 0;
+
+        LogList.push_back(LogBuf[0]);
+    } );
+    printf("\r\nTestBuildInfo2 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestBuildInfo2 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
+    {
+        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
@@ -427,19 +531,19 @@ int main(const int argc, const char *argv[])
         memcpy(&LogBuf[0][pos], MyPIDStr, StrLenTemp = strlen(MyPIDStr));
         pos += StrLenTemp;
         LogBuf[0][pos] = 0;
-        
+
         LogList.push_back(LogBuf[0]);
     } );
     printf("\r\nTestPID1 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
     printf("TestPID1 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&]
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
         size_t pos = 0;
 
-        const struct timeval timeV = Tools::GetTimeNowWithMicroseconds();
+        const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
         memcpy(&LogBuf[0][pos], &timeV, SizeOfTimeval);
         pos += SizeOfTimeval;
 
@@ -456,23 +560,23 @@ int main(const int argc, const char *argv[])
         LogList.push_back(LogBuf[0]);
     } );
     printf("\r\nTestPID2 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
     printf("TestPID2 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { TestArgumentsA(argc, argv); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestArgumentsA(argc, argv); } );
     printf("\r\nTestArguments1 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
     printf("TestArguments1 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
     std::thread t2([&]
     {
-        ThreadIDStrLen = Tools::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
+        ThreadIDStrLen = Tools::Functions::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
 
-        elapsed = Tools::GetTimeElapsedInMicroseconds([&] { TestArgumentsA(argc, argv); } );
+        elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestArgumentsA(argc, argv); } );
         printf("\r\nTestArguments2 run elapsed: %ld us\r\n", elapsed);
-        elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+        elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
         printf("TestArguments2 printed elapsed: %ld us\r\n", elapsed);
     });
     if (t2.joinable())
@@ -481,11 +585,11 @@ int main(const int argc, const char *argv[])
     }
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&]
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
         std::thread t3([&]
         {
-            ThreadIDStrLen = Tools::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
+            ThreadIDStrLen = Tools::Functions::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
 
             TestArgumentsA(argc, argv);
         });
@@ -495,17 +599,17 @@ int main(const int argc, const char *argv[])
         }
     } );
     printf("\r\nTestArguments3 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
     printf("TestArguments3 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { TestArgumentsB(argc, argv); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestArgumentsB(argc, argv); } );
     printf("\r\nTestArguments4 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
     printf("TestArguments4 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] {
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] {
         TestSizeOfA(0, "sizeof(char)=", sizeof(char));
         TestSizeOfA(1, "sizeof(short)=", sizeof(short));
         TestSizeOfA(2, "sizeof(int)=", sizeof(int));
@@ -520,11 +624,11 @@ int main(const int argc, const char *argv[])
         TestSizeOfA(11, "sizeof(struct timeval)=", sizeof(struct timeval));
     } );
     printf("\r\nTestSizeOf1 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
     printf("TestSizeOf1 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] {
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] {
         TestSizeOfB(0, "sizeof(char)=", sizeof(char));
         TestSizeOfB(1, "sizeof(short)=", sizeof(short));
         TestSizeOfB(2, "sizeof(int)=", sizeof(int));
@@ -539,45 +643,45 @@ int main(const int argc, const char *argv[])
         TestSizeOfB(11, "sizeof(struct timeval)=", sizeof(struct timeval));
     } );
     printf("\r\nTestSizeOf2 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
     printf("TestSizeOf2 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { TestTimevalA(); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestTimevalA(); } );
     printf("\r\nTestTimeval1 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
     printf("TestTimeval1 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { TestTimevalB(); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestTimevalB(); } );
     printf("\r\nTestTimeval2 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
     printf("TestTimeval2 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { TestTimevalC(); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestTimevalC(); } );
     printf("\r\nTestTimeval3 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesB(LogList); } );
     printf("TestTimeval3 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { TestTime2CharArrayA(); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestTime2CharArrayA(); } );
     printf("\r\nTestTime2CharArray1 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
     printf("TestTime2CharArray1 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { TestDate2CharArrayA(); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestDate2CharArrayA(); } );
     printf("\r\nTestDate2CharArray1 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
     printf("TestDate2CharArray1 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&]
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
         Tools::CharArray helloWorld = Tools::CharArray(" Hello C++ World from VS Code! ");
         char lenBuf[11];
-        size_t pos = Tools::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
@@ -593,8 +697,428 @@ int main(const int argc, const char *argv[])
         LogList.push_back(LogBuf[0]);
     } );
     printf("\r\nTestCharArray1 run elapsed: %ld us\r\n", elapsed);
-    elapsed = Tools::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
     printf("TestCharArray1 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA(""); } );
+    printf("\r\nTestASCIINumberCalculate01 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate01 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA(" "); } );
+    printf("\r\nTestASCIINumberCalculate02 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate02 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("  "); } );
+    printf("\r\nTestASCIINumberCalculate03 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate03 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("0"); } );
+    printf("\r\nTestASCIINumberCalculate04 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate04 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1"); } );
+    printf("\r\nTestASCIINumberCalculate05 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate05 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("9"); } );
+    printf("\r\nTestASCIINumberCalculate06 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate06 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("0+0"); } );
+    printf("\r\nTestASCIINumberCalculate07 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate07 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("0+1"); } );
+    printf("\r\nTestASCIINumberCalculate08 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate08 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("0+9"); } );
+    printf("\r\nTestASCIINumberCalculate09 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate09 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1+0"); } );
+    printf("\r\nTestASCIINumberCalculate10 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate10 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1+1"); } );
+    printf("\r\nTestASCIINumberCalculate11 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate11 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1+9"); } );
+    printf("\r\nTestASCIINumberCalculate12 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate12 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1112+0"); } );
+    printf("\r\nTestASCIINumberCalculate13 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate13 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1112+1"); } );
+    printf("\r\nTestASCIINumberCalculate14 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate14 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1112+9"); } );
+    printf("\r\nTestASCIINumberCalculate15 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate15 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1118+0"); } );
+    printf("\r\nTestASCIINumberCalculate16 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate16 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1118+1"); } );
+    printf("\r\nTestASCIINumberCalculate17 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate17 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1118+9"); } );
+    printf("\r\nTestASCIINumberCalculate18 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate18 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1119+0"); } );
+    printf("\r\nTestASCIINumberCalculate19 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate19 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1119+1"); } );
+    printf("\r\nTestASCIINumberCalculate20 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate20 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1119+9"); } );
+    printf("\r\nTestASCIINumberCalculate21 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate21 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-0"); } );
+    printf("\r\nTestASCIINumberCalculate22 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate22 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1"); } );
+    printf("\r\nTestASCIINumberCalculate23 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate23 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-9"); } );
+    printf("\r\nTestASCIINumberCalculate24 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate24 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-0-0"); } );
+    printf("\r\nTestASCIINumberCalculate25 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate25 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-0-1"); } );
+    printf("\r\nTestASCIINumberCalculate26 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate26 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-0-9"); } );
+    printf("\r\nTestASCIINumberCalculate27 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate27 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1-0"); } );
+    printf("\r\nTestASCIINumberCalculate28 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate28 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1-1"); } );
+    printf("\r\nTestASCIINumberCalculate29 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate29 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1-9"); } );
+    printf("\r\nTestASCIINumberCalculate30 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate30 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1112-0"); } );
+    printf("\r\nTestASCIINumberCalculate31 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate31 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1112-1"); } );
+    printf("\r\nTestASCIINumberCalculate32 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate32 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1112-9"); } );
+    printf("\r\nTestASCIINumberCalculate33 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate33 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1118-0"); } );
+    printf("\r\nTestASCIINumberCalculate34 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate34 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1118-1"); } );
+    printf("\r\nTestASCIINumberCalculate35 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate35 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1118-9"); } );
+    printf("\r\nTestASCIINumberCalculate36 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate36 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1119-0"); } );
+    printf("\r\nTestASCIINumberCalculate37 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate37 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1119-1"); } );
+    printf("\r\nTestASCIINumberCalculate38 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate38 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1119-9"); } );
+    printf("\r\nTestASCIINumberCalculate39 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate39 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("0-0"); } );
+    printf("\r\nTestASCIINumberCalculate40 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate40 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("0-1"); } );
+    printf("\r\nTestASCIINumberCalculate41 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate41 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("0-9"); } );
+    printf("\r\nTestASCIINumberCalculate42 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate42 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1-0"); } );
+    printf("\r\nTestASCIINumberCalculate43 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate43 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1-1"); } );
+    printf("\r\nTestASCIINumberCalculate44 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate44 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1-9"); } );
+    printf("\r\nTestASCIINumberCalculate45 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate45 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1112-0"); } );
+    printf("\r\nTestASCIINumberCalculate46 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate46 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1112-1"); } );
+    printf("\r\nTestASCIINumberCalculate47 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate47 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1112-9"); } );
+    printf("\r\nTestASCIINumberCalculate48 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate48 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1118-0"); } );
+    printf("\r\nTestASCIINumberCalculate49 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate49 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1118-1"); } );
+    printf("\r\nTestASCIINumberCalculate50 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate50 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1118-9"); } );
+    printf("\r\nTestASCIINumberCalculate51 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate51 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1119-0"); } );
+    printf("\r\nTestASCIINumberCalculate52 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate52 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1119-1"); } );
+    printf("\r\nTestASCIINumberCalculate53 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate53 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("1119-9"); } );
+    printf("\r\nTestASCIINumberCalculate54 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate54 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-0+0"); } );
+    printf("\r\nTestASCIINumberCalculate55 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate55 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-0+1"); } );
+    printf("\r\nTestASCIINumberCalculate56 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate56 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-0+9"); } );
+    printf("\r\nTestASCIINumberCalculate57 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate57 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1+0"); } );
+    printf("\r\nTestASCIINumberCalculate58 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate58 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1+1"); } );
+    printf("\r\nTestASCIINumberCalculate59 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate59 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1+9"); } );
+    printf("\r\nTestASCIINumberCalculate60 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate60 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1112+0"); } );
+    printf("\r\nTestASCIINumberCalculate61 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate61 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1112+1"); } );
+    printf("\r\nTestASCIINumberCalculate62 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate62 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1112+9"); } );
+    printf("\r\nTestASCIINumberCalculate63 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate63 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1118+0"); } );
+    printf("\r\nTestASCIINumberCalculate64 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate64 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1118+1"); } );
+    printf("\r\nTestASCIINumberCalculate65 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate65 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1118+9"); } );
+    printf("\r\nTestASCIINumberCalculate66 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate66 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1119+0"); } );
+    printf("\r\nTestASCIINumberCalculate67 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate67 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1119+1"); } );
+    printf("\r\nTestASCIINumberCalculate68 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate68 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA("-1119+9"); } );
+    printf("\r\nTestASCIINumberCalculate69 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate69 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA(argc >= 2 ? argv[1] : ""); } );
+    printf("\r\nTestASCIINumberCalculate70 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestASCIINumberCalculate70 printed elapsed: %ld us\r\n", elapsed);
 
     char inputBuf1[8];
     memset(inputBuf1, 0, sizeof(inputBuf1));
@@ -607,15 +1131,17 @@ int main(const int argc, const char *argv[])
     printf("\r\nPress any key to continue.\r\n");
     memset(inputBuf1, 0, sizeof(inputBuf1));
     scanfResult = scanf(iB1Fmt, inputBuf1);
-    Tools::CleanStdin();
+    Tools::Functions::CleanStdin();
     printf("scanfResult=%d|len=%ld|input=%s|\r\n", scanfResult, strlen(inputBuf1), inputBuf1);
 
     printf("\r\nPress any key to exit.\r\n");
     memset(inputBuf1, 0, sizeof(inputBuf1));
     scanfResult = scanf(iB1Fmt, inputBuf1);
-    Tools::CleanStdin();
+    Tools::Functions::CleanStdin();
     printf("scanfResult=%d|len=%ld|input=%s|\r\n", scanfResult, strlen(inputBuf1), inputBuf1);
 
     usleep(8 * 1000 * 1000);
     return 0;
 }
+
+#pragma pack()
