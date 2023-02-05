@@ -1,8 +1,10 @@
-#ifndef  _ARRAY_WITH_LENGTH_H
-#define  _ARRAY_WITH_LENGTH_H
+#ifndef  _TOOLS_ARRAY_WITH_LENGTH_H
+#define  _TOOLS_ARRAY_WITH_LENGTH_H
 
+#include <cstring>
 #include <stdio.h>
-#include <string.h>
+
+#pragma pack(1)
 
 namespace Tools
 {
@@ -39,14 +41,14 @@ namespace Tools
 
             ~ArrayWithLength()
             {
-	            if(!_onlyForInside && _body != NULL)
+                if(!_onlyForInside && _body != NULL)
                 {
                     printf("len=%ld|msg=%s|~ArrayWithLength|\r\n", _len, _body);
 
                     _len = 0;
                     delete [] _body;
                 }
-
+                
                 _len = 0;
             }
     };
@@ -73,5 +75,7 @@ namespace Tools
             }
     };
 }
+
+#pragma pack()
 
 #endif
