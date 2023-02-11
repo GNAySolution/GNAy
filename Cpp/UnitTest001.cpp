@@ -8,9 +8,9 @@
 
 #pragma pack(1)
 
-const size_t SizeOfTimeval = sizeof(struct timeval);
+const int SizeOfTimeval = sizeof(struct timeval);
 
-thread_local size_t StrLenTemp = -1;
+thread_local int StrLenTemp = -1;
 
 const int LogBufCntMax = 128;
 const int LogBufSize = 1024;
@@ -39,14 +39,13 @@ void PrintMessagesA(const std::vector<const char *>& msgs)
 void PrintMessagesB(const std::vector<const char *>& msgs)
 {
     const int timeBufSize = 32;
-
     int idx = -1;
 
     for (const char *msg : msgs)
     {
         const struct timeval *rawTime = (const struct timeval *)&msg[0];
-
         char timeBuf[timeBufSize];
+
         Tools::Functions::GetTimeWithMicroseconds(timeBuf, timeBufSize, *rawTime, "%H:%M:%S.");
 
         printf("idx=%d|time=%s|len=%ld|msg=%s|\r\n", ++idx, timeBuf, strlen(&msg[SizeOfTimeval]), &msg[SizeOfTimeval]);
@@ -58,7 +57,7 @@ void TestArgumentsA(const int& argc, const char *argv[])
     for (int i = 0; i < argc; ++i)
     {
         char idxStr[11];
-        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[i][0], LogBufSize, "%H:%M:%S.");
+        int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[i][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[i][pos], "|", 1);
         ++pos;
@@ -75,7 +74,7 @@ void TestArgumentsA(const int& argc, const char *argv[])
     }
 
     {
-        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[argc][0], LogBufSize, "%H:%M:%S.");
+        int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[argc][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[argc][pos], "|", 1);
         ++pos;
@@ -92,12 +91,11 @@ void TestArgumentsB(const int& argc, const char *argv[])
     for (int i = 0; i < argc; ++i)
     {
         char idxStr[11];
-        size_t pos = 0;
-
+        int pos = 0;
         const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
+
         memcpy(&LogBuf[i][pos], &timeV, SizeOfTimeval);
         pos += SizeOfTimeval;
-
         memcpy(&LogBuf[i][pos], "|", 1);
         ++pos;
         memcpy(&LogBuf[i][pos], ThreadIDStr, ThreadIDStrLen);
@@ -113,12 +111,11 @@ void TestArgumentsB(const int& argc, const char *argv[])
     }
 
     {
-        size_t pos = 0;
-
+        int pos = 0;
         const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
+
         memcpy(&LogBuf[argc][pos], &timeV, SizeOfTimeval);
         pos += SizeOfTimeval;
-
         memcpy(&LogBuf[argc][pos], "|", 1);
         ++pos;
         memcpy(&LogBuf[argc][pos], ThreadIDStr, ThreadIDStrLen);
@@ -129,10 +126,10 @@ void TestArgumentsB(const int& argc, const char *argv[])
     }
 }
 
-void TestSizeOfA(const int& index, const char *typeMsg, const size_t& size)
+void TestSizeOfA(const int& index, const char *typeMsg, const int& size)
 {
     char sizeStr[21];
-    size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[index][0], LogBufSize, "%H:%M:%S.");
+    int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[index][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[index][pos], "|", 1);
     ++pos;
@@ -142,7 +139,7 @@ void TestSizeOfA(const int& index, const char *typeMsg, const size_t& size)
     ++pos;
     memcpy(&LogBuf[index][pos], typeMsg, StrLenTemp = strlen(typeMsg));
     pos += StrLenTemp;
-    StrLenTemp = sprintf(sizeStr, "%ld", size);
+    StrLenTemp = sprintf(sizeStr, "%d", size);
     memcpy(&LogBuf[index][pos], sizeStr, StrLenTemp);
     pos += StrLenTemp;
     LogBuf[index][pos] = 0;
@@ -150,15 +147,14 @@ void TestSizeOfA(const int& index, const char *typeMsg, const size_t& size)
     LogList.push_back(LogBuf[index]);
 }
 
-void TestSizeOfB(const int& index, const char *typeMsg, const size_t& size)
+void TestSizeOfB(const int& index, const char *typeMsg, const int& size)
 {
     char sizeStr[21];
-    size_t pos = 0;
-
+    int pos = 0;
     const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
+
     memcpy(&LogBuf[index][pos], &timeV, SizeOfTimeval);
     pos += SizeOfTimeval;
-
     memcpy(&LogBuf[index][pos], "|", 1);
     ++pos;
     memcpy(&LogBuf[index][pos], ThreadIDStr, ThreadIDStrLen);
@@ -167,7 +163,7 @@ void TestSizeOfB(const int& index, const char *typeMsg, const size_t& size)
     ++pos;
     memcpy(&LogBuf[index][pos], typeMsg, StrLenTemp = strlen(typeMsg));
     pos += StrLenTemp;
-    StrLenTemp = sprintf(sizeStr, "%ld", size);
+    StrLenTemp = sprintf(sizeStr, "%d", size);
     memcpy(&LogBuf[index][pos], sizeStr, StrLenTemp);
     pos += StrLenTemp;
     LogBuf[index][pos] = 0;
@@ -177,14 +173,12 @@ void TestSizeOfB(const int& index, const char *typeMsg, const size_t& size)
 
 void TestTimevalA()
 {
-    size_t pos = 0;
-
+    int pos = 0;
     const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
-    memcpy(&LogBuf[0][pos], &timeV, SizeOfTimeval);
-    pos += SizeOfTimeval;
-
     char secStr[21];
 
+    memcpy(&LogBuf[0][pos], &timeV, SizeOfTimeval);
+    pos += SizeOfTimeval;
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
     memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
@@ -199,9 +193,9 @@ void TestTimevalA()
 
 void TestTimevalB()
 {
-    size_t pos = 0;
-
+    int pos = 0;
     struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
+
     memcpy(&LogBuf[0][pos], &timeV, SizeOfTimeval);
     pos += SizeOfTimeval;
 
@@ -226,9 +220,9 @@ void TestTimevalB()
 
 void TestTimevalC()
 {
-    size_t pos = 0;
-
+    int pos = 0;
     struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
+
     memcpy(&LogBuf[0][pos], &timeV, SizeOfTimeval);
     pos += SizeOfTimeval;
 
@@ -254,8 +248,7 @@ void TestTimevalC()
 void TestTime2CharArrayA()
 {
     int idx = 0;
-
-    size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
+    int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
@@ -302,9 +295,12 @@ void TestTime2CharArrayA()
     pos += ThreadIDStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
+
     long usec = -1;
+
     struct tm timePast = *(struct tm *)Tools::Functions::GetTimeNowWithMicroseconds(usec);
     timePast.tm_sec -= 120;
+
     pos += Tools::Functions::GetTimeWithMicroseconds(&LogBuf[idx][pos], LogBufSize, &timePast, usec, "%Y/%m/%d %H:%M:%S.");
     LogBuf[idx][pos] = 0;
     LogList.push_back(LogBuf[idx]);
@@ -318,9 +314,12 @@ void TestTime2CharArrayA()
     pos += ThreadIDStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
+
     usec = -1;
+
     struct tm timeFuture = *(struct tm *)Tools::Functions::GetTimeNowWithMicroseconds(usec);
     timeFuture.tm_sec += 120;
+
     pos += Tools::Functions::GetTimeWithMicroseconds(&LogBuf[idx][pos], LogBufSize, &timeFuture, usec, "%Y/%m/%d %H:%M:%S.");
     LogBuf[idx][pos] = 0;
     LogList.push_back(LogBuf[idx]);
@@ -330,8 +329,7 @@ void TestTime2CharArrayA()
 void TestDate2CharArrayA()
 {
     int idx = 0;
-
-    size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
+    int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
@@ -373,15 +371,15 @@ void TestDate2CharArrayA()
 
 void TestASCIINumberCalculateA(const char *argv)
 {
-    const size_t argvLen = strlen(argv);
+    const int argvLen = strlen(argv);
 
     char buf[64];
-    size_t bufPos = 0;
+    int bufPos = 0;
     char bufPosStr[11];
 
     bufPos = Tools::ASCIINumberMath::Calculate(argv, argvLen, buf, sizeof(buf));
 
-    size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+    int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
@@ -391,7 +389,7 @@ void TestASCIINumberCalculateA(const char *argv)
     ++pos;
     memcpy(&LogBuf[0][pos], argv, argvLen);
     pos += argvLen;
-    StrLenTemp = sprintf(bufPosStr, "|%ld|%ld|", bufPos, strlen(buf) - bufPos);
+    StrLenTemp = sprintf(bufPosStr, "|%d|%ld|", bufPos, strlen(buf) - bufPos);
     memcpy(&LogBuf[0][pos], bufPosStr, StrLenTemp);
     pos += StrLenTemp;
     memcpy(&LogBuf[0][pos], buf, StrLenTemp = strlen(buf));
@@ -416,8 +414,7 @@ int main(const int argc, const char *argv[])
     elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
         const char *helloWorld = " Hello World! ";
-
-        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+        int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
@@ -438,9 +435,30 @@ int main(const int argc, const char *argv[])
     LogList.clear();
     elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
-        char buildInfo[128];
+        const char *helloWorld = " Hello World! ";
+        int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
-        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+        memcpy(&LogBuf[0][pos], "|", 1);
+        ++pos;
+        memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
+        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[0][pos], "|", 1);
+        ++pos;
+        memcpy(&LogBuf[0][pos], helloWorld, StrLenTemp = strlen(helloWorld));
+        pos += StrLenTemp;
+        LogBuf[0][pos] = 0;
+
+        LogList.push_back(LogBuf[0]);
+    } );
+    printf("\r\nTestHelloWorld2 run elapsed: %ld us\r\n", elapsed);
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
+    printf("TestHelloWorld2 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
+    {
+        char buildInfo[128];
+        int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
@@ -480,8 +498,7 @@ int main(const int argc, const char *argv[])
     elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
         char buildInfo[128];
-
-        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+        int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
@@ -520,7 +537,7 @@ int main(const int argc, const char *argv[])
     LogList.clear();
     elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
-        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+        int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
@@ -541,12 +558,11 @@ int main(const int argc, const char *argv[])
     LogList.clear();
     elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
-        size_t pos = 0;
-
+        int pos = 0;
         const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
+
         memcpy(&LogBuf[0][pos], &timeV, SizeOfTimeval);
         pos += SizeOfTimeval;
-
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
         memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
@@ -681,7 +697,7 @@ int main(const int argc, const char *argv[])
     {
         Tools::CharArray helloWorld = Tools::CharArray(" Hello C++ World from VS Code! ");
         char lenBuf[11];
-        size_t pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
+        int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
@@ -1123,9 +1139,7 @@ int main(const int argc, const char *argv[])
     char inputBuf1[8];
     memset(inputBuf1, 0, sizeof(inputBuf1));
 
-    //"%7s"
-    const char iB1Fmt[] = {'%', sizeof(inputBuf1) - 1 + '0', 's', 0};
-
+    const char iB1Fmt[] = {'%', sizeof(inputBuf1) - 1 + '0', 's', 0}; //"%7s"
     int scanfResult = -1;
 
     printf("\r\nPress any key to continue.\r\n");
@@ -1141,7 +1155,8 @@ int main(const int argc, const char *argv[])
     printf("scanfResult=%d|len=%ld|input=%s|\r\n", scanfResult, strlen(inputBuf1), inputBuf1);
 
     usleep(8 * 1000 * 1000);
-    return 0;
+
+    return EXIT_SUCCESS;
 }
 
 #pragma pack()
