@@ -1,6 +1,7 @@
 #ifndef _TOOLS_ASCII_NUMBER_MATH_H
 #define _TOOLS_ASCII_NUMBER_MATH_H
 
+#include <cstdint>
 #include <cstring>
 #include <stdio.h>
 
@@ -22,14 +23,14 @@ namespace Tools
         private:
             static struct ASCIICharMathResult CharPlusResults[ASCIINumberCntMax][ASCIINumberCntMax];
             static struct ASCIICharMathResult CharMinusResults[ASCIINumberCntMax][ASCIINumberCntMax];
-            
+
             static void Reset(struct ASCIICharMathResult& rs)
             {
                 rs.Result = ' ';
                 rs.HasNext = false;
             }
 
-            static const int IsLeftBigger(const char *unsignedValue1, const size_t& length1, const char *unsignedValue2, const size_t& length2)
+            static const int IsLeftBigger(const char *unsignedValue1, const int& length1, const char *unsignedValue2, const int& length2)
             {
                 if (length1 > length2)
                 {
@@ -55,9 +56,9 @@ namespace Tools
                 return 0; //The same.
             }
 
-            static void TrimLeft(char *resultChars, const size_t& resultSize, int& pos, const bool& unsigned1, const bool& unsigned2, const int& isLeftBigger)
+            static void TrimLeft(char *resultChars, const int& resultSize, int& pos, const bool& unsigned1, const bool& unsigned2, const int& isLeftBigger)
             {
-                if (pos < 0)
+                if (pos < 1)
                 {
                     return;
                 }
@@ -83,8 +84,7 @@ namespace Tools
 
                     return;
                 }
-
-                if (!unsigned1 && !unsigned2)
+                else if (!unsigned1 && !unsigned2)
                 {
                     if (pos > 0)
                     {
@@ -145,7 +145,7 @@ namespace Tools
                 return true;
             }
 
-            static const bool Plus(const char& value1, const char& value2, char& resultChar, const bool& plus1)
+            static const bool Plus(const uint8_t& value1, const uint8_t& value2, char& resultChar, const bool& plus1)
             {
                 const struct ASCIICharMathResult *rs = &CharPlusResults[value1][value2];
 
@@ -169,7 +169,7 @@ namespace Tools
                 return true;
             }
 
-            static const bool Minus(char value1, const char& value2, char& resultChar, const bool& minus1)
+            static const bool Minus(uint8_t value1, const uint8_t& value2, char& resultChar, const bool& minus1)
             {
                 bool hasNext = false;
 
@@ -239,7 +239,7 @@ namespace Tools
                 return true;
             }
 
-            static const int Plus(const char *unsignedValue1, const size_t& length1, const char *unsignedValue2, const size_t& length2, char *resultChars, const size_t& resultSize)
+            static const int Plus(const char *unsignedValue1, const int& length1, const char *unsignedValue2, const int& length2, char *resultChars, const int& resultSize)
             {
                 resultChars[resultSize - 1] = 0;
 
@@ -296,7 +296,7 @@ namespace Tools
                 return -1;
             }
 
-            static const int Minus(const char *unsignedValue1, const size_t& length1, const char *unsignedValue2, const size_t& length2, char *resultChars, const size_t& resultSize, int& isLeftBigger)
+            static const int Minus(const char *unsignedValue1, const int& length1, const char *unsignedValue2, const int& length2, char *resultChars, const int& resultSize, int& isLeftBigger)
             {
                 if (isLeftBigger > 1 || isLeftBigger < -1)
                 {
@@ -366,14 +366,14 @@ namespace Tools
                 return -1;
             }
 
-            static const int Minus(const char *unsignedValue1, const size_t& length1, const char *unsignedValue2, const size_t& length2, char *resultChars, const size_t& resultSize)
+            static const int Minus(const char *unsignedValue1, const int& length1, const char *unsignedValue2, const int& length2, char *resultChars, const int& resultSize)
             {
                 int isLeftBigger = 2;
 
                 return Minus(unsignedValue1, length1, unsignedValue2, length2, resultChars, resultSize, isLeftBigger);
             }
 
-            static const int Calculate(const char *input, const size_t& inputLength, char *outputBuf, const size_t& outputBufSize)
+            static const int Calculate(const char *input, const int& inputLength, char *outputBuf, const int& outputBufSize)
             {
                 char *value1 = NULL;
                 bool unsigned1 = true;
