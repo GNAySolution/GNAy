@@ -13,7 +13,7 @@ namespace Tools
     {
         protected:
             bool _onlyForInside;
-            size_t _len;
+            int _len;
             T *_body;
 
         public:
@@ -23,7 +23,7 @@ namespace Tools
 
             ArrayWithLength(): _onlyForInside(false), _len(0), _body( NULL ) {}
 
-            ArrayWithLength(const T *src, const size_t& length, const bool& onlyForInside = false)
+            ArrayWithLength(const T *src, const int& length, const bool& onlyForInside = false)
             {
                 _onlyForInside = onlyForInside;
                 _len = length;
@@ -43,7 +43,7 @@ namespace Tools
             {
                 if(!_onlyForInside && _body != NULL)
                 {
-                    printf("len=%ld|msg=%s|~ArrayWithLength|\r\n", _len, _body);
+                    printf("len=%d|msg=%s|Tools::ArrayWithLength::~ArrayWithLength|\r\n", _len, _body);
 
                     _len = 0;
                     delete [] _body;
@@ -61,7 +61,7 @@ namespace Tools
                 _onlyForInside = onlyForInside;
                 _len = strlen(src);
 
-                const size_t _lenWithEnd = _len + 1;
+                const int _lenWithEnd = _len + 1;
 
                 if (onlyForInside)
                 {
