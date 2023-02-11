@@ -71,7 +71,7 @@ namespace Tools
                 return length;
             }
 
-            static void CopyStrWithLength1(char *destination, const char *source, const size_t& size)
+            static void CopyStrWithLength1(char *destination, const char *source, const int& size)
             {
                 memmove(&destination[1], source, size);
 
@@ -79,7 +79,7 @@ namespace Tools
                 destination[0] = size;
             }
 
-            static void CopyStrWithLength2(char *destination, const char *source, const size_t& size)
+            static void CopyStrWithLength2(char *destination, const char *source, const int& size)
             {
                 memmove(&destination[2], source, size);
 
@@ -92,14 +92,14 @@ namespace Tools
                 return localtime(&rawTime);
             }
 
-            static const size_t GetTime(char *buffer, const size_t& size, struct tm *timeM, const char *format)
+            static const int GetTime(char *buffer, const int& size, struct tm *timeM, const char *format)
             {
                 mktime(timeM);
 
                 return strftime(buffer, size, format, timeM);
             }
 
-            static const size_t GetTime(char *buffer, const size_t& size, const struct timeval& timeV, const char *format)
+            static const int GetTime(char *buffer, const int& size, const struct timeval& timeV, const char *format)
             {
                 return GetTime(buffer, size, (struct tm *)GetLocalTime(timeV.tv_sec), format);
             }
@@ -109,16 +109,16 @@ namespace Tools
                 return GetLocalTime(time(NULL));
             }
 
-            static const size_t GetTimeNow(char *buffer, const size_t& size)
+            static const int GetTimeNow(char *buffer, const int& size)
             {
                 memset(buffer, 0, size);
 
                 const char *_buf = asctime(GetTimeNow());
-                size_t len = strlen(_buf);
+                int len = strlen(_buf);
 
                 if (len + 1 >= size)
                 {
-                    printf("len(%ld) + 1 >= size(%ld)|Tools::GetTimeNow|\r\n", len, size);
+                    printf("len(%d) + 1 >= size(%d)|Tools::Functions::GetTimeNow|\r\n", len, size);
 
                     len = size - 1;
                 }
@@ -128,14 +128,14 @@ namespace Tools
                 return len;
             }
 
-            static const size_t GetTimeNow(char *buffer, const size_t& size, const char *format)
+            static const int GetTimeNow(char *buffer, const int& size, const char *format)
             {
                 return GetTime(buffer, size, (struct tm *)GetLocalTime(time(NULL)), format);
             }
 
-            static const size_t GetTimeWithMicroseconds(char *buffer, const size_t& size, struct tm *timeM, const long& usec, const char *format)
+            static const int GetTimeWithMicroseconds(char *buffer, const int& size, struct tm *timeM, const long& usec, const char *format)
             {
-                const size_t length = GetTime(buffer, size, timeM, format);
+                const int length = GetTime(buffer, size, timeM, format);
 
                 // char _buf[7];
                 // const int _ulen = snprintf(_buf, sizeof(_buf), "%06lld", usec); //6
@@ -145,7 +145,7 @@ namespace Tools
                 return length + snprintf(&buffer[length], 6 + 1, "%06ld", usec);
             }
 
-            static const size_t GetTimeWithMicroseconds(char *buffer, const size_t& size, const struct timeval& timeV, const char *format)
+            static const int GetTimeWithMicroseconds(char *buffer, const int& size, const struct timeval& timeV, const char *format)
             {
                 return GetTimeWithMicroseconds(buffer, size, (struct tm *)GetLocalTime(timeV.tv_sec), timeV.tv_usec, format);
             }
@@ -158,7 +158,7 @@ namespace Tools
                 return now;
             }
 
-            static const size_t GetTimeNowWithMicroseconds(char *buffer, const size_t& size, const char *format)
+            static const int GetTimeNowWithMicroseconds(char *buffer, const int& size, const char *format)
             {
                 return GetTimeWithMicroseconds(buffer, size, GetTimeNowWithMicroseconds(), format);
             }
@@ -172,7 +172,7 @@ namespace Tools
                 return GetLocalTime(now.tv_sec);
             }
 
-            static const size_t GetDate(char *buffer, const size_t& size, struct tm timeM, const char *format)
+            static const int GetDate(char *buffer, const int& size, struct tm timeM, const char *format)
             {
                 timeM.tm_hour = 0;
                 timeM.tm_min = 0;
@@ -181,17 +181,17 @@ namespace Tools
                 return GetTime(buffer, size, &timeM, format);
             }
 
-            static const size_t GetDate(char *buffer, const size_t& size, const struct timeval& timeV, const char *format)
+            static const int GetDate(char *buffer, const int& size, const struct timeval& timeV, const char *format)
             {
                 return GetDate(buffer, size, *(struct tm *)GetLocalTime(timeV.tv_sec), format);
             }
 
-            static const size_t GetDateToday(char *buffer, const size_t& size, const char *format = "%Y/%m/%d")
+            static const int GetDateToday(char *buffer, const int& size, const char *format = "%Y/%m/%d")
             {
                 return GetDate(buffer, size, *(struct tm *)GetTimeNow(), format);
             }
 
-            static const size_t GetDateYesterday(char *buffer, const size_t& size, const char *format = "%Y/%m/%d")
+            static const int GetDateYesterday(char *buffer, const int& size, const char *format = "%Y/%m/%d")
             {
                 struct tm localTime = *(struct tm *)GetTimeNow();
                 --localTime.tm_mday;
@@ -199,7 +199,7 @@ namespace Tools
                 return GetDate(buffer, size, localTime, format);
             }
 
-            static const size_t GetDateTomorrow(char *buffer, const size_t& size, const char *format = "%Y/%m/%d")
+            static const int GetDateTomorrow(char *buffer, const int& size, const char *format = "%Y/%m/%d")
             {
                 struct tm localTime = *(struct tm *)GetTimeNow();
                 ++localTime.tm_mday;
@@ -211,7 +211,8 @@ namespace Tools
             {
                 const struct timeval endTime = GetTimeNowWithMicroseconds();
 
-                return (endTime.tv_sec * 1000000 + endTime.tv_usec) - (startTime.tv_sec * 1000000 + startTime.tv_usec);
+                // return (endTime.tv_sec * 1000000 + endTime.tv_usec) - (startTime.tv_sec * 1000000 + startTime.tv_usec);
+                return (endTime.tv_sec - startTime.tv_sec) * 1000000 + endTime.tv_usec - startTime.tv_usec;
             }
 
             static const int64_t GetTimeElapsedInMicroseconds(const std::function<void()> function)
