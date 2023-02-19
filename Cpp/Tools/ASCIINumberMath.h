@@ -20,7 +20,7 @@ namespace Tools
 
     class ASCIINumberMath
     {
-        private:
+        protected:
             static struct ASCIICharMathResult CharPlusResults[ASCIINumberCntMax][ASCIINumberCntMax];
             static struct ASCIICharMathResult CharMinusResults[ASCIINumberCntMax][ASCIINumberCntMax];
 
@@ -489,10 +489,10 @@ namespace Tools
             }
         };
 
-        static Math Cons;
+        const static Math Cons;
     };
 
-    struct MathStaticConstructor::Math MathStaticConstructor::Cons;
+    const struct MathStaticConstructor::Math MathStaticConstructor::Cons;
 }
 
 #pragma pack()
