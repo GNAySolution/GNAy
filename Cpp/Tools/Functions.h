@@ -142,7 +142,18 @@ namespace Tools
 
                 // memcpy(&buffer[length], _buf, sizeof(_buf));
 
-                return length + snprintf(&buffer[length], 6 + 1, "%06ld", usec);
+                #ifdef __GNUC__
+                #pragma GCC diagnostic push
+                #pragma GCC diagnostic ignored "-Wformat-truncation"
+                #endif
+
+                const int result = length + snprintf(&buffer[length], 6 + 1, "%06ld", usec);
+
+                #ifdef __GNUC__
+                #pragma GCC diagnostic pop
+                #endif
+
+                return result;
             }
 
             static const int GetTimeWithMicroseconds(char *buffer, const int& size, const struct timeval& timeV, const char *format)
