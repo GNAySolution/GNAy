@@ -29,6 +29,10 @@ namespace Tools
             };
     };
 
+    const int BoolMaxArraySize = NumberWidthMax<bool>::ArraySize;
+    const int BoolMaxStringLength = NumberWidthMax<bool>::StringLength;
+    const int CharMaxArraySize = NumberWidthMax<char>::ArraySize;
+    const int CharMaxStringLength = NumberWidthMax<char>::StringLength;
     const int ShortMaxArraySize = NumberWidthMax<short>::ArraySize;
     const int ShortMaxStringLength = NumberWidthMax<short>::StringLength;
     const int IntMaxArraySize = NumberWidthMax<int>::ArraySize;
