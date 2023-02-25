@@ -2,8 +2,8 @@
 #define _TOOLS_ASCII_NUMBER_MATH_H
 
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
-#include <stdio.h>
 
 #pragma pack(1)
 
@@ -20,6 +20,8 @@ namespace Tools
 
     class ASCIINumberMath
     {
+        friend class ANMathStaticCons;
+
         protected:
             static struct ASCIICharMathResult CharPlusResults[ASCIINumberCntMax][ASCIINumberCntMax];
             static struct ASCIICharMathResult CharMinusResults[ASCIINumberCntMax][ASCIINumberCntMax];
@@ -28,6 +30,56 @@ namespace Tools
             {
                 rs.Result = ' ';
                 rs.HasNext = false;
+            }
+
+            static bool ResetCharPlusResults()
+            {
+                const struct ASCIICharMathResult *rs = &CharPlusResults['5']['6']; //11=5+6
+
+                if (rs->Result == '1' && rs->HasNext)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < ASCIINumberCntMax; ++i)
+                {
+                    for (int j = 0; j < ASCIINumberCntMax; ++j)
+                    {
+                        Reset(CharPlusResults[i][j]);
+
+                        if (i >= '0' && i <= '9' && j >= '0' && j <= '9')
+                        {
+                            CharPlusResults[i][j].HasNext = Plus(i, j, CharPlusResults[i][j].Result);
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            static bool ResetCharMinusResults()
+            {
+                const struct ASCIICharMathResult *rs = &CharMinusResults['5']['6']; //9=5+10-6
+
+                if (rs->Result == '9' && rs->HasNext)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < ASCIINumberCntMax; ++i)
+                {
+                    for (int j = 0; j < ASCIINumberCntMax; ++j)
+                    {
+                        Reset(CharMinusResults[i][j]);
+
+                        if (i >= '0' && i <= '9' && j >= '0' && j <= '9')
+                        {
+                            CharMinusResults[i][j].HasNext = Minus(i, j, CharMinusResults[i][j].Result);
+                        }
+                    }
+                }
+
+                return true;
             }
 
             static const int IsLeftBigger(const char *unsignedValue1, const int& length1, const char *unsignedValue2, const int& length2)
@@ -189,56 +241,6 @@ namespace Tools
             }
 
         public:
-            static bool ResetCharPlusResults()
-            {
-                const struct ASCIICharMathResult *rs = &CharPlusResults['5']['6']; //11=5+6
-
-                if (rs->Result == '1' && rs->HasNext)
-                {
-                    return false;
-                }
-                
-                for (int i = 0; i < ASCIINumberCntMax; ++i)
-                {
-                    for (int j = 0; j < ASCIINumberCntMax; ++j)
-                    {
-                        Reset(CharPlusResults[i][j]);
-
-                        if (i >= '0' && i <= '9' && j >= '0' && j <= '9')
-                        {
-                            CharPlusResults[i][j].HasNext = Plus(i, j, CharPlusResults[i][j].Result);
-                        }
-                    }
-                }
-
-                return true;
-            }
-
-            static bool ResetCharMinusResults()
-            {
-                const struct ASCIICharMathResult *rs = &CharMinusResults['5']['6']; //9=5+10-6
-
-                if (rs->Result == '9' && rs->HasNext)
-                {
-                    return false;
-                }
-
-                for (int i = 0; i < ASCIINumberCntMax; ++i)
-                {
-                    for (int j = 0; j < ASCIINumberCntMax; ++j)
-                    {
-                        Reset(CharMinusResults[i][j]);
-
-                        if (i >= '0' && i <= '9' && j >= '0' && j <= '9')
-                        {
-                            CharMinusResults[i][j].HasNext = Minus(i, j, CharMinusResults[i][j].Result);
-                        }
-                    }
-                }
-
-                return true;
-            }
-
             static const int Plus(const char *unsignedValue1, const int& length1, const char *unsignedValue2, const int& length2, char *resultChars, const int& resultSize)
             {
                 resultChars[resultSize - 1] = 0;
@@ -475,24 +477,22 @@ namespace Tools
 
     struct ASCIICharMathResult ASCIINumberMath::CharPlusResults[ASCIINumberCntMax][ASCIINumberCntMax];
     struct ASCIICharMathResult ASCIINumberMath::CharMinusResults[ASCIINumberCntMax][ASCIINumberCntMax];
-    
-    class MathStaticConstructor
-    {
-        friend class Math;
 
-        struct Math
+    class ANMathStaticCons //ASCIINumberMath Static Constructor
+    {
+        struct Constructor
         {
-            Math()
+            Constructor()
             {
-                Tools::ASCIINumberMath::ResetCharPlusResults();
-                Tools::ASCIINumberMath::ResetCharMinusResults();
+                ASCIINumberMath::ResetCharPlusResults();
+                ASCIINumberMath::ResetCharMinusResults();
             }
         };
 
-        const static Math Cons;
+        const static Constructor Cons;
     };
 
-    const struct MathStaticConstructor::Math MathStaticConstructor::Cons;
+    const struct ANMathStaticCons::Constructor ANMathStaticCons::Cons;
 }
 
 #pragma pack()
