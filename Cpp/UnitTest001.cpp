@@ -5,6 +5,9 @@
 #include "Tools/ArrayWithLength.h"
 #include "Tools/ASCIINumberMath.h"
 #include "Tools/Functions.h"
+#include "Tools/NumberWidthMax.h"
+#include "Tools/NumberWithString.h"
+#include "Tools/ThreadPool.h"
 
 #pragma pack(1)
 
@@ -15,16 +18,14 @@ thread_local int StrLenTemp = -1;
 const int LogBufCntMax = 128;
 const int LogBufSize = 1024;
 
+Tools::ThreadPool TPool;
+
 char LogBuf[LogBufCntMax][LogBufSize];
 std::vector<const char *> LogList;
 
-const int MyPID = getpid();
-char MyPIDStr[11];
-const int MyPIDStrLen = sprintf(MyPIDStr, "%d", MyPID);
+const struct Tools::IntWithStr MyPID = Tools::NumberWithString::CreateIntWithStr(getpid());
 
-thread_local uint64_t ThreadID = 0;
-thread_local char ThreadIDStr[21];
-thread_local int ThreadIDStrLen = -1;
+thread_local struct Tools::LongWithStr ThreadID;
 
 void PrintMessagesA(const std::vector<const char *>& msgs)
 {
@@ -56,13 +57,13 @@ void TestArgumentsA(const int& argc, const char *argv[])
 {
     for (int i = 0; i < argc; ++i)
     {
-        char idxStr[11];
+        char idxStr[Tools::IntMaxArraySize];
         int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[i][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[i][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[i][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[i][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         StrLenTemp = sprintf(idxStr, "|argv[%d]=", i);
         memcpy(&LogBuf[i][pos], idxStr, StrLenTemp);
         pos += StrLenTemp;
@@ -78,8 +79,8 @@ void TestArgumentsA(const int& argc, const char *argv[])
 
         memcpy(&LogBuf[argc][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[argc][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[argc][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         LogBuf[argc][pos] = 0;
 
         LogList.push_back(LogBuf[argc]);
@@ -90,7 +91,7 @@ void TestArgumentsB(const int& argc, const char *argv[])
 {
     for (int i = 0; i < argc; ++i)
     {
-        char idxStr[11];
+        char idxStr[Tools::IntMaxArraySize];
         int pos = 0;
         const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
 
@@ -98,8 +99,8 @@ void TestArgumentsB(const int& argc, const char *argv[])
         pos += SizeOfTimeval;
         memcpy(&LogBuf[i][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[i][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[i][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         StrLenTemp = sprintf(idxStr, "|argv[%d]=", i);
         memcpy(&LogBuf[i][pos], idxStr, StrLenTemp);
         pos += StrLenTemp;
@@ -118,8 +119,8 @@ void TestArgumentsB(const int& argc, const char *argv[])
         pos += SizeOfTimeval;
         memcpy(&LogBuf[argc][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[argc][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[argc][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         LogBuf[argc][pos] = 0;
 
         LogList.push_back(LogBuf[argc]);
@@ -128,13 +129,13 @@ void TestArgumentsB(const int& argc, const char *argv[])
 
 void TestSizeOfA(const int& index, const char *typeMsg, const int& size)
 {
-    char sizeStr[21];
+    char sizeStr[Tools::IntMaxArraySize]; 
     int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[index][0], LogBufSize, "%H:%M:%S.");
 
     memcpy(&LogBuf[index][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[index][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[index][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[index][pos], "|", 1);
     ++pos;
     memcpy(&LogBuf[index][pos], typeMsg, StrLenTemp = strlen(typeMsg));
@@ -149,7 +150,7 @@ void TestSizeOfA(const int& index, const char *typeMsg, const int& size)
 
 void TestSizeOfB(const int& index, const char *typeMsg, const int& size)
 {
-    char sizeStr[21];
+    char sizeStr[Tools::IntMaxArraySize];
     int pos = 0;
     const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
 
@@ -157,8 +158,8 @@ void TestSizeOfB(const int& index, const char *typeMsg, const int& size)
     pos += SizeOfTimeval;
     memcpy(&LogBuf[index][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[index][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[index][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[index][pos], "|", 1);
     ++pos;
     memcpy(&LogBuf[index][pos], typeMsg, StrLenTemp = strlen(typeMsg));
@@ -175,14 +176,14 @@ void TestTimevalA()
 {
     int pos = 0;
     const struct timeval timeV = Tools::Functions::GetTimeNowWithMicroseconds();
-    char secStr[21];
+    char secStr[Tools::LongMaxArraySize + Tools::IntMaxArraySize];
 
     memcpy(&LogBuf[0][pos], &timeV, SizeOfTimeval);
     pos += SizeOfTimeval;
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     StrLenTemp = sprintf(secStr, "|%ld|%d", timeV.tv_sec, timeV.tv_usec);
     memcpy(&LogBuf[0][pos], secStr, StrLenTemp);
     pos += StrLenTemp;
@@ -201,12 +202,12 @@ void TestTimevalB()
 
     timeV.tv_sec = 99;
 
-    char secStr[21];
+    char secStr[Tools::LongMaxArraySize + Tools::IntMaxArraySize];
 
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
     pos += Tools::Functions::GetTimeWithMicroseconds(&LogBuf[0][pos], LogBufSize, timeV, "%Y/%m/%d %H:%M:%S.");
@@ -228,12 +229,12 @@ void TestTimevalC()
 
     timeV.tv_sec = 2100000099;
 
-    char secStr[21];
+    char secStr[Tools::LongMaxArraySize + Tools::IntMaxArraySize];
 
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
     pos += Tools::Functions::GetTimeWithMicroseconds(&LogBuf[0][pos], LogBufSize, timeV, "%Y/%m/%d %H:%M:%S.");
@@ -252,8 +253,8 @@ void TestTime2CharArrayA()
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[idx][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[idx][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
     pos += Tools::Functions::GetTimeNow(&LogBuf[idx][pos], LogBufSize);
@@ -265,8 +266,8 @@ void TestTime2CharArrayA()
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[idx][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[idx][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
     pos += Tools::Functions::GetTimeNow(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
@@ -278,8 +279,8 @@ void TestTime2CharArrayA()
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[idx][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[idx][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
     pos += Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S.");
@@ -291,8 +292,8 @@ void TestTime2CharArrayA()
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[idx][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[idx][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
 
@@ -310,8 +311,8 @@ void TestTime2CharArrayA()
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[idx][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[idx][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
 
@@ -333,8 +334,8 @@ void TestDate2CharArrayA()
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[idx][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[idx][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
     pos += Tools::Functions::GetDateToday(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
@@ -346,8 +347,8 @@ void TestDate2CharArrayA()
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[idx][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[idx][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
     pos += Tools::Functions::GetDateYesterday(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
@@ -359,8 +360,8 @@ void TestDate2CharArrayA()
 
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[idx][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[idx][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[idx][pos], "|", 1);
     ++pos;
     pos += Tools::Functions::GetDateTomorrow(&LogBuf[idx][pos], LogBufSize, "%Y/%m/%d %H:%M:%S");
@@ -375,7 +376,7 @@ void TestASCIINumberCalculateA(const char *argv)
 
     char buf[64];
     int bufPos = 0;
-    char bufPosStr[11];
+    char bufPosStr[Tools::IntMaxArraySize];
 
     bufPos = Tools::ASCIINumberMath::Calculate(argv, argvLen, buf, sizeof(buf));
 
@@ -383,8 +384,8 @@ void TestASCIINumberCalculateA(const char *argv)
 
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
-    memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-    pos += ThreadIDStrLen;
+    memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+    pos += ThreadID.ValueStrLen;
     memcpy(&LogBuf[0][pos], "|", 1);
     ++pos;
     memcpy(&LogBuf[0][pos], argv, argvLen);
@@ -403,10 +404,40 @@ int main(const int argc, const char *argv[])
 {
     printf("Hello World!\r\n\r\n");
 
-    ThreadIDStrLen = Tools::Functions::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
+    TPool.SetSizeMax(argc >= 2 ? std::stoull(argv[1]) : 0);
 
-    printf("MyPID=%d|MyPIDStrLen=%d|MyPIDStr=%s\r\n", MyPID, MyPIDStrLen, MyPIDStr);
-    printf("ThreadID=%ld|ThreadIDStrLen=%d|ThreadIDStr=%s\r\n", ThreadID, ThreadIDStrLen, ThreadIDStr);
+    Tools::Functions::GetThreadID(ThreadID);
+
+    printf("MyPID=%d|MyPIDStrLen=%d|MyPIDStr=%s\r\n", MyPID.Value, MyPID.ValueStrLen, MyPID.ValueStr);
+    printf("ThreadID=%lld|ThreadIDStrLen=%d|ThreadIDStr=%s\r\n\r\n", ThreadID.Value, ThreadID.ValueStrLen, ThreadID.ValueStr);
+
+    {
+        char arr01[Tools::BoolMaxArraySize];
+        char arr02[Tools::BoolMaxStringLength];
+        char arr03[Tools::BoolMaxArraySize + Tools::BoolMaxStringLength];
+        char arr04[Tools::BoolMaxArraySize * 2 + Tools::BoolMaxStringLength];
+        char arr05[Tools::CharMaxArraySize];
+        char arr06[Tools::CharMaxStringLength];
+        char arr07[Tools::ShortMaxArraySize];
+        char arr08[Tools::ShortMaxStringLength];
+        char arr09[Tools::IntMaxArraySize];
+        char arr10[Tools::IntMaxStringLength];
+        char arr11[Tools::LongMaxArraySize];
+        char arr12[Tools::LongMaxStringLength];
+
+        printf("BoolMaxArraySize = %ld\r\n", sizeof(arr01));
+        printf("BoolMaxStringLength = %ld\r\n", sizeof(arr02));
+        printf("BoolMaxArraySize + BoolMaxStringLength = %ld\r\n", sizeof(arr03));
+        printf("BoolMaxArraySize * 2 + BoolMaxStringLength = %ld\r\n", sizeof(arr04));
+        printf("CharMaxArraySize = %ld\r\n", sizeof(arr05));
+        printf("CharMaxStringLength = %ld\r\n", sizeof(arr06));
+        printf("ShortMaxArraySize = %ld\r\n", sizeof(arr07));
+        printf("ShortMaxStringLength = %ld\r\n", sizeof(arr08));
+        printf("IntMaxArraySize = %ld\r\n", sizeof(arr09));
+        printf("IntMaxStringLength = %ld\r\n", sizeof(arr10));
+        printf("LongMaxArraySize = %ld\r\n", sizeof(arr11));
+        printf("LongMaxStringLength = %ld\r\n", sizeof(arr12));
+    }
 
     int64_t elapsed = 0;
 
@@ -418,8 +449,8 @@ int main(const int argc, const char *argv[])
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
         memcpy(&LogBuf[0][pos], helloWorld, StrLenTemp = strlen(helloWorld));
@@ -440,8 +471,8 @@ int main(const int argc, const char *argv[])
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
         memcpy(&LogBuf[0][pos], helloWorld, StrLenTemp = strlen(helloWorld));
@@ -462,8 +493,8 @@ int main(const int argc, const char *argv[])
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
         memcpy(&LogBuf[0][pos], "|BuildDate=", StrLenTemp = strlen("|BuildDate="));
@@ -502,8 +533,8 @@ int main(const int argc, const char *argv[])
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
         memcpy(&LogBuf[0][pos], "|BuildDate=", StrLenTemp = strlen("|BuildDate="));
@@ -541,11 +572,11 @@ int main(const int argc, const char *argv[])
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         memcpy(&LogBuf[0][pos], "|PID=", StrLenTemp = strlen("|PID="));
         pos += StrLenTemp;
-        memcpy(&LogBuf[0][pos], MyPIDStr, StrLenTemp = strlen(MyPIDStr));
+        memcpy(&LogBuf[0][pos], MyPID.ValueStr, StrLenTemp = strlen(MyPID.ValueStr));
         pos += StrLenTemp;
         LogBuf[0][pos] = 0;
 
@@ -565,11 +596,11 @@ int main(const int argc, const char *argv[])
         pos += SizeOfTimeval;
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         memcpy(&LogBuf[0][pos], "|PID=", StrLenTemp = strlen("|PID="));
         pos += StrLenTemp;
-        memcpy(&LogBuf[0][pos], MyPIDStr, StrLenTemp = strlen(MyPIDStr));
+        memcpy(&LogBuf[0][pos], MyPID.ValueStr, StrLenTemp = strlen(MyPID.ValueStr));
         pos += StrLenTemp;
         LogBuf[0][pos] = 0;
 
@@ -588,7 +619,7 @@ int main(const int argc, const char *argv[])
     LogList.clear();
     std::thread t2([&]
     {
-        ThreadIDStrLen = Tools::Functions::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
+        Tools::Functions::GetThreadID(ThreadID);
 
         elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestArgumentsA(argc, argv); } );
         printf("\r\nTestArguments2 run elapsed: %ld us\r\n", elapsed);
@@ -605,7 +636,7 @@ int main(const int argc, const char *argv[])
     {
         std::thread t3([&]
         {
-            ThreadIDStrLen = Tools::Functions::GetThreadIDAndStr(ThreadID, ThreadIDStr, ThreadIDStrLen);
+            Tools::Functions::GetThreadID(ThreadID);
 
             TestArgumentsA(argc, argv);
         });
@@ -625,7 +656,8 @@ int main(const int argc, const char *argv[])
     printf("TestArguments4 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] {
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
+    {
         TestSizeOfA(0, "sizeof(char)=", sizeof(char));
         TestSizeOfA(1, "sizeof(short)=", sizeof(short));
         TestSizeOfA(2, "sizeof(int)=", sizeof(int));
@@ -644,7 +676,8 @@ int main(const int argc, const char *argv[])
     printf("TestSizeOf1 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] {
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
+    {
         TestSizeOfB(0, "sizeof(char)=", sizeof(char));
         TestSizeOfB(1, "sizeof(short)=", sizeof(short));
         TestSizeOfB(2, "sizeof(int)=", sizeof(int));
@@ -695,14 +728,14 @@ int main(const int argc, const char *argv[])
     LogList.clear();
     elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
     {
-        Tools::CharArray helloWorld = Tools::CharArray(" Hello C++ World from VS Code! ");
-        char lenBuf[11];
+        const Tools::CharArray helloWorld = Tools::CharArray(" Hello C++ World from VS Code! ");
+        char lenBuf[Tools::IntMaxArraySize];
         int pos = Tools::Functions::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
-        memcpy(&LogBuf[0][pos], ThreadIDStr, ThreadIDStrLen);
-        pos += ThreadIDStrLen;
+        memcpy(&LogBuf[0][pos], ThreadID.ValueStr, ThreadID.ValueStrLen);
+        pos += ThreadID.ValueStrLen;
         StrLenTemp = sprintf(lenBuf, "|%d|", helloWorld.Length());
         memcpy(&LogBuf[0][pos], lenBuf, StrLenTemp);
         pos += StrLenTemp;
@@ -1131,10 +1164,29 @@ int main(const int argc, const char *argv[])
     printf("TestASCIINumberCalculate69 printed elapsed: %ld us\r\n", elapsed);
 
     LogList.clear();
-    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA(argc >= 2 ? argv[1] : ""); } );
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { TestASCIINumberCalculateA(argc >= 3 ? argv[2] : ""); } );
     printf("\r\nTestASCIINumberCalculate70 run elapsed: %ld us\r\n", elapsed);
     elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&] { PrintMessagesA(LogList); } );
     printf("TestASCIINumberCalculate70 printed elapsed: %ld us\r\n", elapsed);
+
+    LogList.clear();
+    elapsed = Tools::Functions::GetTimeElapsedInMicroseconds([&]
+    {
+        for (int i = 0; i < 8; ++i)
+        {
+            TPool.Enqueue([&, i]
+            {
+                Tools::Functions::GetThreadID(ThreadID);
+                printf("TestThreadPool1A|i=%d|ThreadID=%lld|ThreadIDStrLen=%d|ThreadIDStr=%s\r\n", i, ThreadID.Value, ThreadID.ValueStrLen, ThreadID.ValueStr);
+
+                std::this_thread::sleep_for(std::chrono::seconds(i + 1) / 2);
+                printf("TestThreadPool1B|i=%d|ThreadID=%lld|ThreadIDStrLen=%d|ThreadIDStr=%s\r\n", i, ThreadID.Value, ThreadID.ValueStrLen, ThreadID.ValueStr);
+
+                return i * i;
+            } );
+        }
+    } );
+    printf("\r\nTestThreadPool1 run elapsed: %ld us\r\n", elapsed);
 
     char inputBuf1[8];
     memset(inputBuf1, 0, sizeof(inputBuf1));
