@@ -5,9 +5,10 @@
 #include <functional>
 #include <iostream>
 #include <sstream>
-#include <stdio.h>
 #include <sys/time.h>
 #include <thread>
+
+#include "NumberWithString.h"
 
 #pragma pack(1)
 
@@ -45,30 +46,33 @@ namespace Tools
                 } while (c != '\n' && c != EOF);
             }
 
-            static const uint64_t GetThreadID(const std::thread::id& threadID)
+            static const bool GetThreadID(struct LongWithStr& threadID)
             {
-                std::stringstream ss;
-
-                ss << threadID;
-
-                return std::stoull(ss.str());
-            }
-
-            static const uint64_t GetThreadID()
-            {
-                return GetThreadID(std::this_thread::get_id());
-            }
-
-            static const int GetThreadIDAndStr(uint64_t& threadID, char *buffer, int& length)
-            {
-                if (threadID <= 0)
+                if (threadID.ValueStrLen > 0)
                 {
-                    threadID = GetThreadID();
-
-                    return length = sprintf(buffer, "%ld", threadID);
+                    return true;
                 }
 
-                return length;
+                const std::thread::id& tID = std::this_thread::get_id();
+
+                std::stringstream ss;
+                ss << tID;
+
+                const std::string str = ss.str();
+
+                threadID.Value = std::stoll(str);
+                threadID.ValueStrLen = sprintf(threadID.ValueStr, "%s", str.c_str());
+
+                return threadID.Value != 0;
+            }
+
+            static const struct LongWithStr GetThreadID()
+            {
+                struct LongWithStr threadID;
+
+                GetThreadID(threadID);
+
+                return threadID;
             }
 
             static void CopyStrWithLength1(char *destination, const char *source, const int& size)
@@ -137,15 +141,15 @@ namespace Tools
             {
                 const int length = GetTime(buffer, size, timeM, format);
 
-                // char _buf[7];
-                // const int _ulen = snprintf(_buf, sizeof(_buf), "%06lld", usec); //6
-
-                // memcpy(&buffer[length], _buf, sizeof(_buf));
-
                 #ifdef __GNUC__
                 #pragma GCC diagnostic push
                 #pragma GCC diagnostic ignored "-Wformat-truncation"
                 #endif
+
+                // char _buf[7];
+                // const int _ulen = snprintf(_buf, sizeof(_buf), "%06ld", usec); //6
+
+                // memcpy(&buffer[length], _buf, sizeof(_buf));
 
                 const int result = length + snprintf(&buffer[length], 6 + 1, "%06ld", usec);
 
