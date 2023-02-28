@@ -141,7 +141,7 @@ namespace Tools
             {
                 const int length = GetTime(buffer, size, timeM, format);
 
-                #ifdef __GNUC__
+                #if defined __GNUC__ && defined _AIX
                 #pragma GCC diagnostic push
                 #pragma GCC diagnostic ignored "-Wformat-truncation"
                 #endif
@@ -153,7 +153,7 @@ namespace Tools
 
                 const int result = length + snprintf(&buffer[length], 6 + 1, "%06ld", usec);
 
-                #ifdef __GNUC__
+                #if defined __GNUC__ && defined _AIX
                 #pragma GCC diagnostic pop
                 #endif
 
