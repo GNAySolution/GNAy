@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/UnitTest001.exe",
-            "args": ["4", "-123456789-987654321"],
+            "args": ["ThreadPoolSizeMax=4", "ASCIINumberMathCalculate1=-1111111111111111111111111-9999999999999999999999999"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -17,12 +17,12 @@
             "MIMode": "gdb",
             "miDebuggerPath": "C:\\mingw64\\bin\\gdb.exe",
             "setupCommands": [
-            {
-                "description": "Enable pretty-printing for gdb",
-                "text": "-enable-pretty-printing",
-                "ignoreFailures": true
-            }
-          ]
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }
