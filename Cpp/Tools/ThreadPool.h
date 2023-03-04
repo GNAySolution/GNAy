@@ -8,8 +8,10 @@
 #include <mutex>
 #include <queue>
 #include <stdexcept>
-#include <thread>
 #include <vector>
+
+#include "ThreadHelper.h"
+#include "TimeHelper.h"
 
 #pragma pack(1)
 
@@ -59,6 +61,8 @@ namespace Tools
             return false;
         }
 
+        printf("%s|%s|%s|_stop=%d|threadsMax=%ld|QueueCount=%d|SetSizeMax|%d|%s|\r\n", TimeHelper::GetHHmmssffffff(), (threadsMax <= 0 || threadsMax > 32) ? LogLevel::Warn : LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, _stop, threadsMax, QueueCount(), __LINE__, __FILE__);
+
         for (size_t i = 0; i < threadsMax; ++i)
         {
             _workers.emplace_back([this]
@@ -82,7 +86,7 @@ namespace Tools
 
                     task();
                 }
-            } );
+            });
         }
 
         return GetSizeMax() > 0;
@@ -91,8 +95,6 @@ namespace Tools
     // the destructor joins all threads
     ThreadPool::~ThreadPool()
     {
-        printf("_stop=%d|SizeMax=%d|QueueCount=%d|ThreadPool::~ThreadPool|\r\n", _stop, GetSizeMax(), QueueCount());
-
         {
             std::unique_lock<std::mutex> lock(_queue_mutex);
             _stop = true;
@@ -100,7 +102,14 @@ namespace Tools
         _condition.notify_all();
 
         for (std::thread &worker: _workers)
-            worker.join();
+        {
+            if (worker.joinable())
+            {
+                worker.join();
+            }
+        }
+
+        printf("%s|%s|%s|_stop=%d|SizeMax=%d|QueueCount=%d|~ThreadPool|%d|%s|\r\n", TimeHelper::GetHHmmssffffff(), QueueCount() > 0 ? LogLevel::Warn : LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, _stop, GetSizeMax(), QueueCount(), __LINE__, __FILE__);
     }
 
     // add new work item to the pool
