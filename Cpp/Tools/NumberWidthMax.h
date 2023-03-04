@@ -1,5 +1,5 @@
-#ifndef  _TOOLS_NUMBER_WIDTH_MAX_H
-#define  _TOOLS_NUMBER_WIDTH_MAX_H
+#ifndef _TOOLS_NUMBER_WIDTH_MAX_H
+#define _TOOLS_NUMBER_WIDTH_MAX_H
 
 #include <limits>
 
