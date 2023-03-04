@@ -32,14 +32,14 @@ namespace Tools
                 rs.HasNext = false;
             }
 
-            static bool ResetCharPlusResults()
+            static const bool ResetCharPlusResults()
             {
-                const struct ASCIICharMathResult *rs = &CharPlusResults['5']['6']; //11=5+6
+                // const struct ASCIICharMathResult *rs = &CharPlusResults['5']['6']; //11=5+6
 
-                if (rs->Result == '1' && rs->HasNext)
-                {
-                    return false;
-                }
+                // if (rs->Result == '1' && rs->HasNext)
+                // {
+                //     return false;
+                // }
 
                 for (int i = 0; i < ASCIINumberCntMax; ++i)
                 {
@@ -57,14 +57,14 @@ namespace Tools
                 return true;
             }
 
-            static bool ResetCharMinusResults()
+            static const bool ResetCharMinusResults()
             {
-                const struct ASCIICharMathResult *rs = &CharMinusResults['5']['6']; //9=5+10-6
+                // const struct ASCIICharMathResult *rs = &CharMinusResults['5']['6']; //9=5+10-6
 
-                if (rs->Result == '9' && rs->HasNext)
-                {
-                    return false;
-                }
+                // if (rs->Result == '9' && rs->HasNext)
+                // {
+                //     return false;
+                // }
 
                 for (int i = 0; i < ASCIINumberCntMax; ++i)
                 {
@@ -82,24 +82,24 @@ namespace Tools
                 return true;
             }
 
-            static const int IsLeftBigger(const char *unsignedValue1, const int& length1, const char *unsignedValue2, const int& length2)
+            static const int IsLeftBigger(const char *unsignedValueLeft, const int& lengthLeft, const char *unsignedValueRight, const int& lengthRight)
             {
-                if (length1 > length2)
+                if (lengthLeft > lengthRight)
                 {
                     return 1;
                 }
-                else if (length1 < length2)
+                else if (lengthLeft < lengthRight)
                 {
                     return -1;
                 }
 
-                for (int i = 0; i < length1; ++i)
+                for (int i = 0; i < lengthLeft; ++i)
                 {
-                    if (unsignedValue1[i] > unsignedValue2[i])
+                    if (unsignedValueLeft[i] > unsignedValueRight[i])
                     {
                         return 1;
                     }
-                    else if (unsignedValue1[i] < unsignedValue2[i])
+                    else if (unsignedValueLeft[i] < unsignedValueRight[i])
                     {
                         return -1;
                     }
@@ -146,7 +146,7 @@ namespace Tools
                 }
                 else if (!unsigned1 || !unsigned2)
                 {
-                    if (isLeftBigger == 1)
+                    if (isLeftBigger > 0)
                     {
                         // if (unsigned1 && !unsigned2)
                         // {
@@ -161,7 +161,7 @@ namespace Tools
                             }
                         }
                     }
-                    else if (isLeftBigger == -1)
+                    else if (isLeftBigger < 0)
                     {
                         if (unsigned1 && !unsigned2)
                         {
@@ -472,6 +472,11 @@ namespace Tools
                 TrimLeft(outputBuf, outputBufSize, pos, unsigned1, unsigned2, isLeftBigger);
 
                 return pos;
+            }
+
+            static const int Calculate(const char *input, char *outputBuf, const int& outputBufSize)
+            {
+                return Calculate(input, strlen(input), outputBuf, outputBufSize);
             }
     };
 
