@@ -1,5 +1,5 @@
-#ifndef  _TOOLS_NUMBER_WITH_STRING_H
-#define  _TOOLS_NUMBER_WITH_STRING_H
+#ifndef _TOOLS_NUMBER_WITH_STRING_H
+#define _TOOLS_NUMBER_WITH_STRING_H
 
 #include <cstdio>
 
