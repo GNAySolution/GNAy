@@ -403,12 +403,12 @@ void TestASCIINumberCalculateA(const char *argv)
 
 int main(const int argc, const char *argv[])
 {
-    printf("%s|%s|%s| Hello World! |main|%d|%s|\r\n\r\n", TimeHelper::GetHHmmssffffff(), LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, __LINE__, __FILE__);
+    printf("%s|%s|%s| Hello World! |%d|%s|%s|\r\n\r\n", TimeHelper::GetHHmmssffffff(), LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, __LINE__, __FUNCTION__, __FILE__);
 
     const char *valueStr = Functions::FindValueStr("ThreadPoolSizeMax", argc, argv);
     TPool.SetSizeMax(valueStr == NULL ? 0 : std::stoull(valueStr));
 
-    printf("%s|%s|%s|MyPID=%d|MyPIDStrLen=%d|MyPIDStr=%s|main|%d|%s|\r\n", TimeHelper::GetHHmmssffffff(), LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, MyPID.Value, MyPID.ValueStrLen, MyPID.ValueStr, __LINE__, __FILE__);
+    printf("%s|%s|%s|MyPID=%d|MyPIDStrLen=%d|MyPIDStr=%s|%d|%s|%s|\r\n", TimeHelper::GetHHmmssffffff(), LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, MyPID.Value, MyPID.ValueStrLen, MyPID.ValueStr, __LINE__, __FUNCTION__, __FILE__);
 
     {
         char arr01[BoolMaxArraySize];
@@ -487,33 +487,26 @@ int main(const int argc, const char *argv[])
     LogList.clear();
     elapsed = TimeHelper::GetTimeElapsedInMicroseconds([&]
     {
-        char buildInfo[128];
+        char buildInfo[256];
         int pos = TimeHelper::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
         memcpy(&LogBuf[0][pos], ThreadHelper::ThreadID.ValueStr, ThreadHelper::ThreadID.ValueStrLen);
         pos += ThreadHelper::ThreadID.ValueStrLen;
-        memcpy(&LogBuf[0][pos], "|", 1);
-        ++pos;
-        memcpy(&LogBuf[0][pos], "|BuildDate=", FileLogger::MsgLen = strlen("|BuildDate="));
-        pos += FileLogger::MsgLen;
-        FileLogger::MsgLen = sprintf(buildInfo, "%s", __DATE__);
+        FileLogger::MsgLen = sprintf(buildInfo, "|BuildDate=%s", __DATE__);
         memcpy(&LogBuf[0][pos], buildInfo, FileLogger::MsgLen);
         pos += FileLogger::MsgLen;
-        memcpy(&LogBuf[0][pos], "|BuildTime=", FileLogger::MsgLen = strlen("|BuildTime="));
-        pos += FileLogger::MsgLen;
-        FileLogger::MsgLen = sprintf(buildInfo, "%s", __TIME__);
+        FileLogger::MsgLen = sprintf(buildInfo, "|BuildTime=%s", __TIME__);
         memcpy(&LogBuf[0][pos], buildInfo, FileLogger::MsgLen);
         pos += FileLogger::MsgLen;
-        memcpy(&LogBuf[0][pos], "|FilePath=", FileLogger::MsgLen = strlen("|FilePath="));
-        pos += FileLogger::MsgLen;
-        FileLogger::MsgLen = sprintf(buildInfo, "%s", __FILE__);
+        FileLogger::MsgLen = sprintf(buildInfo, "|LineNumber=%d", __LINE__);
         memcpy(&LogBuf[0][pos], buildInfo, FileLogger::MsgLen);
         pos += FileLogger::MsgLen;
-        memcpy(&LogBuf[0][pos], "|LineNumber=", FileLogger::MsgLen = strlen("|LineNumber="));
+        FileLogger::MsgLen = sprintf(buildInfo, "|FunctionName=%s", __FUNCTION__);
+        memcpy(&LogBuf[0][pos], buildInfo, FileLogger::MsgLen);
         pos += FileLogger::MsgLen;
-        FileLogger::MsgLen = sprintf(buildInfo, "%d", __LINE__);
+        FileLogger::MsgLen = sprintf(buildInfo, "|FilePath=%s", __FILE__);
         memcpy(&LogBuf[0][pos], buildInfo, FileLogger::MsgLen);
         pos += FileLogger::MsgLen;
         LogBuf[0][pos] = 0;
@@ -527,15 +520,13 @@ int main(const int argc, const char *argv[])
     LogList.clear();
     elapsed = TimeHelper::GetTimeElapsedInMicroseconds([&]
     {
-        char buildInfo[128];
+        char buildInfo[256];
         int pos = TimeHelper::GetTimeNowWithMicroseconds(&LogBuf[0][0], LogBufSize, "%H:%M:%S.");
 
         memcpy(&LogBuf[0][pos], "|", 1);
         ++pos;
         memcpy(&LogBuf[0][pos], ThreadHelper::ThreadID.ValueStr, ThreadHelper::ThreadID.ValueStrLen);
         pos += ThreadHelper::ThreadID.ValueStrLen;
-        memcpy(&LogBuf[0][pos], "|", 1);
-        ++pos;
         memcpy(&LogBuf[0][pos], "|BuildDate=", FileLogger::MsgLen = strlen("|BuildDate="));
         pos += FileLogger::MsgLen;
         FileLogger::MsgLen = Functions::GetBuildDate(buildInfo);
@@ -546,14 +537,19 @@ int main(const int argc, const char *argv[])
         FileLogger::MsgLen = Functions::GetBuildTime(buildInfo);
         memcpy(&LogBuf[0][pos], buildInfo, FileLogger::MsgLen);
         pos += FileLogger::MsgLen;
-        memcpy(&LogBuf[0][pos], "|FilePath=", FileLogger::MsgLen = strlen("|FilePath="));
-        pos += FileLogger::MsgLen;
-        FileLogger::MsgLen = Functions::GetFilePath(buildInfo);
-        memcpy(&LogBuf[0][pos], buildInfo, FileLogger::MsgLen);
-        pos += FileLogger::MsgLen;
         memcpy(&LogBuf[0][pos], "|LineNumber=", FileLogger::MsgLen = strlen("|LineNumber="));
         pos += FileLogger::MsgLen;
         FileLogger::MsgLen = Functions::GetLineNumber(buildInfo);
+        memcpy(&LogBuf[0][pos], buildInfo, FileLogger::MsgLen);
+        pos += FileLogger::MsgLen;
+        memcpy(&LogBuf[0][pos], "|FunctionName=", FileLogger::MsgLen = strlen("|FunctionName="));
+        pos += FileLogger::MsgLen;
+        FileLogger::MsgLen = Functions::GetFunctionName(buildInfo);
+        memcpy(&LogBuf[0][pos], buildInfo, FileLogger::MsgLen);
+        pos += FileLogger::MsgLen;
+        memcpy(&LogBuf[0][pos], "|FilePath=", FileLogger::MsgLen = strlen("|FilePath="));
+        pos += FileLogger::MsgLen;
+        FileLogger::MsgLen = Functions::GetFilePath(buildInfo);
         memcpy(&LogBuf[0][pos], buildInfo, FileLogger::MsgLen);
         pos += FileLogger::MsgLen;
         LogBuf[0][pos] = 0;
