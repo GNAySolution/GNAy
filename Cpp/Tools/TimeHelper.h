@@ -48,7 +48,7 @@ namespace Tools
 
                 if (len + 1 >= size)
                 {
-                    printf("%s|%s|%s|len(%d) + 1 >= size(%d)|GetTimeNow|%d|%s|\r\n", GetHHmmssffffff(), LogLevel::Error, ThreadHelper::ThreadID.ValueStr, len, size, __LINE__, __FILE__);
+                    printf("%s|%s|%s|len(%d) + 1 >= size(%d)|%d|%s|%s|\r\n", GetHHmmssffffff(), LogLevel::Error, ThreadHelper::ThreadID.ValueStr, len, size, __LINE__, __FUNCTION__, __FILE__);
 
                     len = size - 1;
                 }
