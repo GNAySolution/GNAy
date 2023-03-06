@@ -22,14 +22,19 @@ namespace Tools
                 return sprintf(buffer, "%s", __TIME__);
             }
 
-            static const int GetFilePath(char *buffer)
-            {
-                return sprintf(buffer, "%s", __FILE__);
-            }
-
             static const int GetLineNumber(char *buffer)
             {
                 return sprintf(buffer, "%d", __LINE__);
+            }
+
+            static const int GetFunctionName(char *buffer)
+            {
+                return sprintf(buffer, "%s", __FUNCTION__);
+            }
+
+            static const int GetFilePath(char *buffer)
+            {
+                return sprintf(buffer, "%s", __FILE__);
             }
 
             static void CleanStdin()
@@ -73,7 +78,7 @@ namespace Tools
                     }
                 }
 
-                printf("%s|%s|%s|key=%s|argc=%d|FindValueStr|%d|%s|\r\n", TimeHelper::GetHHmmssffffff(), LogLevel::Warn, ThreadHelper::ThreadID.ValueStr, key, argc, __LINE__, __FILE__);
+                printf("%s|%s|%s|key=%s|argc=%d|%d|%s|%s|\r\n", TimeHelper::GetHHmmssffffff(), LogLevel::Warn, ThreadHelper::ThreadID.ValueStr, key, argc, __LINE__, __FUNCTION__, __FILE__);
 
                 return NULL;
             }
