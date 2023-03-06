@@ -61,7 +61,7 @@ namespace Tools
             return false;
         }
 
-        printf("%s|%s|%s|_stop=%d|threadsMax=%ld|QueueCount=%d|SetSizeMax|%d|%s|\r\n", TimeHelper::GetHHmmssffffff(), (threadsMax <= 0 || threadsMax > 32) ? LogLevel::Warn : LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, _stop, threadsMax, QueueCount(), __LINE__, __FILE__);
+        printf("%s|%s|%s|_stop=%d|threadsMax=%ld|QueueCount=%d|%d|%s|%s|\r\n", TimeHelper::GetHHmmssffffff(), (threadsMax <= 0 || threadsMax > 32) ? LogLevel::Warn : LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, _stop, threadsMax, QueueCount(), __LINE__, __FUNCTION__, __FILE__);
 
         for (size_t i = 0; i < threadsMax; ++i)
         {
@@ -109,7 +109,7 @@ namespace Tools
             }
         }
 
-        printf("%s|%s|%s|_stop=%d|SizeMax=%d|QueueCount=%d|~ThreadPool|%d|%s|\r\n", TimeHelper::GetHHmmssffffff(), QueueCount() > 0 ? LogLevel::Warn : LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, _stop, GetSizeMax(), QueueCount(), __LINE__, __FILE__);
+        printf("%s|%s|%s|_stop=%d|SizeMax=%d|QueueCount=%d|%d|%s|%s|\r\n", TimeHelper::GetHHmmssffffff(), QueueCount() > 0 ? LogLevel::Warn : LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, _stop, GetSizeMax(), QueueCount(), __LINE__, __FUNCTION__, __FILE__);
     }
 
     // add new work item to the pool
