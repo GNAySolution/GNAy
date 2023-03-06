@@ -45,7 +45,7 @@ namespace Tools
             {
                 if(!_onlyForInside && _body != NULL)
                 {
-                    printf("%s|%s|%s|len=%d|msg=%s|~ArrayWithLength|%d|%s|\r\n", TimeHelper::GetHHmmssffffff(), LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, _len, _body, __LINE__, __FILE__);
+                    printf("%s|%s|%s|len=%d|msg=%s|%d|%s|%s|\r\n", TimeHelper::GetHHmmssffffff(), LogLevel::Trace, ThreadHelper::ThreadID.ValueStr, _len, _body, __LINE__, __FUNCTION__, __FILE__);
 
                     _len = 0;
                     delete [] _body;
