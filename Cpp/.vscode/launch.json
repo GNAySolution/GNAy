@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/UnitTest001.exe",
-            "args": ["ThreadPoolSizeMax=4", "ASCIINumberMathCalculate1=-1111111111111111111111111-9999999999999999999999999"],
+            "args": ["ThreadPoolSizeMax=4", "ASCIINumberMathCalculate1=-1111111111111111111111111+9999999999999999999999999"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
