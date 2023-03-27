@@ -7,33 +7,18 @@
 
 #pragma pack(1)
 
-template<unsigned int Len>
-constexpr const char *GetFileName(const char (&fullPath)[Len], unsigned int pos)
-{
-    return pos == 0 ? fullPath : (fullPath[pos] == '/' || fullPath[pos] == '\\') ? fullPath + pos + 1 : GetFileName(fullPath, pos - 1);
-}
+#define STR(N) #N
+#define XSTR(N) STR(N)
 
-template<unsigned int Len>
-constexpr const char *GetFileName(const char (&fullPath)[Len])
-{
-    return GetFileName(fullPath, Len - 1);
-}
-
-thread_local char LogPosBuf[512];
-
-#define _LOG_POS_ \
-    [] (const int& ln, const char *fn, const char *fi) \
-    { \
-        snprintf(LogPosBuf, sizeof(LogPosBuf), "%d|%s|%s", ln, fn, fi); \
-        return LogPosBuf; \
-    } (__LINE__, __FUNCTION__, GetFileName(__FILE__))
+#define _LINE_STR_ XSTR(__LINE__)
+#define _LOG_POS_ _LINE_STR_ "|" __FILE__
 
 namespace Tools
 {
     class IL01FileLogger
     {
         public:
-            static constexpr int BufSizeMax = sizeof(LogPosBuf) * 2;
+            static constexpr int BufSizeMax = 1024;
             static constexpr int QueueCntMax = 128;
 
             static thread_local int MsgLen;
