@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNAy.Capital.Models", "GNAy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNAy.Tools.WPF", "..\GNAy.Tools.WPF\GNAy.Tools.WPF\GNAy.Tools.WPF.csproj", "{6C257EA3-11D7-4920-A424-636CC3FD7DDC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNAy.Tools.NET47", "..\GNAy.Tools.WPF\GNAy.Tools.NET47\GNAy.Tools.NET47.csproj", "{97C48BE4-5385-4BA0-9FFE-631BA9FD7404}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNAy.Tools.NET48", "..\GNAy.Tools.WPF\GNAy.Tools.NET48\GNAy.Tools.NET48.csproj", "{97C48BE4-5385-4BA0-9FFE-631BA9FD7404}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

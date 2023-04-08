@@ -8,12 +8,13 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>GNAy.Capital.Trade</RootNamespace>
     <AssemblyName>GNAy.Capital.Trade</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -129,9 +130,9 @@
     <Folder Include="docs\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\GNAy.Tools.WPF\GNAy.Tools.NET47\GNAy.Tools.NET47.csproj">
+    <ProjectReference Include="..\..\GNAy.Tools.WPF\GNAy.Tools.NET48\GNAy.Tools.NET48.csproj">
       <Project>{97c48be4-5385-4ba0-9ffe-631ba9fd7404}</Project>
-      <Name>GNAy.Tools.NET47</Name>
+      <Name>GNAy.Tools.NET48</Name>
     </ProjectReference>
     <ProjectReference Include="..\GNAy.Capital.Models\GNAy.Capital.Models.csproj">
       <Project>{e2c349ea-3a5b-411f-8990-3f4d0b26535f}</Project>

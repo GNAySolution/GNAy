@@ -8,12 +8,13 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>GNAy.Tools.WPF</RootNamespace>
     <AssemblyName>GNAy.Tools.WPF</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -102,9 +103,9 @@
     <Folder Include="src\Controllers\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GNAy.Tools.NET47\GNAy.Tools.NET47.csproj">
-      <Project>{97C48BE4-5385-4BA0-9FFE-631BA9FD7404}</Project>
-      <Name>GNAy.Tools.NET47</Name>
+    <ProjectReference Include="..\GNAy.Tools.NET48\GNAy.Tools.NET48.csproj">
+      <Project>{97c48be4-5385-4ba0-9ffe-631ba9fd7404}</Project>
+      <Name>GNAy.Tools.NET48</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

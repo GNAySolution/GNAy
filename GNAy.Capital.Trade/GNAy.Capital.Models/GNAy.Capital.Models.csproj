@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GNAy.Capital.Models</RootNamespace>
     <AssemblyName>GNAy.Capital.Models</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -70,9 +71,9 @@
     <Folder Include="docs\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\GNAy.Tools.WPF\GNAy.Tools.NET47\GNAy.Tools.NET47.csproj">
+    <ProjectReference Include="..\..\GNAy.Tools.WPF\GNAy.Tools.NET48\GNAy.Tools.NET48.csproj">
       <Project>{97c48be4-5385-4ba0-9ffe-631ba9fd7404}</Project>
-      <Name>GNAy.Tools.NET47</Name>
+      <Name>GNAy.Tools.NET48</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
