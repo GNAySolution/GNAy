@@ -8,26 +8,6 @@
 
 namespace Tools
 {
-    template<char... Args>
-    struct MetaString
-    {
-        int ArraySize = (sizeof... (Args));
-        int Length = (sizeof... (Args)) - 1;
-        const char Data[sizeof... (Args)] = {Args...};
-    };
-
-    template<typename T>
-    struct ItemReturn
-    {
-        using type = T&&;
-    };
-
-    template<typename T>
-    const typename ItemReturn<T>::type Convert(T&& arg)
-    {
-        return static_cast<T&&>(arg);
-    }
-
     constexpr size_t StrLength(const char *str)
     {
         return *str ? 1 + StrLength(str + 1) : 0;
@@ -38,7 +18,7 @@ namespace Tools
         return *str == 0 ? -1 : *str != target ? 1 + GetTargetPos(str + 1, target) : 0;
     }
 
-    constexpr long long Absolute(long long x)
+    constexpr long long Absolute(const long long x)
     {
         return x < 0 ? -x : x;
     }
@@ -86,6 +66,28 @@ namespace Tools
             };
     };
 
+    template<unsigned int Len>
+    constexpr const char *GetFileName(const char (&fullPath)[Len], const unsigned int pos)
+    {
+        return pos <= 0 ? fullPath : (fullPath[pos] == '/' || fullPath[pos] == '\\') ? fullPath + pos + 1 : GetFileName(fullPath, pos - 1);
+    }
+
+    template<unsigned int Len>
+    constexpr const char *GetFileName(const char (&fullPath)[Len])
+    {
+        return GetFileName(fullPath, Len - 1);
+    }
+
+    #define _FILE_NAME_ GetFileName(__FILE__)
+
+    template<char... Args>
+    struct MetaString
+    {
+        int DataSize = (sizeof... (Args));
+        // int DataLength = (sizeof... (Args)) - 1;
+        const char Data[sizeof... (Args)] = {Args...};
+    };
+
     template<int Width, long long N, char... Args>
     struct ASCIINumericBuilder
     {
@@ -113,14 +115,9 @@ namespace Tools
             static constexpr t metaStr {};
 
         public:
-            static constexpr int GetArraySize()
+            static constexpr int GetDataSize()
             {
-                return metaStr.ArraySize;
-            }
-
-            static constexpr int GetLength()
-            {
-                return metaStr.Length;
+                return metaStr.DataSize;
             }
 
             static constexpr const char *GetValue()
@@ -131,6 +128,20 @@ namespace Tools
 
     template<long long N>
     constexpr typename ASCIINumeric<N>::t ASCIINumeric<N>::metaStr;
+
+    template<unsigned int Len>
+    constexpr long long HashString(const char (&fullPath)[Len], const unsigned int pos)
+    {
+        return pos <= 0 ? fullPath[pos] * 3 + (__LINE__ % 3 ? 2 : 3) : fullPath[pos] * (pos % 3 ? 2 : 3) + HashString(fullPath, pos - 1);
+    }
+
+    template<unsigned int Len>
+    constexpr long long HashString(const char (&fullPath)[Len])
+    {
+        return HashString(fullPath, Len - 1);
+    }
+
+    #define _LOG_POS_ ASCIINumeric<HashString(__FILE__) * 1000000 + __LINE__>::GetValue()
 
     template<int Width, unsigned int N, char... Args>
     struct ASCIINumericFormatter
@@ -162,22 +173,36 @@ namespace Tools
     template<size_t N>
     constexpr typename ASCIINumericConverter<N>::t ASCIINumericConverter<N>::metaStr;
 
+    template<typename T>
+    struct ItemReturn
+    {
+        using type = T&&;
+    };
+
+    template<typename T>
+    const typename ItemReturn<T>::type Convert(T&& arg)
+    {
+        return static_cast<T&&>(arg);
+    }
+
     template <typename T, unsigned int N>
     struct ArrayRecord
     {
-        static constexpr int Size = N;
+        static constexpr int DataSize = N;
 
         T Data[N];
     };
 
     template <unsigned int N>
-    struct CharArrayRecord : ArrayRecord<char, N>
+    struct CharArrayRecord: ArrayRecord<char, N>
     {
         static constexpr const char *ASCIINumericFormat = ASCIINumericConverter<N>::GetFormat();
-        static constexpr int Length = N - 1;
 
         char Data[N] = {0};
     };
+
+    template <unsigned int N>
+    constexpr const char *CharArrayRecord<N>::ASCIINumericFormat;
 
     struct BoolWithStr
     {
