@@ -1,5 +1,5 @@
 ﻿using GNAy.Capital.Models;
-using GNAy.Tools.NET47;
+using GNAy.Tools.NET48;
 using GNAy.Tools.WPF;
 using System;
 using System.Collections.Concurrent;

@@ -1,4 +1,4 @@
-﻿using GNAy.Tools.NET47;
+﻿using GNAy.Tools.NET48;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

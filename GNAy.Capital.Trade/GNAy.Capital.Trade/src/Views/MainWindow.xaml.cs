@@ -1,6 +1,6 @@
 ﻿using GNAy.Capital.Models;
 using GNAy.Capital.Trade.Controllers;
-using GNAy.Tools.NET47;
+using GNAy.Tools.NET48;
 using GNAy.Tools.WPF;
 using NLog;
 using System;

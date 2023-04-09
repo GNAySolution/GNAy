@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GNAy.Tools.NET47
+namespace GNAy.Tools.NET48
 {
     public class Separator
     {

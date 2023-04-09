@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GNAy.Tools.NET47.Models
+namespace GNAy.Tools.NET48.Models
 {
     [Serializable]
     public class NotifyPropertyChanged : INotifyPropertyChanged
