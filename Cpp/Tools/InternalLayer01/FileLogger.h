@@ -7,19 +7,19 @@
 
 #pragma pack(1)
 
-#define STR(N) #N
-#define XSTR(N) STR(N)
-
-#define _LINE_STR_ XSTR(__LINE__)
-#define _LOG_POS_ _LINE_STR_ "|" __FILE__
-
 namespace Tools
 {
+    #define STR(N) #N
+    #define XSTR(N) STR(N)
+
+    #define _LINE_STR_ XSTR(__LINE__)
+    // #define _LOG_POS_ _LINE_STR_ "|" __FILE__
+
     class IL01FileLogger
     {
         public:
             static constexpr int BufSizeMax = 1024;
-            static constexpr int QueueCntMax = 128;
+            static constexpr int QueueCntMax = 64 * 2 * 2;
 
             static thread_local int MsgLen;
 
