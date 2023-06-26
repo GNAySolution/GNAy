@@ -13,12 +13,12 @@ namespace Tools
         return *str ? 1 + StrLength(str + 1) : 0;
     }
 
-    constexpr unsigned int GetTargetPos(const char *str, const char target)
+    constexpr unsigned int GetTargetPos(const char *str, const char& target)
     {
         return *str == 0 ? -1 : *str != target ? 1 + GetTargetPos(str + 1, target) : 0;
     }
 
-    constexpr long long Absolute(const long long x)
+    constexpr long long Absolute(const long long& x)
     {
         return x < 0 ? -x : x;
     }
@@ -66,16 +66,14 @@ namespace Tools
             };
     };
 
-    template<unsigned int Len>
-    constexpr const char *GetFileName(const char (&fullPath)[Len], const unsigned int pos)
+    constexpr const char *GetFileName(const char *fullPath, const unsigned int& pos)
     {
         return pos <= 0 ? fullPath : (fullPath[pos] == '/' || fullPath[pos] == '\\') ? fullPath + pos + 1 : GetFileName(fullPath, pos - 1);
     }
 
-    template<unsigned int Len>
-    constexpr const char *GetFileName(const char (&fullPath)[Len])
+    constexpr const char *GetFileName(const char *fullPath)
     {
-        return GetFileName(fullPath, Len - 1);
+        return GetFileName(fullPath, StrLength(fullPath) - 1);
     }
 
     #define _FILE_NAME_ GetFileName(__FILE__)
@@ -129,19 +127,17 @@ namespace Tools
     template<long long N>
     constexpr typename ASCIINumeric<N>::t ASCIINumeric<N>::metaStr;
 
-    template<unsigned int Len>
-    constexpr long long HashString(const char (&fullPath)[Len], const unsigned int pos)
+    constexpr long long Hash2Long(const char *str, const unsigned int& pos)
     {
-        return pos <= 0 ? fullPath[pos] * 3 + (__LINE__ % 3 ? 2 : 3) : fullPath[pos] * (pos % 3 ? 2 : 3) + HashString(fullPath, pos - 1);
+        return pos <= 0 ? ((str[pos] + StrLength(str)) % __LINE__ % 2 ? 12345 : 54321) : str[pos] / 2 * (pos + 1) + Hash2Long(str, pos - 1);
     }
 
-    template<unsigned int Len>
-    constexpr long long HashString(const char (&fullPath)[Len])
+    constexpr long long Hash2Long(const char *str)
     {
-        return HashString(fullPath, Len - 1);
+        return Hash2Long(str, StrLength(str) - 1);
     }
 
-    #define _LOG_POS_ ASCIINumeric<HashString(__FILE__) * 1000000 + __LINE__>::GetValue()
+    #define _LOG_POS_ ASCIINumeric<Hash2Long(__FILE__) * 1000000 + __LINE__>::GetValue()
 
     template<int Width, unsigned int N, char... Args>
     struct ASCIINumericFormatter
@@ -172,18 +168,6 @@ namespace Tools
 
     template<size_t N>
     constexpr typename ASCIINumericConverter<N>::t ASCIINumericConverter<N>::metaStr;
-
-    template<typename T>
-    struct ItemReturn
-    {
-        using type = T&&;
-    };
-
-    template<typename T>
-    const typename ItemReturn<T>::type Convert(T&& arg)
-    {
-        return static_cast<T&&>(arg);
-    }
 
     template <typename T, unsigned int N>
     struct ArrayRecord
@@ -263,29 +247,6 @@ namespace Tools
             ValueStrLen = sprintf(ValueStr, format, value);
         }
     };
-
-    class LogLevel
-    {
-        public:
-            enum Enum
-            {
-                Trace = 0,
-                Debug = 1,
-                Info = 2,
-                Warn = 3,
-                Error = 4,
-            };
-
-            static constexpr const char *TraceStr = "TRACE";
-            static constexpr const char *DebugStr = "DEBUG";
-            static constexpr const char *InfoStr = "INFO";
-            static constexpr const char *WarnStr = "WARN";
-            static constexpr const char *ErrorStr = "ERROR";
-
-            static constexpr const char *EnumStr[Error + 1] = {TraceStr, DebugStr, InfoStr, WarnStr, ErrorStr};
-    };
-
-    constexpr const char *LogLevel::EnumStr[];
 }
 
 #pragma pack()
