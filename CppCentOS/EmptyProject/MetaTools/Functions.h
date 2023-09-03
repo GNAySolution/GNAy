@@ -13,6 +13,15 @@ class Functions
         return *str ? 1 + GetLength(str + 1) : 0;
     }
 
+    #if __GNUC__ < 5
+    public:
+    template<int Len>
+    static constexpr int GetLength(const char (&str)[Len], const unsigned int& pos)
+    {
+        return str[pos] ? 1 + GetLength(str, pos + 1) : 0;
+    }
+    #endif
+
     protected:
     static constexpr const char *GetFileName(const char *fullPath, const int& pos)
     {
