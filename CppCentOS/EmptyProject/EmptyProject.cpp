@@ -45,7 +45,11 @@ int main(const int argc, const char *argv[])
     STFunc::Print2Hexdecimal(sizeof(inputBuf1), inputBuf1, ' ');
     printf("\n\n");
 
-    const bool iB1FmtLen3 = MetaFunc::GetLength(iB1Fmt) == 3;
+    #if __GNUC__ >= 5
+    constexpr bool iB1FmtLen3 = MetaFunc::GetLength(iB1Fmt) == 3;
+    #else
+    constexpr bool iB1FmtLen3 = MetaFunc::GetLength(iB1Fmt, 0) == 3;
+    #endif
     printf("iB1Fmt=%s|%d|%d|%d|\n\n", iB1Fmt, iB1FmtLen3, strlen(iB1Fmt), MetaFunc::GetLength(iB1Fmt));
 
     printf("Press any key to continue.\n");
