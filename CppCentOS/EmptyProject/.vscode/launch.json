@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": ["StartedFrom=Schedule", "ConfigPath=config.ini"],
+            "args": ["StartedFrom=Schedule", "ConfigPath=config.ini", "  startedFrom  =  Schedule  ", "  config Path  =  config.ini  "],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
