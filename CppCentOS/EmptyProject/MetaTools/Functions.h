@@ -7,20 +7,23 @@ namespace MetaTools
 {
 class Functions
 {
+    protected:
+    static constexpr int IndexOf(const char *str, const char& value, const int& pos)
+    {
+        return str[pos] == value ? pos : !str[pos] ? -1 : IndexOf(str, value, pos + 1);
+    }
+
+    public:
+    static constexpr int IndexOf(const char *str, const char& value)
+    {
+        return IndexOf(str, value, 0);
+    }
+
     public:
     static constexpr int GetLength(const char *str)
     {
         return *str ? 1 + GetLength(str + 1) : 0;
     }
-
-    #if __GNUC__ < 5
-    public:
-    template<int Len>
-    static constexpr int GetLength(const char (&str)[Len], const unsigned int& pos)
-    {
-        return str[pos] ? 1 + GetLength(str, pos + 1) : 0;
-    }
-    #endif
 
     protected:
     static constexpr const char *GetFileName(const char *fullPath, const int& pos)
