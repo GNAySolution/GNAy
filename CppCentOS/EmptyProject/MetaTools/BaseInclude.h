@@ -10,6 +10,10 @@
 #include <thread>
 #include <unistd.h>
 
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
+
 // #pragma pack(1)
 
 // namespace MetaTools
