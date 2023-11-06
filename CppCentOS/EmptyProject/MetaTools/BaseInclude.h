@@ -6,9 +6,13 @@
 #include <cstdlib>
 #include <cstring>
 #include <functional>
+#include <future>
+#include <queue>
+#include <sstream>
 #include <sys/time.h>
 #include <thread>
 #include <unistd.h>
+#include <vector>
 
 #ifdef _WIN32
 #include <winsock2.h>
