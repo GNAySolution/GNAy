@@ -71,16 +71,80 @@ class Functions
     }
 };
 
+    #define _FILE_NAME_ Functions::GetFileName(__FILE__)
+
 class MetaFunc: public Functions
 {
-    public:
-    static constexpr const char *FilePath = __FILE__;
-
-    public:
-    static constexpr const char *FileName = GetFileName(__FILE__);
 };
 
-    #define _FILE_NAME_ MetaFunc::GetFileName(__FILE__)
+template<typename FileInfo>
+class FilePathInfo
+{
+    public:
+    static constexpr const char (&FLine)[sizeof(FileInfo::FLine)] = FileInfo::FLine;
+    // static constexpr unsigned int FPathArrSize = sizeof(FileInfo::FPath);
+    static constexpr unsigned int FPathLength = sizeof(FileInfo::FPath) - 1;
+    static constexpr const char (&FPath)[sizeof(FileInfo::FPath)] = FileInfo::FPath;
+
+    public:
+    static constexpr int LastIndexOfPathSeparator = MetaFunc::LastIndexOfPathSeparator(FPath);
+
+    protected:
+    template<unsigned int Idx, char... Args>
+    struct DirectoryPathBuilder
+    {
+        typedef typename DirectoryPathBuilder<Idx - 1, FPath[Idx], Args...>::Type Type;
+    };
+
+    protected:
+    template<char... Args>
+    struct DirectoryPathBuilder<0, Args...>
+    {
+        typedef ConstCharArray<FPath[0], Args...> Type;
+    };
+
+    protected:
+    typedef typename DirectoryPathBuilder<LastIndexOfPathSeparator - 1, '\0'>::Type dpT;
+
+    protected:
+    static constexpr dpT _dpStr {};
+
+    public:
+    static constexpr int DirectoryPathArrSize = _dpStr.ArrSize <= sizeof(FileInfo::FPath) ? _dpStr.ArrSize : throw std::logic_error("");
+    static constexpr int DirectoryPathLength = (_dpStr.Length > 0 && _dpStr.Length + 1 == _dpStr.ArrSize) ? _dpStr.Length : throw std::logic_error("");
+    static constexpr const char (&DirectoryPath)[_dpStr.ArrSize] = _dpStr.Data;
+
+    protected:
+    template<unsigned int Offset, char... Args>
+    struct FileNameBuilder
+    {
+        typedef typename FileNameBuilder<Offset - 1, FPath[LastIndexOfPathSeparator + 1 + Offset], Args...>::Type Type;
+    };
+
+    protected:
+    template<char... Args>
+    struct FileNameBuilder<0, Args...>
+    {
+        typedef ConstCharArray<FPath[LastIndexOfPathSeparator + 1], Args...> Type;
+    };
+
+    protected:
+    typedef typename FileNameBuilder<FPathLength - LastIndexOfPathSeparator - 1 - 1, '\0'>::Type fnT;
+
+    protected:
+    static constexpr fnT _fnStr {};
+
+    public:
+    static constexpr int FileNameArrSize = _fnStr.ArrSize <= sizeof(FileInfo::FPath) ? _fnStr.ArrSize : throw std::logic_error("");
+    static constexpr int FileNameLength = (_fnStr.Length > 0 && _fnStr.Length + 1 == _fnStr.ArrSize) ? _fnStr.Length : throw std::logic_error("");
+    static constexpr const char (&FileName)[_fnStr.ArrSize] = _fnStr.Data;
+};
+
+    template<typename FileInfo>
+    constexpr typename FilePathInfo<FileInfo>::dpT FilePathInfo<FileInfo>::_dpStr;
+
+    template<typename FileInfo>
+    constexpr typename FilePathInfo<FileInfo>::fnT FilePathInfo<FileInfo>::_fnStr;
 
 template<long long N>
 class ASCIINumeric
@@ -99,36 +163,36 @@ class ASCIINumeric
     template<long long X, char... Args>
     struct ASCIINumericBuilder<2, X, Args...>
     {
-        typedef TString<X < 0 ? '-' : X / 10 + '0', MetaFunc::Absolute(X) % 10 + '0', Args...> Type;
+        typedef ConstCharArray<X < 0 ? '-' : X / 10 + '0', MetaFunc::Absolute(X) % 10 + '0', Args...> Type;
     };
 
     protected:
     template<long long X, char... Args>
     struct ASCIINumericBuilder<1, X, Args...>
     {
-        typedef TString<X + '0', Args...> Type;
+        typedef ConstCharArray<X + '0', Args...> Type;
     };
 
     protected:
-    typedef typename ASCIINumericBuilder<TNumericWidth<N>::StrLength, N, '\0'>::Type t;
+    typedef typename ASCIINumericBuilder<NumericWidth<N>::StrLength, N, '\0'>::Type t;
 
     protected:
     static constexpr t _str {};
 
     public:
-    static constexpr int ArraySize = _str.Size;
-    static constexpr int DataStrLength = _str.Length;
-    static constexpr const char *Data = _str.Data;
+    static constexpr int DataArrSize = _str.ArrSize > 1 ? _str.ArrSize : throw std::logic_error("");
+    static constexpr int DataStrLength = (_str.Length > 0 && _str.Length + 1 == _str.ArrSize) ? _str.Length : throw std::logic_error("");
+    static constexpr const char (&Data)[_str.ArrSize] = _str.Data;
 };
 
     template<long long N>
     constexpr typename ASCIINumeric<N>::t ASCIINumeric<N>::_str;
 
-template<size_t Size>
+template<size_t ArrSize>
 class ASCIINumericConverter
 {
     public:
-    static constexpr size_t RawValue = Size;
+    static constexpr size_t RawValue = ArrSize;
 
     protected:
     template<int Width, size_t N, char... Args>
@@ -141,27 +205,31 @@ class ASCIINumericConverter
     template<size_t N, char... Args>
     struct ASCIINumericFormatter<1, N, Args...>
     {
-        typedef TString<'%', N + '0', Args...> Type;
+        typedef ConstCharArray<'%', N + '0', Args...> Type;
     };
 
     protected:
-    typedef typename ASCIINumericFormatter<TNumericWidth<(int)(Size - 1)>::StrLength, Size - 1, 's', '\0'>::Type t;
+    typedef typename ASCIINumericFormatter<NumericWidth<(int)(ArrSize - 1)>::StrLength, ArrSize - 1, 's', '\0'>::Type t;
 
     protected:
     static constexpr t _str {};
 
     public:
-    static constexpr int ArraySize = _str.Size;
-    static constexpr int FmtStrLength = _str.Length;
-    static constexpr const char *Format = _str.Data;
+    static constexpr int FmtArrSize = _str.ArrSize > 2 ? _str.ArrSize : throw std::logic_error("");
+    static constexpr int FmtStrLength = (_str.Length > 0 && _str.Length + 1 == _str.ArrSize) ? _str.Length : throw std::logic_error("");
+    static constexpr const char (&Format)[_str.ArrSize] = _str.Data;
 };
 
-    template<size_t Size>
-    constexpr typename ASCIINumericConverter<Size>::t ASCIINumericConverter<Size>::_str;
+    template<size_t ArrSize>
+    constexpr typename ASCIINumericConverter<ArrSize>::t ASCIINumericConverter<ArrSize>::_str;
 
 template<unsigned int N>
 class HexdecimalCharArray
 {
+    protected:
+    static constexpr int _cArrSize = 11;
+    static constexpr int _strLen = _cArrSize - 1;
+
     public:
     static constexpr unsigned int RawValue = N;
 
@@ -176,7 +244,7 @@ class HexdecimalCharArray
     template<unsigned int X, char... Args>
     struct HexCArrayBuilder<0, X, Args...>
     {
-        typedef TString<'0', 'x', HexdecimalCharacters[X], Args...> Type;
+        typedef ConstCharArray<'0', 'x', HexdecimalCharacters[X], Args...> Type;
     };
 
     protected:
@@ -186,9 +254,9 @@ class HexdecimalCharArray
     static constexpr t _str {};
 
     public:
-    static constexpr int ArraySize = _str.Size;
-    static constexpr int DataStrLength = _str.Length;
-    static constexpr const char *Data = _str.Data;
+    static constexpr int DataArrSize = _str.ArrSize == _cArrSize ? _str.ArrSize : throw std::logic_error("");
+    static constexpr int DataStrLength = (_str.Length > 0 && _str.Length + 1 == _str.ArrSize) ? _str.Length : throw std::logic_error("");
+    static constexpr const char (&Data)[_str.ArrSize] = _str.Data;
 };
 
     template<unsigned int N>
@@ -245,19 +313,19 @@ class CRC32Generator
     };
 
     protected:
-    template<int Size, int Idx = 0, class Dummy = void>
+    template<int N, int Idx = 0, class Dummy = void>
     struct MM
     {
         static constexpr unsigned int CRC32(const char *str, const unsigned int prev_crc = 0xFFFFFFFF)
         {
-            return MM<Size, Idx + 1>::CRC32(str, (prev_crc >> 8) ^ BaseTable[(prev_crc ^ str[Idx]) & 0xFF]);
+            return MM<N, Idx + 1>::CRC32(str, (prev_crc >> 8) ^ BaseTable[(prev_crc ^ str[Idx]) & 0xFF]);
         }
     };
 
     // This is the stop-recursion function
     protected:
-    template<int Size, class Dummy>
-    struct MM<Size, Size, Dummy>
+    template<int N, class Dummy>
+    struct MM<N, N, Dummy>
     {
         static constexpr unsigned int CRC32(const char *str, const unsigned int prev_crc = 0xFFFFFFFF)
         {
@@ -266,10 +334,10 @@ class CRC32Generator
     };
 
     public:
-    template<unsigned int Len>
-    static constexpr unsigned int ToInt(const char (&str)[Len])
+    template<unsigned int N>
+    static constexpr unsigned int ToInt(const char (&str)[N])
     {
-        return MM<Len - 1>::CRC32(str);
+        return MM<N - 1>::CRC32(str);
     }
 };
 
