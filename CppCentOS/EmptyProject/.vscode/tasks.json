@@ -9,7 +9,7 @@
                 "-std=c++11",
                 "-pthread",
                 "-funsigned-char",
-                "-D TEST_VERSION",
+                "-D RUN_TEST",
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
