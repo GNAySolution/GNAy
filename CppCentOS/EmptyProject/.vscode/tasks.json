@@ -10,6 +10,7 @@
                 "-pthread",
                 "-funsigned-char",
                 "-D RUN_TEST",
+                "-D TEST_VALUE_01=123",
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
