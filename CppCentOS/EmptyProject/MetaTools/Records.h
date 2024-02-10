@@ -1,13 +1,18 @@
-#ifndef _META_TOOLS_RECORDS_H
-#define _META_TOOLS_RECORDS_H
+#ifndef GNAY_META_TOOLS_RECORDS_H_
+#define GNAY_META_TOOLS_RECORDS_H_
 
-#include "BaseInclude.h"
 #include "CompileArgs.h"
 
 #pragma pack(1)
 
 namespace MetaTools
 {
+    #define UNUSED(x) (void)(x)
+
+    #ifndef NAME_MAX
+    #define NAME_MAX 255
+    #endif
+
     #define STR(N) #N
     #define XSTR(N) STR(N)
 
@@ -26,21 +31,14 @@ class LogLevel
     };
 
     public:
-    static constexpr int EnumCnt = Error + 1 == 5 ? 5 : throw std::logic_error("");
-
-    protected:
-    #define _traceStr "TRACE"
-    #define _debugStr "DEBUG"
-    #define _infoStr "INFO"
-    #define _warnStr "WARN"
-    #define _errorStr "ERROR"
+    static constexpr int EnumCnt = Error + 1 == 5 ? 5 : throw std::invalid_argument("");
 
     public:
-    static constexpr const char (&TraceStr)[sizeof(_traceStr)] = _traceStr;
-    static constexpr const char (&DebugStr)[sizeof(_debugStr)] = _debugStr;
-    static constexpr const char (&InfoStr)[sizeof(_infoStr)] = _infoStr;
-    static constexpr const char (&WarnStr)[sizeof(_warnStr)] = _warnStr;
-    static constexpr const char (&ErrorStr)[sizeof(_errorStr)] = _errorStr;
+    static constexpr const char (&TraceStr)[sizeof("TRACE")] = "TRACE";
+    static constexpr const char (&DebugStr)[sizeof("DEBUG")] = "DEBUG";
+    static constexpr const char (&InfoStr)[sizeof("INFO")] = "INFO";
+    static constexpr const char (&WarnStr)[sizeof("WARN")] = "WARN";
+    static constexpr const char (&ErrorStr)[sizeof("ERROR")] = "ERROR";
 
     public:
     static constexpr const char *EnumStr[EnumCnt] = {TraceStr, DebugStr, InfoStr, WarnStr, ErrorStr}; //Error + 1
@@ -127,7 +125,7 @@ class NumericWidthMax
                                             _n123456789.StrLength == 9;
 
     protected:
-    static constexpr bool _chkUnitTest = _unitTestResult ? _unitTestResult : throw std::logic_error("");
+    static constexpr bool _chkUnitTest = _unitTestResult ? true : throw std::logic_error("");
 };
 
 template<typename T>
@@ -142,32 +140,32 @@ struct TNumericStrRecord
     TNumericStrRecord(const T& value, const char *format = "%lld")
     {
         Value = value;
-        ValueStrLen = sprintf(ValueStr, format, value);
+        ValueStrLen = snprintf(ValueStr, sizeof(ValueStr), format, value);
     }
 };
 
 struct BoolStrRecord: TNumericStrRecord<bool>
 {
     BoolStrRecord() {}
-    BoolStrRecord(const bool& value, const char *format = "%lld"): TNumericStrRecord<bool>(value, format) {}
+    BoolStrRecord(const bool& value, const char *format = "%d"): TNumericStrRecord<bool>(value, format) {}
 };
 
 struct ByteStrRecord: TNumericStrRecord<unsigned char>
 {
     ByteStrRecord() {}
-    ByteStrRecord(const unsigned char& value, const char *format = "%lld"): TNumericStrRecord<unsigned char>(value, format) {}
+    ByteStrRecord(const unsigned char& value, const char *format = "%c"): TNumericStrRecord<unsigned char>(value, format) {}
 };
 
 struct ShortStrRecord: TNumericStrRecord<short>
 {
     ShortStrRecord() {}
-    ShortStrRecord(const short& value, const char *format = "%lld"): TNumericStrRecord<short>(value, format) {}
+    ShortStrRecord(const short& value, const char *format = "%h"): TNumericStrRecord<short>(value, format) {}
 };
 
 struct IntStrRecord: TNumericStrRecord<int>
 {
     IntStrRecord() {}
-    IntStrRecord(const int& value, const char *format = "%lld"): TNumericStrRecord<int>(value, format) {}
+    IntStrRecord(const int& value, const char *format = "%d"): TNumericStrRecord<int>(value, format) {}
 };
 
 struct LongStrRecord: TNumericStrRecord<long long>
@@ -182,12 +180,35 @@ struct TArray
     static constexpr int ArrSize = N;
 
     T Data[N] = {0};
+
+    virtual T *Reset(const int& value = 0)
+    {
+        return (T *)memset(Data, value, N);
+    }
 };
+
+template<typename T, unsigned int N>
+constexpr int TArray<T, N>::ArrSize;
 
 template<unsigned int N>
 struct CharArray: TArray<char, N>
 {
     int Length = -1;
+
+    virtual char *Reset(const int& value = 0) override
+    {
+        Length = -1;
+
+        return (char *)memset(this->Data, value, N);
+    }
+};
+
+struct FPathArr: CharArray<PATH_MAX>
+{
+};
+
+struct FNameArr: CharArray<NAME_MAX>
+{
 };
 
 struct HostNameArr: CharArray<128>
@@ -203,7 +224,7 @@ struct LogRecord
     unsigned int LogSeq = 0;
 
     int MsgLength = -1;
-    static constexpr int MsgArrSize = LogBufSize - sizeof("HH:mm:ss.ffffff") * 2 - sizeof(LogLevel::Enum) - sizeof(struct LongStrRecord) - sizeof(struct IntStrRecord) - sizeof(unsigned int) - sizeof(int);
+    static constexpr int MsgArrSize = CA::LogBufSize - sizeof("HH:mm:ss.ffffff") * 2 - sizeof(LogLevel::Enum) - sizeof(struct LongStrRecord) - sizeof(struct IntStrRecord) - sizeof(unsigned int) - sizeof(int);
     char Msg[MsgArrSize] = {0};
 };
 
@@ -222,6 +243,8 @@ struct ConstCharArray: ConstTArray<char, Args...>
 
     constexpr char UpperCase[26] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
     constexpr char LowerCase[26] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+    constexpr char LowerUpperDistance = 'a' - 'A';
+
     constexpr char HexdecimalCharacters[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 }
 
