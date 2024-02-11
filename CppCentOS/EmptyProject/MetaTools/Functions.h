@@ -1,5 +1,5 @@
-#ifndef _META_TOOLS_FUNCTIONS_H
-#define _META_TOOLS_FUNCTIONS_H
+#ifndef GNAY_META_TOOLS_FUNCTIONS_H_
+#define GNAY_META_TOOLS_FUNCTIONS_H_
 
 #include "Records.h"
 
@@ -16,9 +16,15 @@ class Functions
     }
 
     public:
-    static constexpr bool StrEqual(char const *a, char const *b)
+    static constexpr bool StrEqual(const char *a, const char *b)
     {
         return *a == *b && (*a == '\0' || StrEqual(a + 1, b + 1));
+    }
+
+    public:
+    static constexpr bool StrEqual(const char *a, const char *b, const char *c)
+    {
+        return StrEqual(a, b) && StrEqual(b, c);
     }
 
     public:
@@ -69,82 +75,96 @@ class Functions
         return GetFileName(fullPath, StrLength(fullPath) - 1);
         // return LastIndexOfPathSeparator(fullPath) < 0 ? fullPath : fullPath + LastIndexOfPathSeparator(fullPath) + 1;
     }
-};
 
-    #define _FILE_NAME_ Functions::GetFileName(__FILE__)
+    public:
+    static constexpr char ASCII2Upper(const char& src)
+    {
+        return (src >= 'a' && src <= 'z') ? src - LowerUpperDistance : src;
+    }
+
+    public:
+    static constexpr char ASCII2Lower(const char& src)
+    {
+        return (src >= 'A' && src <= 'Z') ? src + LowerUpperDistance : src;
+    }
+};
 
 class MetaFunc: public Functions
 {
 };
 
-template<typename FileInfo>
-class FilePathInfo
-{
-    public:
-    static constexpr const char (&FLine)[sizeof(FileInfo::FLine)] = FileInfo::FLine;
-    // static constexpr unsigned int FPathArrSize = sizeof(FileInfo::FPath);
-    static constexpr unsigned int FPathLength = sizeof(FileInfo::FPath) - 1;
-    static constexpr const char (&FPath)[sizeof(FileInfo::FPath)] = FileInfo::FPath;
+    #ifndef __FILE_NAME__
+    #define __FILE_NAME__ MetaFunc::GetFileName(__FILE__)
+    #endif
 
-    public:
-    static constexpr int LastIndexOfPathSeparator = MetaFunc::LastIndexOfPathSeparator(FPath);
+// template<typename FileInfo>
+// class FilePathInfo
+// {
+//     public:
+//     static constexpr const char (&FLine)[sizeof(FileInfo::FLine)] = FileInfo::FLine;
+//     // static constexpr unsigned int FPathArrSize = sizeof(FileInfo::FPath);
+//     static constexpr unsigned int FPathLength = sizeof(FileInfo::FPath) - 1;
+//     static constexpr const char (&FPath)[sizeof(FileInfo::FPath)] = FileInfo::FPath;
 
-    protected:
-    template<unsigned int Idx, char... Args>
-    struct DirectoryPathBuilder
-    {
-        typedef typename DirectoryPathBuilder<Idx - 1, FPath[Idx], Args...>::Type Type;
-    };
+//     public:
+//     static constexpr int LastIndexOfPathSeparator = MetaFunc::LastIndexOfPathSeparator(FPath);
 
-    protected:
-    template<char... Args>
-    struct DirectoryPathBuilder<0, Args...>
-    {
-        typedef ConstCharArray<FPath[0], Args...> Type;
-    };
+//     protected:
+//     template<unsigned int Idx, char... Args>
+//     struct DirectoryPathBuilder
+//     {
+//         typedef typename DirectoryPathBuilder<Idx - 1, FPath[Idx], Args...>::Type Type;
+//     };
 
-    protected:
-    typedef typename DirectoryPathBuilder<LastIndexOfPathSeparator - 1, '\0'>::Type dpT;
+//     protected:
+//     template<char... Args>
+//     struct DirectoryPathBuilder<0, Args...>
+//     {
+//         typedef ConstCharArray<FPath[0], Args...> Type;
+//     };
 
-    protected:
-    static constexpr dpT _dpStr {};
+//     protected:
+//     typedef typename DirectoryPathBuilder<LastIndexOfPathSeparator - 1, '\0'>::Type dpT;
 
-    public:
-    static constexpr int DirectoryPathArrSize = _dpStr.ArrSize <= sizeof(FileInfo::FPath) ? _dpStr.ArrSize : throw std::logic_error("");
-    static constexpr int DirectoryPathLength = (_dpStr.Length > 0 && _dpStr.Length + 1 == _dpStr.ArrSize) ? _dpStr.Length : throw std::logic_error("");
-    static constexpr const char (&DirectoryPath)[_dpStr.ArrSize] = _dpStr.Data;
+//     protected:
+//     static constexpr dpT _dpStr {};
 
-    protected:
-    template<unsigned int Offset, char... Args>
-    struct FileNameBuilder
-    {
-        typedef typename FileNameBuilder<Offset - 1, FPath[LastIndexOfPathSeparator + 1 + Offset], Args...>::Type Type;
-    };
+//     public:
+//     static constexpr int DirectoryPathArrSize = _dpStr.ArrSize <= sizeof(FileInfo::FPath) ? _dpStr.ArrSize : throw std::logic_error("");
+//     static constexpr int DirectoryPathLength = (_dpStr.Length > 0 && _dpStr.Length + 1 == _dpStr.ArrSize) ? _dpStr.Length : throw std::logic_error("");
+//     static constexpr const char (&DirectoryPath)[_dpStr.ArrSize] = _dpStr.Data;
 
-    protected:
-    template<char... Args>
-    struct FileNameBuilder<0, Args...>
-    {
-        typedef ConstCharArray<FPath[LastIndexOfPathSeparator + 1], Args...> Type;
-    };
+//     protected:
+//     template<unsigned int Offset, char... Args>
+//     struct FileNameBuilder
+//     {
+//         typedef typename FileNameBuilder<Offset - 1, FPath[LastIndexOfPathSeparator + 1 + Offset], Args...>::Type Type;
+//     };
 
-    protected:
-    typedef typename FileNameBuilder<FPathLength - LastIndexOfPathSeparator - 1 - 1, '\0'>::Type fnT;
+//     protected:
+//     template<char... Args>
+//     struct FileNameBuilder<0, Args...>
+//     {
+//         typedef ConstCharArray<FPath[LastIndexOfPathSeparator + 1], Args...> Type;
+//     };
 
-    protected:
-    static constexpr fnT _fnStr {};
+//     protected:
+//     typedef typename FileNameBuilder<FPathLength - LastIndexOfPathSeparator - 1 - 1, '\0'>::Type fnT;
 
-    public:
-    static constexpr int FileNameArrSize = _fnStr.ArrSize <= sizeof(FileInfo::FPath) ? _fnStr.ArrSize : throw std::logic_error("");
-    static constexpr int FileNameLength = (_fnStr.Length > 0 && _fnStr.Length + 1 == _fnStr.ArrSize) ? _fnStr.Length : throw std::logic_error("");
-    static constexpr const char (&FileName)[_fnStr.ArrSize] = _fnStr.Data;
-};
+//     protected:
+//     static constexpr fnT _fnStr {};
 
-    template<typename FileInfo>
-    constexpr typename FilePathInfo<FileInfo>::dpT FilePathInfo<FileInfo>::_dpStr;
+//     public:
+//     static constexpr int FileNameArrSize = _fnStr.ArrSize <= sizeof(FileInfo::FPath) ? _fnStr.ArrSize : throw std::logic_error("");
+//     static constexpr int FileNameLength = (_fnStr.Length > 0 && _fnStr.Length + 1 == _fnStr.ArrSize) ? _fnStr.Length : throw std::logic_error("");
+//     static constexpr const char (&FileName)[_fnStr.ArrSize] = _fnStr.Data;
+// };
 
-    template<typename FileInfo>
-    constexpr typename FilePathInfo<FileInfo>::fnT FilePathInfo<FileInfo>::_fnStr;
+//     template<typename FileInfo>
+//     constexpr typename FilePathInfo<FileInfo>::dpT FilePathInfo<FileInfo>::_dpStr;
+
+//     template<typename FileInfo>
+//     constexpr typename FilePathInfo<FileInfo>::fnT FilePathInfo<FileInfo>::_fnStr;
 
 template<long long N>
 class ASCIINumeric
@@ -174,10 +194,10 @@ class ASCIINumeric
     };
 
     protected:
-    typedef typename ASCIINumericBuilder<NumericWidth<N>::StrLength, N, '\0'>::Type t;
+    typedef typename ASCIINumericBuilder<NumericWidth<N>::StrLength, N, '\0'>::Type _t;
 
     protected:
-    static constexpr t _str {};
+    static constexpr _t _str {};
 
     public:
     static constexpr int DataArrSize = _str.ArrSize > 1 ? _str.ArrSize : throw std::logic_error("");
@@ -186,33 +206,34 @@ class ASCIINumeric
 };
 
     template<long long N>
-    constexpr typename ASCIINumeric<N>::t ASCIINumeric<N>::_str;
+    constexpr typename ASCIINumeric<N>::_t ASCIINumeric<N>::_str;
 
 template<size_t ArrSize>
-class ASCIINumericConverter
+class StdinFormatGenerator
 {
     public:
     static constexpr size_t RawValue = ArrSize;
 
     protected:
     template<int Width, size_t N, char... Args>
-    struct ASCIINumericFormatter
+    struct StdinFormatter
     {
-        typedef typename ASCIINumericFormatter<Width - 1, N / 10, N % 10 + '0', Args...>::Type Type;
+        typedef typename StdinFormatter<Width - 1, N / 10, N % 10 + '0', Args...>::Type Type;
     };
 
     protected:
     template<size_t N, char... Args>
-    struct ASCIINumericFormatter<1, N, Args...>
+    struct StdinFormatter<1, N, Args...>
     {
         typedef ConstCharArray<'%', N + '0', Args...> Type;
     };
 
     protected:
-    typedef typename ASCIINumericFormatter<NumericWidth<(int)(ArrSize - 1)>::StrLength, ArrSize - 1, 's', '\0'>::Type t;
+    // typedef typename StdinFormatter<NumericWidth<(int)(ArrSize - 1)>::StrLength, ArrSize - 1, 's', '\0'>::Type t;
+    typedef typename StdinFormatter<NumericWidth<(int)(ArrSize - 1)>::StrLength, ArrSize - 1, '[', '^', '\n', ']', '\0'>::Type _t;
 
     protected:
-    static constexpr t _str {};
+    static constexpr _t _str {};
 
     public:
     static constexpr int FmtArrSize = _str.ArrSize > 2 ? _str.ArrSize : throw std::logic_error("");
@@ -221,7 +242,15 @@ class ASCIINumericConverter
 };
 
     template<size_t ArrSize>
-    constexpr typename ASCIINumericConverter<ArrSize>::t ASCIINumericConverter<ArrSize>::_str;
+    constexpr typename StdinFormatGenerator<ArrSize>::_t StdinFormatGenerator<ArrSize>::_str;
+
+template<unsigned int ArrSize>
+struct CharArrWithStdinFmt: CharArray<ArrSize>
+{
+    static constexpr int FmtArrSize = StdinFormatGenerator<ArrSize>::FmtArrSize;
+    static constexpr int FmtStrLength = StdinFormatGenerator<ArrSize>::FmtStrLength;
+    static constexpr const char (&Format)[StdinFormatGenerator<ArrSize>::FmtArrSize] = StdinFormatGenerator<ArrSize>::Format;
+};
 
 template<unsigned int N>
 class HexdecimalCharArray
@@ -248,10 +277,10 @@ class HexdecimalCharArray
     };
 
     protected:
-    typedef typename HexCArrayBuilder<8 - 1, N, '\0'>::Type t;
+    typedef typename HexCArrayBuilder<8 - 1, N, '\0'>::Type _t;
 
     protected:
-    static constexpr t _str {};
+    static constexpr _t _str {};
 
     public:
     static constexpr int DataArrSize = _str.ArrSize == _cArrSize ? _str.ArrSize : throw std::logic_error("");
@@ -260,7 +289,7 @@ class HexdecimalCharArray
 };
 
     template<unsigned int N>
-    constexpr typename HexdecimalCharArray<N>::t HexdecimalCharArray<N>::_str;
+    constexpr typename HexdecimalCharArray<N>::_t HexdecimalCharArray<N>::_str;
 
 class CRC32Generator
 {
