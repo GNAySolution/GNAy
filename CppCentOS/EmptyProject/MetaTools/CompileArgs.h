@@ -67,18 +67,20 @@ class CompileArgs
     static constexpr int LogLocationArrayMax = 8;
     #endif
 
-    public:
-    #if THREADS_SEQ_NUM_MAX
-    static constexpr int ThreadsSeqNumMax = THREADS_SEQ_NUM_MAX < 8 ? throw std::invalid_argument("") : THREADS_SEQ_NUM_MAX;
-    #else
-    static constexpr int ThreadsSeqNumMax = 16;
-    #endif
+    // public:
+    // #if THREADS_SEQ_NUM_MAX
+    // static constexpr int ThreadsSeqNumMax = THREADS_SEQ_NUM_MAX < 8 ? throw std::invalid_argument("") : THREADS_SEQ_NUM_MAX;
+    // #else
+    // static constexpr int ThreadsSeqNumMax = 16;
+    // #endif
 
     public:
     #if THREAD_POOL_SIZE_MAX
-    static constexpr int ThreadPoolSizeMax = THREAD_POOL_SIZE_MAX > ThreadsSeqNumMax ? throw std::invalid_argument("") : THREAD_POOL_SIZE_MAX < 1 ? throw std::invalid_argument("") : THREAD_POOL_SIZE_MAX;
+    // static constexpr int ThreadPoolSizeMax = THREAD_POOL_SIZE_MAX > ThreadsSeqNumMax ? throw std::invalid_argument("") : THREAD_POOL_SIZE_MAX < 1 ? throw std::invalid_argument("") : THREAD_POOL_SIZE_MAX;
+    static constexpr int ThreadPoolSizeMax = THREAD_POOL_SIZE_MAX < 1 ? throw std::invalid_argument("") : THREAD_POOL_SIZE_MAX;
     #else
-    static constexpr int ThreadPoolSizeMax = ThreadsSeqNumMax / 4;
+    // static constexpr int ThreadPoolSizeMax = ThreadsSeqNumMax / 4;
+    static constexpr int ThreadPoolSizeMax = 4;
     #endif
 
     public:
@@ -92,7 +94,7 @@ class CompileArgs
     static constexpr int CharMax = std::numeric_limits<char>::max() == 255 ? 255 : throw std::invalid_argument(""); //0 ~ 255 //-funsigned-char
 };
 
-    constexpr int CompileArgs::ThreadsSeqNumMax;
+    // constexpr int CompileArgs::ThreadsSeqNumMax;
 
 class CA: public CompileArgs
 {
