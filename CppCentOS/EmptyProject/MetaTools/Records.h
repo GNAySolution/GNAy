@@ -7,7 +7,7 @@
 
 namespace MetaTools
 {
-    #define UNUSED(x) (void)(x)
+    // #define UNUSED(x) (void)(x)
 
     #ifndef NAME_MAX
     #define NAME_MAX 255
@@ -24,14 +24,11 @@ class LogLevel
     enum Enum
     {
         Trace = 0,
-        Debug = 1,
-        Info = 2,
-        Warn = 3,
-        Error = 4,
+        Debug = Trace + 1 == 1 ? 1 : throw std::invalid_argument(""),
+        Info = Debug + 1 == 2 ? 2 : throw std::invalid_argument(""),
+        Warn = Info + 1 == 3 ? 3 : throw std::invalid_argument(""),
+        Error = Warn + 1 == 4 ? 4 : throw std::invalid_argument(""),
     };
-
-    public:
-    static constexpr int EnumCnt = Error + 1 == 5 ? 5 : throw std::invalid_argument("");
 
     public:
     static constexpr const char (&TraceStr)[sizeof("TRACE")] = "TRACE";
@@ -41,10 +38,23 @@ class LogLevel
     static constexpr const char (&ErrorStr)[sizeof("ERROR")] = "ERROR";
 
     public:
-    static constexpr const char *EnumStr[EnumCnt] = {TraceStr, DebugStr, InfoStr, WarnStr, ErrorStr}; //Error + 1
+    static constexpr Enum All[] = {Trace, Debug, Info, Warn, Error};
+    static constexpr const char *StrCollection[] = {TraceStr, DebugStr, InfoStr, WarnStr, ErrorStr};
+
+    public:
+    static constexpr int EnumFirst = Trace == 0 ? 0 : throw std::invalid_argument("");
+    static constexpr int EnumCnt = sizeof(All) / sizeof(int) == 5 ? 5 : throw std::logic_error("");
+
+    protected:
+    static constexpr bool _unitTestResult1 = sizeof(StrCollection) / sizeof(char *) == EnumCnt ? true : throw std::logic_error("");
+    static constexpr bool _unitTestResult2 = All[EnumFirst] == Trace ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult3 = All[EnumCnt - 1] == Error ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult4 = StrCollection[EnumFirst] == TraceStr ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult5 = StrCollection[EnumCnt - 1] == ErrorStr ? true : throw std::invalid_argument("");
 };
 
-    constexpr const char *LogLevel::EnumStr[];
+    constexpr LogLevel::Enum LogLevel::All[];
+    constexpr const char *LogLevel::StrCollection[];
 
 template<typename T, long long N = std::numeric_limits<T>::max()>
 struct TNumericWidthMax
