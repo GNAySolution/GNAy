@@ -10,6 +10,13 @@ namespace MetaTools
 class Functions
 {
     public:
+    template<typename T>
+    static constexpr bool Unused(const T& src)
+    {
+        return true;
+    }
+
+    public:
     static constexpr long long Absolute(const long long& x)
     {
         return x < 0 ? -x : x;
@@ -36,7 +43,7 @@ class Functions
     public:
     static constexpr int IndexOf(const char *str, const char& value)
     {
-        return *str == 0 ? -1 : *str != value ? 1 + IndexOf(str + 1, value) : 0;
+        return *str == '\0' ? -1 : *str == value ? 0 : 1 + IndexOf(str + 1, value);
     }
 
     protected:
