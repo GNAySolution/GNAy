@@ -8,6 +8,47 @@
 namespace MetaTools
 {
 #if RUN_TEST
+class FileShare
+{
+    public:
+    enum Enum
+    {
+        None = 0, //0
+        Read = None + 1 == 1 ? 1 : throw std::invalid_argument(""), //1
+        Write = Read + 1 == 1 << 1 ? 1 << 1 : throw std::invalid_argument(""), //2
+        ReadWrite = (Read | Write) == 3 ? 3 : throw std::invalid_argument(""), //3
+        Delete = Write + 2 == 1 << 2 ? 1 << 2 : throw std::invalid_argument(""), //4
+        Inheritable = Delete + 12 == 1 << 4 ? 1 << 4 : throw std::invalid_argument(""), //16
+    };
+
+    public:
+    static constexpr const char (&NoneStr)[sizeof("None")] = "None";
+    static constexpr const char (&ReadStr)[sizeof("Read")] = "Read";
+    static constexpr const char (&WriteStr)[sizeof("Write")] = "Write";
+    static constexpr const char (&ReadWriteStr)[sizeof("ReadWrite")] = "ReadWrite";
+    static constexpr const char (&DeleteStr)[sizeof("Delete")] = "Delete";
+    static constexpr const char (&InheritableStr)[sizeof("Inheritable")] = "Inheritable";
+
+    public:
+    static constexpr Enum All[] = {None, Read, Write, ReadWrite, Delete, Inheritable};
+    static constexpr const char *StrCollection[] = {NoneStr, ReadStr, WriteStr, ReadWriteStr, DeleteStr, InheritableStr};
+
+    public:
+    static constexpr int EnumFirst = None == 0 ? 0 : throw std::invalid_argument("");
+    static constexpr int EnumCnt = sizeof(All) / sizeof(int) == 6 ? 6 : throw std::logic_error("");
+
+    protected:
+    static constexpr bool _unitTestResult1 = Write == 2 && Delete == 4 && Inheritable == 16 ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult2 = sizeof(StrCollection) / sizeof(char *) == EnumCnt ? true : throw std::logic_error("");
+    static constexpr bool _unitTestResult3 = All[EnumFirst] == None ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult4 = All[EnumCnt - 1] == Inheritable ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult5 = StrCollection[EnumFirst] == NoneStr ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult6 = StrCollection[EnumCnt - 1] == InheritableStr ? true : throw std::invalid_argument("");
+};
+
+    constexpr FileShare::Enum FileShare::All[];
+    constexpr const char *FileShare::StrCollection[];
+
 class CRC32CompileTimeTest
 {
     protected:
