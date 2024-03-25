@@ -36,32 +36,64 @@ class Functions
     }
 
     public:
-    static const int Print2Hexdecimal(const int& size, void *ptr, const char& separator = ' ', const int& startIndex = 0)
+    template<typename T>
+    static void ConstChange(const T& from, const T& to)
     {
-        int result = -1;
-        const char *data = (char *)ptr;
+        T *_ptr = (T *)&from;
+        *_ptr = to;
+    }
 
-        if (size > 0 && startIndex >= 0 && startIndex < size)
+    public:
+    static void ConstChange(const char *from, const char *to, const size_t toLen)
+    {
+        for (size_t i = 0; i < toLen; ++i)
+        {
+            ConstChange(from[i], to[i]);
+        }
+
+        ConstChange(from[toLen], '\0');
+    }
+
+    public:
+    static const int Hexdecimal2Buffer(char *buf, void *srcPtr, const int& srcSize, const char& separator = ' ', const bool& upperOrLower = true, const int& startIndex = 0)
+    {
+        int _len = 0, length = 0;
+        const char *data = (char *)srcPtr;
+
+        const char *fmt1 = upperOrLower ? "%02hhX" : "%02hhx";
+        const char *fmt2 = upperOrLower ? "%02hhX%c" : "%02hhx%c";
+
+        if (srcSize > 0 && startIndex >= 0 && startIndex < srcSize)
         {
             if (separator == (int)NULL)
             {
-                for (int i = startIndex; i < size; ++i)
+                for (int i = startIndex; i < srcSize; ++i)
                 {
-                    result = printf("%02hhX", data[i]);
+                    _len = sprintf(buf, fmt1, data[i]);
+                    length += _len;
+                    buf += _len;
                 }
             }
             else
             {
-                for (int i = startIndex; i < size - 1; ++i)
+                for (int i = startIndex; i < srcSize - 1; ++i)
                 {
-                    printf("%02hhX%c", data[i], separator);
+                    _len = sprintf(buf, fmt2, data[i], separator);
+                    length += _len;
+                    buf += _len;
                 }
 
-                result = printf("%02hhX", data[size - 1]);
+                _len = sprintf(buf, fmt1, data[srcSize - 1]);
+                length += _len;
+                buf += _len;
             }
         }
+        else
+        {
+            return -1;
+        }
 
-        return result;
+        return length;
     }
 
     public:
@@ -142,7 +174,7 @@ class Functions
     public:
     static const int SetMathCMDPack(char *rawCMDBuf, char *mathBuf, const int& mathBufSize)
     {
-        #if (_WIN64)
+        #if _WIN64
         return snprintf(mathBuf, mathBufSize, "set /a %s", rawCMDBuf);
         #else
         return snprintf(mathBuf, mathBufSize, "awk 'BEGIN { print (%s) }'", rawCMDBuf);
@@ -167,14 +199,14 @@ class Functions
         int result = -1;
 
         do {
-            if (result == 0 && buffer[0] == 0)
+            if (result == 0 && buffer[0] == '\0')
             {
                 CleanStdin();
             }
 
             result = scanf(format, buffer);
 
-        } while (result == 0 && buffer[0] == 0);
+        } while (result == 0 && buffer[0] == '\0');
 
         if (result <= 0)
         {
@@ -266,7 +298,7 @@ class Functions
         if (idx < 0)
         {
             strLen = 0;
-            str[0] = 0;
+            str[0] = '\0';
 
             return true;
         }
@@ -278,7 +310,7 @@ class Functions
         strLen -= idx;
 
         memcpy(&str[0], &str[idx], strLen);
-        str[strLen] = 0;
+        str[strLen] = '\0';
 
         return true;
     }
@@ -301,14 +333,14 @@ class Functions
                 }
 
                 strLen = i + 1;
-                str[strLen] = 0;
+                str[strLen] = '\0';
 
                 return true;
             }
         }
 
         strLen = 0;
-        str[0] = 0;
+        str[0] = '\0';
 
         return true;
     }
@@ -418,7 +450,7 @@ class Functions
         }
 
         memmove(buffer, filePath, cnt);
-        buffer[cnt] = 0;
+        buffer[cnt] = '\0';
 
         return cnt;
     }
