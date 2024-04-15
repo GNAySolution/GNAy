@@ -14,6 +14,9 @@
 
 #if _WIN64
 #include <winsock2.h>
+#else
+// #include <sys/select.h>
+#include <sys/socket.h>
 #endif
 
 #include <fstream>
@@ -89,16 +92,25 @@ class CompileArgs
     static constexpr const char (&BaseFile)[sizeof(__BASE_FILE__)] = __BASE_FILE__;
 
     public:
+    #if _AIX
+    static constexpr const char (&OperatingSystem)[sizeof("AIX")] = "AIX";
+    #elif __linux
+    static constexpr const char (&OperatingSystem)[sizeof("Linux")] = "Linux";
+    #elif _WIN64
+    static constexpr const char (&OperatingSystem)[sizeof("Windows")] = "Windows";
+    #endif
     static constexpr bool Is64Bit = sizeof(void *) == 8 ? true : throw std::invalid_argument("");
     static constexpr int CharMin = std::numeric_limits<char>::min() == 0 ? 0 : throw std::invalid_argument(""); //-128 ~ 127 //-fsigned-char
     static constexpr int CharMax = std::numeric_limits<char>::max() == 255 ? 255 : throw std::invalid_argument(""); //0 ~ 255 //-funsigned-char
 };
 
+    constexpr bool CompileArgs::RunTest;
+    constexpr int CompileArgs::LogBufSize;
+    constexpr int CompileArgs::LogQueueCntMax;
     // constexpr int CompileArgs::ThreadsSeqNumMax;
-
-class CA: public CompileArgs
-{
-};
+    constexpr int CompileArgs::ThreadPoolSizeMax;
+    constexpr int CompileArgs::CharMin;
+    constexpr int CompileArgs::CharMax;
 }
 
 #pragma pack()
