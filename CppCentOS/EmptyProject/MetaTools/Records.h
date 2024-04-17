@@ -61,8 +61,8 @@ struct TNumericWidthMax
 {
     enum
     {
-        StrLength = TNumericWidthMax<T, N / 10>::StrLength + (N / 10 == 0 && std::numeric_limits<T>::min() >= 0 ? 0 : 1),
-        CArrSize = TNumericWidthMax<T, N / 10>::CArrSize + (N / 10 == 0 && std::numeric_limits<T>::min() >= 0 ? 0 : 1),
+        StrLength = TNumericWidthMax<T, N / 10>::StrLength + ((N / 10 == 0 && std::numeric_limits<T>::min() >= 0) ? 0 : 1),
+        CArrSize = TNumericWidthMax<T, N / 10>::CArrSize + ((N / 10 == 0 && std::numeric_limits<T>::min() >= 0) ? 0 : 1),
     };
 };
 
@@ -138,70 +138,30 @@ class NumericWidthMax
     static constexpr bool _chkUnitTest = _unitTestResult ? true : throw std::logic_error("");
 };
 
-template<typename T>
-struct TNumericStrRecord
-{
-    T Value;
-    char ValueStr[TNumericWidthMax<T>::CArrSize] = {0};
-    int ValueStrLen = -1;
-
-    TNumericStrRecord() {}
-
-    TNumericStrRecord(const T& value, const char *format = "%lld")
-    {
-        Value = value;
-        ValueStrLen = snprintf(ValueStr, sizeof(ValueStr), format, value);
-    }
-};
-
-struct BoolStrRecord: TNumericStrRecord<bool>
-{
-    BoolStrRecord() {}
-    BoolStrRecord(const bool& value, const char *format = "%d"): TNumericStrRecord<bool>(value, format) {}
-};
-
-struct ByteStrRecord: TNumericStrRecord<unsigned char>
-{
-    ByteStrRecord() {}
-    ByteStrRecord(const unsigned char& value, const char *format = "%c"): TNumericStrRecord<unsigned char>(value, format) {}
-};
-
-struct ShortStrRecord: TNumericStrRecord<short>
-{
-    ShortStrRecord() {}
-    ShortStrRecord(const short& value, const char *format = "%h"): TNumericStrRecord<short>(value, format) {}
-};
-
-struct IntStrRecord: TNumericStrRecord<int>
-{
-    IntStrRecord() {}
-    IntStrRecord(const int& value, const char *format = "%d"): TNumericStrRecord<int>(value, format) {}
-};
-
-struct LongStrRecord: TNumericStrRecord<long long>
-{
-    LongStrRecord() {}
-    LongStrRecord(const long long& value, const char *format = "%lld"): TNumericStrRecord<long long>(value, format) {}
-};
-
 template<typename T, unsigned int N>
 struct TArray
 {
-    static constexpr int ArrSize = N;
+    static constexpr unsigned int DTSize = sizeof(T);
+    static constexpr unsigned int DASize = N;
+    static constexpr unsigned int DMSize = sizeof(T) * N;
 
     T Data[N] = {0};
+};
 
+    template<typename T, unsigned int N>
+    constexpr unsigned int TArray<T, N>::DASize;
+
+template<typename T, unsigned int N>
+struct TArrModel: TArray<T, N>
+{
     virtual T *Reset(const int& value = 0)
     {
-        return (T *)memset(Data, value, N);
+        return (T *)memset(this->Data, value, N);
     }
 };
 
-template<typename T, unsigned int N>
-constexpr int TArray<T, N>::ArrSize;
-
 template<unsigned int N>
-struct CharArray: TArray<char, N>
+struct CharArray: TArrModel<char, N>
 {
     int Length = -1;
 
@@ -225,6 +185,54 @@ struct HostNameArr: CharArray<128>
 {
 };
 
+template<typename T>
+struct TNumericStrRecord
+{
+    T Value;
+    struct CharArray<TNumericWidthMax<T>::CArrSize> ValueStr;
+
+    TNumericStrRecord() = default;
+    TNumericStrRecord(const T& value, const char *format = "%lld")
+    {
+        Value = value;
+        ValueStr.Length = snprintf(ValueStr.Data, ValueStr.DASize, format, value);
+    }
+};
+
+struct BoolStrRecord: TNumericStrRecord<bool>
+{
+    BoolStrRecord() = default;
+    BoolStrRecord(const bool& value, const char *format = "%d"): TNumericStrRecord<bool>(value, format) {}
+};
+
+struct ByteStrRecord: TNumericStrRecord<unsigned char>
+{
+    ByteStrRecord() = default;
+    ByteStrRecord(const unsigned char& value, const char *format = "%c"): TNumericStrRecord<unsigned char>(value, format) {}
+};
+
+struct ShortStrRecord: TNumericStrRecord<short>
+{
+    ShortStrRecord() = default;
+    ShortStrRecord(const short& value, const char *format = "%h"): TNumericStrRecord<short>(value, format) {}
+};
+
+struct IntStrRecord: TNumericStrRecord<int>
+{
+    IntStrRecord() = default;
+    IntStrRecord(const int& value, const char *format = "%d"): TNumericStrRecord<int>(value, format) {}
+};
+
+struct LongStrRecord: TNumericStrRecord<long long>
+{
+    LongStrRecord() = default;
+    LongStrRecord(const long long& value, const char *format = "%lld"): TNumericStrRecord<long long>(value, format) {}
+};
+
+struct LogTimeBuffer: CharArray<sizeof("HH:mm:ss.ffffff")> //"%H:%M:%S."
+{
+};
+
 struct LogRecord
 {
     struct timeval CreatedTime;
@@ -233,17 +241,23 @@ struct LogRecord
     struct IntStrRecord ThreadSeq;
     unsigned int LogSeq = 0;
 
-    int MsgLength = -1;
-    static constexpr int MsgArrSize = CA::LogBufSize - sizeof("HH:mm:ss.ffffff") * 2 - sizeof(LogLevel::Enum) - sizeof(struct LongStrRecord) - sizeof(struct IntStrRecord) - sizeof(unsigned int) - sizeof(int);
-    char Msg[MsgArrSize] = {0};
+    // fprintf(_fptr[i], "%06d|%s|+%06ld|%5s|%02d|ML=%d|%s\n", record->LogSeq, TimeExt::GetHHmmssffffff(record->CreatedTime), elu, LogLevel::StrCollection[record->Level], record->ThreadSeq.Value, record->MsgLength, record->Msg);
+    static constexpr int MsgArrSize = CompileArgs::LogBufSize - LogTimeBuffer::DASize * 2 - sizeof(LogLevel::Enum) - sizeof(struct LongStrRecord) - sizeof(struct IntStrRecord) - sizeof(unsigned int) - sizeof(int);
+    struct CharArray<MsgArrSize> Msg;
 };
 
 template<typename T, T... Args>
 struct ConstTArray
 {
-    const int ArrSize = (sizeof... (Args));
+    static constexpr unsigned int DTSize = sizeof(T);
+    static constexpr unsigned int DASize = (sizeof... (Args));
+    static constexpr unsigned int DMSize = sizeof(T) * (sizeof... (Args));
+
     const T Data[sizeof... (Args)] = {Args...};
 };
+
+    template<typename T, T... Args>
+    constexpr unsigned int ConstTArray<T, Args...>::DASize;
 
 template<char... Args>
 struct ConstCharArray: ConstTArray<char, Args...>
