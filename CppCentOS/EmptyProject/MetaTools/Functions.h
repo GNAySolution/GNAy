@@ -17,6 +17,27 @@ class Functions
     }
 
     public:
+    template<typename T, unsigned int N>
+    static constexpr unsigned int GetTypeSize(const T (&arr)[N])
+    {
+        return sizeof(T);
+    }
+
+    public:
+    template<typename T, unsigned int N>
+    static constexpr unsigned int GetArrSize(const T (&arr)[N])
+    {
+        return N;
+    }
+
+    public:
+    template<typename T, unsigned int N>
+    static constexpr unsigned int GetMemorySize(const T (&arr)[N])
+    {
+        return sizeof(T) * N;
+    }
+
+    public:
     static constexpr long long Absolute(const long long& x)
     {
         return x < 0 ? -x : x;
@@ -96,12 +117,8 @@ class Functions
     }
 };
 
-class MetaFunc: public Functions
-{
-};
-
     #ifndef __FILE_NAME__
-    #define __FILE_NAME__ MetaFunc::GetFileName(__FILE__)
+    #define __FILE_NAME__ MetaTools::Functions::GetFileName(__FILE__)
     #endif
 
 // template<typename FileInfo>
@@ -114,7 +131,7 @@ class MetaFunc: public Functions
 //     static constexpr const char (&FPath)[sizeof(FileInfo::FPath)] = FileInfo::FPath;
 
 //     public:
-//     static constexpr int LastIndexOfPathSeparator = MetaFunc::LastIndexOfPathSeparator(FPath);
+//     static constexpr int LastIndexOfPathSeparator = Functions::LastIndexOfPathSeparator(FPath);
 
 //     protected:
 //     template<unsigned int Idx, char... Args>
@@ -183,14 +200,14 @@ class ASCIINumeric
     template<int Width, long long X, char... Args>
     struct ASCIINumericBuilder
     {
-        typedef typename ASCIINumericBuilder<Width - 1, X / 10, MetaFunc::Absolute(X) % 10 + '0', Args...>::Type Type;
+        typedef typename ASCIINumericBuilder<Width - 1, X / 10, Functions::Absolute(X) % 10 + '0', Args...>::Type Type;
     };
 
     protected:
     template<long long X, char... Args>
     struct ASCIINumericBuilder<2, X, Args...>
     {
-        typedef ConstCharArray<X < 0 ? '-' : X / 10 + '0', MetaFunc::Absolute(X) % 10 + '0', Args...> Type;
+        typedef ConstCharArray<X < 0 ? '-' : X / 10 + '0', Functions::Absolute(X) % 10 + '0', Args...> Type;
     };
 
     protected:
@@ -243,9 +260,9 @@ class StdinFormatGenerator
     static constexpr _t _str {};
 
     public:
-    static constexpr int FmtArrSize = _str.ArrSize > 2 ? _str.ArrSize : throw std::logic_error("");
-    static constexpr int FmtStrLength = (_str.Length > 0 && _str.Length + 1 == _str.ArrSize) ? _str.Length : throw std::logic_error("");
-    static constexpr const char (&Format)[_str.ArrSize] = _str.Data;
+    static constexpr int FmtArrSize = _str.DASize > 2 ? _str.DASize : throw std::logic_error("");
+    static constexpr int FmtStrLength = (_str.Length > 0 && _str.Length + 1 == _str.DASize) ? _str.Length : throw std::logic_error("");
+    static constexpr const char (&Format)[_str.DASize] = _str.Data;
 };
 
     template<size_t ArrSize>
@@ -258,6 +275,12 @@ struct CharArrWithStdinFmt: CharArray<ArrSize>
     static constexpr int FmtStrLength = StdinFormatGenerator<ArrSize>::FmtStrLength;
     static constexpr const char (&Format)[StdinFormatGenerator<ArrSize>::FmtArrSize] = StdinFormatGenerator<ArrSize>::Format;
 };
+
+    template<unsigned int ArrSize>
+    constexpr int CharArrWithStdinFmt<ArrSize>::FmtArrSize;
+
+    template<unsigned int ArrSize>
+    constexpr int CharArrWithStdinFmt<ArrSize>::FmtStrLength;
 
 template<unsigned int N>
 class HexdecimalCharArray
@@ -290,9 +313,9 @@ class HexdecimalCharArray
     static constexpr _t _str {};
 
     public:
-    static constexpr int DataArrSize = _str.ArrSize == _cArrSize ? _str.ArrSize : throw std::logic_error("");
-    static constexpr int DataStrLength = (_str.Length > 0 && _str.Length + 1 == _str.ArrSize) ? _str.Length : throw std::logic_error("");
-    static constexpr const char (&Data)[_str.ArrSize] = _str.Data;
+    static constexpr int DataArrSize = _str.DASize == _cArrSize ? _str.DASize : throw std::logic_error("");
+    static constexpr int DataStrLength = (_str.Length > 0 && _str.Length + 1 == _str.DASize) ? _str.Length : throw std::logic_error("");
+    static constexpr const char (&Data)[_str.DASize] = _str.Data;
 };
 
     template<unsigned int N>
