@@ -11,7 +11,7 @@ namespace MetaTools
 class FileShare
 {
     public:
-    enum Enum
+    enum Enum: unsigned char
     {
         None = 0, //0
         Read = None + 1 == 1 ? 1 : throw std::invalid_argument(""), //1
@@ -35,7 +35,7 @@ class FileShare
 
     public:
     static constexpr int EnumFirst = None == 0 ? 0 : throw std::invalid_argument("");
-    static constexpr int EnumCnt = sizeof(All) / sizeof(int) == 6 ? 6 : throw std::logic_error("");
+    static constexpr int EnumCnt = sizeof(All) / sizeof(Enum) == 6 ? 6 : throw std::logic_error("");
 
     protected:
     static constexpr bool _unitTestResult1 = Write == 2 && Delete == 4 && Inheritable == 16 ? true : throw std::invalid_argument("");
@@ -48,6 +48,53 @@ class FileShare
 
     constexpr FileShare::Enum FileShare::All[];
     constexpr const char *FileShare::StrCollection[];
+
+class SizeofTArray
+{
+    protected:
+    template<unsigned int N>
+    struct EmptyRec
+    {
+        static constexpr int Value[N] = {0};
+
+        const int GetValue() const { return Value[0]; }
+    };
+
+    struct EmptyRec5: EmptyRec<5>
+    {
+        virtual const int GetValue2() const { return Value[0]; }
+    };
+
+    protected:
+    static struct EmptyRec<10> _e10;
+    static int _intArrA5[5];
+    static struct TArray<long long, 3> _llArrB3;
+    static struct FNameArr _fNameRec;
+    static struct ConstTArray<int, 1, 2, 3, 4, 5> _intArrD5;
+
+    protected:
+    static constexpr int _memorySizeEmpty10 = (sizeof(EmptyRec<10>) == 1 && sizeof(_e10) == 1) ? 1 : throw std::logic_error("");
+    static constexpr int _memorySizeEmpty5 = sizeof(EmptyRec5) == 8 ? 8 : throw std::logic_error("");
+
+    protected:
+    static constexpr int _typeSizeArrA5 = Functions::GetTypeSize(_intArrA5) == sizeof(int) ? Functions::GetTypeSize(_intArrA5) : throw std::logic_error("");
+    static constexpr int _arrSizeArrA5 = Functions::GetArrSize(_intArrA5) == sizeof(_intArrA5) / sizeof(int) ? Functions::GetArrSize(_intArrA5) : throw std::logic_error("");
+    static constexpr int _memorySizeArrA5 = Functions::GetMemorySize(_intArrA5) == sizeof(_intArrA5) ? Functions::GetMemorySize(_intArrA5) : throw std::logic_error("");
+
+    protected:
+    static constexpr int _typeSizeArrB3 = (_llArrB3.DTSize == sizeof(long long) && Functions::GetTypeSize(_llArrB3.Data) == sizeof(long long)) ? _llArrB3.DTSize : throw std::logic_error("");
+    static constexpr int _arrSizeArrB3 = (_llArrB3.DASize == sizeof(_llArrB3) / sizeof(long long) && Functions::GetArrSize(_llArrB3.Data) == sizeof(_llArrB3) / sizeof(long long)) ? _llArrB3.DASize : throw std::logic_error("");
+    static constexpr int _memorySizeArrB3 = (_llArrB3.DMSize == sizeof(_llArrB3) && sizeof(_llArrB3.Data) == sizeof(_llArrB3) && Functions::GetMemorySize(_llArrB3.Data) == sizeof(_llArrB3)) ? _llArrB3.DMSize : throw std::logic_error("");
+
+    protected:
+    static constexpr int _arrSizeFName = _fNameRec.DASize == _fNameRec.DMSize / _fNameRec.DTSize ? _fNameRec.DASize : throw std::logic_error("");
+    static constexpr int _memorySizeFName = _fNameRec.DMSize + 8 + 4 == sizeof(_fNameRec) ? _fNameRec.DMSize + 8 + 4 : throw std::logic_error("");
+
+    protected:
+    static constexpr int _typeSizeArrD5 = (_intArrD5.DTSize == sizeof(int) && Functions::GetTypeSize(_intArrD5.Data) == sizeof(int)) ? _intArrD5.DTSize : throw std::logic_error("");
+    static constexpr int _arrSizeArrD5 = (_intArrD5.DASize == sizeof(_intArrD5) / sizeof(int) && Functions::GetArrSize(_intArrD5.Data) == sizeof(_intArrD5) / sizeof(int)) ? _intArrD5.DASize : throw std::logic_error("");
+    static constexpr int _memorySizeArrD5 = (_intArrD5.DMSize == sizeof(_intArrD5) && sizeof(_intArrD5.Data) == sizeof(_intArrD5) && Functions::GetMemorySize(_intArrD5.Data) == sizeof(_intArrD5)) ? _intArrD5.DMSize : throw std::logic_error("");
+};
 
 class CRC32CompileTimeTest
 {
@@ -77,61 +124,52 @@ class CRC32CompileTimeTest
     protected:
     static constexpr bool _chkCArrEmpty = CRC32CARR(_cArrEmpty)::DataArrSize == _cArrSize &&
                                             CRC32CARR(_cArrEmpty)::DataStrLength == _strLen &&
-                                            MetaFunc::StrEqual(CRC32CARR(_cArrEmpty)::Data, "0x00000000");
+                                            Functions::StrEqual(CRC32CARR(_cArrEmpty)::Data, "0x00000000");
 
     protected:
     static constexpr bool _chkCArrSpace = CRC32CARR(_cArrSpace)::DataArrSize == _cArrSize &&
                                             CRC32CARR(_cArrSpace)::DataStrLength == _strLen &&
-                                            MetaFunc::StrEqual(CRC32CARR(_cArrSpace)::Data, "0xE96CCF45");
+                                            Functions::StrEqual(CRC32CARR(_cArrSpace)::Data, "0xE96CCF45");
 
     protected:
     static constexpr bool _chkCArr0 = CRC32CARR(_cArr0)::DataArrSize == _cArrSize &&
                                         CRC32CARR(_cArr0)::DataStrLength == _strLen &&
-                                        MetaFunc::StrEqual(CRC32CARR(_cArr0)::Data, "0xF4DBDF21");
+                                        Functions::StrEqual(CRC32CARR(_cArr0)::Data, "0xF4DBDF21");
 
     protected:
     static constexpr bool _chkCArr1 = CRC32CARR(_cArr1)::DataArrSize == _cArrSize &&
                                         CRC32CARR(_cArr1)::DataStrLength == _strLen &&
-                                        MetaFunc::StrEqual(CRC32CARR(_cArr1)::Data, "0x83DCEFB7");
+                                        Functions::StrEqual(CRC32CARR(_cArr1)::Data, "0x83DCEFB7");
 
     protected:
     static constexpr bool _chkCArr2 = CRC32CARR(_cArr2)::DataArrSize == _cArrSize &&
                                         CRC32CARR(_cArr2)::DataStrLength == _strLen &&
-                                        MetaFunc::StrEqual(CRC32CARR(_cArr2)::Data, "0x1AD5BE0D");
+                                        Functions::StrEqual(CRC32CARR(_cArr2)::Data, "0x1AD5BE0D");
 
     protected:
     static constexpr bool _chkCArr9 = CRC32CARR(_cArr9)::DataArrSize == _cArrSize &&
                                         CRC32CARR(_cArr9)::DataStrLength == _strLen &&
-                                        MetaFunc::StrEqual(CRC32CARR(_cArr9)::Data, "0x8D076785");
+                                        Functions::StrEqual(CRC32CARR(_cArr9)::Data, "0x8D076785");
 
     protected:
     static constexpr bool _chkCArr10 = CRC32CARR(_cArr10)::DataArrSize == _cArrSize &&
                                         CRC32CARR(_cArr10)::DataStrLength == _strLen &&
-                                        MetaFunc::StrEqual(CRC32CARR(_cArr10)::Data, "0xA15D25E1");
+                                        Functions::StrEqual(CRC32CARR(_cArr10)::Data, "0xA15D25E1");
 
     protected:
     static constexpr bool _chkCArr123456789 = CRC32CARR(_cArr123456789)::DataArrSize == _cArrSize &&
                                                 CRC32CARR(_cArr123456789)::DataStrLength == _strLen &&
-                                                MetaFunc::StrEqual(CRC32CARR(_cArr123456789)::Data, "0xCBF43926");
+                                                Functions::StrEqual(CRC32CARR(_cArr123456789)::Data, "0xCBF43926");
 
     protected:
     static constexpr bool _chkCArrCrcVal01 = CRC32CARR(_cArrCrcVal01)::DataArrSize == _cArrSize &&
                                                 CRC32CARR(_cArrCrcVal01)::DataStrLength == _strLen &&
-                                                MetaFunc::StrEqual(CRC32CARR(_cArrCrcVal01)::Data, "0xCC3B0811");
+                                                Functions::StrEqual(CRC32CARR(_cArrCrcVal01)::Data, "0xCC3B0811");
 
     protected:
     static constexpr bool _chkCArrCrcVal02 = CRC32CARR(_cArrCrcVal02)::DataArrSize == _cArrSize &&
                                                 CRC32CARR(_cArrCrcVal02)::DataStrLength == _strLen &&
-                                                MetaFunc::StrEqual(CRC32CARR(_cArrCrcVal02)::Data, "0x553259AB");
-
-    // protected:
-    // static constexpr bool _chkCArrFile = CRC32CARR(_cArrFile)::DataArrSize == _cArrSize &&
-    //                                         CRC32CARR(_cArrFile)::DataStrLength == _strLen &&
-    //                                         MetaFunc::StrEqual(CRC32CARR(_cArrFile)::Data, "0x20C04CA9");
-    //C:\MegaSolutions\Cpp11UnitTest01\MetaTools\UnitTest.h
-    //0x4700785B
-    //C:\MegaSolutions\Cpp11UnitTest01\MetaTools/UnitTest.h
-    //0x20C04CA9
+                                                Functions::StrEqual(CRC32CARR(_cArrCrcVal02)::Data, "0x553259AB");
 
     protected:
     static constexpr bool _unitTestResult = _chkCArrEmpty &&
