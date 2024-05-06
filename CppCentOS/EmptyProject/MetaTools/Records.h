@@ -18,6 +18,22 @@ namespace MetaTools
 
     #define _LINE_STR_ XSTR(__LINE__)
 
+template<typename T, T... Args>
+struct ConstArray
+{
+    static constexpr unsigned int TypeSize = sizeof(T);
+    static constexpr unsigned int Count = (sizeof... (Args));
+    // static constexpr unsigned int MemSize = sizeof(T) * (sizeof... (Args));
+
+    static constexpr T Data[Count] = {Args...};
+
+    // static constexpr T Begin = Data[0];
+    // static constexpr T End = Data[Count - 1];
+};
+
+    template<typename T, T... Args>
+    constexpr T ConstArray<T, Args...>::Data[];
+
 class LogLevel
 {
     public:
@@ -38,23 +54,18 @@ class LogLevel
     static constexpr const char (&ErrorStr)[sizeof("ERROR")] = "ERROR";
 
     public:
-    static constexpr Enum All[] = {Trace, Debug, Info, Warn, Error};
-    static constexpr const char *StrCollection[] = {TraceStr, DebugStr, InfoStr, WarnStr, ErrorStr};
-
-    public:
-    static constexpr int EnumFirst = Trace == 0 ? 0 : throw std::invalid_argument("");
-    static constexpr int EnumCnt = sizeof(All) / sizeof(int) == 5 ? 5 : throw std::logic_error("");
+    static constexpr ConstArray<Enum, Trace, Debug, Info, Warn, Error> AllEnum {};
+    static constexpr const char *AllEnumStr[] = {TraceStr, DebugStr, InfoStr, WarnStr, ErrorStr};
 
     protected:
-    static constexpr bool _unitTestResult1 = sizeof(StrCollection) / sizeof(char *) == EnumCnt ? true : throw std::logic_error("");
-    static constexpr bool _unitTestResult2 = All[EnumFirst] == Trace ? true : throw std::invalid_argument("");
-    static constexpr bool _unitTestResult3 = All[EnumCnt - 1] == Error ? true : throw std::invalid_argument("");
-    static constexpr bool _unitTestResult4 = StrCollection[EnumFirst] == TraceStr ? true : throw std::invalid_argument("");
-    static constexpr bool _unitTestResult5 = StrCollection[EnumCnt - 1] == ErrorStr ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult1 = sizeof(AllEnumStr) / sizeof(char *) == AllEnum.Count ? true : throw std::logic_error(""); //sizeof(AllEnumStr) == 40
+    static constexpr bool _unitTestResult2 = AllEnum.Data[0] == Trace ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult3 = AllEnum.Data[AllEnum.Count - 1] == Error ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult4 = AllEnumStr[0] == TraceStr ? true : throw std::invalid_argument("");
+    static constexpr bool _unitTestResult5 = AllEnumStr[AllEnum.Count - 1] == ErrorStr ? true : throw std::invalid_argument("");
 };
 
-    constexpr LogLevel::Enum LogLevel::All[];
-    constexpr const char *LogLevel::StrCollection[];
+    constexpr const char *LogLevel::AllEnumStr[];
 
 template<typename T, long long N = std::numeric_limits<T>::max()>
 struct TNumericWidthMax
