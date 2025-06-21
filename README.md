@@ -1,6 +1,7 @@
 # GNAy
 * Yang的專案開發紀錄
 * 儲存庫裡的程式碼都是自己寫或參考網路上的，參考都有在註解內附上連結，表示感謝
+* 大約從2025/06/16當週開始不能登入！不確定是否群益API有異常？待查
 
 ## GNAy.Capital.Trade.csproj
 ![image](https://github.com/GNAySolution/GNAy/blob/main/GNAy.Capital.Trade/GNAy.Capital.Trade/docs/GNAy.Capital.Trade.22061715.jpg)
